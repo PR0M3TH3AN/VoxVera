@@ -2,7 +2,7 @@
 
 set -e
 
-CONFIG="src/config.json"
+CONFIG="config.json"
 
 # Ensure dependencies
 command -v jq >/dev/null 2>&1 || { echo "jq is required" >&2; exit 1; }
@@ -21,9 +21,9 @@ tmp_tear=$(mktemp)
 qrencode -o "$tmp_content" -s 10 -m 0 "$url"
 qrencode -o "$tmp_tear" -s 10 -m 0 "$tear"
 
-convert "$tmp_content" -resize 128x128 "src/qrcode-content.png"
-convert "$tmp_tear" -resize 128x128 "src/qrcode-tear-offs.png"
+convert "$tmp_content" -resize 128x128 "qrcode-content.png"
+convert "$tmp_tear" -resize 128x128 "qrcode-tear-offs.png"
 
 rm -f "$tmp_content" "$tmp_tear"
 
-echo "QR codes generated in src/"
+echo "QR codes generated"
