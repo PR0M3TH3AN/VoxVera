@@ -1,6 +1,17 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
+
+require_cmd() {
+  command -v "$1" >/dev/null 2>&1 || {
+    echo "Error: required command '$1' not found" >&2
+    exit 1
+  }
+}
+
+for cmd in jq node javascript-obfuscator html-minifier-terser; do
+  require_cmd "$cmd"
+done
 
 CONFIG_PATH="src/config.json"
 FROM_PDF=""
@@ -31,9 +42,6 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
-
-# Ensure jq is installed
-command -v jq >/dev/null 2>&1 || { echo "jq is required" >&2; exit 1; }
 
 # Helper function to update config
 update_config_interactive() {
