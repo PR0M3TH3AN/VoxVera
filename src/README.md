@@ -6,6 +6,7 @@ This repository contains a simple Bash script to obfuscate and minify a single H
 
 - **Debian/Ubuntu**: This script is designed to work on Debian-based systems.
 - **Node.js**: Terser and html-minifier-terser require Node.js to be installed.
+- **qrencode**: Generates the QR codes used in the flyers.
 
 ### Install Node.js and npm on Debian
 
@@ -128,3 +129,5 @@ The `create_flyer.sh` script automates filling `config.json`, building the HTML 
 ```
 
 By default the script updates `src/config.json`. After answering the prompts (or extracting from the PDF), `index.html` and `nostr.html` are generated and copied along with the QR code images and PDFs. The files end up in `host/<subdomain>` which can be served statically.
+
+QR codes are built automatically during this process. After the configuration is updated, `create_flyer.sh` calls `generate_qr.sh` to read the URLs from `config.json` and produce `qrcode-content.png` and `qrcode-tear-offs.png`.
