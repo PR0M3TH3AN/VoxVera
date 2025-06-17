@@ -10,6 +10,25 @@ VoxVera provides scripts and templates for producing printable flyers with QR co
 - **javascript-obfuscator** and **html-minifier-terser** (installed via npm)
 - **pdftotext** (optional, used when extracting fields from a PDF form)
 
+## Installing Dependencies
+
+On Debian or Ubuntu systems you can install the required packages with:
+
+```bash
+sudo apt update
+sudo apt install -y jq qrencode imagemagick poppler-utils nodejs npm
+```
+
+The obfuscation scripts also rely on a pair of Node modules. Install them
+globally:
+
+```bash
+npm install -g javascript-obfuscator html-minifier-terser
+```
+
+A helper script `setup.sh` is provided to check for these dependencies and
+install anything that is missing.
+
 ## Generating a Flyer
 Run the helper script from the repository root:
 

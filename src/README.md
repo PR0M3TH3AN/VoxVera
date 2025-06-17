@@ -26,17 +26,24 @@ This repository contains a simple Bash script to obfuscate and minify a single H
    npm -v
    ```
 
+### Install Additional Packages
+
+The helper scripts rely on a few system utilities:
+
+```bash
+sudo apt install -y jq qrencode imagemagick poppler-utils
+```
+
 ### Install Required Tools
 
-1. **Install Terser:**
-   ```bash
-   npm install -g terser
-   ```
+Install the Node-based tools used by the obfuscation scripts:
 
-2. **Install html-minifier-terser:**
-   ```bash
-   npm install -g html-minifier-terser
-   ```
+```bash
+npm install -g javascript-obfuscator html-minifier-terser
+```
+
+You can also run `../setup.sh` from the repository root to install all
+prerequisites automatically.
 
 ## Script Usage
 
