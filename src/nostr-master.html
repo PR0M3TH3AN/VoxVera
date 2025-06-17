@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect with Me on KeyChat</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: white;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border: 1px solid #000000;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            font-size: 16px;
+            color: #666;
+        }
+        .code-box {
+            background-color: white;
+            border: 1px solid #000000;
+            padding: 10px;
+            margin: 20px 0;
+            font-size: 18px;
+            color: #333;
+            word-wrap: break-word;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            cursor: pointer;
+            user-select: none;
+        }
+        .copy-btn {
+            background-color: #000000;
+            color: white;
+            padding: 10px 20px;
+            border: 1px solid #000000;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        .copy-btn:hover {
+            background-color: #3d3d3d;
+        }
+        footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #999;
+        }
+        a {
+            color: #a30000;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Nostr</h1>
+        <p>Use a secure file shareing tool like <a href="https://onionshare.org/" target="_blank">Onion Share</a> or <a href="https://wormhole.app/" target="_blank">WormHole</a> to send your completed <a href="submission_form.pdf" target="_blank">submission form PDF</a> to the following <a href="https://www.0xchat.com/#/" target="_blank">Nostr</a>  npub account:</p>
+        <p></p><a href="index.html">Back to Home</a></p>
+        <div class="code-box" id="keyChatCode">npub1ln8efl52vsyh6lg59c9v3kut56wev489lzcma0sv2mf8nm6jhwjqeteygt</div>
+        <button class="copy-btn" onclick="copyCode()">Copy Code</button>
+    </div>
+    <footer>
+        <p>Not on Nostr yet? <a href="https://nostr.how/en/what-is-nostr" target="_blank">Learn more here</a>.</p>
+    </footer>
+
+    <script>
+        function copyCode() {
+            var copyText = document.getElementById("keyChatCode").innerText;
+            navigator.clipboard.writeText(copyText).then(function() {
+                alert("Code copied to clipboard!");
+            }, function(err) {
+                alert("Failed to copy code: ", err);
+            });
+        }
+    </script>
+</body>
+</html>

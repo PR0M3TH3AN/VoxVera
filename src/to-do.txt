@@ -1,0 +1,2 @@
+1. Make content field smaller max number.
+2. URL for content not getting pulled into the config.json correctly every time.

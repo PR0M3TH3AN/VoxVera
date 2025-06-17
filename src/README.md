@@ -1,0 +1,115 @@
+# HTML/CSS/JS Obfuscation Script
+
+This repository contains a simple Bash script to obfuscate and minify a single HTML file that contains embedded CSS and JavaScript. The script takes an `index-master.html` file as input and produces an `index.html` file as output.
+
+## Prerequisites
+
+- **Debian/Ubuntu**: This script is designed to work on Debian-based systems.
+- **Node.js**: Terser and html-minifier-terser require Node.js to be installed.
+
+### Install Node.js and npm on Debian
+
+1. **Update your package list:**
+   ```bash
+   sudo apt update
+   ```
+
+2. **Install Node.js and npm:**
+   ```bash
+   sudo apt install nodejs npm -y
+   ```
+
+3. **Verify the installation:**
+   ```bash
+   node -v
+   npm -v
+   ```
+
+### Install Required Tools
+
+1. **Install Terser:**
+   ```bash
+   npm install -g terser
+   ```
+
+2. **Install html-minifier-terser:**
+   ```bash
+   npm install -g html-minifier-terser
+   ```
+
+## Script Usage
+
+### Running the Script
+
+1. **Save the script** as `obfuscate.sh`.
+2. **Make the script executable:**
+   ```bash
+   chmod +x obfuscate.sh
+   ```
+3. **Run the script:**
+   ```bash
+   ./obfuscate.sh
+   ```
+
+### Script Details
+
+- **Input File:** The script takes `index-master.html` as the input file.
+- **Output File:** The script outputs the obfuscated and minified version as `index.html`.
+- **Error Handling:** The script checks if `index-master.html` exists before proceeding. If the file does not exist, it will exit with an error message.
+- **Terser and HTML-Minifier-Terser:** The script first uses Terser to obfuscate any embedded JavaScript, then minifies the entire HTML file, including embedded CSS and JavaScript.
+
+### Script Example
+
+```bash
+#!/bin/bash
+
+# Input and output file names
+input_file="index-master.html"
+output_file="index.html"
+
+# Check if the input file exists
+if [ ! -f "$input_file" ]; then
+    echo "Input file $input_file does not exist."
+    exit 1
+fi
+
+# Obfuscate embedded JavaScript using terser
+terser_output=$(mktemp)
+terser --compress --mangle -- "$input_file" > "$terser_output"
+
+# Minify HTML, including the embedded CSS and the obfuscated JavaScript
+html-minifier-terser \
+    --collapse-whitespace \
+    --minify-css true \
+    --minify-js true \
+    --remove-comments \
+    --remove-empty-attributes \
+    --output "$output_file" \
+    "$terser_output"
+
+# Clean up temporary file
+rm "$terser_output"
+
+echo "Obfuscation and minification complete. Output saved as $output_file."
+```
+
+## Editing the Script in Visual Studio Code (VSCode)
+
+If you prefer to use Visual Studio Code to edit and run this script:
+
+1. **Install VSCode:**
+   - Follow the official [Visual Studio Code installation guide](https://code.visualstudio.com/docs/setup/linux) for Debian-based systems.
+
+2. **Open your project in VSCode:**
+   ```bash
+   code /path/to/your/project
+   ```
+
+3. **Edit the script** by clicking on the `obfuscate.sh` file in the file explorer.
+
+4. **Run the script** within the VSCode terminal:
+   - Open the terminal in VSCode: `View > Terminal`.
+   - Run the script:
+     ```bash
+     ./obfuscate.sh
+     ```

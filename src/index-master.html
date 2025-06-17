@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1024, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title id="site-title">Vox Vera Printable Flyers</title> <!-- Title will be replaced -->
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            box-sizing: border-box;
+            overflow: hidden;
+            background-color: #ffffff;
+        }
+
+        a {
+            color: #b80000;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+
+        .wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: row;
+            height: 11in;
+            width: 8.5in;
+            border: 1px solid #000;
+            box-sizing: border-box;
+            overflow: hidden;
+            page-break-inside: avoid;
+        }
+
+        .print-button-container {
+            margin-top: 20px;
+        }
+
+        .print-button {
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            background-color: #000;
+            color: #fff;
+            border: none;
+            border-radius: 0px;
+        }
+
+        .print-button:hover {
+            background-color: #444;
+        }
+
+        .left-tear-offs {
+            width: 3.75in;
+            padding: 8px;
+            border-right: 1px dashed #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 5px;
+            box-sizing: border-box;
+        }
+
+        .tear-off {
+            display: flex;
+            padding: 5px;
+            border: 1px dashed #000;
+            font-size: 10px;
+            box-sizing: border-box;
+            page-break-inside: avoid;
+            align-items: flex-start;
+        }
+
+        .tear-off-text {
+            flex: 1;
+            min-width: 0;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-all;
+        }
+
+        .tear-off a {
+            color: #b80000;
+            text-decoration: none;
+        }
+
+        .tear-off a:hover {
+            text-decoration: underline;
+        }
+
+        .qr-code {
+            width: 80px;
+            height: 80px;
+            border: 0px solid #000;
+            margin-left: 10px;
+            flex-shrink: 0;
+        }
+
+        .qr-code img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .content {
+            width: calc(8.5in - 3.75in);
+            padding: 20px;
+            text-align: center;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            page-break-inside: avoid;
+            overflow-wrap: break-word;
+        }
+
+        h1 {
+            margin: 0;
+            margin-bottom: 10px;
+            font-size: 24px;
+            letter-spacing: 2px;
+        }
+
+        .distribute {
+            font-size: 18px;
+            letter-spacing: 6px;
+        }
+
+        .redacted {
+            text-decoration: line-through;
+        }
+
+        .message {
+            flex: 1;
+            margin-top: 10px;
+            font-size: 14px;
+            line-height: 1.4;
+            text-align: left;
+            overflow-wrap: break-word;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            white-space: pre-wrap;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .text-container {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            border: none;
+            outline: none;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .qr-code-body {
+            width: 100%;
+            height: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .qr-code-body img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        .qr-code-url {
+            font-size: 12px;
+            text-align: left;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+            flex-grow: 1;
+            margin-right: 10px;
+            max-width: 60%;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #000;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .footer {
+            font-size: 10px;
+            overflow-wrap: break-word;
+            text-align: center;
+            align-self: center;
+            width: 100%;
+            padding: 10px 0;
+            box-sizing: border-box;
+            border-top: 1px solid #000;
+        }
+
+        .footer p {
+            margin: 0;
+            padding: 0;
+        }
+
+        .footer .binary {
+            margin-bottom: 5px;
+            margin-top: 20px;
+        }
+
+        @media print {
+            body, html {
+                width: 8.5in;
+                height: 11in;
+                margin: 0;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+                border: none;
+                page-break-inside: avoid;
+                margin: 0;
+                padding: 0;
+                width: 8.5in;
+                height: 11in;
+            }
+
+            .print-button {
+                display: none;
+            }
+
+            body {
+                transform: none;
+            }
+        }
+
+        .print-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            background-color: #000;
+            color: #fff;
+            border: none;
+            border-radius: 0px;
+        }
+
+        .print-button:hover {
+            background-color: #444;
+        }
+
+    </style>
+</head> 
+
+<body>
+    <div class="container">
+        <div class="left-tear-offs">
+            <div class="tear-off">
+                <div class="tear-off-text">
+                    Use Tor Browser<br><br>
+                    to help spread this message go to<br>
+                    <a class="tear-off-link" href="#">Loading...</a><br> <!-- The class is used instead of an id -->
+                    click the button below to print
+                </div>
+                <div class="qr-code">
+                    <img src="qrcode-tear-offs.png" alt="QR Code">
+                </div>
+            </div>
+            <div class="tear-off">
+                <div class="tear-off-text">
+                    Use Tor Browser<br><br>
+                    to help spread this message go to<br>
+                    <a class="tear-off-link" href="#">Loading...</a><br> <!-- The class is used instead of an id -->
+                    click the button below to print
+                </div>
+                <div class="qr-code">
+                    <img src="qrcode-tear-offs.png" alt="QR Code">
+                </div>
+            </div> 
+            <div class="tear-off">
+                <div class="tear-off-text">
+                    Use Tor Browser<br><br>
+                    to help spread this message go to<br>
+                    <a class="tear-off-link" href="#">Loading...</a><br> <!-- The class is used instead of an id -->
+                    click the button below to print
+                </div>
+                <div class="qr-code">
+                    <img src="qrcode-tear-offs.png" alt="QR Code">
+                </div>
+            </div> 
+            <div class="tear-off">
+                <div class="tear-off-text">
+                    Use Tor Browser<br><br>
+                    to help spread this message go to<br>
+                    <a class="tear-off-link" href="#">Loading...</a><br> <!-- The class is used instead of an id -->
+                    click the button below to print
+                </div>
+                <div class="qr-code">
+                    <img src="qrcode-tear-offs.png" alt="QR Code">
+                </div>
+            </div> 
+            <div class="tear-off">
+                <div class="tear-off-text">
+                    Use Tor Browser<br><br>
+                    to help spread this message go to<br>
+                    <a class="tear-off-link" href="#">Loading...</a><br> <!-- The class is used instead of an id -->
+                    click the button below to print
+                </div>
+                <div class="qr-code">
+                    <img src="qrcode-tear-offs.png" alt="QR Code">
+                </div>
+            </div> 
+            <div class="tear-off">
+                <div class="tear-off-text">
+                    Use Tor Browser<br><br>
+                    to help spread this message go to<br>
+                    <a class="tear-off-link" href="#">Loading...</a><br> <!-- The class is used instead of an id -->
+                    click the button below to print
+                </div>
+                <div class="qr-code">
+                    <img src="qrcode-tear-offs.png" alt="QR Code">
+                </div>
+            </div> 
+            <div class="tear-off">
+                <div class="tear-off-text">
+                    Use Tor Browser<br><br>
+                    to help spread this message go to<br>
+                    <a class="tear-off-link" href="#">Loading...</a><br> <!-- The class is used instead of an id -->
+                    click the button below to print
+                </div>
+                <div class="qr-code">
+                    <img src="qrcode-tear-offs.png" alt="QR Code">
+                </div>
+            </div> 
+            <div class="tear-off">
+                <div class="tear-off-text">
+                    Use Tor Browser<br><br>
+                    to help spread this message go to<br>
+                    <a class="tear-off-link" href="#">Loading...</a><br> <!-- The class is used instead of an id -->
+                    click the button below to print
+                </div>
+                <div class="qr-code">
+                    <img src="qrcode-tear-offs.png" alt="QR Code">
+                </div>
+            </div> 
+            <div class="tear-off">
+                <div class="tear-off-text">
+                    Use Tor Browser<br><br>
+                    to help spread this message go to<br>
+                    <a class="tear-off-link" href="#">Loading...</a><br> <!-- The class is used instead of an id -->
+                    click the button below to print
+                </div>
+                <div class="qr-code">
+                    <img src="qrcode-tear-offs.png" alt="QR Code">
+                </div>
+            </div> 
+            <div class="tear-off">
+                <div class="tear-off-text">
+                    Use Tor Browser<br><br>
+                    to help spread this message go to<br>
+                    <a class="tear-off-link" href="#">Loading...</a><br> <!-- The class is used instead of an id -->
+                    click the button below to print
+                </div>
+                <div class="qr-code">
+                    <img src="qrcode-tear-offs.png" alt="QR Code">
+                </div>
+            </div>            
+            <!-- Repeat similar structure for other tear-offs -->
+        </div>
+        <div class="content">
+            <h1 id="top-secret-title">Loading...</h1> <!-- "Top Secret" title will be replaced -->
+            <div class="distribute" id="do-not-distribute">Loading...</div> <!-- "DO NOT DISTRIBUTE" message will be replaced -->
+            <h1 id="operation-title-2"><br>Loading...</h1> <!-- "Operation Vox Vera" title will be replaced -->
+            <hr>
+            <div class="message">
+                <div class="text-container" id="main-content" contenteditable="false"> <!-- Content will be replaced -->
+                    Loading content...
+                </div>
+                <div class="qr-code-body">
+                    <div class="qr-code-url">
+<span class="url-message">Loading message...</span><br><br> <!-- The message will be replaced -->
+<a id="qr-link-2" href="#">Loading...</a> <!-- The href and text will be replaced -->
+                    </div>
+                    <img src="qrcode-content.png" alt="QR Code">
+                </div>                              
+            </div>        
+            <hr>
+            <div class="footer">
+                <p>
+                    spread your true voice just like this by filling out <a href="submission_form.pdf">this form</a><br>
+                    and submitting it to <a href="nostr.html">this Nostr Address</a>. We use <a href="https://nostr.how/en/what-is-nostr">Nostr</a>, <a href="https://www.torproject.org/download/">Tor Browser</a>, and <a href="https://wallet.cashu.me/">Cashu eCash</a> to protect your identity.<br>
+                    Your flyer will be hosted on <a href="https://en.wikipedia.org/wiki/Tor_(network)">The Tor Network</a>.<br>
+                </p>
+                <p class="binary" id="binary-message"><br>
+                    <br>Loading...<br> <!-- Binary message will be replaced -->
+                </p>
+            </div>
+        </div>
+    </div>
+    <button class="print-button" onclick="window.print()">Print this page</button>
+
+    <script>
+        // Fetch the configuration JSON file
+        fetch('config.json')
+           .then(response => response.json())
+           .then(config => {
+                // Update the site title
+                document.getElementById('site-title').innerText = config.name;
+        
+                // Update the "Top Secret" title
+                document.getElementById('top-secret-title').innerText = config.title;
+
+                // Update the "DO NOT DISTRIBUTE" message
+                document.getElementById('do-not-distribute').innerHTML = config.subtitle;
+
+                // Update the operation titles
+                document.getElementById('operation-title-2').innerText = config.headline;
+
+                // Update the main content
+                document.getElementById('main-content').innerText = config.content;
+
+                // Update the URL message
+                document.querySelectorAll('.url-message').forEach(msg => {
+                    msg.innerText = config.url_message;
+                });
+
+                // Update the QR URL link in the main content
+                document.getElementById('qr-link-2').innerText = config.url;
+                document.getElementById('qr-link-2').href = config.url;
+                document.getElementById('qr-link-2').target = "_blank"; // Opens in a new tab
+
+                // Update all tear-off links
+                document.querySelectorAll('.tear-off-link').forEach(link => {
+                   link.innerText = config.tear_off_link;
+                   link.href = config.tear_off_link;
+                   link.target = "_blank"; // Opens in a new tab
+                });
+
+                // Update the binary message
+                document.getElementById('binary-message').innerText = config.binary_message;
+         })
+            .catch(error => console.error('Error loading config:', error));
+
+    </script>
+
+</body>
+
+</html>
