@@ -113,3 +113,18 @@ If you prefer to use Visual Studio Code to edit and run this script:
      ```bash
      ./obfuscate.sh
      ```
+## Creating and Hosting a Flyer
+
+The `create_flyer.sh` script automates filling `config.json`, building the HTML files, and copying everything into a new directory under `host/`.
+
+### Usage
+
+```bash
+# interactive mode
+./create_flyer.sh
+
+# use an existing filled PDF form
+./create_flyer.sh --from-pdf path/to/form.pdf
+```
+
+By default the script updates `src/config.json`. After answering the prompts (or extracting from the PDF), `index.html` and `nostr.html` are generated and copied along with the QR code images and PDFs. The files end up in `host/<subdomain>` which can be served statically.
