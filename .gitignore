@@ -3,6 +3,8 @@ host/*/*.html
 host/*/*.png
 host/*/*.pdf
 host/*/from_client/
+host/*/config.json
+host/*/submission_form.txt
 
 # Temporary files
 *.tmp
