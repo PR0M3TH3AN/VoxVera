@@ -75,4 +75,20 @@ Additional documentation is available in the `src/` directory; see [src/README.m
 1. Edit `src/index-master.html` or `src/nostr-master.html` if you need custom content.
 2. Run `./src/create_flyer.sh` and follow the prompts, or use `./src/create_flyer.sh --from-pdf path/to/form.pdf`.
 3. Host the generated `host/<subdomain>` directory.
+
+## Hosting Options
+The folder under `host/<subdomain>` contains all of the files needed to serve
+the flyer as a static website. A few easy ways to make it publicly accessible
+include:
+
+- **GitHub Pages** – Create a new repository or use GitHub Pages from this one
+  and push the contents of `host/<subdomain>` to a branch called `gh-pages`.
+- **Netlify** – Drag and drop the folder onto Netlify or connect it to a Git
+  repository. Netlify will automatically deploy the static files and provide a
+  public URL.
+- **OnionShare** – For a privacy‑focused option, you can host the folder from
+  an old laptop running [OnionShare](https://onionshare.org). OnionShare shares
+  the files over Tor, allowing others to access them using the provided onion
+  address.
+
 This project is licensed under the [MIT License](./LICENSE).
