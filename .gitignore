@@ -1,0 +1,15 @@
+# Ignore build outputs in host directories
+host/*/*.html
+host/*/*.png
+host/*/*.pdf
+host/*/from_client/
+
+# Temporary files
+*.tmp
+tmp*/
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+*~
+*.swp

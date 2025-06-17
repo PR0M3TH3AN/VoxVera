@@ -1,3 +1,5 @@
+// 🔧 merged conflicting changes from codex/create-readme.md-with-project-overview vs main
+
 # VoxVera Flyers
 
 VoxVera provides scripts and templates for producing printable flyers with QR codes. These flyers link to content hosted through Tor and can also include a Nostr page. The project automates building the HTML, generating the QR codes, and copying all assets into a directory under `host/` so they can be served statically.
@@ -19,8 +21,12 @@ Run the helper script from the repository root:
 
 # use answers from an existing PDF form
 ./src/create_flyer.sh --from-pdf path/to/form.pdf
-```
+````
 
 The script updates `src/config.json`, regenerates QR codes, obfuscates `index-master.html` and `nostr-master.html`, and copies the resulting files plus PDFs and QR images into `host/<subdomain>`. The contents in that directory can then be hosted.
 
-See [src/README.md](src/README.md) for more details on the obfuscation scripts and additional usage notes.
+Additional documentation is available in the `src/` directory; see [src/README.md](src/README.md) for more details on the obfuscation scripts and additional usage notes.
+
+This project is licensed under the [MIT License](./LICENSE).
+
+```
