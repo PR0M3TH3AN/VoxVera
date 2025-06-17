@@ -6,7 +6,7 @@
     "headline": "OPERATION VOX VERA",
     "content": "Break free from censorship with our anonymous guerrilla marketing and message-spreading service. Whether online or in the physical world, we empower you to spread your ideas boldly, shielded by complete anonymity. Design a flyer, upload it to our secure platform, and let our network amplify your message.\n\nUse memetic power to share your ideas in your school, workplace, online communities, or even globally. Our service ensures your message resonates far and wide, with tear-off sections featuring unique URLs and QR codes for easy reprinting.\n\nYour privacy is our top priority. Flyers are shared via the Tor network and Nostr, protecting them from censorship. For payment, we use Bitcoin eCash (Cashu), offering secure and untraceable payments.\n\nJoin us in a revolution that values truth and transparency. Together, we can build a network of informed citizens who are unafraid to speak out.",
     "url_message": "Follow this link to learn more. Use Tor Browser.",
-    "url": "https://voxvera.netlify.app/",
-    "tear_off_link": "https://voxvera.netlify.app/",
+    "url": "https://voxvera.org/",
+    "tear_off_link": "https://voxvera.org/",
     "binary_message": "0110010 0101011 0110010 0111101 0110100"
 }
