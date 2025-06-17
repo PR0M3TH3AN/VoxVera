@@ -84,6 +84,9 @@ else
   update_config_interactive
 fi
 
+# Regenerate QR codes based on the updated configuration
+( cd src && ./generate_qr.sh )
+
 # Run obfuscation scripts
 ( cd src && ./obfuscate_index.sh && ./obfuscate_nostr.sh )
 
