@@ -19,6 +19,18 @@ sudo apt update
 sudo apt install -y jq qrencode imagemagick poppler-utils nodejs npm
 ```
 
+### macOS
+
+With [Homebrew](https://brew.sh) you can install the same dependencies:
+
+```bash
+brew install jq qrencode imagemagick poppler node coreutils
+```
+
+These scripts rely on the GNU implementation of `mktemp` (`gmktemp`) found in
+`coreutils`. If you prefer not to install `coreutils`, edit the scripts to use
+`mktemp` without the `--suffix` option.
+
 The obfuscation scripts also rely on a pair of Node modules. Install them
 globally:
 
