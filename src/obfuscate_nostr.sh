@@ -1,5 +1,18 @@
 #!/bin/bash
 
+set -euo pipefail
+
+require_cmd() {
+  command -v "$1" >/dev/null 2>&1 || {
+    echo "Error: required command '$1' not found" >&2
+    exit 1
+  }
+}
+
+for cmd in javascript-obfuscator html-minifier-terser node; do
+  require_cmd "$cmd"
+done
+
 # Input and output file names
 input_file="nostr-master.html"
 output_file="nostr.html"
