@@ -41,6 +41,21 @@ npm install -g javascript-obfuscator html-minifier-terser
 A helper script `setup.sh` is provided to check for these dependencies and
 install anything that is missing.
 
+### Windows
+
+These scripts rely on a Unix-like environment. The recommended approach on
+Windows is to use **WSL2** with a Debian distribution. Install WSL and Debian
+with:
+
+```powershell
+wsl --install
+```
+
+Launch the Debian terminal and run `setup.sh` from this repository or the
+`apt` commands shown above to install all prerequisites. Alternative
+environments such as **MSYS2** or **Git Bash** can also be used, but they must
+provide the same command-line utilities.
+
 ## Generating a Flyer
 Run the helper script from the repository root:
 
