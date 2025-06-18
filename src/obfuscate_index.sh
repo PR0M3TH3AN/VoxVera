@@ -15,11 +15,20 @@ for cmd in javascript-obfuscator html-minifier-terser node; do
   require_cmd "$cmd"
 done
 
+# Detect whether mktemp supports the --suffix option. If not, fall back to a
+# portable template-based approach (e.g., on macOS).
+if tmp=$(mktemp --suffix=.test 2>/dev/null); then
+  rm -f "$tmp"
+  mktemp_with_suffix() { mktemp --suffix="$1"; }
+else
+  mktemp_with_suffix() { mktemp "${TMPDIR:-/tmp}/tmp.XXXXXX$1"; }
+fi
+
 # Input and output file names
 input_file="index-master.html"
 output_file="index.html"
-temp_js_file=$(mktemp --suffix=.js)  # Temporary .js file for extracting JavaScript
-temp_js_obfuscated_file=$(mktemp --suffix=.js)  # Temporary file for obfuscated JavaScript
+temp_js_file=$(mktemp_with_suffix .js)  # Temporary .js file for extracting JavaScript
+temp_js_obfuscated_file=$(mktemp_with_suffix .js)  # Temporary file for obfuscated JavaScript
 temp_html_file=$(mktemp)  # Temporary file for processing HTML without JS
 
 # Check if the input file exists
