@@ -48,6 +48,9 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+# convert CONFIG_PATH to absolute path for nested scripts
+CONFIG_PATH="$(realpath "$CONFIG_PATH")"
+
 # Helper function to update config
 update_config_interactive() {
   read -rp "Name: " name
@@ -102,11 +105,12 @@ if [[ $NON_INTERACTIVE -eq 0 ]]; then
   fi
 fi
 
+
 # Regenerate QR codes based on the updated configuration
-( cd src && ./generate_qr.sh )
+( cd src && ./generate_qr.sh "$CONFIG_PATH" )
 
 # Run obfuscation scripts
-( cd src && ./obfuscate_index.sh && ./obfuscate_nostr.sh )
+( cd src && ./obfuscate_index.sh "$CONFIG_PATH" && ./obfuscate_nostr.sh "$CONFIG_PATH" )
 
 subdomain=$(jq -r '.subdomain' "$CONFIG_PATH")
 DEST="host/${subdomain}"

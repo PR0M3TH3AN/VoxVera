@@ -131,10 +131,13 @@ The `create_flyer.sh` script automates filling `config.json`, building the HTML 
 # interactive mode
 ./create_flyer.sh
 
+# use an alternate config file
+./create_flyer.sh -c path/to/custom.json
+
 # use an existing filled PDF form
 ./create_flyer.sh --from-pdf path/to/form.pdf
 ```
 
-By default the script updates `src/config.json`. After answering the prompts (or extracting from the PDF), `index.html` and `nostr.html` are generated and copied along with the QR code images and PDFs. The files end up in `host/<subdomain>` which can be served statically.
+By default the script updates `src/config.json`. Use the `-c` option to specify a different file. After answering the prompts (or extracting from the PDF), `index.html` and `nostr.html` are generated and copied along with the QR code images and PDFs. The files end up in `host/<subdomain>` which can be served statically.
 
 QR codes are built automatically during this process. After the configuration is updated, `create_flyer.sh` calls `generate_qr.sh` to read the URLs from `config.json` and produce `qrcode-content.png` and `qrcode-tear-offs.png`.

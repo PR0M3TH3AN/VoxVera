@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+CONFIG_PATH="${1:-config.json}"
+
 require_cmd() {
   command -v "$1" >/dev/null 2>&1 || {
     echo "Error: required command '$1' not found" >&2
