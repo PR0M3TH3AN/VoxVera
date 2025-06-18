@@ -15,10 +15,11 @@ done
 
 CONFIG_PATH="src/config.json"
 FROM_PDF=""
+NON_INTERACTIVE=0
 
 usage() {
-  echo "Usage: $0 [-c config_path] [--from-pdf PDF]"
-  echo "Create and deploy a flyer based on config.json."
+  echo "Usage: $0 [-c config_path] [--from-pdf PDF] [--no-interaction]"
+  echo "Create and deploy a flyer based on config.json." 
   exit 1
 }
 
@@ -32,6 +33,10 @@ while [[ $# -gt 0 ]]; do
     --from-pdf)
       FROM_PDF="$2"
       shift 2
+      ;;
+    -n|--no-interaction)
+      NON_INTERACTIVE=1
+      shift
       ;;
     -h|--help)
       usage
@@ -89,10 +94,12 @@ update_config_from_pdf() {
   rm -rf "$tmpdir"
 }
 
-if [[ -n "$FROM_PDF" ]]; then
-  update_config_from_pdf
-else
-  update_config_interactive
+if [[ $NON_INTERACTIVE -eq 0 ]]; then
+  if [[ -n "$FROM_PDF" ]]; then
+    update_config_from_pdf
+  else
+    update_config_interactive
+  fi
 fi
 
 # Regenerate QR codes based on the updated configuration

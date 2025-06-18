@@ -81,6 +81,17 @@ Additional documentation is available in the `src/` directory; see [src/README.m
 2. Run `./src/create_flyer.sh` and follow the prompts, or use `./src/create_flyer.sh --from-pdf path/to/form.pdf`.
 3. Host the generated `host/<subdomain>` directory.
 
+## Batch Import
+Place configuration files in an `imports/` directory at the project root. Run
+
+```bash
+./src/import_from_json.sh
+```
+
+Each JSON file is copied to `src/config.json` and processed with
+`create_flyer.sh --no-interaction`. Existing folders under `host/` with the
+same subdomain are removed before new files are written.
+
 ## Hosting Options
 The folder under `host/<subdomain>` contains all of the files needed to serve
 the flyer as a static website. A few easy ways to make it publicly accessible
