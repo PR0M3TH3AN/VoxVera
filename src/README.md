@@ -1,6 +1,6 @@
 # HTML/CSS/JS Obfuscation Script
 
-This repository contains a simple Bash script to obfuscate and minify a single HTML file that contains embedded CSS and JavaScript. The script takes an `index-master.html` file as input and produces an `index.html` file as output.
+This repository contains two Bash scripts that obfuscate and minify the flyer's HTML files. `obfuscate_index.sh` processes `index-master.html` into `index.html`, and `obfuscate_nostr.sh` does the same for `nostr-master.html` to produce `nostr.html`.
 
 ## Prerequisites
 
@@ -47,23 +47,23 @@ prerequisites automatically.
 
 ## Script Usage
 
-### Running the Script
+### Running the Scripts
 
-1. **Save the script** as `obfuscate.sh`.
+1. **Ensure both `obfuscate_index.sh` and `obfuscate_nostr.sh` are available.**
 2. **Make the script executable:**
    ```bash
-   chmod +x obfuscate.sh
+   chmod +x obfuscate_index.sh obfuscate_nostr.sh
    ```
-3. **Run the script:**
+3. **Run the desired script:**
    ```bash
-   ./obfuscate.sh
+   ./obfuscate_index.sh or ./obfuscate_nostr.sh
    ```
 
 ### Script Details
 
-- **Input File:** The script takes `index-master.html` as the input file.
-- **Output File:** The script outputs the obfuscated and minified version as `index.html`.
-- **Error Handling:** The script checks if `index-master.html` exists before proceeding. If the file does not exist, it will exit with an error message.
+- **Input Files:** `obfuscate_index.sh` expects `index-master.html` and `obfuscate_nostr.sh` uses `nostr-master.html`.
+- **Output Files:** `obfuscate_index.sh` writes `index.html` and `obfuscate_nostr.sh` writes `nostr.html`.
+- **Error Handling:** Each script verifies that its input file exists before proceeding. Missing files result in an error.
 - **Terser and HTML-Minifier-Terser:** The script first uses Terser to obfuscate any embedded JavaScript, then minifies the entire HTML file, including embedded CSS and JavaScript.
 
 ### Script Example
@@ -100,10 +100,11 @@ rm "$terser_output"
 
 echo "Obfuscation and minification complete. Output saved as $output_file."
 ```
+A similar script `obfuscate_nostr.sh` follows the same pattern but operates on `nostr-master.html` and outputs `nostr.html`.
 
 ## Editing the Script in Visual Studio Code (VSCode)
 
-If you prefer to use Visual Studio Code to edit and run this script:
+If you prefer to use Visual Studio Code to edit and run these scripts:
 
 1. **Install VSCode:**
    - Follow the official [Visual Studio Code installation guide](https://code.visualstudio.com/docs/setup/linux) for Debian-based systems.
@@ -113,13 +114,13 @@ If you prefer to use Visual Studio Code to edit and run this script:
    code /path/to/your/project
    ```
 
-3. **Edit the script** by clicking on the `obfuscate.sh` file in the file explorer.
+3. **Edit** `obfuscate_index.sh` or `obfuscate_nostr.sh` in the file explorer.
 
-4. **Run the script** within the VSCode terminal:
+4. **Run the desired script** within the VSCode terminal:
    - Open the terminal in VSCode: `View > Terminal`.
    - Run the script:
      ```bash
-     ./obfuscate.sh
+     ./obfuscate_index.sh or ./obfuscate_nostr.sh
      ```
 ## Creating and Hosting a Flyer
 
