@@ -62,7 +62,7 @@ update_config_interactive() {
   content=""
   while IFS= read -r line; do
     [[ "$line" == "EOF" ]] && break
-    content+="$line\n"
+    content+="$line"$'\n'
   done
   read -rp "URL message: " url_message
 
