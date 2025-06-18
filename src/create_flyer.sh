@@ -66,6 +66,8 @@ update_config_interactive() {
   done
   read -rp "URL message: " url_message
 
+  read -rp "Binary message: " binary_message
+
   onion_base="6dshf2gnj7yzxlfcaczlyi57up4mvbtd5orinuj5bjsfycnhz2w456yd.onion"
   constructed_url="http://${subdomain}.${onion_base}"
   read -rp "URL [${constructed_url}]: " url
@@ -82,7 +84,8 @@ update_config_interactive() {
      --arg url_message "$url_message" \
      --arg url "$url" \
      --arg tear_off_link "$tear_off_link" \
-     '.name=$name | .subdomain=$subdomain | .title=$title | .subtitle=$subtitle | .headline=$headline | .content=$content | .url_message=$url_message | .url=$url | .tear_off_link=$tear_off_link' "$CONFIG_PATH" > "$CONFIG_PATH.tmp"
+     --arg binary_message "$binary_message" \
+     '.name=$name | .subdomain=$subdomain | .title=$title | .subtitle=$subtitle | .headline=$headline | .content=$content | .url_message=$url_message | .url=$url | .tear_off_link=$tear_off_link | .binary_message=$binary_message' "$CONFIG_PATH" > "$CONFIG_PATH.tmp"
   mv "$CONFIG_PATH.tmp" "$CONFIG_PATH"
 }
 
@@ -111,6 +114,10 @@ fi
 
 # Run obfuscation scripts
 ( cd src && ./obfuscate_index.sh "$CONFIG_PATH" && ./obfuscate_nostr.sh "$CONFIG_PATH" )
+
+# Insert the binary message directly into the generated HTML
+binary_message=$(jq -r '.binary_message' "$CONFIG_PATH")
+perl -0pi -e "s#<p class=\"binary\" id=\"binary-message\">.*?</p>#<p class=\"binary\" id=\"binary-message\">$binary_message</p>#s" src/index.html
 
 subdomain=$(jq -r '.subdomain' "$CONFIG_PATH")
 DEST="host/${subdomain}"
