@@ -1,11 +1,3 @@
-# Ignore build outputs in host directories
-host/*/*.html
-host/*/*.png
-host/*/*.pdf
-host/*/from_client/
-host/*/config.json
-host/*/submission_form.txt
-
 # Temporary files
 *.tmp
 tmp*/
@@ -15,6 +7,4 @@ tmp*/
 Thumbs.db
 *~
 *.swp
-imports/*.json
-src/index.html
-src/nostr.html
+
