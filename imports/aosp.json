@@ -1,0 +1,12 @@
+{
+  "name": "AOS Project",
+  "subdomain": "aosp",
+  "title": "ANDROID UNLEASHED",
+  "subtitle": "WITHOUT BOUNDARIES",
+  "headline": "OPEN-SOURCE FREEDOM",
+  "content": "The Android Open Source Project (AOSP) represents the essence of what Android was originally intended to be: an open, transparent, and adaptable platform. It strips away the layers of proprietary software and corporate oversight that have become synonymous with mainstream Android distributions. With AOSP, you gain access to a raw, unfiltered version of Android, allowing you to truly make your device your own.\n\nFor developers, AOSP offers a playground of possibilities, where the only limits are your skills and imagination. It serves as the foundation for countless custom ROMs, each tailored to specific needs, whether for enhanced performance, privacy, or unique features that mainstream versions lack. Privacy enthusiasts will appreciate the absence of pre-installed bloatware and tracking services that often come wit stock Android, providing a cleaner, more secure user experience.\n\nAOSP isn't just for developers or tech enthusiasts; it's for anyone who values digital freedom. It allows you to reclaim control over your device, tailoring it to your needs without the restrictions of carriers or manufacturers. Discover how AOSP can transform your mobile experience. Start your journey towards a more open, customizable future today.",
+  "url_message": "Visit the link below to learn more.",
+  "url": "https://source.android.com",
+  "tear_off_link": "http://aosp.6dshf2gnj7yzxlfcaczlyi57up4mvbtd5orinuj5bjsfycnhz2w456yd.onion",
+  "binary_message": "0110010 0101011 0110010 0111101 0110100"
+}
