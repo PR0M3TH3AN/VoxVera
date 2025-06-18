@@ -84,6 +84,10 @@ Additional documentation is available in the `src/` directory; see [src/README.m
 1. Edit `src/index-master.html` or `src/nostr-master.html` if you need custom content.
 2. Run `./src/create_flyer.sh` and follow the prompts, or use `./src/create_flyer.sh --from-pdf path/to/form.pdf`.
 3. Host the generated `host/<subdomain>` directory.
+   The `index.html` file fetches `config.json`, so the flyer must be served via a
+   local or remote web server rather than opened directly from disk. For a quick
+   test you can run `python3 -m http.server` inside the folder and then visit the
+   provided address.
 
 ## Batch Import
 Place configuration files in an `imports/` directory at the project root. Run
@@ -110,5 +114,10 @@ include:
   an old laptop running [OnionShare](https://onionshare.org). OnionShare shares
   the files over Tor, allowing others to access them using the provided onion
   address.
+
+`index.html` fetches `config.json` dynamically, so the flyer should be viewed
+through a local or remote web server. For quick testing, run
+`python3 -m http.server` in the folder and open the provided address instead of
+loading the file directly.
 
 This project is licensed under the [MIT License](./LICENSE).
