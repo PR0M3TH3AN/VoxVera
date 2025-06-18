@@ -73,9 +73,14 @@ echo "Extracted url: '$url'"
 # Construct the URLs with the subdomain
 onion_base="6dshf2gnj7yzxlfcaczlyi57up4mvbtd5orinuj5bjsfycnhz2w456yd.onion"
 constructed_url="http://$subdomain.$onion_base"
-tear_off_link="http://$subdomain.$onion_base"
+
+# Use an existing tear_off_link from the config if provided; otherwise default
+# to the constructed onion URL.
+existing_tear_off_link=$(jq -r '.tear_off_link // empty' "$json_file")
+tear_off_link="${existing_tear_off_link:-http://$subdomain.$onion_base}"
+
 echo "Constructed URL: '$constructed_url'"
-echo "Constructed Tear-off Link: '$tear_off_link'"
+echo "Using Tear-off Link: '$tear_off_link'"
 
 # Check if the extracted fields are not empty
 if [ -z "$name" ] || [ -z "$subdomain" ] || [ -z "$title" ] || [ -z "$subtitle" ] || [ -z "$headline" ] || [ -z "$content" ] || [ -z "$url_message" ] || [ -z "$url" ]; then
@@ -92,7 +97,7 @@ jq --arg name "$name" \
    --arg headline "$headline" \
    --arg content "$content" \
    --arg url_message "$url_message" \
-   --arg url "$constructed_url" \
+   --arg url "$url" \
    --arg tear_off_link "$tear_off_link" \
    '.name = $name | 
     .subdomain = $subdomain | 
