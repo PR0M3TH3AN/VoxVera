@@ -60,7 +60,10 @@ update_config_interactive() {
 
   onion_base="6dshf2gnj7yzxlfcaczlyi57up4mvbtd5orinuj5bjsfycnhz2w456yd.onion"
   constructed_url="http://${subdomain}.${onion_base}"
-  tear_off_link="$constructed_url"
+  read -rp "URL [${constructed_url}]: " url
+  url=${url:-$constructed_url}
+  read -rp "Tear-off link [${constructed_url}]: " tear_off_link
+  tear_off_link=${tear_off_link:-$constructed_url}
 
   jq --arg name "$name" \
      --arg subdomain "$subdomain" \
@@ -69,7 +72,7 @@ update_config_interactive() {
      --arg headline "$headline" \
      --arg content "$content" \
      --arg url_message "$url_message" \
-     --arg url "$constructed_url" \
+     --arg url "$url" \
      --arg tear_off_link "$tear_off_link" \
      '.name=$name | .subdomain=$subdomain | .title=$title | .subtitle=$subtitle | .headline=$headline | .content=$content | .url_message=$url_message | .url=$url | .tear_off_link=$tear_off_link' "$CONFIG_PATH" > "$CONFIG_PATH.tmp"
   mv "$CONFIG_PATH.tmp" "$CONFIG_PATH"
