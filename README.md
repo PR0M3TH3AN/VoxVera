@@ -63,16 +63,19 @@ Run the helper script from the repository root:
 # interactive prompts
 ./src/create_flyer.sh
 
+# use an alternate config file
+./src/create_flyer.sh -c path/to/custom.json
+
 # use answers from an existing PDF form
 ./src/create_flyer.sh --from-pdf path/to/form.pdf
 ```
 
 When run interactively you'll be prompted for details such as the flyer title
 and headline. The script now also asks for a **URL** and a **Tear-off link**.
-These values are written into `src/config.json` and determine the QR code
-targets.
+These values are written into the configuration file (`src/config.json` by
+default) and determine the QR code targets.
 
-The script updates `src/config.json`, regenerates QR codes, obfuscates `index-master.html` and `nostr-master.html`, and copies the resulting files plus PDFs and QR images into `host/<subdomain>`. The contents in that directory can then be hosted.
+The script updates the chosen config file, regenerates QR codes, obfuscates `index-master.html` and `nostr-master.html`, and copies the resulting files plus PDFs and QR images into `host/<subdomain>`. The contents in that directory can then be hosted.
 
 Additional documentation is available in the `src/` directory; see [src/README.md](src/README.md) for more details on the obfuscation scripts and additional usage notes.
 

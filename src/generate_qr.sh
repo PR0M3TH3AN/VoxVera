@@ -2,7 +2,7 @@
 
 set -e
 
-CONFIG="config.json"
+CONFIG="${1:-config.json}"
 
 # Ensure dependencies
 command -v jq >/dev/null 2>&1 || { echo "jq is required" >&2; exit 1; }
