@@ -16,3 +16,5 @@ Thumbs.db
 *~
 *.swp
 imports/*.json
+src/index.html
+src/nostr.html

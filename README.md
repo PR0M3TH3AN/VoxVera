@@ -76,7 +76,7 @@ and headline. The script now also asks for a **URL** and a **Tear-off link**.
 These values are written into the configuration file (`src/config.json` by
 default) and determine the QR code targets.
 
-The script updates the chosen config file, regenerates QR codes, obfuscates `index-master.html` and `nostr-master.html`, and copies the resulting files plus PDFs and QR images into `host/<subdomain>`. The contents in that directory can then be hosted.
+The script updates the chosen config file, regenerates QR codes, obfuscates `index-master.html` and `nostr-master.html`, and copies the resulting files plus PDFs and QR images into `host/<subdomain>`. The resulting `src/index.html` and `src/nostr.html` files are generated automatically and excluded from version control via `.gitignore`. The contents in that directory can then be hosted.
 
 Additional documentation is available in the `src/` directory; see [src/README.md](src/README.md) for more details on the obfuscation scripts and additional usage notes.
 
