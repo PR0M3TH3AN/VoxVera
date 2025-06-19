@@ -58,17 +58,17 @@ environments such as **MSYS2** or **Git Bash** can also be used, but they must
 provide the same command-line utilities.
 
 ## Generating a Flyer
-Run the helper script from the repository root:
+Run the CLI from the repository root:
 
 ```bash
 # interactive prompts
-./src/create_flyer.sh
+voxvera init
 
 # use an alternate config file
-./src/create_flyer.sh -c path/to/custom.json
+voxvera init --config path/to/custom.json
 
 # use answers from an existing PDF form
-./src/create_flyer.sh --from-pdf path/to/form.pdf
+voxvera init --from-pdf path/to/form.pdf
 ```
 
 When run interactively you'll be prompted for details such as the flyer title
@@ -82,7 +82,7 @@ Additional documentation is available in the `src/` directory; see [src/README.m
 
 ## Step-by-Step
 1. Edit `src/index-master.html` or `src/nostr-master.html` if you need custom content.
-2. Run `./src/create_flyer.sh` and follow the prompts, or use `./src/create_flyer.sh --from-pdf path/to/form.pdf`.
+2. Run `voxvera init` and follow the prompts, or use `voxvera init --from-pdf path/to/form.pdf`.
 3. Host the generated `host/<subdomain>` directory.
    The `index.html` file fetches `config.json`, so the flyer must be served via a
    local or remote web server rather than opened directly from disk. For a quick
@@ -93,21 +93,21 @@ Additional documentation is available in the `src/` directory; see [src/README.m
 Place configuration files in an `imports/` directory at the project root. Run
 
 ```bash
-./src/import_from_json.sh
+voxvera import
 ```
 
 Each JSON file is copied to `src/config.json` and processed with
-`create_flyer.sh --no-interaction`. Existing folders under `host/` with the
+`voxvera build`. Existing folders under `host/` with the
 same subdomain are removed before new files are written.
 
 ## Hosting with OnionShare
 The folder under `host/<subdomain>` contains everything needed to serve the
-flyer. Run the helper script `serve_with_onionshare.sh` to publish it over Tor.
+flyer. Use the CLI to publish it over Tor:
 The script now resolves the configuration and host paths internally, so it can
 be invoked from any directory:
 
 ```bash
-./serve_with_onionshare.sh
+voxvera serve
 ```
 
 The script launches `onionshare-cli` in persistent website mode, waits for the
