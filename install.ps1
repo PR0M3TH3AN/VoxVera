@@ -49,6 +49,14 @@ function Download-Binary {
     }
 }
 
+function Check-LocalBin {
+    $home = [Environment]::GetFolderPath('UserProfile')
+    $binPath = Join-Path $home '.local\bin'
+    if (-not ($Env:PATH.Split(';') -contains $binPath)) {
+        Write-Host "Add $binPath to your PATH to run VoxVera."
+    }
+}
+
 if (Get-Command pipx -ErrorAction SilentlyContinue) {
     try {
         pipx install voxvera --force
@@ -61,6 +69,8 @@ if (Get-Command pipx -ErrorAction SilentlyContinue) {
         if (-not (Download-Binary $url "$dest/voxvera.exe")) {
             Write-Host 'Binary download failed, falling back to pip'
             Install-PipFallback
+        } else {
+            Check-LocalBin
         }
     }
 } else {
@@ -71,6 +81,8 @@ if (Get-Command pipx -ErrorAction SilentlyContinue) {
     if (-not (Download-Binary $url "$dest/voxvera.exe")) {
         Write-Host 'Binary download failed, falling back to pip'
         Install-PipFallback
+    } else {
+        Check-LocalBin
     }
 }
 

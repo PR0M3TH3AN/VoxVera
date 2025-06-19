@@ -75,6 +75,12 @@ download_binary() {
   chmod +x "$dest"
 }
 
+check_local_bin() {
+  if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+    echo "Add \$HOME/.local/bin to your PATH to run VoxVera."
+  fi
+}
+
 pip_fallback() {
   if command_exists pip; then
     echo "Attempting pip install as fallback..."
@@ -99,6 +105,8 @@ if command_exists pipx; then
     if ! download_binary "$url" "$dest"; then
       echo "Binary download failed, falling back to pip." >&2
       pip_fallback
+    else
+      check_local_bin
     fi
   fi
 else
@@ -109,6 +117,8 @@ else
   if ! download_binary "$url" "$dest"; then
     echo "Binary download failed, falling back to pip." >&2
     pip_fallback
+  else
+    check_local_bin
   fi
 fi
 
