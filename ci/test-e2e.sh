@@ -3,7 +3,7 @@ set -euo pipefail
 
 LOG_DIR="$(pwd)/ci-logs"
 mkdir -p "$LOG_DIR"
-exec >"$LOG_DIR/run.log" 2>&1
+exec > >(tee "$LOG_DIR/run.log") 2>&1
 
 # Install VoxVera
 if [ -n "${VOXVERA_BIN:-}" ]; then
