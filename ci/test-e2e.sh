@@ -5,8 +5,8 @@ LOG_DIR="$(pwd)/ci-logs"
 mkdir -p "$LOG_DIR"
 exec >"$LOG_DIR/run.log" 2>&1
 
-# Run install script and time it
-{ time ./install.sh; } 2>&1
+# Install VoxVera from the local repository and time it
+{ time pip install -e .; } 2>&1
 
 # Generate demo flyer
 voxvera init --template voxvera <<EOI
