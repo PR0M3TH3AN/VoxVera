@@ -17,6 +17,16 @@ See [docs/usage.md](docs/usage.md) for detailed usage instructions.
 
 Run the installer to set up all dependencies and the `voxvera` CLI in one step.
 
+### GUI
+An Electron wrapper is provided under `gui/electron` for users that prefer a graphical interface.
+Run it with:
+
+```bash
+cd gui/electron
+npm install
+npm start
+```
+
 ### Linux/macOS
 
 ```bash
@@ -115,6 +125,12 @@ The script updates the chosen config file, regenerates QR codes, obfuscates `ind
 Additional documentation is available in the `src/` directory; see [src/README.md](src/README.md) for more details on the obfuscation scripts and additional usage notes.
 
 Additional documentation, including step-by-step instructions and hosting guides, lives under the [docs](docs/) directory.
+
+## Packages
+Prebuilt binaries are published on the releases page. Linux users can run the
+`packaging/build_appimage.sh` script after a PyInstaller build to create a
+portable AppImage. Homebrew and Chocolatey formulas are provided under
+`packaging/` for easy upgrades on macOS and Windows.
 
 
 This project is licensed under the [MIT License](./LICENSE).
