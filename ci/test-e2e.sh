@@ -5,25 +5,33 @@ LOG_DIR="$(pwd)/ci-logs"
 mkdir -p "$LOG_DIR"
 exec >"$LOG_DIR/run.log" 2>&1
 
-# Install VoxVera from the local repository and time it
-{ time pip install -e .; } 2>&1
+# Install VoxVera
+if [ -n "${VOXVERA_BIN:-}" ]; then
+  voxvera_cmd="$VOXVERA_BIN"
+  echo "Using provided VoxVera binary: $voxvera_cmd" >&2
+else
+  { time pip install -e .; } 2>&1
+  voxvera_cmd="$(command -v voxvera)"
+fi
 
 # Generate demo flyer
-voxvera init --template voxvera <<EOI
+"$voxvera_cmd" init --template voxvera <<EOI
 DemoUser
 demosite
 EOI
-voxvera build
+"$voxvera_cmd" build
 ls -R dist >>"$LOG_DIR/tree.txt"
 
-# Start Tor
- tor >"$LOG_DIR/tor.log" 2>&1 &
-TOR_PID=$!
-sleep 10
+# Optional network tests
+if [ "${VOXVERA_E2E_OFFLINE:-}" != "1" ]; then
+  # Start Tor
+  tor >"$LOG_DIR/tor.log" 2>&1 &
+  TOR_PID=$!
+  sleep 10
 
-# Start OnionShare
-onionshare-cli --website --public --persistent dist/demosite/.onionshare-session dist/demosite >"$LOG_DIR/onionshare.log" 2>&1 &
-OS_PID=$!
+  # Start OnionShare
+  onionshare-cli --website --public --persistent dist/demosite/.onionshare-session dist/demosite >"$LOG_DIR/onionshare.log" 2>&1 &
+  OS_PID=$!
 
 # Wait for URL
 URL=""
@@ -52,7 +60,11 @@ curl --socks5-hostname 127.0.0.1:9050 "$URL" | grep -q '<title>'
 # Clean up
 kill $OS_PID
 kill $TOR_PID
-wait $OS_PID 2>/dev/null || true
-wait $TOR_PID 2>/dev/null || true
+  wait $OS_PID 2>/dev/null || true
+  wait $TOR_PID 2>/dev/null || true
+else
+  echo "Skipping network-dependent tests" >&2
+  exit 0
+fi
 
 exit 0

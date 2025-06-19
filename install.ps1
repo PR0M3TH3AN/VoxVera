@@ -39,13 +39,32 @@ function Install-PipFallback {
     }
 }
 
+function Install-PipRepoFallback {
+    if (Get-Command pip -ErrorAction SilentlyContinue) {
+        try {
+            pip install --user git+https://github.com/PR0M3TH3AN/VoxVera
+            Write-Host 'VoxVera installed successfully from repository.'
+            exit 0
+        } catch {
+            Write-Error 'pip installation from repository failed.'
+            exit 1
+        }
+    } else {
+        Write-Error 'pip not found for fallback installation.'
+        exit 1
+    }
+}
+
 function Download-Binary {
     param([string]$Url, [string]$Dest)
     try {
-        Invoke-WebRequest -Uri $Url -OutFile $Dest -ErrorAction Stop
-        return $true
+        $response = Invoke-WebRequest -Uri $Url -OutFile $Dest -ErrorAction Stop
+        return $response.StatusCode
     } catch {
-        return $false
+        if ($_.Exception.Response) {
+            return $_.Exception.Response.StatusCode.value__
+        }
+        return 0
     }
 }
 
@@ -66,11 +85,15 @@ if (Get-Command pipx -ErrorAction SilentlyContinue) {
         $dest = Join-Path $home '.local\bin'
         New-Item -ItemType Directory -Path $dest -Force | Out-Null
         $url = 'https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera.exe'
-        if (-not (Download-Binary $url "$dest/voxvera.exe")) {
+        $status = Download-Binary $url "$dest/voxvera.exe"
+        if ($status -eq 200) {
+            Check-LocalBin
+        } elseif ($status -eq 404) {
+            Write-Host 'Release asset not found, installing from repository'
+            Install-PipRepoFallback
+        } else {
             Write-Host 'Binary download failed, falling back to pip'
             Install-PipFallback
-        } else {
-            Check-LocalBin
         }
     }
 } else {
@@ -78,11 +101,15 @@ if (Get-Command pipx -ErrorAction SilentlyContinue) {
     $dest = Join-Path $home '.local\bin'
     New-Item -ItemType Directory -Path $dest -Force | Out-Null
     $url = 'https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera.exe'
-    if (-not (Download-Binary $url "$dest/voxvera.exe")) {
+    $status = Download-Binary $url "$dest/voxvera.exe"
+    if ($status -eq 200) {
+        Check-LocalBin
+    } elseif ($status -eq 404) {
+        Write-Host 'Release asset not found, installing from repository'
+        Install-PipRepoFallback
+    } else {
         Write-Host 'Binary download failed, falling back to pip'
         Install-PipFallback
-    } else {
-        Check-LocalBin
     }
 }
 
