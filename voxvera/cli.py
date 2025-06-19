@@ -8,7 +8,6 @@ import sys
 import datetime
 from InquirerPy import prompt, inquirer
 from rich.console import Console
-tmpimport = None
 
 
 def require_cmd(cmd: str):
