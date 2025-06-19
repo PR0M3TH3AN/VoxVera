@@ -65,12 +65,24 @@ download_binary() {
   local url=$1
   local dest=$2
   if command_exists curl; then
-    curl -fsSL "$url" -o "$dest" || return 1
+    local status
+    status=$(curl -w "%{http_code}" -fsSL "$url" -o "$dest" || true)
+    if [ "$status" = "404" ]; then
+      return 2
+    elif [ "$status" != "200" ]; then
+      return 1
+    fi
   elif command_exists wget; then
-    wget -q "$url" -O "$dest" || return 1
+    local out
+    out=$(wget --server-response -q "$url" -O "$dest" 2>&1 || true)
+    if echo "$out" | grep -q "404 Not Found"; then
+      return 2
+    elif ! echo "$out" | grep -q "200 OK"; then
+      return 1
+    fi
   else
     echo "Install curl or wget to download voxvera" >&2
-    return 2
+    return 1
   fi
   chmod +x "$dest"
 }
@@ -95,6 +107,20 @@ pip_fallback() {
   exit 1
 }
 
+pip_repo_fallback() {
+  if command_exists pip; then
+    echo "Attempting pip install from repository as fallback..."
+    if pip install --user git+https://github.com/PR0M3TH3AN/VoxVera; then
+      echo "VoxVera installed successfully from repository."
+      exit 0
+    fi
+    echo "pip installation from repository failed." >&2
+  else
+    echo "pip not found for fallback installation" >&2
+  fi
+  exit 1
+}
+
 if command_exists pipx; then
   if ! pipx install --force voxvera; then
     echo "pipx install failed, downloading binary"
@@ -102,11 +128,17 @@ if command_exists pipx; then
     mkdir -p "$install_dir"
     url="https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera"
     dest="$install_dir/voxvera"
-    if ! download_binary "$url" "$dest"; then
-      echo "Binary download failed, falling back to pip." >&2
-      pip_fallback
-    else
+    if download_binary "$url" "$dest"; then
       check_local_bin
+    else
+      rc=$?
+      echo "Binary download failed." >&2
+      if [ $rc -eq 2 ]; then
+        echo "Release asset not found, installing from repository." >&2
+        pip_repo_fallback
+      else
+        pip_fallback
+      fi
     fi
   fi
 else
@@ -114,11 +146,17 @@ else
   mkdir -p "$install_dir"
   url="https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera"
   dest="$install_dir/voxvera"
-  if ! download_binary "$url" "$dest"; then
-    echo "Binary download failed, falling back to pip." >&2
-    pip_fallback
-  else
+  if download_binary "$url" "$dest"; then
     check_local_bin
+  else
+    rc=$?
+    echo "Binary download failed." >&2
+    if [ $rc -eq 2 ]; then
+      echo "Release asset not found, installing from repository." >&2
+      pip_repo_fallback
+    else
+      pip_fallback
+    fi
   fi
 fi
 

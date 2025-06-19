@@ -17,10 +17,10 @@ See [docs/usage.md](docs/usage.md) for detailed usage instructions.
 
 Run the installer to set up the core dependencies and install the `voxvera` CLI.
 The script installs Tor, OnionShare, `jq`, `qrencode`, and ImageMagick before
-fetching the latest release of the CLI. Other prerequisites like Node.js,
-`javascript-obfuscator`, `html-minifier-terser`, and the Python packages
-`InquirerPy` and `rich` are not installed automatically. Run `setup.sh` or
-install those packages manually if they are missing.
+fetching the latest release of the CLI. Run `setup.sh` to install additional
+dependencies such as Node.js, `javascript-obfuscator`, `html-minifier-terser`,
+and the Python packages `InquirerPy` and `rich` if they are not already
+available.
 
 If you already have the prerequisites you can install the package directly from
 PyPI:
@@ -95,14 +95,14 @@ globally:
 npm install -g javascript-obfuscator html-minifier-terser
 ```
 
-Install the Python dependencies:
+`setup.sh` also installs the required Python packages automatically. If you
+prefer to install them manually, run:
 
 ```bash
 pip install --user InquirerPy rich
 ```
 
-A helper script `setup.sh` is provided to check for these dependencies and
-install anything that is missing.
+The script checks for these dependencies and installs anything that is missing.
 
 ### Windows
 
