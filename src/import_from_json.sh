@@ -17,5 +17,5 @@ for json in "${files[@]}"; do
   subdomain=$(jq -r '.subdomain' "$json")
   dest="host/$subdomain"
   rm -rf "$dest"
-  ./src/create_flyer.sh --no-interaction
+  voxvera build --config src/config.json
 done
