@@ -39,4 +39,15 @@ for pkg in javascript-obfuscator html-minifier-terser; do
   fi
 done
 
+# ensure Python packages used by the CLI are available
+for py in InquirerPy rich; do
+  python3 - <<EOF >/dev/null 2>&1
+import importlib.util, sys
+sys.exit(0 if importlib.util.find_spec('$py') else 1)
+EOF
+  if [ $? -ne 0 ]; then
+    pip install --user "$py"
+  fi
+done
+
 echo "All dependencies are installed."
