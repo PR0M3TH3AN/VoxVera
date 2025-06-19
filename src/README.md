@@ -124,21 +124,21 @@ If you prefer to use Visual Studio Code to edit and run these scripts:
      ```
 ## Creating and Hosting a Flyer
 
-The `create_flyer.sh` script automates filling `config.json`, building the HTML files, and copying everything into a new directory under `host/`.
+The `voxvera` CLI automates filling `config.json`, building the HTML files, and copying everything into a new directory under `host/`.
 
 ### Usage
 
 ```bash
 # interactive mode
-./create_flyer.sh
+voxvera init && voxvera build
 
 # use an alternate config file
-./create_flyer.sh -c path/to/custom.json
+voxvera init --config path/to/custom.json && voxvera build --config path/to/custom.json
 
 # use an existing filled PDF form
-./create_flyer.sh --from-pdf path/to/form.pdf
+voxvera init --from-pdf path/to/form.pdf && voxvera build
 ```
 
 By default the script updates `src/config.json`. Use the `-c` option to specify a different file. After answering the prompts (or extracting from the PDF), `index.html` and `nostr.html` are generated and copied along with the QR code images and PDFs. The files end up in `host/<subdomain>` which can be served statically.
 
-QR codes are built automatically during this process. After the configuration is updated, `create_flyer.sh` calls `generate_qr.sh` to read the URLs from `config.json` and produce `qrcode-content.png` and `qrcode-tear-offs.png`.
+QR codes are built automatically during this process. After the configuration is updated, the CLI regenerates the QR codes by invoking `generate_qr.sh` to read the URLs from `config.json` and produce `qrcode-content.png` and `qrcode-tear-offs.png`.
