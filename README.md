@@ -2,6 +2,22 @@
 
 VoxVera provides scripts and templates for producing printable flyers with QR codes. These flyers link to content hosted through Tor and can also include a Nostr page. The project automates building the HTML, generating the QR codes, and copying all assets into a directory under `host/` so they can be served statically.
 
+## Quick Install
+
+Run the installer to set up all dependencies and the `voxvera` CLI in one step.
+
+### Linux/macOS
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/PR0M3TH3AN/VoxVera/main/install.sh | bash
+```
+
+### Windows PowerShell
+
+```powershell
+irm https://raw.githubusercontent.com/PR0M3TH3AN/VoxVera/main/install.ps1 | iex
+```
+
 ## Prerequisites
 - **Node.js** and **npm**
 - **jq**
