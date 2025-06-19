@@ -102,8 +102,9 @@ same subdomain are removed before new files are written.
 
 ## Hosting with OnionShare
 The folder under `host/<subdomain>` contains everything needed to serve the
-flyer. Run the helper script `serve_with_onionshare.sh` from the repository
-root to publish it over Tor:
+flyer. Run the helper script `serve_with_onionshare.sh` to publish it over Tor.
+The script now resolves the configuration and host paths internally, so it can
+be invoked from any directory:
 
 ```bash
 ./serve_with_onionshare.sh
