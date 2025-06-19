@@ -1,6 +1,7 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const { spawn } = require('child_process');
 const path = require('path');
+const which = require('which');
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -16,8 +17,16 @@ function createWindow() {
 app.whenReady().then(createWindow);
 
 ipcMain.handle('run-quickstart', async () => {
+  const voxveraPath = which.sync('voxvera', { nothrow: true });
+  if (!voxveraPath) {
+    dialog.showErrorBox(
+      'voxvera not found',
+      'Install the voxvera CLI and ensure it is in your PATH.'
+    );
+    return -1;
+  }
   return new Promise((resolve, reject) => {
-    const proc = spawn('voxvera', ['quickstart'], { stdio: 'inherit' });
+    const proc = spawn(voxveraPath, ['quickstart'], { stdio: 'inherit' });
     proc.on('close', code => resolve(code));
     proc.on('error', err => reject(err));
   });
