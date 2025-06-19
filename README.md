@@ -17,6 +17,19 @@ See [docs/usage.md](docs/usage.md) for detailed usage instructions.
 
 Run the installer to set up all dependencies and the `voxvera` CLI in one step.
 
+If you already have the prerequisites you can install the package directly from
+PyPI:
+
+```bash
+pipx install voxvera  # recommended
+# or
+pip install --user voxvera
+```
+
+The legacy `src/create_flyer.sh` script remains for backward compatibility. It
+simply forwards its arguments to the Python CLI so existing workflows continue
+to work.
+
 ### GUI
 An Electron wrapper is provided under `gui/electron` for users that prefer a graphical interface.
 Run it with:
