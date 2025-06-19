@@ -15,3 +15,6 @@ This page collects common issues encountered when hosting or accessing flyers.
 - Run `sudo chcon -Rt svirt_sandbox_file_t host` or disable SELinux enforcement for the folder.
 
 If problems persist, consult the OnionShare and Tor documentation for more advanced configuration tips.
+
+## Electron GUI
+If `npm start` fails with `spawn voxvera ENOENT`, the `voxvera` command is not in your `PATH`. Install it with `pipx install voxvera` or run `./install.sh` from the repository.
