@@ -1,0 +1,8 @@
+{
+  "name": "VoxVera",
+  "build": {
+    "dockerfile": "../Dockerfile",
+    "context": ".."
+  },
+  "workspaceFolder": "/workspace/VoxVera"
+}
