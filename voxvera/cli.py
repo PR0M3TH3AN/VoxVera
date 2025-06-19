@@ -5,6 +5,7 @@ import re
 import shutil
 import subprocess
 import sys
+import datetime
 from InquirerPy import prompt, inquirer
 from rich.console import Console
 tmpimport = None
@@ -106,11 +107,25 @@ def update_from_pdf(config_path: str, pdf_path: str):
     tmpdir = tempfile.mkdtemp()
     os.makedirs(os.path.join(tmpdir, 'from_client'), exist_ok=True)
     shutil.copy(pdf_path, os.path.join(tmpdir, 'from_client', 'submission_form.pdf'))
-    shutil.copy('host/blank/extract_form_fields.sh', tmpdir)
+    shutil.copy('templates/blank/extract_form_fields.sh', tmpdir)
     shutil.copy(config_path, os.path.join(tmpdir, 'config.json'))
     run(['bash', 'extract_form_fields.sh'], cwd=tmpdir)
     shutil.copy(os.path.join(tmpdir, 'config.json'), config_path)
     shutil.rmtree(tmpdir)
+
+
+def copy_template(name: str) -> str:
+    """Copy a template directory into dist/ with a datestamped folder."""
+    date = datetime.date.today().strftime('%Y%m%d')
+    src = os.path.join('templates', name)
+    if not os.path.isdir(src):
+        print(f"Template {name} not found", file=sys.stderr)
+        sys.exit(1)
+    dest = os.path.join('dist', f"{name}-{date}")
+    os.makedirs('dist', exist_ok=True)
+    shutil.copytree(src, dest, dirs_exist_ok=True)
+    print(f"Template copied to {dest}")
+    return dest
 
 
 def build_assets(config_path: str, pdf_path: str | None = None):
@@ -198,6 +213,7 @@ def main(argv=None):
     sub = parser.add_subparsers(dest='command')
 
     p_init = sub.add_parser('init', help='Update configuration interactively or from PDF')
+    p_init.add_argument('--template', help='Copy a template into dist/')
     p_init.add_argument('--from-pdf')
     p_init.add_argument('--non-interactive', action='store_true')
 
@@ -212,7 +228,10 @@ def main(argv=None):
     config_path = os.path.abspath(args.config)
 
     if args.command == 'init':
-        if args.from_pdf:
+        if args.template:
+            copy_template(args.template)
+            return
+        elif args.from_pdf:
             if not require_cmd('pdftotext'):
                 sys.exit(1)
             update_from_pdf(config_path, args.from_pdf)
