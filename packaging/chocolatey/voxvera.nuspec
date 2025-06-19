@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>voxvera</id>
+    <version>0.1.0</version>
+    <title>VoxVera</title>
+    <authors>VoxVera</authors>
+    <description>Generate flyers with QR codes</description>
+    <projectUrl>https://github.com/PR0M3TH3AN/VoxVera</projectUrl>
+    <tags>voxvera flyers</tags>
+  </metadata>
+</package>

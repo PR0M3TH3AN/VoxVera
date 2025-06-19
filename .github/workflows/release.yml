@@ -21,6 +21,11 @@ jobs:
         run: python -m build --wheel --sdist
       - name: Build binary
         run: pyinstaller --onefile -n voxvera voxvera/cli.py
+      - name: Create AppImage
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget
+          bash packaging/build_appimage.sh
       - name: Build Docker image
         run: docker build -t ghcr.io/${{ github.repository_owner }}/voxvera:${{ github.ref_name }} .
       - name: Login to GHCR
@@ -42,3 +47,4 @@ jobs:
             dist/*.whl
             dist/*.tar.gz
             dist/voxvera
+            dist/VoxVera.AppImage
