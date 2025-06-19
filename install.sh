@@ -61,6 +61,34 @@ require_pkg jq jq
 require_pkg qrencode qrencode
 require_pkg convert imagemagick
 
+download_binary() {
+  local url=$1
+  local dest=$2
+  if command_exists curl; then
+    curl -fsSL "$url" -o "$dest" || return 1
+  elif command_exists wget; then
+    wget -q "$url" -O "$dest" || return 1
+  else
+    echo "Install curl or wget to download voxvera" >&2
+    return 2
+  fi
+  chmod +x "$dest"
+}
+
+pip_fallback() {
+  if command_exists pip; then
+    echo "Attempting pip install as fallback..."
+    if pip install --user voxvera; then
+      echo "VoxVera installed successfully via pip."
+      exit 0
+    fi
+    echo "pip installation failed." >&2
+  else
+    echo "pip not found for fallback installation" >&2
+  fi
+  exit 1
+}
+
 if command_exists pipx; then
   if ! pipx install --force voxvera; then
     echo "pipx install failed, downloading binary"
@@ -68,30 +96,20 @@ if command_exists pipx; then
     mkdir -p "$install_dir"
     url="https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera"
     dest="$install_dir/voxvera"
-    if command_exists curl; then
-      curl -fsSL "$url" -o "$dest"
-    elif command_exists wget; then
-      wget -q "$url" -O "$dest"
-    else
-      echo "Install curl or wget to download voxvera" >&2
-      exit 1
+    if ! download_binary "$url" "$dest"; then
+      echo "Binary download failed, falling back to pip." >&2
+      pip_fallback
     fi
-    chmod +x "$dest"
   fi
 else
   install_dir="$HOME/.local/bin"
   mkdir -p "$install_dir"
   url="https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera"
   dest="$install_dir/voxvera"
-  if command_exists curl; then
-    curl -fsSL "$url" -o "$dest"
-  elif command_exists wget; then
-    wget -q "$url" -O "$dest"
-  else
-    echo "Install curl or wget to download voxvera" >&2
-    exit 1
+  if ! download_binary "$url" "$dest"; then
+    echo "Binary download failed, falling back to pip." >&2
+    pip_fallback
   fi
-  chmod +x "$dest"
 fi
 
 echo "VoxVera installed successfully."
