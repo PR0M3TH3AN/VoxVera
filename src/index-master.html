@@ -172,6 +172,7 @@
             font-family: 'Courier New', Courier, monospace;
             font-size: 14px;
             line-height: 1.4;
+            white-space: pre-wrap;
             overflow: hidden;
             box-sizing: border-box;
         }
@@ -443,7 +444,8 @@
                 document.getElementById('operation-title-2').innerText = config.headline;
 
                 // Update the main content
-                document.getElementById('main-content').innerText = config.content;
+                document.getElementById('main-content').innerText =
+                    config.content.replace(/\\n/g, '\n');
 
                 // Update the URL message
                 document.querySelectorAll('.url-message').forEach(msg => {
