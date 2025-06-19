@@ -5,6 +5,8 @@ import re
 import shutil
 import subprocess
 import sys
+from InquirerPy import prompt, inquirer
+from rich.console import Console
 tmpimport = None
 
 
@@ -33,31 +35,69 @@ def save_config(data: dict, path: str):
         json.dump(data, fh, indent=2)
 
 
+def open_editor(initial: str) -> str:
+    import tempfile
+    editor = os.environ.get('EDITOR', 'nano')
+    fd, path = tempfile.mkstemp(suffix='.txt')
+    try:
+        with os.fdopen(fd, 'w', encoding='utf-8') as fh:
+            fh.write(initial or '')
+        subprocess.call([editor, path])
+        with open(path, 'r', encoding='utf-8') as fh:
+            return fh.read()
+    finally:
+        os.unlink(path)
+
+
+def _len_transform(limit: int):
+    def _t(val: str) -> str:
+        l = len(val)
+        if l > limit:
+            return f"[red]{val} ({l}/{limit})[/red]"
+        return f"{val} ({l}/{limit})"
+    return _t
+
+
 def interactive_update(config_path: str):
     data = load_config(config_path)
-    def prompt(field, default=None):
-        val = input(f"{field}{' ['+default+']' if default else ''}: ")
-        return val or default or ''
+    console = Console()
 
-    data['name'] = prompt('Name')
-    data['subdomain'] = prompt('Subdomain')
-    data['title'] = prompt('Title')
-    data['subtitle'] = prompt('Subtitle')
-    data['headline'] = prompt('Headline')
-    print('Enter content (end with EOF on its own line):')
-    content_lines = []
-    while True:
-        line = input()
-        if line == 'EOF':
-            break
-        content_lines.append(line)
-    data['content'] = '\n'.join(content_lines)
-    data['url_message'] = prompt('URL message')
-    data['binary_message'] = prompt('Binary message')
-    onion_base = '6dshf2gnj7yzxlfcaczlyi57up4mvbtd5orinuj5bjsfycnhz2w456yd.onion'
-    constructed = f"http://{data['subdomain']}.{onion_base}"
-    data['url'] = prompt('URL', constructed)
-    data['tear_off_link'] = prompt('Tear-off link', constructed)
+    console.rule("Metadata")
+    meta_qs = [
+        {"type": "input", "message": "Name", "name": "name", "default": data.get("name", ""), "transformer": _len_transform(60)},
+        {"type": "input", "message": "Subdomain", "name": "subdomain", "default": data.get("subdomain", ""), "transformer": _len_transform(63)},
+        {"type": "input", "message": "Title", "name": "title", "default": data.get("title", ""), "transformer": _len_transform(60)},
+        {"type": "input", "message": "Subtitle", "name": "subtitle", "default": data.get("subtitle", ""), "transformer": _len_transform(80)},
+        {"type": "input", "message": "Headline", "name": "headline", "default": data.get("headline", ""), "transformer": _len_transform(80)},
+    ]
+    data.update(prompt(meta_qs))
+
+    console.rule("Body text")
+    body = open_editor(data.get("content", ""))
+    console.print(f"Body length: {len(body)}/1000", style="red" if len(body) > 1000 else "green")
+    data["content"] = body
+
+    console.rule("Links")
+    protocol = inquirer.select(
+        message="Default URL type",
+        choices=[("Tor (.onion)", "tor"), ("HTTPS", "https")],
+        default="tor",
+    ).execute()
+
+    onion_base = "6dshf2gnj7yzxlfcaczlyi57up4mvbtd5orinuj5bjsfycnhz2w456yd.onion"
+    if protocol == "tor":
+        constructed = f"http://{data['subdomain']}.{onion_base}"
+    else:
+        constructed = f"https://{data['subdomain']}.example.com"
+
+    link_qs = [
+        {"type": "input", "message": "URL", "name": "url", "default": data.get("url", constructed), "transformer": _len_transform(200)},
+        {"type": "input", "message": "Tear-off link", "name": "tear_off_link", "default": data.get("tear_off_link", constructed), "transformer": _len_transform(200)},
+        {"type": "input", "message": "URL message", "name": "url_message", "default": data.get("url_message", ""), "transformer": _len_transform(120)},
+        {"type": "input", "message": "Binary message", "name": "binary_message", "default": data.get("binary_message", ""), "transformer": _len_transform(120)},
+    ]
+    data.update(prompt(link_qs))
+
     save_config(data, config_path)
 
 
