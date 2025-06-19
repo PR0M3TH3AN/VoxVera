@@ -8,7 +8,10 @@ fi
 
 # get subdomain from config
 subdomain=$(jq -r '.subdomain' "$CONFIG")
-DIR="host/${subdomain}"
+
+# resolve paths to absolute locations so the script works from anywhere
+CONFIG="$(realpath "$CONFIG")"
+DIR="$(realpath "host/$subdomain")"
 if [[ ! -d "$DIR" ]]; then
   echo "Directory $DIR not found" >&2
   exit 1
