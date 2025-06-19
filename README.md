@@ -25,6 +25,7 @@ irm https://raw.githubusercontent.com/PR0M3TH3AN/VoxVera/main/install.ps1 | iex
 - **ImageMagick** (`convert`)
 - **javascript-obfuscator** and **html-minifier-terser** (installed via npm)
 - **pdftotext** (optional, used when extracting fields from a PDF form)
+- **Python packages** [`InquirerPy`](https://github.com/kazhala/InquirerPy) and [`rich`](https://github.com/Textualize/rich)
 
 ## Installing Dependencies
 
@@ -53,6 +54,12 @@ globally:
 
 ```bash
 npm install -g javascript-obfuscator html-minifier-terser
+```
+
+Install the Python dependencies:
+
+```bash
+pip install --user InquirerPy rich
 ```
 
 A helper script `setup.sh` is provided to check for these dependencies and
