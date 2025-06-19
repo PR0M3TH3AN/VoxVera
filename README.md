@@ -100,20 +100,20 @@ Each JSON file is copied to `src/config.json` and processed with
 `create_flyer.sh --no-interaction`. Existing folders under `host/` with the
 same subdomain are removed before new files are written.
 
-## Hosting Options
-The folder under `host/<subdomain>` contains all of the files needed to serve
-the flyer as a static website. A few easy ways to make it publicly accessible
-include:
+## Hosting with OnionShare
+The folder under `host/<subdomain>` contains everything needed to serve the
+flyer. Run the helper script `serve_with_onionshare.sh` from the repository
+root to publish it over Tor:
 
-- **GitHub Pages** – Create a new repository or use GitHub Pages from this one
-  and push the contents of `host/<subdomain>` to a branch called `gh-pages`.
-- **Netlify** – Drag and drop the folder onto Netlify or connect it to a Git
-  repository. Netlify will automatically deploy the static files and provide a
-  public URL.
-- **OnionShare** – For a privacy‑focused option, you can host the folder from
-  an old laptop running [OnionShare](https://onionshare.org). OnionShare shares
-  the files over Tor, allowing others to access them using the provided onion
-  address.
+```bash
+./serve_with_onionshare.sh
+```
+
+The script launches `onionshare-cli` in persistent website mode, waits for the
+generated onion URL, patches `config.json`, regenerates the QR codes and
+obfuscated HTML, and then copies the updated files back into the `host`
+directory. The onion address is printed when ready. Keep OnionShare running to
+continue hosting.
 
 `index.html` fetches `config.json` dynamically, so the flyer should be viewed
 through a local or remote web server. For quick testing, run
