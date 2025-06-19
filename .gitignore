@@ -9,3 +9,25 @@ Thumbs.db
 *.swp
 __pycache__/
 *.pyc
+
+# Build and distribution artifacts
+dist/
+build/
+*.egg-info/
+
+# Electron app artifacts
+gui/electron/node_modules/
+gui/electron/dist/
+gui/electron/build/
+gui/electron/out/
+
+# Generated host directories
+host/*
+!host/voxvera/
+
+# CI logs
+ci-logs/
+
+# Onionshare logs and session files
+*.log
+*.onionshare-session
