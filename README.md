@@ -15,7 +15,12 @@ See [docs/usage.md](docs/usage.md) for detailed usage instructions.
 
 ## Quick Install
 
-Run the installer to set up all dependencies and the `voxvera` CLI in one step.
+Run the installer to set up the core dependencies and install the `voxvera` CLI.
+The script installs Tor, OnionShare, `jq`, `qrencode`, and ImageMagick before
+fetching the latest release of the CLI. Other prerequisites like Node.js,
+`javascript-obfuscator`, `html-minifier-terser`, and the Python packages
+`InquirerPy` and `rich` are not installed automatically. Run `setup.sh` or
+install those packages manually if they are missing.
 
 If you already have the prerequisites you can install the package directly from
 PyPI:
