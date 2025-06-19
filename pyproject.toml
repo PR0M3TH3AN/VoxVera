@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "voxvera"
+version = "0.1.0"
+description = "VoxVera CLI utilities"
+readme = "README.md"
+authors = [{name = "VoxVera"}]
+requires-python = ">=3.9"
+dependencies = [
+    "InquirerPy",
+    "rich",
+]
+
+[project.scripts]
+voxvera = "voxvera.cli:main"

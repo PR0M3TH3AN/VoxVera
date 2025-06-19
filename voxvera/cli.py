@@ -164,7 +164,8 @@ def serve(config_path: str):
     logfile = os.path.join(dir_path, 'onionshare.log')
     proc = subprocess.Popen(['onionshare-cli', '--website', '--public', '--persistent', f'{dir_path}/.onionshare-session', dir_path], stdout=open(logfile, 'w'), stderr=subprocess.STDOUT)
     try:
-        import time, re as _re
+        import time
+        import re as _re
         onion_url = None
         while onion_url is None:
             time.sleep(1)
