@@ -54,7 +54,8 @@ if (Get-Command pipx -ErrorAction SilentlyContinue) {
         pipx install voxvera --force
     } catch {
         Write-Host 'pipx install failed, downloading binary'
-        $dest = "$HOME/.local/bin"
+        $home = [Environment]::GetFolderPath('UserProfile')
+        $dest = Join-Path $home '.local\bin'
         New-Item -ItemType Directory -Path $dest -Force | Out-Null
         $url = 'https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera.exe'
         if (-not (Download-Binary $url "$dest/voxvera.exe")) {
@@ -63,7 +64,8 @@ if (Get-Command pipx -ErrorAction SilentlyContinue) {
         }
     }
 } else {
-    $dest = "$HOME/.local/bin"
+    $home = [Environment]::GetFolderPath('UserProfile')
+    $dest = Join-Path $home '.local\bin'
     New-Item -ItemType Directory -Path $dest -Force | Out-Null
     $url = 'https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera.exe'
     if (-not (Download-Binary $url "$dest/voxvera.exe")) {
