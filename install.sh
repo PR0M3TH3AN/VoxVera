@@ -62,7 +62,22 @@ require_pkg qrencode qrencode
 require_pkg convert imagemagick
 
 if command_exists pipx; then
-  pipx install --force voxvera
+  if ! pipx install --force voxvera; then
+    echo "pipx install failed, downloading binary"
+    install_dir="$HOME/.local/bin"
+    mkdir -p "$install_dir"
+    url="https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera"
+    dest="$install_dir/voxvera"
+    if command_exists curl; then
+      curl -fsSL "$url" -o "$dest"
+    elif command_exists wget; then
+      wget -q "$url" -O "$dest"
+    else
+      echo "Install curl or wget to download voxvera" >&2
+      exit 1
+    fi
+    chmod +x "$dest"
+  fi
 else
   install_dir="$HOME/.local/bin"
   mkdir -p "$install_dir"

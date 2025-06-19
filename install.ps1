@@ -24,7 +24,15 @@ if ($choco) {
 }
 
 if (Get-Command pipx -ErrorAction SilentlyContinue) {
-    pipx install voxvera --force
+    try {
+        pipx install voxvera --force
+    } catch {
+        Write-Host 'pipx install failed, downloading binary'
+        $dest = "$HOME/.local/bin"
+        New-Item -ItemType Directory -Path $dest -Force | Out-Null
+        $url = 'https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera.exe'
+        Invoke-WebRequest -Uri $url -OutFile "$dest/voxvera.exe"
+    }
 } else {
     $dest = "$HOME/.local/bin"
     New-Item -ItemType Directory -Path $dest -Force | Out-Null
