@@ -7,11 +7,21 @@ import subprocess
 import sys
 import datetime
 from pathlib import Path
+from importlib import resources
+from importlib.abc import Traversable
 from InquirerPy import prompt, inquirer
 from rich.console import Console
 
 # project root
 ROOT = Path(__file__).resolve().parent.parent
+
+
+def _template_res(*parts) -> Traversable:
+    return resources.files(__package__).joinpath('..', 'templates', *parts)
+
+
+def _src_res(*parts) -> Traversable:
+    return resources.files(__package__).joinpath('..', 'src', *parts)
 
 
 def require_cmd(cmd: str):
@@ -110,7 +120,8 @@ def update_from_pdf(config_path: str, pdf_path: str):
     tmpdir = tempfile.mkdtemp()
     os.makedirs(os.path.join(tmpdir, 'from_client'), exist_ok=True)
     shutil.copy(pdf_path, os.path.join(tmpdir, 'from_client', 'submission_form.pdf'))
-    shutil.copy(ROOT / 'templates' / 'blank' / 'extract_form_fields.sh', tmpdir)
+    with resources.as_file(_template_res('blank', 'extract_form_fields.sh')) as p:
+        shutil.copy(p, tmpdir)
     shutil.copy(config_path, os.path.join(tmpdir, 'config.json'))
     run(['bash', 'extract_form_fields.sh'], cwd=tmpdir)
     shutil.copy(os.path.join(tmpdir, 'config.json'), config_path)
@@ -120,40 +131,41 @@ def update_from_pdf(config_path: str, pdf_path: str):
 def copy_template(name: str) -> str:
     """Copy a template directory into dist/ with a datestamped folder."""
     date = datetime.date.today().strftime('%Y%m%d')
-    src = ROOT / 'templates' / name
-    if not src.is_dir():
-        print(f"Template {name} not found", file=sys.stderr)
-        sys.exit(1)
-    dest = ROOT / 'dist' / f"{name}-{date}"
-    os.makedirs(ROOT / 'dist', exist_ok=True)
-    shutil.copytree(src, dest, dirs_exist_ok=True)
+    with resources.as_file(_template_res(name)) as src:
+        if not src.is_dir():
+            print(f"Template {name} not found", file=sys.stderr)
+            sys.exit(1)
+        dest = ROOT / 'dist' / f"{name}-{date}"
+        os.makedirs(ROOT / 'dist', exist_ok=True)
+        shutil.copytree(src, dest, dirs_exist_ok=True)
     print(f"Template copied to {dest}")
     return str(dest)
 
 
 def build_assets(config_path: str, pdf_path: str | None = None):
-    # generate QR codes
-    run(['bash', 'generate_qr.sh', config_path], cwd=ROOT / 'src')
-    # obfuscate html
-    run(['bash', 'obfuscate_index.sh', config_path], cwd=ROOT / 'src')
-    run(['bash', 'obfuscate_nostr.sh', config_path], cwd=ROOT / 'src')
-    data = load_config(config_path)
-    with open(ROOT / 'src/index.html', 'r') as fh:
-        html = fh.read()
-    pattern = r'<p class="binary" id="binary-message">.*?</p>'
-    repl = f'<p class="binary" id="binary-message">{data.get("binary_message", "")}</p>'
-    html = re.sub(pattern, repl, html, flags=re.S)
-    with open(ROOT / 'src/index.html', 'w') as fh:
-        fh.write(html)
-    subdomain = data['subdomain']
-    dest = ROOT / 'host' / subdomain
-    os.makedirs(dest / 'from_client', exist_ok=True)
-    shutil.copy(config_path, dest / 'config.json')
-    for fname in ['index.html', 'nostr.html', 'qrcode-content.png', 'qrcode-tear-offs.png', 'example.pdf', 'submission_form.pdf']:
-        shutil.copy(ROOT / 'src' / fname, dest)
-    if pdf_path:
-        shutil.copy(pdf_path, dest / 'from_client' / 'submission_form.pdf')
-    print(f"Flyer files created under {dest}")
+    with resources.as_file(_src_res()) as src_dir:
+        # generate QR codes
+        run(['bash', 'generate_qr.sh', config_path], cwd=src_dir)
+        # obfuscate html
+        run(['bash', 'obfuscate_index.sh', config_path], cwd=src_dir)
+        run(['bash', 'obfuscate_nostr.sh', config_path], cwd=src_dir)
+        data = load_config(config_path)
+        with open(src_dir / 'index.html', 'r') as fh:
+            html = fh.read()
+        pattern = r'<p class="binary" id="binary-message">.*?</p>'
+        repl = f'<p class="binary" id="binary-message">{data.get("binary_message", "")}</p>'
+        html = re.sub(pattern, repl, html, flags=re.S)
+        with open(src_dir / 'index.html', 'w') as fh:
+            fh.write(html)
+        subdomain = data['subdomain']
+        dest = ROOT / 'host' / subdomain
+        os.makedirs(dest / 'from_client', exist_ok=True)
+        shutil.copy(config_path, dest / 'config.json')
+        for fname in ['index.html', 'nostr.html', 'qrcode-content.png', 'qrcode-tear-offs.png', 'example.pdf', 'submission_form.pdf']:
+            shutil.copy(src_dir / fname, dest)
+        if pdf_path:
+            shutil.copy(pdf_path, dest / 'from_client' / 'submission_form.pdf')
+        print(f"Flyer files created under {dest}")
 
 
 def serve(config_path: str):
