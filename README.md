@@ -120,7 +120,7 @@ environments such as **MSYS2** or **Git Bash** can also be used, but they must
 provide the same command-line utilities.
 
 ## Generating a Flyer
-Run the CLI from the repository root:
+Run the CLI from any directory:
 
 ```bash
 # interactive prompts

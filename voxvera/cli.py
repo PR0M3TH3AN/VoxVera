@@ -6,8 +6,12 @@ import shutil
 import subprocess
 import sys
 import datetime
+from pathlib import Path
 from InquirerPy import prompt, inquirer
 from rich.console import Console
+
+# project root
+ROOT = Path(__file__).resolve().parent.parent
 
 
 def require_cmd(cmd: str):
@@ -106,7 +110,7 @@ def update_from_pdf(config_path: str, pdf_path: str):
     tmpdir = tempfile.mkdtemp()
     os.makedirs(os.path.join(tmpdir, 'from_client'), exist_ok=True)
     shutil.copy(pdf_path, os.path.join(tmpdir, 'from_client', 'submission_form.pdf'))
-    shutil.copy('templates/blank/extract_form_fields.sh', tmpdir)
+    shutil.copy(ROOT / 'templates' / 'blank' / 'extract_form_fields.sh', tmpdir)
     shutil.copy(config_path, os.path.join(tmpdir, 'config.json'))
     run(['bash', 'extract_form_fields.sh'], cwd=tmpdir)
     shutil.copy(os.path.join(tmpdir, 'config.json'), config_path)
@@ -116,39 +120,39 @@ def update_from_pdf(config_path: str, pdf_path: str):
 def copy_template(name: str) -> str:
     """Copy a template directory into dist/ with a datestamped folder."""
     date = datetime.date.today().strftime('%Y%m%d')
-    src = os.path.join('templates', name)
-    if not os.path.isdir(src):
+    src = ROOT / 'templates' / name
+    if not src.is_dir():
         print(f"Template {name} not found", file=sys.stderr)
         sys.exit(1)
-    dest = os.path.join('dist', f"{name}-{date}")
-    os.makedirs('dist', exist_ok=True)
+    dest = ROOT / 'dist' / f"{name}-{date}"
+    os.makedirs(ROOT / 'dist', exist_ok=True)
     shutil.copytree(src, dest, dirs_exist_ok=True)
     print(f"Template copied to {dest}")
-    return dest
+    return str(dest)
 
 
 def build_assets(config_path: str, pdf_path: str | None = None):
     # generate QR codes
-    run(['bash', 'generate_qr.sh', config_path], cwd='src')
+    run(['bash', 'generate_qr.sh', config_path], cwd=ROOT / 'src')
     # obfuscate html
-    run(['bash', 'obfuscate_index.sh', config_path], cwd='src')
-    run(['bash', 'obfuscate_nostr.sh', config_path], cwd='src')
+    run(['bash', 'obfuscate_index.sh', config_path], cwd=ROOT / 'src')
+    run(['bash', 'obfuscate_nostr.sh', config_path], cwd=ROOT / 'src')
     data = load_config(config_path)
-    with open('src/index.html', 'r') as fh:
+    with open(ROOT / 'src/index.html', 'r') as fh:
         html = fh.read()
     pattern = r'<p class="binary" id="binary-message">.*?</p>'
     repl = f'<p class="binary" id="binary-message">{data.get("binary_message", "")}</p>'
     html = re.sub(pattern, repl, html, flags=re.S)
-    with open('src/index.html', 'w') as fh:
+    with open(ROOT / 'src/index.html', 'w') as fh:
         fh.write(html)
     subdomain = data['subdomain']
-    dest = os.path.join('host', subdomain)
-    os.makedirs(os.path.join(dest, 'from_client'), exist_ok=True)
-    shutil.copy(config_path, os.path.join(dest, 'config.json'))
+    dest = ROOT / 'host' / subdomain
+    os.makedirs(dest / 'from_client', exist_ok=True)
+    shutil.copy(config_path, dest / 'config.json')
     for fname in ['index.html', 'nostr.html', 'qrcode-content.png', 'qrcode-tear-offs.png', 'example.pdf', 'submission_form.pdf']:
-        shutil.copy(os.path.join('src', fname), dest)
+        shutil.copy(ROOT / 'src' / fname, dest)
     if pdf_path:
-        shutil.copy(pdf_path, os.path.join(dest, 'from_client', 'submission_form.pdf'))
+        shutil.copy(pdf_path, dest / 'from_client' / 'submission_form.pdf')
     print(f"Flyer files created under {dest}")
 
 
@@ -156,12 +160,12 @@ def serve(config_path: str):
     if not require_cmd('onionshare-cli'):
         sys.exit(1)
     subdomain = load_config(config_path)['subdomain']
-    dir_path = os.path.abspath(os.path.join('host', subdomain))
-    if not os.path.isdir(dir_path):
+    dir_path = ROOT / 'host' / subdomain
+    if not dir_path.is_dir():
         print(f"Directory {dir_path} not found", file=sys.stderr)
         sys.exit(1)
-    logfile = os.path.join(dir_path, 'onionshare.log')
-    proc = subprocess.Popen(['onionshare-cli', '--website', '--public', '--persistent', f'{dir_path}/.onionshare-session', dir_path], stdout=open(logfile, 'w'), stderr=subprocess.STDOUT)
+    logfile = dir_path / 'onionshare.log'
+    proc = subprocess.Popen(['onionshare-cli', '--website', '--public', '--persistent', f'{dir_path}/.onionshare-session', str(dir_path)], stdout=open(logfile, 'w'), stderr=subprocess.STDOUT)
     try:
         import time
         import re as _re
@@ -181,12 +185,12 @@ def serve(config_path: str):
                     onion_url = m.group(0)
         print(f"Onion URL: {onion_url}")
         # update config
-        data = load_config(os.path.join(dir_path, 'config.json'))
+        data = load_config(dir_path / 'config.json')
         data['url'] = onion_url
         data['tear_off_link'] = onion_url
-        save_config(data, os.path.join(dir_path, 'config.json'))
+        save_config(data, dir_path / 'config.json')
         # regenerate assets
-        build_assets(os.path.join(dir_path, 'config.json'))
+        build_assets(dir_path / 'config.json')
         print(f"OnionShare running (PID {proc.pid}). See {logfile} for details.")
     except KeyboardInterrupt:
         pass
@@ -194,22 +198,22 @@ def serve(config_path: str):
 
 def import_configs():
     import glob
-    files = sorted(glob.glob('imports/*.json'))
+    files = sorted(glob.glob(str(ROOT / 'imports' / '*.json')))
     if not files:
         print('No JSON files found in imports')
         return
     for json_file in files:
         print(f'Processing {json_file}')
-        dest_config = 'src/config.json'
+        dest_config = ROOT / 'src' / 'config.json'
         shutil.copy(json_file, dest_config)
         subdomain = load_config(json_file)['subdomain']
-        shutil.rmtree(os.path.join('host', subdomain), ignore_errors=True)
+        shutil.rmtree(ROOT / 'host' / subdomain, ignore_errors=True)
         build_assets(dest_config)
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(prog='voxvera')
-    parser.add_argument('--config', default='src/config.json', help='Path to config.json')
+    parser.add_argument('--config', default=str(ROOT / 'src' / 'config.json'), help='Path to config.json')
     sub = parser.add_subparsers(dest='command')
 
     p_init = sub.add_parser('init', help='Update configuration interactively or from PDF')
@@ -225,7 +229,7 @@ def main(argv=None):
     sub.add_parser('quickstart', help='Init, build and serve in sequence')
 
     args = parser.parse_args(argv)
-    config_path = os.path.abspath(args.config)
+    config_path = Path(args.config).resolve()
 
     if args.command == 'init':
         if args.template:
