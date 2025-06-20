@@ -64,3 +64,20 @@ def test_import(tmp_path, monkeypatch):
         assert dest.is_dir()
         assert (dest / "index.html").exists()
 
+
+def test_check_all_present(capsys, monkeypatch):
+    monkeypatch.setattr(shutil, "which", lambda cmd: "/usr/bin/" + cmd)
+    cli.main(["check"])
+    captured = capsys.readouterr()
+    assert "All required tools are installed." in captured.out
+
+
+def test_check_missing(capsys, monkeypatch):
+    def fake_which(cmd):
+        return None if cmd == "node" else "/usr/bin/" + cmd
+
+    monkeypatch.setattr(shutil, "which", fake_which)
+    cli.main(["check"])
+    captured = capsys.readouterr()
+    assert "node: missing" in captured.out
+
