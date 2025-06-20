@@ -8,14 +8,15 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      VOXVERA_E2E_OFFLINE: "1"
     steps:
       - uses: actions/checkout@v3
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y tor qrencode imagemagick jq python3-pip nodejs npm
+          sudo apt-get install -y qrencode imagemagick jq python3-pip nodejs npm
           npm install -g javascript-obfuscator html-minifier-terser
-          pip install onionshare-cli==2.*
       - name: Run end-to-end tests
         run: ci/test-e2e.sh
       - name: Upload logs
