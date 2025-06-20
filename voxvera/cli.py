@@ -31,6 +31,39 @@ def require_cmd(cmd: str):
     return True
 
 
+def check_deps():
+    console = Console()
+    tools = [
+        "node",
+        "javascript-obfuscator",
+        "html-minifier-terser",
+        "jq",
+        "qrencode",
+        "onionshare-cli",
+        "convert",
+        "pdftotext",
+    ]
+
+    found = []
+    missing = []
+    for t in tools:
+        if shutil.which(t):
+            found.append(t)
+        else:
+            missing.append(t)
+
+    console.rule("Dependency Check")
+    for t in tools:
+        status = "found" if t in found else "missing"
+        color = "green" if t in found else "red"
+        console.print(f"{t}: [{color}]{status}[/{color}]")
+
+    if missing:
+        console.print(f"[red]Missing tools:[/red] {', '.join(missing)}")
+    else:
+        console.print("[green]All required tools are installed.[/green]")
+
+
 def run(cmd, **kwargs):
     try:
         subprocess.run(cmd, check=True, **kwargs)
@@ -327,6 +360,7 @@ def main(argv=None):
     sub.add_parser('import', help='Batch import JSON files from imports/')
     sub.add_parser('serve', help='Serve flyer over OnionShare using config')
     sub.add_parser('quickstart', help='Init, build and serve in sequence')
+    sub.add_parser('check', help='Check for required external dependencies')
 
     args = parser.parse_args(argv)
     config_path = Path(args.config).resolve()
@@ -351,6 +385,8 @@ def main(argv=None):
         interactive_update(config_path)
         build_assets(config_path)
         serve(config_path)
+    elif args.command == 'check':
+        check_deps()
     else:
         parser.print_help()
 
