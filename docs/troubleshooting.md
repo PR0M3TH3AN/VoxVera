@@ -18,3 +18,9 @@ If problems persist, consult the OnionShare and Tor documentation for more advan
 
 ## Electron GUI
 If `npm start` fails with `spawn voxvera ENOENT`, the `voxvera` command is not in your `PATH`. Install it with `pipx install voxvera` or run `./install.sh` from the repository.
+
+## Missing dependencies
+Run `voxvera check` to see which required tools are present. The command verifies
+`node`, `javascript-obfuscator`, `html-minifier-terser`, `jq`, `qrencode`,
+`onionshare-cli`, and other helpers, then prints a summary of any that are
+missing so you can install them.
