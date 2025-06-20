@@ -72,23 +72,83 @@ def _len_transform(limit: int):
     return _t
 
 
+def _len_validator(limit: int):
+    def _v(val: str):
+        l = len(val)
+        if l > limit:
+            return f"Must be at most {limit} characters ({l})"
+        return True
+    return _v
+
+
+def _subdomain_validator(val: str):
+    if len(val) > 63:
+        return "Subdomain must be at most 63 characters"
+    if not re.fullmatch(r"[a-z0-9-]+", val):
+        return "Use only lowercase letters, numbers and '-'"
+    return True
+
+
 def interactive_update(config_path: str):
     data = load_config(config_path)
     console = Console()
 
     console.rule("Metadata")
     meta_qs = [
-        {"type": "input", "message": "Name", "name": "name", "default": data.get("name", ""), "transformer": _len_transform(60)},
-        {"type": "input", "message": "Subdomain", "name": "subdomain", "default": data.get("subdomain", ""), "transformer": _len_transform(63)},
-        {"type": "input", "message": "Title", "name": "title", "default": data.get("title", ""), "transformer": _len_transform(60)},
-        {"type": "input", "message": "Subtitle", "name": "subtitle", "default": data.get("subtitle", ""), "transformer": _len_transform(80)},
-        {"type": "input", "message": "Headline", "name": "headline", "default": data.get("headline", ""), "transformer": _len_transform(80)},
+        {
+            "type": "input",
+            "message": "Name",
+            "name": "name",
+            "default": data.get("name", ""),
+            "transformer": _len_transform(60),
+            "validate": _len_validator(60),
+        },
+        {
+            "type": "input",
+            "message": "Subdomain",
+            "name": "subdomain",
+            "default": data.get("subdomain", ""),
+            "transformer": _len_transform(63),
+            "validate": _subdomain_validator,
+        },
+        {
+            "type": "input",
+            "message": "Title",
+            "name": "title",
+            "default": data.get("title", ""),
+            "transformer": _len_transform(60),
+            "validate": _len_validator(60),
+        },
+        {
+            "type": "input",
+            "message": "Subtitle",
+            "name": "subtitle",
+            "default": data.get("subtitle", ""),
+            "transformer": _len_transform(80),
+            "validate": _len_validator(80),
+        },
+        {
+            "type": "input",
+            "message": "Headline",
+            "name": "headline",
+            "default": data.get("headline", ""),
+            "transformer": _len_transform(80),
+            "validate": _len_validator(80),
+        },
     ]
     data.update(prompt(meta_qs))
 
     console.rule("Body text")
-    body = open_editor(data.get("content", ""))
-    console.print(f"Body length: {len(body)}/1000", style="red" if len(body) > 1000 else "green")
+    while True:
+        body = open_editor(data.get("content", ""))
+        l = len(body)
+        if l > 1000:
+            console.print(f"Body length: {l}/1000 exceeds limit", style="red")
+            if not inquirer.confirm(message="Edit again?", default=True).execute():
+                break
+        else:
+            console.print(f"Body length: {l}/1000", style="green")
+            break
     data["content"] = body
 
     console.rule("Links")
@@ -105,10 +165,38 @@ def interactive_update(config_path: str):
         constructed = f"https://{data['subdomain']}.example.com"
 
     link_qs = [
-        {"type": "input", "message": "URL", "name": "url", "default": data.get("url", constructed), "transformer": _len_transform(200)},
-        {"type": "input", "message": "Tear-off link", "name": "tear_off_link", "default": data.get("tear_off_link", constructed), "transformer": _len_transform(200)},
-        {"type": "input", "message": "URL message", "name": "url_message", "default": data.get("url_message", ""), "transformer": _len_transform(120)},
-        {"type": "input", "message": "Binary message", "name": "binary_message", "default": data.get("binary_message", ""), "transformer": _len_transform(120)},
+        {
+            "type": "input",
+            "message": "URL",
+            "name": "url",
+            "default": data.get("url", constructed),
+            "transformer": _len_transform(200),
+            "validate": _len_validator(200),
+        },
+        {
+            "type": "input",
+            "message": "Tear-off link",
+            "name": "tear_off_link",
+            "default": data.get("tear_off_link", constructed),
+            "transformer": _len_transform(200),
+            "validate": _len_validator(200),
+        },
+        {
+            "type": "input",
+            "message": "URL message",
+            "name": "url_message",
+            "default": data.get("url_message", ""),
+            "transformer": _len_transform(120),
+            "validate": _len_validator(120),
+        },
+        {
+            "type": "input",
+            "message": "Binary message",
+            "name": "binary_message",
+            "default": data.get("binary_message", ""),
+            "transformer": _len_transform(120),
+            "validate": _len_validator(120),
+        },
     ]
     data.update(prompt(link_qs))
 
