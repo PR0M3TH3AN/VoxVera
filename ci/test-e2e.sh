@@ -30,14 +30,14 @@ if [ "${VOXVERA_E2E_OFFLINE:-}" != "1" ]; then
   sleep 10
 
   # Start OnionShare
-  onionshare-cli --website --public --persistent dist/demosite/.onionshare-session dist/demosite >"$LOG_DIR/onionshare.log" 2>&1 &
+  onionshare-cli --website --public --persistent dist/demosite >"$LOG_DIR/onionshare.log" 2>&1 &
   OS_PID=$!
 
 # Wait for URL
 URL=""
 i=0
-while [ $i -lt 30 ]; do
-    if grep -Eo 'https?://[a-zA-Z0-9]{16,56}\.onion' "$LOG_DIR/onionshare.log" | head -n1 >"$LOG_DIR/url.txt"; then
+while [ $i -lt 90 ]; do
+    if grep -Eo 'http[^ ]+\.onion' "$LOG_DIR/onionshare.log" | head -n1 >"$LOG_DIR/url.txt"; then
         URL=$(cat "$LOG_DIR/url.txt")
         [ -n "$URL" ] && break
     fi
