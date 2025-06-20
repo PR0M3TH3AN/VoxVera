@@ -6,6 +6,12 @@ build-backend = "setuptools.build_meta"
 where = ["."]
 include = ["voxvera*"]
 
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+voxvera = ["../templates/**", "../src/**"]
+
 [project]
 name = "voxvera"
 version = "0.1.0"
