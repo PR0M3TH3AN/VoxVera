@@ -82,7 +82,18 @@ app.whenReady().then(() => {
 });
 
 function getConfigPath() {
-  return path.join(__dirname, '..', '..', 'voxvera', 'src', 'config.json');
+  const userDir = app.getPath('userData');
+  const cfgPath = path.join(userDir, 'config.json');
+  if (!fs.existsSync(cfgPath)) {
+    try {
+      fs.mkdirSync(userDir, { recursive: true });
+      const defaultCfg = path.join(__dirname, '..', '..', 'voxvera', 'src', 'config.json');
+      fs.copyFileSync(defaultCfg, cfgPath);
+    } catch (err) {
+      dialog.showErrorBox('Config error', err.message);
+    }
+  }
+  return cfgPath;
 }
 
 ipcMain.handle('load-config', async () => {
