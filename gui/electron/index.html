@@ -3,6 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <title>VoxVera GUI</title>
+  <style>
+    #log {
+      border: 1px solid #ccc;
+      padding: 5px;
+      height: 150px;
+      overflow-y: auto;
+      background: #f8f8f8;
+      white-space: pre-wrap;
+    }
+  </style>
 </head>
 <body>
   <h1>VoxVera</h1>
@@ -20,6 +30,7 @@
     <button type="button" id="quickstart">Generate &amp; Serve</button>
   </form>
   <p id="onion-address"></p>
+  <pre id="log"></pre>
   <script>
     async function load() {
       const cfg = await window.voxvera.loadConfig();
@@ -42,6 +53,15 @@
 
     window.voxvera.onOnionUrl(url => {
       document.getElementById('onion-address').textContent = `Onion address: ${url}`;
+    });
+
+    window.voxvera.onLog((msg, isErr) => {
+      const container = document.getElementById('log');
+      const span = document.createElement('span');
+      if (isErr) span.style.color = 'red';
+      span.textContent = msg;
+      container.appendChild(span);
+      container.scrollTop = container.scrollHeight;
     });
   </script>
 </body>
