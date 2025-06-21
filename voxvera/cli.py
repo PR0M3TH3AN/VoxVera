@@ -8,7 +8,7 @@ import sys
 import datetime
 from pathlib import Path
 from importlib import resources
-from importlib.abc import Traversable
+from importlib.resources.abc import Traversable
 from InquirerPy import prompt, inquirer
 from rich.console import Console
 
