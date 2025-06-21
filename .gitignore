@@ -3,6 +3,9 @@
 tmp*/
 venv/
 .venv
+voxvera/
+voxvera/src/
+
 # OS and editor files
 .DS_Store
 Thumbs.db
