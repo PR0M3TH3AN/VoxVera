@@ -14,6 +14,13 @@ This page collects common issues encountered when hosting or accessing flyers.
 - On SELinux-enabled distributions you may see `permission denied` errors when OnionShare writes to the `host` directory.
 - Run `sudo chcon -Rt svirt_sandbox_file_t host` or disable SELinux enforcement for the folder.
 
+## OnionShare crashes
+If the GUI shows "OnionShare exited unexpectedly" check the log file
+`host/<subdomain>/onionshare.log` for details. This usually points to
+network connectivity problems or a missing dependency. Running
+`voxvera serve` from the command line can provide additional error
+output.
+
 If problems persist, consult the OnionShare and Tor documentation for more advanced configuration tips.
 
 ## Electron GUI
