@@ -98,18 +98,18 @@ def open_editor(initial: str) -> str:
 
 def _len_transform(limit: int):
     def _t(val: str) -> str:
-        l = len(val)
-        if l > limit:
-            return f"[red]{val} ({l}/{limit})[/red]"
-        return f"{val} ({l}/{limit})"
+        length = len(val)
+        if length > limit:
+            return f"[red]{val} ({length}/{limit})[/red]"
+        return f"{val} ({length}/{limit})"
     return _t
 
 
 def _len_validator(limit: int):
     def _v(val: str):
-        l = len(val)
-        if l > limit:
-            return f"Must be at most {limit} characters ({l})"
+        length = len(val)
+        if length > limit:
+            return f"Must be at most {limit} characters ({length})"
         return True
     return _v
 
@@ -174,13 +174,13 @@ def interactive_update(config_path: str):
     console.rule("Body text")
     while True:
         body = open_editor(data.get("content", ""))
-        l = len(body)
-        if l > 1000:
-            console.print(f"Body length: {l}/1000 exceeds limit", style="red")
+        length = len(body)
+        if length > 1000:
+            console.print(f"Body length: {length}/1000 exceeds limit", style="red")
             if not inquirer.confirm(message="Edit again?", default=True).execute():
                 break
         else:
-            console.print(f"Body length: {l}/1000", style="green")
+            console.print(f"Body length: {length}/1000", style="green")
             break
     data["content"] = body
 
