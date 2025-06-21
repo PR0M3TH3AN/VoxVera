@@ -37,6 +37,8 @@ def test_init_template(tmp_path, monkeypatch):
     assert dest.is_dir()
     assert (dest / "config.json").exists()
     assert (dest / "index.html").exists()
+    # new download directory should be copied as well
+    assert (dest / "download").is_dir()
 
 
 def test_build(tmp_path, monkeypatch):
