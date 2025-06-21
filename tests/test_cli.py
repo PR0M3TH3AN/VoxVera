@@ -6,6 +6,7 @@ import json
 import datetime
 from pathlib import Path
 import zipfile
+import time
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -103,3 +104,94 @@ def test_build_download_zip(tmp_path, monkeypatch):
     cli.main(["build", "--download", str(zip_path)])
     dest = tmp_path / "host" / subdomain / "download" / "download.zip"
     assert dest.is_file()
+
+
+def test_serve_updates_url(tmp_path, monkeypatch):
+    _setup_tmp(monkeypatch, tmp_path)
+    cli.main(["build"])
+    config = json.load(open(tmp_path / "src" / "config.json"))
+    subdomain = config["subdomain"]
+    dir_path = tmp_path / "host" / subdomain
+
+    monkeypatch.setenv("TOR_SOCKS_PORT", "9050")
+    monkeypatch.setenv("TOR_CONTROL_PORT", "9051")
+    monkeypatch.setattr(cli, "require_cmd", lambda c: True)
+    orig_build = cli.build_assets
+    def safe_build_assets(cfg, pdf_path=None, download_path=None):
+        dest = cli.ROOT / 'host' / json.load(open(cfg))["subdomain"] / 'config.json'
+        if Path(cfg) == dest:
+            return
+        return orig_build(cfg, pdf_path=pdf_path, download_path=download_path)
+    monkeypatch.setattr(cli, "build_assets", safe_build_assets)
+    monkeypatch.setattr(time, "sleep", lambda x: None)
+
+    onion_url = "http://test123.onion"
+
+    class FakePopen:
+        def __init__(self, cmd, stdout=None, stderr=None):
+            self.cmd = cmd
+            self.stdout = stdout
+            self.stderr = stderr
+            self.pid = 42
+            if stdout is not None:
+                stdout.write(f"Started at {onion_url}\n")
+                stdout.flush()
+
+        def poll(self):
+            return None
+
+    monkeypatch.setattr(cli.subprocess, "Popen", FakePopen)
+
+    cli.main(["serve"])
+
+    log_file = dir_path / "onionshare.log"
+    assert onion_url in log_file.read_text()
+    updated = json.load(open(dir_path / "config.json"))
+    assert updated["url"] == onion_url
+    assert updated["tear_off_link"] == onion_url
+
+
+def test_quickstart_noninteractive(tmp_path, monkeypatch):
+    _setup_tmp(monkeypatch, tmp_path)
+    config = json.load(open(tmp_path / "src" / "config.json"))
+    subdomain = config["subdomain"]
+
+    monkeypatch.setenv("TOR_SOCKS_PORT", "9050")
+    monkeypatch.setenv("TOR_CONTROL_PORT", "9051")
+    monkeypatch.setattr(cli, "require_cmd", lambda c: True)
+    orig_build = cli.build_assets
+    def safe_build_assets(cfg, pdf_path=None, download_path=None):
+        dest = cli.ROOT / 'host' / json.load(open(cfg))["subdomain"] / 'config.json'
+        if Path(cfg) == dest:
+            return
+        return orig_build(cfg, pdf_path=pdf_path, download_path=download_path)
+    monkeypatch.setattr(cli, "build_assets", safe_build_assets)
+    monkeypatch.setattr(time, "sleep", lambda x: None)
+
+    onion_url = "http://quick.onion"
+
+    class FakePopen:
+        def __init__(self, cmd, stdout=None, stderr=None):
+            self.cmd = cmd
+            self.stdout = stdout
+            self.stderr = stderr
+            self.pid = 99
+            if stdout is not None:
+                stdout.write(f"URL: {onion_url}\n")
+                stdout.flush()
+
+        def poll(self):
+            return None
+
+    monkeypatch.setattr(cli.subprocess, "Popen", FakePopen)
+
+    cli.main(["quickstart", "--non-interactive"])
+
+    dir_path = tmp_path / "host" / subdomain
+    assert (dir_path / "index.html").exists()
+    log_file = dir_path / "onionshare.log"
+    assert onion_url in log_file.read_text()
+    updated = json.load(open(dir_path / "config.json"))
+    assert updated["url"] == onion_url
+    assert updated["tear_off_link"] == onion_url
+
