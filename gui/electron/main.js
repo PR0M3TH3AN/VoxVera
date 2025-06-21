@@ -42,21 +42,37 @@ ipcMain.handle('run-quickstart', async (_, config) => {
     );
     return -1;
   }
-  return new Promise((resolve, reject) => {
-    const proc = spawn(voxveraPath, ['--config', configPath, 'quickstart']);
+  return new Promise((resolve) => {
+    const args = ['--config', configPath, 'quickstart', '--non-interactive'];
+    const proc = spawn(voxveraPath, args);
     proc.stdout.on('data', data => {
       const line = data.toString();
       process.stdout.write(line);
+      if (mainWindow) {
+        mainWindow.webContents.send('log', { text: line, isError: false });
+      }
       const m = line.match(/Onion URL:\s*(https?:\/\/[a-z0-9.-]+\.onion)/i);
       if (m && mainWindow) {
         mainWindow.webContents.send('onion-url', m[1]);
       }
     });
     proc.stderr.on('data', data => {
-      process.stderr.write(data);
+      const line = data.toString();
+      process.stderr.write(line);
+      if (mainWindow) {
+        mainWindow.webContents.send('log', { text: line, isError: true });
+      }
     });
-    proc.on('close', code => resolve(code));
-    proc.on('error', err => reject(err));
+    proc.on('close', code => {
+      if (code !== 0) {
+        dialog.showErrorBox('voxvera error', `voxvera exited with code ${code}.`);
+      }
+      resolve(code);
+    });
+    proc.on('error', err => {
+      dialog.showErrorBox('voxvera error', err.message);
+      resolve(-1);
+    });
   });
 });
 
