@@ -22,21 +22,22 @@ dependencies such as Node.js, `javascript-obfuscator`, `html-minifier-terser`,
 and the Python packages `InquirerPy` and `rich` if they are not already
 available.
 
-If you already have the prerequisites you can install the package directly from
-PyPI:
+If you already have the prerequisites you can install the package directly. The
+project is not currently published on PyPI, so install it from the repository:
 
 ```bash
-pipx install voxvera  # recommended
-# or
-pip install --user voxvera
+pipx install git+https://github.com/PR0M3TH3AN/VoxVera.git  # recommended
+# or from the current directory
+pip install .
 ```
 
-If your system reports an "externally-managed" Python environment and blocks installation, create a virtual environment first:
+If your system reports an "externally-managed" Python environment and blocks
+installation, create a virtual environment first:
 
 ```bash
 python3 -m venv voxvera-venv
 source voxvera-venv/bin/activate
-pip install voxvera
+pip install git+https://github.com/PR0M3TH3AN/VoxVera.git
 ```
 
 The legacy `src/create_flyer.sh` script remains for backward compatibility. It

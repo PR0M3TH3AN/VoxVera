@@ -17,7 +17,7 @@ This page collects common issues encountered when hosting or accessing flyers.
 If problems persist, consult the OnionShare and Tor documentation for more advanced configuration tips.
 
 ## Electron GUI
-If `npm start` fails with `spawn voxvera ENOENT`, the `voxvera` command is not in your `PATH`. Install it with `pipx install voxvera` or run `./install.sh` from the repository.
+If `npm start` fails with `spawn voxvera ENOENT`, the `voxvera` command is not in your `PATH`. Install it with `pipx install git+https://github.com/PR0M3TH3AN/VoxVera.git` or run `./install.sh` from the repository.
 
 ## Missing dependencies
 Run `voxvera check` to see which required tools are present. The command verifies
