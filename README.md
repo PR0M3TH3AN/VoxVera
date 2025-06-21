@@ -87,10 +87,12 @@ Run `voxvera check` to see missing dependencies.
 ```bash
 cd gui/electron
 npm install
+voxvera check  # verify dependencies before launching
 npm start
 ```
 
-Click **Quickstart** to generate flyers without the terminal.
+Click **Quickstart** to generate flyers without the terminal. If any tools are
+missing or the network fails, see `docs/troubleshooting.md` for fixes.
 
 ---
 
