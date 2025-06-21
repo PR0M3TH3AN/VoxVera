@@ -10,6 +10,8 @@ APPDIR=dist/AppDir
 mkdir -p "$APPDIR/usr/bin"
 cp dist/voxvera "$APPDIR/usr/bin/voxvera"
 chmod +x "$APPDIR/usr/bin/voxvera"
+mkdir -p "$APPDIR/usr/lib/voxvera/resources"
+cp -r voxvera/resources/tor "$APPDIR/usr/lib/voxvera/resources/"
 
 cat > "$APPDIR/voxvera.desktop" <<EOD
 [Desktop Entry]

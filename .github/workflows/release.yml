@@ -20,7 +20,7 @@ jobs:
       - name: Build wheel
         run: python -m build --wheel --sdist
       - name: Build binary
-        run: pyinstaller --onefile -n voxvera voxvera/cli.py
+        run: pyinstaller --onefile -n voxvera voxvera/cli.py --add-data "voxvera/resources/tor/*:voxvera/resources/tor"
       - name: Create AppImage
         run: |
           sudo apt-get update
