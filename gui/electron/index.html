@@ -53,6 +53,8 @@
 
     window.voxvera.onOnionUrl(url => {
       document.getElementById('onion-address').textContent = `Onion address: ${url}`;
+      const tear = document.getElementById('tear_off_link');
+      if (tear) tear.value = url;
     });
 
     window.voxvera.onLog((msg, isErr) => {
