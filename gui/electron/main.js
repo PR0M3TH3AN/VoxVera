@@ -6,6 +6,8 @@ const fs = require('fs');
 
 let mainWindow;
 let onionProc;
+// 🔧 merged conflicting changes from codex/start-onionshare-and-generate-static-site vs main
+let restarting = false;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -18,6 +20,7 @@ function createWindow() {
   mainWindow.loadFile('index.html');
 }
 
+// 🔧 merged conflicting changes from codex/start-onionshare-and-generate-static-site vs main
 function startOnionShare() {
   const configPath = getConfigPath();
   const voxveraPath = which.sync('voxvera', { nothrow: true });
@@ -29,32 +32,55 @@ function startOnionShare() {
     return;
   }
   const build = spawn(voxveraPath, ['--config', configPath, 'build']);
-  build.on('close', () => {
-    const args = ['--config', configPath, 'serve'];
-    onionProc = spawn(voxveraPath, args);
-    onionProc.stdout.on('data', data => {
-      const line = data.toString();
-      process.stdout.write(line);
-      if (mainWindow) {
-        mainWindow.webContents.send('log', { text: line, isError: false });
-      }
-      const m = line.match(/Onion URL:\s*(https?:\/\/[a-z0-9.-]+\.onion)/i);
-      if (m && mainWindow) {
-        mainWindow.webContents.send('onion-url', m[1]);
-      }
-    });
-    onionProc.stderr.on('data', data => {
-      const line = data.toString();
-      process.stderr.write(line);
-      if (mainWindow) {
-        mainWindow.webContents.send('log', { text: line, isError: true });
-      }
-    });
-    onionProc.on('close', code => {
-      if (code !== 0) {
-        dialog.showErrorBox('OnionShare error', `onionshare exited with code ${code}.`);
-      }
-    });
+  build.on('error', err => {
+    dialog.showErrorBox('voxvera build error', err.message);
+  });
+  build.on('close', code => {
+    if (code !== 0) {
+      dialog.showErrorBox('voxvera build error', `build exited with code ${code}.`);
+      return;
+    }
+    runServe();
+  });
+}
+
+function runServe(retry = false) {
+  const configPath = getConfigPath();
+  const voxveraPath = which.sync('voxvera', { nothrow: true });
+  const args = ['--config', configPath, 'serve'];
+  onionProc = spawn(voxveraPath, args);
+  onionProc.stdout.on('data', data => {
+    const line = data.toString();
+    process.stdout.write(line);
+    if (mainWindow) {
+      mainWindow.webContents.send('log', { text: line, isError: false });
+    }
+    const m = line.match(/Onion URL:\s*(https?:\/\/[a-z0-9.-]+\.onion)/i);
+    if (m && mainWindow) {
+      mainWindow.webContents.send('onion-url', m[1]);
+    }
+  });
+  onionProc.stderr.on('data', data => {
+    const line = data.toString();
+    process.stderr.write(line);
+    if (mainWindow) {
+      mainWindow.webContents.send('log', { text: line, isError: true });
+    }
+  });
+  onionProc.on('error', err => {
+    dialog.showErrorBox('OnionShare error', err.message);
+  });
+  onionProc.on('close', code => {
+    if ((code !== 0 && code !== null) || retry) {
+      dialog.showErrorBox('OnionShare error', `onionshare exited with code ${code}.`);
+    }
+    if (!restarting && (code !== 0 || code === null)) {
+      restarting = true;
+      setTimeout(() => {
+        restarting = false;
+        runServe(true);
+      }, 1000);
+    }
   });
 }
 
