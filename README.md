@@ -6,7 +6,7 @@ Generate printable flyers with QR codes linking to Tor (.onion) or HTTPS sites, 
 
 ## 🚀 Key Features
 
-* **Interactive setup**: `voxvera init` prompts for metadata or extracts from a PDF form.
+* **Interactive setup**: `voxvera init` prompts for metadata or extracts from a PDF form. When editing body text, a simple GUI window opens with existing content pre-filled.
 * **Template support**: `voxvera init --template <name>` copies built‑in templates (`blank`, `voxvera`).
 * **Build assets**: `voxvera build [--pdf <path>] [--download <file.zip>]` generates HTML, obfuscated JS/CSS, QR codes, and bundles PDFs.
 * **Batch import**: `voxvera import` processes all JSON configs in `imports/`.

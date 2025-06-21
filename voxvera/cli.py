@@ -84,18 +84,55 @@ def save_config(data: dict, path: str):
         json.dump(data, fh, indent=2)
 
 
-def open_editor(initial: str) -> str:
+def _open_editor_terminal(initial: str) -> str:
+    """Fallback to opening the user's $EDITOR in the terminal."""
     import tempfile
-    editor = os.environ.get('EDITOR', 'nano')
-    fd, path = tempfile.mkstemp(suffix='.txt')
+
+    editor = os.environ.get("EDITOR", "nano")
+    fd, path = tempfile.mkstemp(suffix=".txt")
     try:
-        with os.fdopen(fd, 'w', encoding='utf-8') as fh:
-            fh.write(initial or '')
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(initial or "")
         subprocess.call([editor, path])
-        with open(path, 'r', encoding='utf-8') as fh:
+        with open(path, "r", encoding="utf-8") as fh:
             return fh.read()
     finally:
         os.unlink(path)
+
+
+def open_editor(initial: str) -> str:
+    """Open a simple GUI text editor when possible.
+
+    The window is pre-populated with ``initial`` so users can edit existing
+    content. If the GUI cannot be displayed (e.g. running headless or Tkinter
+    is unavailable) the terminal editor fallback is used.
+    """
+
+    try:  # Try to open a Tkinter GUI for editing
+        import tkinter as tk
+        from tkinter import scrolledtext
+
+        result = {"text": initial or ""}
+
+        root = tk.Tk()
+        root.title("Edit text")
+
+        text = scrolledtext.ScrolledText(root, width=80, height=20)
+        text.pack(expand=True, fill="both")
+        text.insert("1.0", initial or "")
+
+        def save_and_close():
+            result["text"] = text.get("1.0", "end-1c")
+            root.destroy()
+
+        save_btn = tk.Button(root, text="Save", command=save_and_close)
+        save_btn.pack()
+
+        root.mainloop()
+        return result["text"]
+    except Exception:
+        # Anything from import failures to display issues falls back to terminal
+        return _open_editor_terminal(initial)
 
 
 def _len_transform(limit: int):
