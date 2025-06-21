@@ -1,7 +1,8 @@
 # Temporary files
 *.tmp
 tmp*/
-
+venv/
+.venv
 # OS and editor files
 .DS_Store
 Thumbs.db
