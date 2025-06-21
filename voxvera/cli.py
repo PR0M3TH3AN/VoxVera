@@ -17,11 +17,13 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def _template_res(*parts) -> Traversable:
-    return resources.files(__package__).joinpath('..', 'templates', *parts)
+    """Return a Traversable for files under the packaged ``templates`` folder."""
+    return resources.files(__package__).joinpath('templates', *parts)
 
 
 def _src_res(*parts) -> Traversable:
-    return resources.files(__package__).joinpath('..', 'src', *parts)
+    """Return a Traversable for files under the packaged ``src`` folder."""
+    return resources.files(__package__).joinpath('src', *parts)
 
 
 def require_cmd(cmd: str):
