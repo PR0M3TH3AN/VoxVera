@@ -1,93 +1,145 @@
 # VoxVera Flyers
 
-Generate printable flyers with QR codes that link to Tor (.onion) or HTTPS sites, plus an optional Nostr address.
+Generate printable flyers with QR codes linking to Tor (.onion) or HTTPS sites, plus optional Nostr sharing.
 
 ---
 
-## 🎉 Quick Install (no Git, no pip hassles)
+## 🚀 Key Features
 
-1. **Download the prebuilt Linux binary**  
-   ```bash
-   mkdir -p ~/.local/bin
-   wget -qO ~/.local/bin/voxvera \
-     https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera
-   chmod +x ~/.local/bin/voxvera
-   ```
-
-2. **Ensure `$HOME/.local/bin` is in your `PATH`**
-   Add this to your `~/.bashrc` or `~/.zshrc` if needed:
-
-   ```bash
-   export PATH="$HOME/.local/bin:$PATH"
-   ```
-3. **Run the CLI**
-
-   ```bash
-   voxvera quickstart
-   ```
+* **Interactive setup**: `voxvera init` prompts for metadata or extracts from a PDF form.
+* **Template support**: `voxvera init --template <name>` copies built‑in templates (`blank`, `voxvera`).
+* **Build assets**: `voxvera build [--pdf <path>] [--download <file.zip>]` generates HTML, obfuscated JS/CSS, QR codes, and bundles PDFs.
+* **Batch import**: `voxvera import` processes all JSON configs in `imports/`.
+* **Onion hosting**: `voxvera serve` publishes via Tor/OnionShare and updates flyer links.
+* **All‑in‑one**: `voxvera quickstart` runs init, build, and serve in sequence.
+* **Dependency check**: `voxvera check` verifies presence of required tools.
+* **GUI**: Minimal Electron wrapper (`gui/electron`) for non‑CLI users.
 
 ---
 
-## 🛠️ From Source (for contributors)
+## 📥 Fool‑Proof Installation
 
-If you want to hack on VoxVera, clone the repo and use a virtual env:
+### 1. Prebuilt Binary (Linux)
 
 ```bash
-# 1. Clone the repo
+# Download and install to $HOME/.local/bin
+mkdir -p ~/.local/bin \
+  && wget -qO ~/.local/bin/voxvera \
+      https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera \
+  && chmod +x ~/.local/bin/voxvera
+
+# Ensure ~/.local/bin is in your PATH
+if ! echo "$PATH" | grep -q "$HOME/.local/bin"; then
+  echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+  echo 'Add ~/.local/bin to your PATH and restart your shell.'
+fi
+```
+
+### 2. Homebrew (macOS)
+
+```bash
+brew tap PR0M3TH3AN/voxvera
+brew install voxvera
+```
+
+### 3. pipx (cross‑platform)
+
+```bash
+pipx install voxvera
+```
+
+### 4. From Source
+
+```bash
+# Clone repo
 git clone https://github.com/PR0M3TH3AN/VoxVera.git
 cd VoxVera
 
-# 2. Create & activate a Python venv
+# Create & activate virtualenv
 python3 -m venv .venv
 source .venv/bin/activate
 
-# 3. Install the package
+# Install editable package
 pip install --upgrade pip
-pip install .
-
-# 4. Run
-voxvera quickstart
+pip install -e .
 ```
+
+> After install, verify with `voxvera --help`.
 
 ---
 
-## 📦 Docker (optional)
+## 🛠️ System Dependencies
 
-VoxVera is also on GitHub Container Registry:
+These tools must be available in your PATH:
+
+```
+ton, onionshare-cli, jq, qrencode, convert (ImageMagick), pdftotext,
+node, javascript-obfuscator, html-minifier-terser
+```
+
+Run `voxvera check` to see missing dependencies.
+
+---
+
+## 🎮 GUI (Electron)
 
 ```bash
+cd gui/electron
+npm install
+npm start
+```
+
+Click **Quickstart** to generate flyers without the terminal.
+
+---
+
+## 🏗️ Basic Usage
+
+```bash
+# 1. Interactive setup:
+voxvera init
+
+# 2. Build flyers:
+voxvera build [--pdf path/to/form.pdf] [--download path/to/file.zip]
+
+# 3. Serve via OnionShare:
+voxvera serve
+```
+
+Or run all steps:
+
+```bash
+voxvera quickstart
+```
+
+### Other Commands
+
+* `voxvera init --template <name>` — copy a template into `dist/`.
+* `voxvera import` — batch‑import JSON configs from `imports/`.
+* `voxvera check` — dependency health check.
+
+---
+
+## 🐳 Docker (optional)
+
+```bash
+# Pull and run
 docker pull ghcr.io/PR0M3TH3AN/voxvera:latest
 mkdir flyers
 docker run --rm -it -v "$(pwd)/flyers:/flyers" ghcr.io/PR0M3TH3AN/voxvera
 ```
 
-Generated flyers land in `./flyers`.
+Flyers appear in `./flyers`.
 
 ---
 
-## 🚀 Usage
+## 📄 Documentation
 
-```bash
-# Initialize a new flyer (interactive prompts)
-voxvera init
+See the `docs/` folder for detailed guides:
 
-# Build the HTML, QR codes & static files
-voxvera build
-
-# Host via OnionShare on Tor
-voxvera serve
-```
-
-See `voxvera check` to verify you have `tor`, `onionshare-cli`, `jq`, `qrencode`, `imagemagick`, `node`, `javascript-obfuscator`, and `html-minifier-terser`.
-
----
-
-## 📄 Docs
-
-Full docs in the `docs/` folder:
-
-* `docs/usage.md` — detailed CLI guide
+* `docs/usage.md` — CLI workflows
 * `docs/docker.md` — Docker tips
+* `docs/templates.md` — available flyer templates
 * `docs/troubleshooting.md` — common fixes
 
 ---
