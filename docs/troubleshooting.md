@@ -11,8 +11,9 @@ This page collects common issues encountered when hosting or accessing flyers.
 The files in `voxvera/resources/tor/*` are not real executables. Install `tor`
 and `obfs4proxy` yourself (e.g. `apt install tor obfs4proxy`) then set
 `TOR_SOCKS_PORT` and `TOR_CONTROL_PORT` before running `voxvera serve` or the
-Electron GUI. Running `scripts/download_tor.sh` can also populate the missing
-files automatically.
+Electron GUI. OnionShare uses these values with its `--use-running-tor`
+argument. Running `scripts/download_tor.sh` can also populate the missing files
+automatically.
 
 ## Firewall rules
 - If `voxvera serve` fails to start OnionShare, verify that outbound connections on ports 9001 and 80 are permitted.
