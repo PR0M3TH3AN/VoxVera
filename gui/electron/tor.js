@@ -1,6 +1,6 @@
 const { spawn } = require('child_process');
 const path = require('path');
-const getPort = require('get-port');
+const getPort = (...args) => import('get-port').then(m => m.default(...args));
 
 async function launchTor() {
   const socks = await getPort();
