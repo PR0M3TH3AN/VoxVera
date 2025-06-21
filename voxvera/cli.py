@@ -406,7 +406,9 @@ def main(argv=None):
 
     sub.add_parser('import', help='Batch import JSON files from imports/')
     sub.add_parser('serve', help='Serve flyer over OnionShare using config')
-    sub.add_parser('quickstart', help='Init, build and serve in sequence')
+    p_quickstart = sub.add_parser('quickstart', help='Init, build and serve in sequence')
+    p_quickstart.add_argument('--non-interactive', action='store_true',
+                              help='Skip interactive prompts and use existing config')
     sub.add_parser('check', help='Check for required external dependencies')
 
     args = parser.parse_args(argv)
@@ -429,7 +431,15 @@ def main(argv=None):
     elif args.command == 'import':
         import_configs()
     elif args.command == 'quickstart':
-        interactive_update(config_path)
+        if not args.non_interactive:
+            if not sys.stdin.isatty():
+                print(
+                    "Error: quickstart requires an interactive terminal. "
+                    "Use --non-interactive or run 'voxvera init' first.",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
+            interactive_update(config_path)
         build_assets(config_path)
         serve(config_path)
     elif args.command == 'check':
