@@ -5,7 +5,11 @@ This guide covers common CLI workflows. See `docs/docker.md` for Docker instruct
 ## Step-by-Step
 1. Edit `src/index-master.html` or `src/nostr-master.html` if you need custom content.
 2. Run `voxvera init` and follow the prompts, or use `voxvera init --from-pdf path/to/form.pdf`.
-3. Host the generated `host/<subdomain>` directory. The `index.html` file fetches `config.json`, so the flyer must be served via a local or remote web server rather than opened directly from disk. For a quick test you can run `python3 -m http.server` inside the folder and then visit the provided address.
+3. Build the flyer assets. Add an optional zip file at `src/download/download.zip` or pass `--download` to include it in the build:
+   ```bash
+   voxvera build --download path/to/file.zip
+   ```
+4. Host the generated `host/<subdomain>` directory. The `index.html` file fetches `config.json`, so the flyer must be served via a local or remote web server rather than opened directly from disk. For a quick test you can run `python3 -m http.server` inside the folder and then visit the provided address. Visitors can use the **Download** button to retrieve the file.
 
 ## Batch Import
 Place configuration files in an `imports/` directory at the project root and run:
