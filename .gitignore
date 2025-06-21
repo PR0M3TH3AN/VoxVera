@@ -36,3 +36,8 @@ ci-logs/
 *.log
 *.onionshare-session
 gui/electron/package-lock.json
+voxvera/src/config.json
+voxvera/src/index.html
+voxvera/src/nostr.html
+voxvera/src/qrcode-content.png
+voxvera/src/qrcode-tear-offs.png
