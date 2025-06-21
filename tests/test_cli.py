@@ -5,6 +5,7 @@ import shutil
 import json
 import datetime
 from pathlib import Path
+import zipfile
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -89,4 +90,16 @@ def test_check_missing(capsys, monkeypatch):
     cli.main(["check"])
     captured = capsys.readouterr()
     assert "node: missing" in captured.out
+
+
+def test_build_download_zip(tmp_path, monkeypatch):
+    _setup_tmp(monkeypatch, tmp_path)
+    config = json.load(open(tmp_path / "src" / "config.json"))
+    subdomain = config["subdomain"]
+    zip_path = tmp_path / "file.zip"
+    with zipfile.ZipFile(zip_path, "w") as zf:
+        zf.writestr("dummy.txt", "data")
+    cli.main(["build", "--download", str(zip_path)])
+    dest = tmp_path / "host" / subdomain / "download" / "download.zip"
+    assert dest.is_file()
 
