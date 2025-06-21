@@ -48,6 +48,15 @@ def test_build(tmp_path, monkeypatch):
     assert (dest / "index.html").exists()
 
 
+def test_build_with_download(tmp_path, monkeypatch):
+    _setup_tmp(monkeypatch, tmp_path)
+    download_file = tmp_path / "sample.zip"
+    download_file.write_text("dummy")
+    cli.main(["build", "--download", str(download_file)])
+    dest = tmp_path / "host" / "voxvera" / "download" / "download.zip"
+    assert dest.is_file()
+
+
 def test_import(tmp_path, monkeypatch):
     repo = _setup_tmp(monkeypatch, tmp_path)
     imports_dir = tmp_path / "imports"
