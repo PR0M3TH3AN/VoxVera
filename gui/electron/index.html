@@ -7,9 +7,13 @@
 <body>
   <h1>VoxVera</h1>
   <button id="quickstart">Quickstart</button>
+  <p id="onion-address"></p>
   <script>
     document.getElementById('quickstart').addEventListener('click', () => {
       window.voxvera.quickstart();
+    });
+    window.voxvera.onOnionUrl(url => {
+      document.getElementById('onion-address').textContent = `Onion address: ${url}`;
     });
   </script>
 </body>
