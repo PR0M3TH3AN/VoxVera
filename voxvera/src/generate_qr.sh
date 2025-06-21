@@ -18,12 +18,16 @@ tear=$(jq -r '.tear_off_link' "$CONFIG")
 tmp_content=$(mktemp)
 tmp_tear=$(mktemp)
 
+cleanup() {
+  rm -f "$tmp_content" "$tmp_tear"
+}
+
+trap cleanup EXIT
+
 qrencode -o "$tmp_content" -s 10 -m 0 "$url"
 qrencode -o "$tmp_tear" -s 10 -m 0 "$tear"
 
 convert "$tmp_content" -resize 128x128 "qrcode-content.png"
 convert "$tmp_tear" -resize 128x128 "qrcode-tear-offs.png"
-
-rm -f "$tmp_content" "$tmp_tear"
 
 echo "QR codes generated"
