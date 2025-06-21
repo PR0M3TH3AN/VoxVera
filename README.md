@@ -6,18 +6,19 @@ Generate printable flyers with QR codes linking to Tor (.onion) or HTTPS sites, 
 
 ## 🚀 Key Features
 
-* **Interactive setup**: `voxvera init` prompts for metadata or extracts from a PDF form. When editing body text, a simple GUI window opens with existing content pre-filled.
-* **Template support**: `voxvera init --template <name>` copies built‑in templates (`blank`, `voxvera`).
+// 🔧 merged conflicting changes from codex/populate-gui-text-fields-for-editing vs main
+* **Interactive setup**: `voxvera init` prompts for metadata or extracts from a PDF form. When editing body text, a small Tkinter GUI window opens with existing content pre-filled, falling back to the user's `$EDITOR` if the GUI isn't available.
+* **Template support**: `voxvera init --template <name>` copies built-in templates (`blank`, `voxvera`).
 * **Build assets**: `voxvera build [--pdf <path>] [--download <file.zip>]` generates HTML, obfuscated JS/CSS, QR codes, and bundles PDFs.
 * **Batch import**: `voxvera import` processes all JSON configs in `imports/`.
 * **Onion hosting**: `voxvera serve` publishes via Tor/OnionShare and updates flyer links.
-* **All‑in‑one**: `voxvera quickstart` runs init, build, and serve in sequence.
+* **All-in-one**: `voxvera quickstart` runs init, build, and serve in sequence.
 * **Dependency check**: `voxvera check` verifies presence of required tools.
-* **GUI**: Minimal Electron wrapper (`gui/electron`) for non‑CLI users.
+* **GUI**: Minimal Electron wrapper (`gui/electron`) for non-CLI users.
 
 ---
 
-## 📥 Fool‑Proof Installation
+## 📥 Fool-Proof Installation
 
 ### 1. Prebuilt Binary (Linux)
 
@@ -33,7 +34,7 @@ if ! echo "$PATH" | grep -q "$HOME/.local/bin"; then
   echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
   echo 'Add ~/.local/bin to your PATH and restart your shell.'
 fi
-```
+````
 
 ### 2. Homebrew (macOS)
 
@@ -42,7 +43,7 @@ brew tap PR0M3TH3AN/voxvera
 brew install voxvera
 ```
 
-### 3. pipx (cross‑platform)
+### 3. pipx (cross-platform)
 
 ```bash
 pipx install voxvera
@@ -115,7 +116,7 @@ voxvera quickstart
 ### Other Commands
 
 * `voxvera init --template <name>` — copy a template into `dist/`.
-* `voxvera import` — batch‑import JSON configs from `imports/`.
+* `voxvera import` — batch-import JSON configs from `imports/`.
 * `voxvera check` — dependency health check.
 
 ---
