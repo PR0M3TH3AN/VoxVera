@@ -112,7 +112,9 @@ After installing either way, set the ports used by Tor:
 export TOR_SOCKS_PORT=9050
 export TOR_CONTROL_PORT=9051
 ```
-Run `voxvera check` to confirm the binaries are detected before launching.
+These variables let OnionShare connect to the already running Tor using its
+`--use-running-tor` option. Run `voxvera check` to confirm the binaries are
+detected before launching.
 
 ---
 

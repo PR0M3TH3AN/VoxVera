@@ -348,8 +348,7 @@ def serve(config_path: str):
     cmd = [
         'onionshare-cli', '--website', '--public',
         '--persistent', str(dir_path / '.onionshare-session'),
-        '--external-tor-socks-port', socks,
-        '--external-tor-control-port', ctl,
+        '--use-running-tor',
         str(dir_path)
     ]
     proc = subprocess.Popen(cmd,
