@@ -72,7 +72,27 @@ function runServe(retry = false) {
   });
   onionProc.on('close', code => {
     if ((code !== 0 && code !== null) || retry) {
-      dialog.showErrorBox('OnionShare error', `onionshare exited with code ${code}.`);
+      let extra = '';
+      try {
+        const confRaw = fs.readFileSync(configPath, 'utf8');
+        const conf = JSON.parse(confRaw);
+        const logPath = path.join(
+          __dirname,
+          '..',
+          '..',
+          'host',
+          conf.subdomain,
+          'onionshare.log'
+        );
+        fs.readFileSync(logPath, 'utf8');
+        extra = `\nSee ${logPath} for details.`;
+      } catch (err) {
+        // ignore errors reading log
+      }
+      dialog.showErrorBox(
+        'OnionShare error',
+        `onionshare exited with code ${code}.${extra}`
+      );
     }
     if (!restarting && (code !== 0 || code === null)) {
       restarting = true;
