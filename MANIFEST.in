@@ -1,2 +1,2 @@
-include templates/**
-include src/**
+include voxvera/templates/**
+include voxvera/src/**
