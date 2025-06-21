@@ -32,3 +32,4 @@ ci-logs/
 # Onionshare logs and session files
 *.log
 *.onionshare-session
+gui/electron/package-lock.json
