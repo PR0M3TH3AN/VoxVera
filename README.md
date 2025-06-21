@@ -52,9 +52,15 @@ pipx install voxvera
 ### 4. From Source
 
 ```bash
-# Clone repo
-git clone https://github.com/PR0M3TH3AN/VoxVera.git
-cd VoxVera
+# Download the latest-main branch as a tarball
+wget -O VoxVera.tar.gz \
+  https://github.com/PR0M3TH3AN/VoxVera/archive/refs/heads/main.tar.gz
+
+# Extract it
+tar -xzf VoxVera.tar.gz
+
+# Enter the extracted directory (note the “-main” suffix)
+cd VoxVera-main
 
 # Create & activate virtualenv
 python3 -m venv .venv
