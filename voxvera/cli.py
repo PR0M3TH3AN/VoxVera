@@ -12,8 +12,8 @@ from importlib.resources.abc import Traversable
 from InquirerPy import prompt, inquirer
 from rich.console import Console
 
-# project root
-ROOT = Path(__file__).resolve().parent.parent
+# package root (contains bundled templates and src/)
+ROOT = Path(__file__).resolve().parent
 
 
 def _template_res(*parts) -> Traversable:
