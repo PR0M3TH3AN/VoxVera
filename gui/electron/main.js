@@ -46,7 +46,13 @@ function startOnionShare() {
 }
 
 async function runServe (retry = false) {
-  const { torProc, socksPort, controlPort } = await launchTor();
+  let torProc, socksPort, controlPort;
+  try {
+    ({ torProc, socksPort, controlPort } = await launchTor());
+  } catch (err) {
+    dialog.showErrorBox('Tor error', err.message);
+    return;
+  }
 
   const env = { ...process.env,
                 TOR_SOCKS_PORT:   socksPort.toString(),
