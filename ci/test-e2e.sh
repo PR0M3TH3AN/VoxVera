@@ -30,7 +30,9 @@ if [ "${VOXVERA_E2E_OFFLINE:-}" != "1" ]; then
   sleep 10
 
   # Start OnionShare
-  onionshare-cli --website --public --persistent dist/demosite >"$LOG_DIR/onionshare.log" 2>&1 &
+  onionshare-cli --website --public \
+    --persistent ci/.onionshare-session \
+    dist/demosite >"$LOG_DIR/onionshare.log" 2>&1 &
   OS_PID=$!
 
 # Wait for URL
