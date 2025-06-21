@@ -84,18 +84,59 @@ def save_config(data: dict, path: str):
         json.dump(data, fh, indent=2)
 
 
-def open_editor(initial: str) -> str:
+def _open_editor_terminal(initial: str) -> str:
+    """Fallback to opening the user's $EDITOR in the terminal."""
     import tempfile
-    editor = os.environ.get('EDITOR', 'nano')
-    fd, path = tempfile.mkstemp(suffix='.txt')
+
+    editor = os.environ.get("EDITOR", "nano")
+    fd, path = tempfile.mkstemp(suffix=".txt")
     try:
-        with os.fdopen(fd, 'w', encoding='utf-8') as fh:
-            fh.write(initial or '')
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(initial or "")
         subprocess.call([editor, path])
-        with open(path, 'r', encoding='utf-8') as fh:
+        with open(path, "r", encoding="utf-8") as fh:
             return fh.read()
     finally:
         os.unlink(path)
+
+
+def open_editor(initial: str) -> str:
+    """Edit text in a small GUI window if possible.
+
+    Existing text is pre-filled in the editor. When ``tkinter`` or a display
+    server is unavailable the function falls back to ``$EDITOR`` in the
+    terminal.
+    """
+
+    try:
+        import tkinter as tk
+        from tkinter import scrolledtext
+    except Exception:
+        return _open_editor_terminal(initial)
+
+    try:
+        root = tk.Tk()
+        root.title("Edit text")
+    except tk.TclError:
+        return _open_editor_terminal(initial)
+
+    result = {"text": initial or ""}
+
+    text = scrolledtext.ScrolledText(root, width=80, height=20)
+    text.pack(expand=True, fill="both")
+    if initial:
+        text.insert("1.0", initial)
+    text.focus_set()
+
+    def finalize():
+        result["text"] = text.get("1.0", "end-1c")
+        root.quit()
+
+    tk.Button(root, text="Save", command=finalize).pack()
+    root.protocol("WM_DELETE_WINDOW", finalize)
+    root.mainloop()
+    root.destroy()
+    return result["text"]
 
 
 def _len_transform(limit: int):
