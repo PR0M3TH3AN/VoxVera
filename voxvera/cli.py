@@ -100,42 +100,36 @@ def _open_editor_terminal(initial: str) -> str:
         os.unlink(path)
 
 
+# 🔧 merged conflicting changes from codex/populate-gui-text-fields-for-editing vs main
 def open_editor(initial: str) -> str:
-    """Edit text in a small GUI window if possible.
+    """Open a simple GUI text editor with pre-populated content if possible.
 
-    Existing text is pre-filled in the editor. When ``tkinter`` or a display
-    server is unavailable the function falls back to ``$EDITOR`` in the
-    terminal.
+    Existing text is pre-filled in the editor. If tkinter or a display
+    server is unavailable, falls back to the user's $EDITOR in the terminal.
     """
-
     try:
         import tkinter as tk
         from tkinter import scrolledtext
+        root = tk.Tk()
+        root.title("Edit text")
     except Exception:
         return _open_editor_terminal(initial)
 
-    try:
-        root = tk.Tk()
-        root.title("Edit text")
-    except tk.TclError:
-        return _open_editor_terminal(initial)
-
     result = {"text": initial or ""}
-
     text = scrolledtext.ScrolledText(root, width=80, height=20)
     text.pack(expand=True, fill="both")
     if initial:
         text.insert("1.0", initial)
     text.focus_set()
 
-    def finalize():
+    def save_and_close():
         result["text"] = text.get("1.0", "end-1c")
-        root.quit()
+        root.destroy()
 
-    tk.Button(root, text="Save", command=finalize).pack()
-    root.protocol("WM_DELETE_WINDOW", finalize)
+    save_btn = tk.Button(root, text="Save", command=save_and_close)
+    save_btn.pack()
+    root.protocol("WM_DELETE_WINDOW", save_and_close)
     root.mainloop()
-    root.destroy()
     return result["text"]
 
 
@@ -345,7 +339,11 @@ def serve(config_path: str):
         print(f"Directory {dir_path} not found", file=sys.stderr)
         sys.exit(1)
     logfile = dir_path / 'onionshare.log'
-    proc = subprocess.Popen(['onionshare-cli', '--website', '--public', '--persistent', f'{dir_path}/.onionshare-session', str(dir_path)], stdout=open(logfile, 'w'), stderr=subprocess.STDOUT)
+    proc = subprocess.Popen(
+        ['onionshare-cli', '--website', '--public', '--persistent',
+         f'{dir_path}/.onionshare-session', str(dir_path)],
+        stdout=open(logfile, 'w'), stderr=subprocess.STDOUT
+    )
     try:
         import time
         import re as _re
@@ -393,7 +391,8 @@ def import_configs():
 
 def main(argv=None):
     parser = argparse.ArgumentParser(prog='voxvera')
-    parser.add_argument('--config', default=str(ROOT / 'src' / 'config.json'), help='Path to config.json')
+    parser.add_argument('--config', default=str(ROOT / 'src' / 'config.json'),
+                        help='Path to config.json')
     sub = parser.add_subparsers(dest='command')
 
     p_init = sub.add_parser('init', help='Update configuration interactively or from PDF')
