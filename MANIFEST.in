@@ -1,2 +1,3 @@
 include voxvera/templates/**
 include voxvera/src/**
+include voxvera/resources/**

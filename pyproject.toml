@@ -10,7 +10,7 @@ include = ["voxvera*"]
 include-package-data = true
 
 [tool.setuptools.package-data]
-voxvera = ["templates/**", "src/**"]
+voxvera = ["templates/**", "src/**", "resources/**"]
 
 [project]
 name = "voxvera"

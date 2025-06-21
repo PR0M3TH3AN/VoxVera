@@ -3,8 +3,9 @@
 tmp*/
 venv/
 .venv
-voxvera/
-voxvera/src/
+!voxvera/
+!voxvera/resources/**
+!voxvera/src/**
 
 # OS and editor files
 .DS_Store

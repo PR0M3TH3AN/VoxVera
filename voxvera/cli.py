@@ -333,17 +333,28 @@ def build_assets(config_path: str, pdf_path: str | None = None,
 def serve(config_path: str):
     if not require_cmd('onionshare-cli'):
         sys.exit(1)
+    socks = os.getenv("TOR_SOCKS_PORT")
+    ctl = os.getenv("TOR_CONTROL_PORT")
+    if not socks or not ctl:
+        print("TOR_SOCKS_PORT and TOR_CONTROL_PORT must be set", file=sys.stderr)
+        sys.exit(1)
+
     subdomain = load_config(config_path)['subdomain']
     dir_path = ROOT / 'host' / subdomain
     if not dir_path.is_dir():
         print(f"Directory {dir_path} not found", file=sys.stderr)
         sys.exit(1)
     logfile = dir_path / 'onionshare.log'
-    proc = subprocess.Popen(
-        ['onionshare-cli', '--website', '--public', '--persistent',
-         f'{dir_path}/.onionshare-session', str(dir_path)],
-        stdout=open(logfile, 'w'), stderr=subprocess.STDOUT
-    )
+
+    cmd = [
+        'onionshare-cli', '--website', '--public', '--persistent',
+        '--external-tor-socks-port', socks,
+        '--external-tor-control-port', ctl,
+        str(dir_path)
+    ]
+    proc = subprocess.Popen(cmd,
+                            stdout=open(logfile, 'w'),
+                            stderr=subprocess.STDOUT)
     try:
         import time
         import re as _re
