@@ -6,6 +6,7 @@ const fs = require('fs');
 
 let mainWindow;
 let onionProc;
+// 🔧 merged conflicting changes from codex/start-onionshare-and-generate-static-site vs main
 let restarting = false;
 
 function createWindow() {
@@ -19,6 +20,7 @@ function createWindow() {
   mainWindow.loadFile('index.html');
 }
 
+// 🔧 merged conflicting changes from codex/start-onionshare-and-generate-static-site vs main
 function startOnionShare() {
   const configPath = getConfigPath();
   const voxveraPath = which.sync('voxvera', { nothrow: true });
