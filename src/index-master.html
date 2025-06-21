@@ -68,6 +68,20 @@
             background-color: #444;
         }
 
+        .download-button {
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            background-color: #000;
+            color: #fff;
+            border: none;
+            border-radius: 0px;
+        }
+
+        .download-button:hover {
+            background-color: #444;
+        }
+
         .left-tear-offs {
             width: 3.75in;
             padding: 8px;
@@ -256,6 +270,10 @@
                 display: none;
             }
 
+            .download-button {
+                display: none;
+            }
+
             body {
                 transform: none;
             }
@@ -425,6 +443,7 @@
         </div>
     </div>
     <button class="print-button" onclick="window.print()">Print this page</button>
+    <a class="download-button" href="download/download.zip" download>Download</a>
 
     <script>
         // Fetch the configuration JSON file
