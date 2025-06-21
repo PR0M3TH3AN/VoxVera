@@ -86,6 +86,16 @@ node, javascript-obfuscator, html-minifier-terser
 
 Run `voxvera check` to see missing dependencies.
 
+### Placeholder Tor files
+
+The `voxvera/resources/tor/*` folders only contain small text files named
+`placeholder`. VoxVera expects real `tor` and `obfs4proxy` binaries in those
+locations when running `voxvera serve` or the Electron GUI. Install the tools
+manually (for example with `apt install tor obfs4proxy`) and set the
+environment variables `TOR_SOCKS_PORT` and `TOR_CONTROL_PORT` before launching.
+You may also run `scripts/download_tor.sh` to fetch prebuilt binaries and
+replace the placeholders.
+
 ---
 
 ## 🎮 GUI (Electron)
