@@ -160,5 +160,16 @@ Prebuilt binaries are published on the releases page. Linux users can run the
 portable AppImage. Homebrew and Chocolatey formulas are provided under
 `packaging/` for easy upgrades on macOS and Windows.
 
+## Running Tests
+The test suite relies on the Python packages
+[InquirerPy](https://github.com/kazhala/InquirerPy) and
+[rich](https://github.com/Textualize/rich). Install them with:
+
+```bash
+pip install -r requirements.txt
+```
+
+Then execute the tests using `pytest`.
+
 
 This project is licensed under the [MIT License](./LICENSE).
