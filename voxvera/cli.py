@@ -346,7 +346,8 @@ def serve(config_path: str):
     logfile = dir_path / 'onionshare.log'
 
     cmd = [
-        'onionshare-cli', '--website', '--public', '--persistent',
+        'onionshare-cli', '--website', '--public',
+        '--persistent', str(dir_path / '.onionshare-session'),
         '--external-tor-socks-port', socks,
         '--external-tor-control-port', ctl,
         str(dir_path)
