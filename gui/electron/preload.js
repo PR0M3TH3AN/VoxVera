@@ -1,6 +1,7 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('voxvera', {
-  quickstart: () => ipcRenderer.invoke('run-quickstart'),
+  loadConfig: () => ipcRenderer.invoke('load-config'),
+  quickstart: (config) => ipcRenderer.invoke('run-quickstart', config),
   onOnionUrl: (cb) => ipcRenderer.on('onion-url', (_, url) => cb(url))
 });

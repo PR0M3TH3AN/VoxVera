@@ -6,12 +6,40 @@
 </head>
 <body>
   <h1>VoxVera</h1>
-  <button id="quickstart">Quickstart</button>
+  <form id="config-form">
+    <div><label>Name <input type="text" id="name"></label></div>
+    <div><label>Subdomain <input type="text" id="subdomain"></label></div>
+    <div><label>Title <input type="text" id="title"></label></div>
+    <div><label>Subtitle <input type="text" id="subtitle"></label></div>
+    <div><label>Headline <input type="text" id="headline"></label></div>
+    <div><label>Content<br><textarea id="content" rows="5" cols="60"></textarea></label></div>
+    <div><label>URL Message <input type="text" id="url_message"></label></div>
+    <div><label>URL <input type="text" id="url"></label></div>
+    <div><label>Tear-off link <input type="text" id="tear_off_link"></label></div>
+    <div><label>Binary message <input type="text" id="binary_message"></label></div>
+    <button type="button" id="quickstart">Generate &amp; Serve</button>
+  </form>
   <p id="onion-address"></p>
   <script>
-    document.getElementById('quickstart').addEventListener('click', () => {
-      window.voxvera.quickstart();
+    async function load() {
+      const cfg = await window.voxvera.loadConfig();
+      for (const [k, v] of Object.entries(cfg)) {
+        const el = document.getElementById(k);
+        if (el) el.value = v;
+      }
+    }
+    document.addEventListener('DOMContentLoaded', load);
+
+    document.getElementById('quickstart').addEventListener('click', async () => {
+      const ids = ['name','subdomain','title','subtitle','headline','content','url_message','url','tear_off_link','binary_message'];
+      const cfg = {};
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) cfg[id] = el.value;
+      });
+      await window.voxvera.quickstart(cfg);
     });
+
     window.voxvera.onOnionUrl(url => {
       document.getElementById('onion-address').textContent = `Onion address: ${url}`;
     });
