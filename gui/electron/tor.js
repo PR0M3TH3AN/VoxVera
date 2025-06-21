@@ -5,9 +5,10 @@ const getPort = require('get-port');
 async function launchTor() {
   const socks = await getPort();
   const control = await getPort();
-  const exe = path.join(__dirname, 'resources', 'tor', process.platform,
+  const torBase = path.join(__dirname, '..', '..', 'voxvera', 'resources', 'tor');
+  const exe = path.join(torBase, process.platform,
                         process.platform === 'win32' ? 'tor.exe' : 'tor');
-  const obfs4 = path.join(__dirname, 'resources', 'tor', process.platform,
+  const obfs4 = path.join(torBase, process.platform,
                          process.platform === 'win32' ? 'obfs4proxy.exe' : 'obfs4proxy');
 
   const args = [

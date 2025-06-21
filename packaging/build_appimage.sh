@@ -12,6 +12,9 @@ cp dist/voxvera "$APPDIR/usr/bin/voxvera"
 chmod +x "$APPDIR/usr/bin/voxvera"
 mkdir -p "$APPDIR/usr/lib/voxvera/resources"
 cp -r voxvera/resources/tor "$APPDIR/usr/lib/voxvera/resources/"
+# also bundle Tor for the Electron GUI
+mkdir -p gui/electron/voxvera/resources
+cp -r voxvera/resources/tor gui/electron/voxvera/resources/
 
 cat > "$APPDIR/voxvera.desktop" <<EOD
 [Desktop Entry]
