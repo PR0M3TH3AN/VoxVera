@@ -90,11 +90,29 @@ Run `voxvera check` to see missing dependencies.
 
 The `voxvera/resources/tor/*` folders only contain small text files named
 `placeholder`. VoxVera expects real `tor` and `obfs4proxy` binaries in those
-locations when running `voxvera serve` or the Electron GUI. Install the tools
-manually (for example with `apt install tor obfs4proxy`) and set the
-environment variables `TOR_SOCKS_PORT` and `TOR_CONTROL_PORT` before launching.
-You may also run `scripts/download_tor.sh` to fetch prebuilt binaries and
-replace the placeholders.
+locations when running `voxvera serve` or the Electron GUI.
+
+**Option&nbsp;1: install via your package manager**
+```bash
+sudo apt update && sudo apt install tor obfs4proxy
+# or on macOS
+brew install tor obfs4proxy
+```
+Ensure the Tor daemon is running (`sudo service tor start` on Linux).
+
+**Option&nbsp;2: use the helper script**
+```bash
+scripts/download_tor.sh
+```
+The script downloads the official Tor expert bundle for your OS and places the
+executables under `voxvera/resources/tor/<platform>`.
+
+After installing either way, set the ports used by Tor:
+```bash
+export TOR_SOCKS_PORT=9050
+export TOR_CONTROL_PORT=9051
+```
+Run `voxvera check` to confirm the binaries are detected before launching.
 
 ---
 
