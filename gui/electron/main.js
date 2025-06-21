@@ -5,6 +5,8 @@ const which = require('which');
 const fs = require('fs');
 
 let mainWindow;
+let onionProc;
+let restarting = false;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -17,7 +19,73 @@ function createWindow() {
   mainWindow.loadFile('index.html');
 }
 
-app.whenReady().then(createWindow);
+function startOnionShare() {
+  const configPath = getConfigPath();
+  const voxveraPath = which.sync('voxvera', { nothrow: true });
+  if (!voxveraPath) {
+    dialog.showErrorBox(
+      'voxvera not found',
+      'Install the voxvera CLI and ensure it is in your PATH.'
+    );
+    return;
+  }
+  const build = spawn(voxveraPath, ['--config', configPath, 'build']);
+  build.on('error', err => {
+    dialog.showErrorBox('voxvera build error', err.message);
+  });
+  build.on('close', code => {
+    if (code !== 0) {
+      dialog.showErrorBox('voxvera build error', `build exited with code ${code}.`);
+      return;
+    }
+    runServe();
+  });
+}
+
+function runServe(retry = false) {
+  const configPath = getConfigPath();
+  const voxveraPath = which.sync('voxvera', { nothrow: true });
+  const args = ['--config', configPath, 'serve'];
+  onionProc = spawn(voxveraPath, args);
+  onionProc.stdout.on('data', data => {
+    const line = data.toString();
+    process.stdout.write(line);
+    if (mainWindow) {
+      mainWindow.webContents.send('log', { text: line, isError: false });
+    }
+    const m = line.match(/Onion URL:\s*(https?:\/\/[a-z0-9.-]+\.onion)/i);
+    if (m && mainWindow) {
+      mainWindow.webContents.send('onion-url', m[1]);
+    }
+  });
+  onionProc.stderr.on('data', data => {
+    const line = data.toString();
+    process.stderr.write(line);
+    if (mainWindow) {
+      mainWindow.webContents.send('log', { text: line, isError: true });
+    }
+  });
+  onionProc.on('error', err => {
+    dialog.showErrorBox('OnionShare error', err.message);
+  });
+  onionProc.on('close', code => {
+    if ((code !== 0 && code !== null) || retry) {
+      dialog.showErrorBox('OnionShare error', `onionshare exited with code ${code}.`);
+    }
+    if (!restarting && (code !== 0 || code === null)) {
+      restarting = true;
+      setTimeout(() => {
+        restarting = false;
+        runServe(true);
+      }, 1000);
+    }
+  });
+}
+
+app.whenReady().then(() => {
+  createWindow();
+  startOnionShare();
+});
 
 function getConfigPath() {
   return path.join(__dirname, '..', '..', 'voxvera', 'src', 'config.json');
@@ -43,6 +111,10 @@ ipcMain.handle('run-quickstart', async (_, config) => {
     return -1;
   }
   return new Promise((resolve) => {
+    if (onionProc) {
+      onionProc.kill();
+      onionProc = null;
+    }
     const args = ['--config', configPath, 'quickstart', '--non-interactive'];
     const proc = spawn(voxveraPath, args);
     proc.stdout.on('data', data => {
@@ -77,5 +149,9 @@ ipcMain.handle('run-quickstart', async (_, config) => {
 });
 
 app.on('window-all-closed', () => {
+  if (onionProc) {
+    onionProc.kill();
+    onionProc = null;
+  }
   if (process.platform !== 'darwin') app.quit();
 });
