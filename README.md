@@ -133,6 +133,16 @@ voxvera init --config path/to/custom.json
 voxvera init --from-pdf path/to/form.pdf
 ```
 
+After updating the configuration run the build step. You can optionally
+include a zip file that visitors can download:
+
+```bash
+voxvera build --download path/to/file.zip
+```
+
+If `--download` is omitted the CLI looks for `src/download/download.zip` and
+copies it into the output directory.
+
 When run interactively you'll be prompted for details such as the flyer title
 and headline. The script now also asks for a **URL** and a **Tear-off link**.
 These values are written into the configuration file (`src/config.json` by
