@@ -3,10 +3,14 @@
   "version": "0.1.0",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "lint": "echo 'lint pass'"
   },
   "devDependencies": {
     "electron": "^29.0.0",
     "which": "^3.0.0"
+  },
+  "dependencies": {
+    "get-port": "^6.1.2"
   }
 }

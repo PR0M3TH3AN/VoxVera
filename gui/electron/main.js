@@ -3,6 +3,7 @@ const { spawn } = require('child_process');
 const path = require('path');
 const which = require('which');
 const fs = require('fs');
+const { launchTor } = require('./tor.js');
 
 let mainWindow;
 let onionProc;
@@ -44,64 +45,35 @@ function startOnionShare() {
   });
 }
 
-function runServe(retry = false) {
+async function runServe (retry = false) {
+  const { torProc, socksPort, controlPort } = await launchTor();
+
+  const env = { ...process.env,
+                TOR_SOCKS_PORT:   socksPort.toString(),
+                TOR_CONTROL_PORT: controlPort.toString() };
+
   const configPath = getConfigPath();
   const voxveraPath = which.sync('voxvera', { nothrow: true });
-  const args = ['--config', configPath, 'serve'];
-  onionProc = spawn(voxveraPath, args);
-  onionProc.stdout.on('data', data => {
-    const line = data.toString();
-    process.stdout.write(line);
-    if (mainWindow) {
-      mainWindow.webContents.send('log', { text: line, isError: false });
+  onionProc = spawn(voxveraPath, ['--config', configPath, 'serve'], { env });
+
+  let gotURL = false;
+  const softTimeout = setTimeout(() => {
+    if (!gotURL) {
+      mainWindow.webContents.send('log',
+        { text: 'Tor timed out, retrying…', isError: true });
+      onionProc.kill(); torProc.kill();
+      runServe(true);
     }
-    const m = line.match(/Onion URL:\s*(https?:\/\/[a-z0-9.-]+\.onion)/i);
-    if (m && mainWindow) {
-      mainWindow.webContents.send('onion-url', m[1]);
-    }
+  }, 90_000);
+
+  onionProc.stdout.on('data', buf => {
+    const line = buf.toString();
+    const m = line.match(/OnionShare is hosting at (http.*\.onion)/);
+    if (m) { gotURL = true; clearTimeout(softTimeout); }
+    mainWindow.webContents.send('log', { text: line });
   });
-  onionProc.stderr.on('data', data => {
-    const line = data.toString();
-    process.stderr.write(line);
-    if (mainWindow) {
-      mainWindow.webContents.send('log', { text: line, isError: true });
-    }
-  });
-  onionProc.on('error', err => {
-    dialog.showErrorBox('OnionShare error', err.message);
-  });
-  onionProc.on('close', code => {
-    if ((code !== 0 && code !== null) || retry) {
-      let extra = '';
-      try {
-        const confRaw = fs.readFileSync(configPath, 'utf8');
-        const conf = JSON.parse(confRaw);
-        const logPath = path.join(
-          __dirname,
-          '..',
-          '..',
-          'host',
-          conf.subdomain,
-          'onionshare.log'
-        );
-        fs.readFileSync(logPath, 'utf8');
-        extra = `\nSee ${logPath} for details.`;
-      } catch (err) {
-        // ignore errors reading log
-      }
-      dialog.showErrorBox(
-        'OnionShare error',
-        `onionshare exited with code ${code}.${extra}`
-      );
-    }
-    if (!restarting && (code !== 0 || code === null)) {
-      restarting = true;
-      setTimeout(() => {
-        restarting = false;
-        runServe(true);
-      }, 1000);
-    }
-  });
+
+  onionProc.on('exit', () => torProc.kill());
 }
 
 app.whenReady().then(() => {
