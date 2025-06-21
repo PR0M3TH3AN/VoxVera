@@ -31,6 +31,14 @@ pipx install voxvera  # recommended
 pip install --user voxvera
 ```
 
+If your system reports an "externally-managed" Python environment and blocks installation, create a virtual environment first:
+
+```bash
+python3 -m venv voxvera-venv
+source voxvera-venv/bin/activate
+pip install voxvera
+```
+
 The legacy `src/create_flyer.sh` script remains for backward compatibility. It
 simply forwards its arguments to the Python CLI so existing workflows continue
 to work.
