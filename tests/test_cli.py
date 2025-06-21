@@ -22,7 +22,6 @@ def _setup_tmp(monkeypatch, tmp_path):
     return repo_root
 
 
-
 def test_help(capsys):
     with pytest.raises(SystemExit):
         cli.main(["-h"])
@@ -102,4 +101,3 @@ def test_build_download_zip(tmp_path, monkeypatch):
     cli.main(["build", "--download", str(zip_path)])
     dest = tmp_path / "host" / subdomain / "download" / "download.zip"
     assert dest.is_file()
-
