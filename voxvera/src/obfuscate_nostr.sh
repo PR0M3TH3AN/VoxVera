@@ -31,6 +31,12 @@ temp_js_file=$(mktemp_with_suffix .js)  # Temporary .js file for extracting Java
 temp_js_obfuscated_file=$(mktemp_with_suffix .js)  # Temporary file for obfuscated JavaScript
 temp_html_file=$(mktemp)  # Temporary file for processing HTML without JS
 
+cleanup() {
+  rm -f "$temp_js_file" "$temp_js_obfuscated_file" "$temp_html_file"
+}
+
+trap cleanup EXIT
+
 # Check if the input file exists
 if [ ! -f "$input_file" ]; then
     echo "Input file $input_file does not exist."
@@ -61,7 +67,6 @@ html-minifier-terser \
     --output "$output_file" \
     "$temp_html_file"
 
-# Clean up temporary files
-rm "$temp_js_file" "$temp_js_obfuscated_file" "$temp_html_file"
+# Clean up temporary files handled by trap
 
 echo "Obfuscation and minification complete. Output saved as $output_file."
