@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const { spawn } = require('child_process');
 const path = require('path');
 const which = require('which');
+const fs = require('fs');
 
 let mainWindow;
 
@@ -18,7 +19,21 @@ function createWindow() {
 
 app.whenReady().then(createWindow);
 
-ipcMain.handle('run-quickstart', async () => {
+function getConfigPath() {
+  return path.join(__dirname, '..', '..', 'voxvera', 'src', 'config.json');
+}
+
+ipcMain.handle('load-config', async () => {
+  const p = getConfigPath();
+  const raw = fs.readFileSync(p, 'utf8');
+  return JSON.parse(raw);
+});
+
+ipcMain.handle('run-quickstart', async (_, config) => {
+  const configPath = getConfigPath();
+  if (config && typeof config === 'object') {
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+  }
   const voxveraPath = which.sync('voxvera', { nothrow: true });
   if (!voxveraPath) {
     dialog.showErrorBox(
@@ -28,7 +43,7 @@ ipcMain.handle('run-quickstart', async () => {
     return -1;
   }
   return new Promise((resolve, reject) => {
-    const proc = spawn(voxveraPath, ['quickstart']);
+    const proc = spawn(voxveraPath, ['--config', configPath, 'quickstart']);
     proc.stdout.on('data', data => {
       const line = data.toString();
       process.stdout.write(line);
