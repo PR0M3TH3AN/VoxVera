@@ -263,7 +263,8 @@ def copy_template(name: str) -> str:
     return str(dest)
 
 
-def build_assets(config_path: str, pdf_path: str | None = None):
+def build_assets(config_path: str, pdf_path: str | None = None,
+                 download_path: str | None = None):
     with resources.as_file(_src_res()) as src_dir:
         # generate QR codes
         run(['bash', 'generate_qr.sh', config_path], cwd=src_dir)
@@ -281,6 +282,9 @@ def build_assets(config_path: str, pdf_path: str | None = None):
         subdomain = data['subdomain']
         dest = ROOT / 'host' / subdomain
         os.makedirs(dest / 'from_client', exist_ok=True)
+        if download_path:
+            os.makedirs(dest / 'download', exist_ok=True)
+            shutil.copy(download_path, dest / 'download' / 'download.zip')
         shutil.copy(config_path, dest / 'config.json')
         for fname in ['index.html', 'nostr.html', 'qrcode-content.png', 'qrcode-tear-offs.png', 'example.pdf', 'submission_form.pdf']:
             shutil.copy(src_dir / fname, dest)
@@ -356,6 +360,7 @@ def main(argv=None):
 
     p_build = sub.add_parser('build', help='Build flyer assets from config')
     p_build.add_argument('--pdf')
+    p_build.add_argument('--download')
 
     sub.add_parser('import', help='Batch import JSON files from imports/')
     sub.add_parser('serve', help='Serve flyer over OnionShare using config')
@@ -376,7 +381,7 @@ def main(argv=None):
         elif not args.non_interactive:
             interactive_update(config_path)
     elif args.command == 'build':
-        build_assets(config_path, pdf_path=args.pdf)
+        build_assets(config_path, pdf_path=args.pdf, download_path=args.download)
     elif args.command == 'serve':
         serve(config_path)
     elif args.command == 'import':
