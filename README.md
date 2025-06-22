@@ -38,6 +38,12 @@ The script will:
 
 After the script finishes, open a new terminal or reload your shell to ensure `~/.local/bin` is on your **PATH**.
 
+If you prefer a user-level install, run:
+
+```bash
+pipx install 'voxvera@git+https://github.com/PR0M3TH3AN/VoxVera.git@main'
+```
+
 ### 2️⃣ Run VoxVera (every session)
 
 ```bash
