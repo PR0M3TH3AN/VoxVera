@@ -30,12 +30,15 @@ VoxVera uses the **Doc-Sync Engine** to keep manuals in sync.
 Run the following commands to verify your changes:
 - `voxvera --lang {lang_code} check` (Verify CLI translation)
 - `voxvera build-docs` (Generate localized manuals)
+- `voxvera build-site` (Synchronize the public website and generate the latest portable bundle)
 - Open `site/index.html` in a browser and test the language switcher.
 
 ## Code Contributions
-- Ensure all tests pass: `pytest tests/test_cli.py`.
-- Follow the existing coding style (PEP 8 for Python).
-- If adding a new feature, update the master templates in `docs/templates/` and run `voxvera build-docs`.
+- **Dependencies**: if you add a new Python library to `requirements.txt`, you MUST run `voxvera vendorize` to include it in the portable distribution.
+- **Layout Integrity**: VoxVera uses visual width validation. If you add new UI elements, ensure they respect the physical boundaries of an 8.5"x11" flyer.
+- **Tests**: Ensure all tests pass: `pytest tests/`. Run the integrity suite specifically when modifying locales: `pytest tests/test_integrity.py`.
+- **Style**: Follow the existing coding style (PEP 8 for Python).
+- **Documentation**: If adding a new feature, update the master templates in `docs/templates/` and run `voxvera build-docs`.
 
 ---
 

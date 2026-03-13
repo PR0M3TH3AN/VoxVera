@@ -8,6 +8,7 @@ This guide is for AI agents (like Gemini, Claude, or GPT) contributing to the Vo
 2. **Local-First**: All assets (fonts, dependencies, binaries) must be self-contained within the `voxvera/` package to support the Universal Mirroring model.
 3. **Tokenized UI**: Never hardcode user-facing strings. Always add them to `voxvera/locales/en.json` and use the `t('cli.token')` helper.
 4. **Markdown Redaction**: Use `~~text~~` in locale JSONs for strike-through effects. Both the build system and the JS engine handle the conversion to `<span class="redacted">` automatically.
+5. **Visual Width Testing**: When modifying UI or adding languages, verify that long or complex strings (e.g., Hindi ligatures or CJK characters) do not exceed the visual unit limits defined in the CLI.
 
 ## Localization Protocol
 
