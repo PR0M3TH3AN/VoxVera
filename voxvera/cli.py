@@ -689,6 +689,7 @@ def manage_servers():
             status_text = "[ON] " if running else "[OFF]"
             choices.append(Choice(s, f"{status_text} {s}"))
             
+        choices.insert(0, Choice("create_new", "--- Create New Site/Flyer ---"))
         choices.append(Choice("export_all", "--- Export All Sites ---"))
         choices.append(Choice("import_multiple", "--- Import Multiple Sites ---"))
         choices.append(Choice(None, "Exit"))
@@ -700,6 +701,16 @@ def manage_servers():
         
         if selected is None:
             break
+        
+        if selected == "create_new":
+            config_path = ROOT / "src" / "config.json"
+            interactive_update(str(config_path))
+            build_assets(str(config_path))
+            try:
+                serve(str(config_path))
+            except SystemExit:
+                pass
+            continue
         
         if selected == "export_all":
             export_all_sites()
