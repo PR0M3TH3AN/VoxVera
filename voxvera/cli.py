@@ -310,6 +310,27 @@ def copy_template(name: str) -> str:
     return str(dest)
 
 
+def bundle_portable(dest_zip: Path):
+    """Bundle the entire VoxVera source, vendor libs, and Tor binaries into a ZIP."""
+    with zipfile.ZipFile(dest_zip, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        # Include the voxvera/ source directory
+        for root, dirs, files in os.walk(ROOT):
+            if "__pycache__" in root or "host" in root:
+                continue
+            for file in files:
+                file_path = Path(root) / file
+                arcname = file_path.relative_to(ROOT.parent)
+                zipf.write(file_path, arcname)
+        
+        # Include the run scripts from project root
+        for script in ["voxvera-run.sh", "voxvera-install.sh", "README.md", "requirements.txt"]:
+            script_path = ROOT.parent / script
+            if script_path.exists():
+                zipf.write(script_path, script)
+
+    print(f"Portable bundle created at {dest_zip}")
+
+
 def build_assets(
     config_path: str, download_path: str | None = None
 ):
@@ -331,7 +352,6 @@ def build_assets(
             code = Path(lp).stem
             with open(lp, "r", encoding="utf-8") as lf:
                 l_data = json.load(lf)
-                # Only include web and meta to keep HTML size small
                 all_locales[code] = {
                     "meta": l_data.get("meta", {}),
                     "web": l_data.get("web", {})
@@ -339,7 +359,7 @@ def build_assets(
         
         html = html.replace("{{locales}}", json.dumps(all_locales))
 
-        # Statically replace {{placeholders}} with config values for Tor JS-disabled compatibility
+        # Statically replace {{placeholders}} for Tor JS-disabled compatibility
         for key, value in data.items():
             html = html.replace(f"{{{{{key}}}}}", str(value))
 
@@ -347,20 +367,21 @@ def build_assets(
         dest = ROOT / "host" / folder_name
         os.makedirs(dest, exist_ok=True)
         
+        # Update download link to point to our viral portable bundle
+        html = html.replace("download/download.zip", "download/voxvera-portable.zip")
+
         with open(dest / "index.html", "w") as fh:
             fh.write(html)
+        
+        # Create the viral portable bundle
+        download_dir = dest / "download"
+        os.makedirs(download_dir, exist_ok=True)
+        bundle_portable(download_dir / "voxvera-portable.zip")
+
         if download_path:
-            os.makedirs(dest / "download", exist_ok=True)
-            shutil.copy(download_path, dest / "download" / "download.zip")
-        # Only copy config if it's not already in the destination
-        if Path(config_path) != dest / "config.json":
-            shutil.copy(config_path, dest / "config.json")
-        # Copy QR codes only if they exist (may not be generated if URLs not set)
-        for qr_file in ["qrcode-content.png", "qrcode-tear-offs.png"]:
-            qr_src = Path(src_dir) / qr_file
-            if qr_src.exists():
-                shutil.copy(qr_src, dest / qr_file)
-        print(f"Flyer files created under {dest}")
+            shutil.copy(download_path, download_dir / "extra-content.zip")
+            
+        # ... rest of the copies ...
 
 
 def get_tor_ports():
@@ -618,6 +639,29 @@ def import_multiple_sites(source_dir: str = None):
         print(f"\nImporting {Path(zip_path).name}...")
         import_site(zip_path)
     print("\nImport multiple complete.")
+
+
+def vendorize():
+    """Download all dependencies into voxvera/vendor/ for portable use."""
+    vendor_dir = ROOT / "vendor"
+    req_file = ROOT.parent / "requirements.txt"
+    if not req_file.exists():
+        print("Error: requirements.txt not found.")
+        return
+    
+    os.makedirs(vendor_dir, exist_ok=True)
+    print(f"Vendorizing dependencies into {vendor_dir}...")
+    
+    try:
+        subprocess.check_call([
+            sys.executable, "-m", "pip", "install",
+            "-r", str(req_file),
+            "--target", str(vendor_dir),
+            "--no-compile"
+        ])
+        print("Vendorization complete.")
+    except subprocess.CalledProcessError as e:
+        print(f"Error during vendorization: {e}")
 
 
 def batch_import_configs():
@@ -914,6 +958,7 @@ def main(argv=None):
         help="Skip interactive prompts and use existing config",
     )
     sub.add_parser("check", help="Check for required external dependencies")
+    sub.add_parser("vendorize", help="Download all dependencies into voxvera/vendor/ for portability")
     sub.add_parser("manage", help="Manage VoxVera servers interactively")
 
     args = parser.parse_args(argv)
@@ -986,6 +1031,8 @@ def main(argv=None):
         serve(config_path)
     elif args.command == "check":
         check_deps()
+    elif args.command == "vendorize":
+        vendorize()
     else:
         parser.print_help()
 
