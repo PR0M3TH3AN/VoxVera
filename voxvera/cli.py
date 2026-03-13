@@ -281,37 +281,33 @@ def copy_template(name: str) -> str:
 def build_assets(
     config_path: str, download_path: str | None = None
 ):
-    from voxvera.build import generate_qr, obfuscate_html
+    from voxvera.build import generate_qr
 
     with resources.as_file(_src_res()) as src_dir:
         config_path = Path(config_path)
         # generate QR codes (pure Python)
         generate_qr(config_path, src_dir)
-        # minify HTML + inline JS (pure Python)
-        obfuscate_html(src_dir / "index-master.html", src_dir / "index.html")
+        
         data = load_config(config_path)
-        with open(src_dir / "index.html", "r") as fh:
+        with open(src_dir / "index-master.html", "r") as fh:
             html = fh.read()
         
         # Statically replace {{placeholders}} with config values for Tor JS-disabled compatibility
         for key, value in data.items():
             html = html.replace(f"{{{{{key}}}}}", str(value))
 
-        with open(src_dir / "index.html", "w") as fh:
-            fh.write(html)
         folder_name = data["folder_name"]
         dest = ROOT / "host" / folder_name
         os.makedirs(dest, exist_ok=True)
+        
+        with open(dest / "index.html", "w") as fh:
+            fh.write(html)
         if download_path:
             os.makedirs(dest / "download", exist_ok=True)
             shutil.copy(download_path, dest / "download" / "download.zip")
         # Only copy config if it's not already in the destination
         if Path(config_path) != dest / "config.json":
             shutil.copy(config_path, dest / "config.json")
-        for fname in [
-            "index.html",
-        ]:
-            shutil.copy(src_dir / fname, dest)
         # Copy QR codes only if they exist (may not be generated if URLs not set)
         for qr_file in ["qrcode-content.png", "qrcode-tear-offs.png"]:
             qr_src = Path(src_dir) / qr_file
