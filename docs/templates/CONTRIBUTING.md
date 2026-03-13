@@ -12,7 +12,8 @@ Create a new JSON file in `voxvera/locales/{lang_code}.json`.
 - **`meta`**: Include the native language name and a flag emoji.
 - **`cli`**: Translate all strings used in the terminal interface.
 - **`web`**: Translate strings used on the generated landing pages and flyers.
-- **`landing`**: Translate the specific content for the official VoxVera website (Title, Headline, etc.).
+- **`landing`**: Translate the specific content for the official VoxVera website.
+- **Formatting**: You can use Markdown-style strike-throughs (`~~redacted text~~`) in any of these strings; they will be automatically converted to the stylized "redacted" effect on the flyers.
 
 ### 2. The Landing Page
 The main landing page (`site/index.html`) must be synchronized to include your new language.
