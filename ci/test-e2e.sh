@@ -20,7 +20,20 @@ DemoUser
 demosite
 EOI
 "$voxvera_cmd" build
-ls -R dist >>"$LOG_DIR/tree.txt"
+
+# Verify build output exists in host/
+subdomain=$(python3 -c "import json; print(json.load(open('voxvera/src/config.json'))['subdomain'])")
+host_dir="voxvera/host/$subdomain"
+ls -R "$host_dir" >>"$LOG_DIR/tree.txt"
+
+# Verify essential files
+for f in index.html config.json nostr.html; do
+  [ -f "$host_dir/$f" ] || { echo "Missing $f in $host_dir" >&2; exit 1; }
+done
+echo "Build output verified in $host_dir"
+
+# Run pytest unit tests
+python3 -m pytest tests/test_cli.py -v 2>&1 | tee "$LOG_DIR/pytest.log"
 
 # Optional network tests
 if [ "${VOXVERA_E2E_OFFLINE:-}" != "1" ]; then
@@ -31,37 +44,38 @@ if [ "${VOXVERA_E2E_OFFLINE:-}" != "1" ]; then
 
   # Start OnionShare
   onionshare-cli --website --public \
-    --persistent ci/.onionshare-session \
-    dist/demosite >"$LOG_DIR/onionshare.log" 2>&1 &
+    --persistent "$host_dir/.onionshare-session" \
+    -v \
+    "$host_dir" >"$LOG_DIR/onionshare.log" 2>&1 &
   OS_PID=$!
 
-# Wait for URL
-URL=""
-i=0
-while [ $i -lt 90 ]; do
+  # Wait for URL
+  URL=""
+  i=0
+  while [ $i -lt 90 ]; do
     if grep -Eo 'http[^ ]+\.onion' "$LOG_DIR/onionshare.log" | head -n1 >"$LOG_DIR/url.txt"; then
-        URL=$(cat "$LOG_DIR/url.txt")
-        [ -n "$URL" ] && break
+      URL=$(cat "$LOG_DIR/url.txt")
+      [ -n "$URL" ] && break
     fi
     i=$((i + 1))
     sleep 1
-done
-if [ -z "$URL" ]; then
+  done
+  if [ -z "$URL" ]; then
     echo "Onion URL not found" >&2
     kill $OS_PID || true
     kill $TOR_PID || true
     exit 1
-fi
+  fi
 
-# Verify URL in config
-grep -q "$URL" dist/demosite/config.json
+  # Verify URL in config
+  grep -q "$URL" "$host_dir/config.json"
 
-# Fetch page via Tor
-curl --socks5-hostname 127.0.0.1:9050 "$URL" | grep -q '<title>'
+  # Fetch page via Tor
+  curl --socks5-hostname 127.0.0.1:9050 "$URL" | grep -q '<title>'
 
-# Clean up
-kill $OS_PID
-kill $TOR_PID
+  # Clean up
+  kill $OS_PID
+  kill $TOR_PID
   wait $OS_PID 2>/dev/null || true
   wait $TOR_PID 2>/dev/null || true
 else

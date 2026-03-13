@@ -15,8 +15,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y qrencode imagemagick jq python3-pip nodejs npm
-          npm install -g javascript-obfuscator html-minifier-terser
+          sudo apt-get install -y python3-pip
       - name: Run end-to-end tests
         run: ci/test-e2e.sh
       - name: Upload logs
