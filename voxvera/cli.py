@@ -386,7 +386,7 @@ def serve(config_path: str):
         "--public",
         "--persistent",
         str(dir_path / ".onionshare-session"),
-        "--tor-timeout",
+        "--connect-timeout",
         "300",
         "-v",
         str(dir_path),
