@@ -388,6 +388,7 @@ def serve(config_path: str):
         str(dir_path / ".onionshare-session"),
         "--connect-timeout",
         "300",
+        "--disable_csp",
         "-v",
         str(dir_path),
     ]
