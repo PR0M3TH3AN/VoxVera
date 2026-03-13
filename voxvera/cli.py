@@ -367,7 +367,9 @@ def build_assets(
         # Web tokens (labels, buttons)
         web_tokens = lang_data.get("web", {})
         for token, translation in web_tokens.items():
-            html = html.replace(f"{{{{t_web_{token}}}}}", str(translation))
+            # Support Markdown-style redaction ~~text~~ -> <span class="redacted">text</span>
+            translation = re.sub(r"~~(.*?)~~", r'<span class="redacted">\1</span>', str(translation))
+            html = html.replace(f"{{{{t_web_{token}}}}}", translation)
 
         # Landing tokens (should be cleared for regular flyers)
         landing_tokens = lang_data.get("landing", {})
@@ -763,7 +765,9 @@ def build_site():
     for category in ["web", "landing"]:
         tokens = lang_data.get(category, {})
         for token, translation in tokens.items():
-            html = html.replace(f"{{{{t_{category}_{token}}}}}", str(translation))
+            # Support Markdown-style redaction ~~text~~ -> <span class="redacted">text</span>
+            translation = re.sub(r"~~(.*?)~~", r'<span class="redacted">\1</span>', str(translation))
+            html = html.replace(f"{{{{t_{category}_{token}}}}}", translation)
 
     # 2. Update relative path for download
     html = html.replace("download/download.zip", "download/voxvera-portable.zip")
