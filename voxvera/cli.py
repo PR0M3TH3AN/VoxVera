@@ -323,7 +323,7 @@ def bundle_portable(dest_zip: Path):
                 zipf.write(file_path, arcname)
         
         # Include the run scripts from project root
-        for script in ["voxvera-run.sh", "voxvera-install.sh", "README.md", "requirements.txt"]:
+        for script in ["voxvera-run.sh", "voxvera-install.sh", "README.md", "requirements.txt", "setup.sh"]:
             script_path = ROOT.parent / script
             if script_path.exists():
                 zipf.write(script_path, script)

@@ -1,0 +1,57 @@
+name: Build Standalone Binaries
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            artifact_name: voxvera-linux
+            asset_name: voxvera-linux
+          - os: windows-latest
+            artifact_name: voxvera-windows.exe
+            asset_name: voxvera-windows.exe
+          - os: macos-latest
+            artifact_name: voxvera-macos
+            asset_name: voxvera-macos
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build with PyInstaller
+        shell: bash
+        run: |
+          pyinstaller --onefile \
+            --add-data "voxvera/locales:voxvera/locales" \
+            --add-data "voxvera/src:voxvera/src" \
+            --add-data "voxvera/templates:voxvera/templates" \
+            --add-data "voxvera/resources:voxvera/resources" \
+            --add-data "requirements.txt:." \
+            --name "${{ matrix.artifact_name }}" \
+            voxvera/cli.py
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset_name }}
+          path: dist/${{ matrix.artifact_name }}
