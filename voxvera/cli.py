@@ -873,10 +873,12 @@ def main(argv=None):
         help="Path to config.json",
     )
     parser.add_argument(
-        "--lang",
-        help="Force language code (e.g. en, es)",
+        "--lang", "--language", "--sprache", "--idioma",
+        help="Force language code (e.g. en, es, de)",
     )
     sub = parser.add_subparsers(dest="command")
+
+    sub.add_parser("lang", help="Change language preference")
 
     # ... (parsers as before) ...
 
@@ -937,6 +939,14 @@ def main(argv=None):
     
     # Load the locale
     load_locale(current_lang or "en")
+
+    if args.command == "lang":
+        new_lang = choose_language(current_lang)
+        if config_path.exists():
+            config_data["lang"] = new_lang
+            save_config(config_data, str(config_path))
+        print(f"Language changed to {new_lang}")
+        return
 
     if args.command == "init":
         if args.template:
