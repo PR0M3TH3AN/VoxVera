@@ -363,9 +363,21 @@ def build_assets(
         # 1. Statically replace localization tokens {{t_web_...}} 
         # This ensures the flyer is translated even with JS disabled.
         lang_data = all_locales.get(data.get("lang", "en"), all_locales.get("en", {}))
+        
+        # Web tokens (labels, buttons)
         web_tokens = lang_data.get("web", {})
         for token, translation in web_tokens.items():
             html = html.replace(f"{{{{t_web_{token}}}}}", str(translation))
+
+        # Landing tokens (should be cleared for regular flyers)
+        landing_tokens = lang_data.get("landing", {})
+        for token in landing_tokens.keys():
+            html = html.replace(f"{{{{t_landing_{token}}}}}", "")
+        
+        # Explicitly handle content and url_message if they were t_landing'd
+        # We want the user's custom content to win
+        html = html.replace("{{t_landing_content}}", "{{content}}")
+        html = html.replace("{{t_landing_url_message}}", "{{url_message}}")
 
         # 2. Statically replace config placeholders {{key}}
         for key, value in data.items():
@@ -753,7 +765,7 @@ def build_site():
     # 2. Update relative path for download
     html = html.replace("download/download.zip", "download/voxvera-portable.zip")
 
-    # 3. Inject site-specific config data
+    # 3. Inject site-specific config data (handles any remaining {{key}} placeholders)
     for key, value in data.items():
         html = html.replace(f"{{{{{key}}}}}", str(value))
 
