@@ -439,20 +439,15 @@ def serve(config_path: str):
                         onion_url = m.group(0)
         
         print(f"Onion URL: {onion_url}")
-        # update config with the onion URL
-        # tear_off_link is set to the onion address (for tear-off tabs)
-        # url remains as user-configured (for main content link)
+        # update config with the onion URL in the host directory
         config_file = dir_path / "config.json"
         data = load_config(config_file)
         data["tear_off_link"] = onion_url
         save_config(data, config_file)
-        # regenerate assets with the new URL (pass config file path, not already in host dir)
-        # We need to rebuild from src to regenerate QR codes with the new onion URL
-        src_config = ROOT / "src" / "config.json"
-        if src_config.exists() and src_config != config_file:
-            # Update src config and rebuild
-            save_config(data, src_config)
-            build_assets(src_config)
+        
+        # regenerate assets with the new URL using the host-local config
+        build_assets(str(config_file))
+        
         print(f"OnionShare running (PID {proc.pid}). See {logfile} for details.")
     except KeyboardInterrupt:
         pass
@@ -687,9 +682,21 @@ def manage_servers():
         for s in servers:
             running = is_server_running(s)
             status_text = "[ON] " if running else "[OFF]"
-            choices.append(Choice(s, f"{status_text} {s}"))
+            
+            label = f"{status_text} {s}"
+            if running:
+                try:
+                    site_data = load_config(ROOT / "host" / s / "config.json")
+                    url = site_data.get("tear_off_link")
+                    if url:
+                        label += f" ({url})"
+                except Exception:
+                    pass
+            choices.append(Choice(s, label))
             
         choices.insert(0, Choice("create_new", "--- Create New Site/Flyer ---"))
+        choices.append(Choice("start_all", "--- Start All Sites ---"))
+        choices.append(Choice("stop_all", "--- Stop All Sites ---"))
         choices.append(Choice("export_all", "--- Export All Sites ---"))
         choices.append(Choice("import_multiple", "--- Import Multiple Sites ---"))
         choices.append(Choice(None, "Exit"))
@@ -710,6 +717,22 @@ def manage_servers():
                 serve(str(config_path))
             except SystemExit:
                 pass
+            continue
+
+        if selected == "start_all":
+            for s in servers:
+                if not is_server_running(s):
+                    config_path = ROOT / "host" / s / "config.json"
+                    try:
+                        serve(str(config_path))
+                    except Exception as e:
+                        print(f"Error starting {s}: {e}")
+            continue
+
+        if selected == "stop_all":
+            for s in servers:
+                if is_server_running(s):
+                    stop_server(s)
             continue
         
         if selected == "export_all":
