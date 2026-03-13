@@ -699,6 +699,62 @@ def build_docs():
     print("Documentation build complete.")
 
 
+def build_site():
+    """Refresh the main site/ directory with the latest template, QRs, and portable bundle."""
+    site_dir = ROOT.parent / "site"
+    if not site_dir.exists():
+        print("Error: site/ directory not found.")
+        return
+
+    config_path = site_dir / "config.json"
+    if not config_path.exists():
+        print("Error: site/config.json not found.")
+        return
+
+    print("Refreshing site/ assets...")
+    
+    # 1. Refresh QR codes using site/config.json
+    from voxvera.build import generate_qr
+    generate_qr(config_path, site_dir)
+
+    # 2. Build the HTML from master template
+    data = load_config(config_path)
+    with resources.as_file(_src_res("index-master.html")) as template_path:
+        with open(template_path, "r") as fh:
+            html = fh.read()
+
+    # Bundle locales
+    all_locales = {}
+    locale_files = sorted(glob.glob(str(ROOT / "locales" / "*.json")))
+    for lp in locale_files:
+        code = Path(lp).stem
+        with open(lp, "r", encoding="utf-8") as lf:
+            l_data = json.load(lf)
+            all_locales[code] = {
+                "meta": l_data.get("meta", {}),
+                "web": l_data.get("web", {})
+            }
+    
+    html = html.replace("{{locales}}", json.dumps(all_locales))
+
+    # Update relative path for download
+    html = html.replace("download/download.zip", "download/voxvera-portable.zip")
+
+    # Inject site-specific config data
+    for key, value in data.items():
+        html = html.replace(f"{{{{{key}}}}}", str(value))
+
+    with open(site_dir / "index.html", "w") as fh:
+        fh.write(html)
+
+    # 3. Create the latest portable bundle in site/download/
+    download_dir = site_dir / "download"
+    os.makedirs(download_dir, exist_ok=True)
+    bundle_portable(download_dir / "voxvera-portable.zip")
+
+    print("site/ directory successfully synchronized.")
+
+
 def vendorize():
     """Download all dependencies into voxvera/vendor/ for portable use."""
     vendor_dir = ROOT / "vendor"
@@ -1018,6 +1074,7 @@ def main(argv=None):
     sub.add_parser("check", help="Check for required external dependencies")
     sub.add_parser("vendorize", help="Download all dependencies into voxvera/vendor/ for portability")
     sub.add_parser("build-docs", help="Generate localized documentation from templates")
+    sub.add_parser("build-site", help="Refresh the main site/ directory assets and bundle")
     sub.add_parser("manage", help="Manage VoxVera servers interactively")
 
     args = parser.parse_args(argv)
@@ -1106,6 +1163,8 @@ def main(argv=None):
         vendorize()
     elif args.command == "build-docs":
         build_docs()
+    elif args.command == "build-site":
+        build_site()
     else:
         parser.print_help()
 

@@ -283,63 +283,8 @@
 
     </style>
     <script>
-        // VoxVera Multi-Language Engine (Direct Embed for Landing Page)
-        const locales = {
-            "en": {
-                "meta": {"language_name": "English", "flag": "🇺🇸"},
-                "landing": {
-                    "title": "TOP SECRET",
-                    "subtitle": "DO <span class=\"redacted\">NOT</span> DISTRIBUTE",
-                    "headline": "OPERATION VOX VERA",
-                    "content": "Break free from censorship with VoxVera. An anonymous guerrilla marketing and message-spreading tool. Whether online or in the physical world, it can empower you to spread your ideas boldly, shielded by complete anonymity (if you host over Tor). Download the code, design a flyer site, host it online and amplify your message.\n\nUse memetic power to share your ideas in your school, workplace, online communities, or even globally. VoxVera ensures your message resonates far and wide, with tear-off sections featuring unique URLs and QR codes for easy reprinting.\n\nPrivacy can be maintained. Flyers can be shared via the Tor network, protecting hoster and users from censorship.\n\nJoin us in a revolution that values truth and transparency. Together, we can build a network of informed citizens who are unafraid to speak out.",
-                    "url_message": "Get VoxVera and start spreading your message."
-                },
-                "web": {
-                    "tear_off_tor_browser": "Use Tor Browser",
-                    "tear_off_desc": "to help spread this message go to",
-                    "tear_off_footer": "click the button below to print",
-                    "built_with": "built with",
-                    "print_button": "Print Flyer",
-                    "download_button": "Download Tool & Source"
-                }
-            },
-            "es": {
-                "meta": {"language_name": "Español", "flag": "🇪🇸"},
-                "landing": {
-                    "title": "ALTO SECRETO",
-                    "subtitle": "NO <span class=\"redacted\">DISTRIBUIR</span>",
-                    "headline": "OPERACIÓN VOX VERA",
-                    "content": "Libérese de la censura con VoxVera. Una herramienta anónima de marketing de guerrilla y difusión de mensajes. Ya sea en línea o en el mundo físico, puede empoderarlo para difundir sus ideas con audacia, protegido por un anonimato completo (si hospeda a través de Tor). Descargue el código, diseñe un sitio de volantes, hospédelo en línea y amplifique su mensaje.\n\nUse el poder memético para compartir sus ideas en su escuela, lugar de trabajo, comunidades en línea o incluso globalmente. VoxVera asegura que su mensaje resuene a lo largo und ancho, con secciones desprendibles que cuentan con URLs y códigos QR únicos para una fácil reimpresión.\n\nLa privacidad puede mantenerse. Los volantes se pueden compartir a través de la red Tor, protegiendo al anfitrión y a los usuarios de la censura.\n\nÚnase a nosotros en una revolución que valora la verdad y la transparencia. Juntos, podemos construir una red de ciudadanos informados que no temen hablar.",
-                    "url_message": "Obtenga VoxVera y comience a difundir su mensaje."
-                },
-                "web": {
-                    "tear_off_tor_browser": "Use el Navegador Tor",
-                    "tear_off_desc": "para ayudar a difundir este mensaje vaya a",
-                    "tear_off_footer": "haga clic en el botón de abajo para imprimir",
-                    "built_with": "construido con",
-                    "print_button": "Imprimir volante",
-                    "download_button": "Descargar Herramienta y Código"
-                }
-            },
-            "de": {
-                "meta": {"language_name": "Deutsch", "flag": "🇩🇪"},
-                "landing": {
-                    "title": "STRENG GEHEIM",
-                    "subtitle": "NICHT <span class=\"redacted\">VERBREITEN</span>",
-                    "headline": "OPERATION VOX VERA",
-                    "content": "Befreien Sie sich von Zensur mit VoxVera. Ein anonymes Guerilla-Marketing- und Nachrichtenverbreitungs-Tool. Ob online oder in der physischen Welt, es befähigt Sie, Ihre Ideen mutig zu verbreiten, geschützt durch vollständige Anonymität (wenn Sie über Tor hosten). Laden Sie den Code herunter, entwerfen Sie eine Flyer-Website, hosten Sie diese online und verstärken Sie Ihre Botschaft.\n\nNutzen Sie memetische Kraft, um Ihre Ideen in Ihrer Schule, an Ihrem Arbeitsplatz, in Online-Communities oder sogar weltweit zu teilen. VoxVera stellt sicher, dass Ihre Botschaft weit und breit Resonanz findet, mit Abreißabschnitten, die über einzigartige URLs und QR-Codes für einen einfachen Nachdruck verfügen.\n\nPrivatsphäre kann gewahrt bleiben. Flyer können über das Tor-Network geteilt werden, was Hoster und Nutzer vor Zensur schützt.\n\nSchließen Sie sich uns in einer Revolution an, die Wahrheit und Transparenz schätzt. Gemeinsam können wir ein Netzwerk informierter Bürger aufbauen, die keine Angst haben, ihre Meinung zu sagen.",
-                    "url_message": "Holen Sie sich VoxVera und beginnen Sie, Ihre Nachricht zu verbreiten."
-                },
-                "web": {
-                    "tear_off_tor_browser": "Tor-Browser verwenden",
-                    "tear_off_desc": "um diese Nachricht zu verbreiten, gehen Sie zu",
-                    "tear_off_footer": "Klicken Sie auf die Schaltfläche unten zum Drucken",
-                    "built_with": "erstellt mit",
-                    "print_button": "Flyer drucken",
-                    "download_button": "Tool & Quellcode herunterladen"
-                }
-            }
-        };
+        // VoxVera Multi-Language Engine
+        const locales = {"de": {"meta": {"language_name": "Deutsch", "flag": "\ud83c\udde9\ud83c\uddea"}, "web": {"tear_off_tor_browser": "Tor-Browser verwenden", "tear_off_desc": "um diese Nachricht zu verbreiten, gehen Sie zu", "tear_off_footer": "Klicken Sie auf die Schaltfl\u00e4che unten zum Drucken", "built_with": "erstellt mit", "print_button": "Flyer drucken", "download_button": "Tool & Quellcode herunterladen"}}, "en": {"meta": {"language_name": "English", "flag": "\ud83c\uddfa\ud83c\uddf8"}, "web": {"tear_off_tor_browser": "Use Tor Browser", "tear_off_desc": "to help spread this message go to", "tear_off_footer": "click the button below to print", "built_with": "built with", "print_button": "Print this page", "download_button": "Download Tool & Source"}}, "es": {"meta": {"language_name": "Espa\u00f1ol", "flag": "\ud83c\uddea\ud83c\uddf8"}, "web": {"tear_off_tor_browser": "Use el Navegador Tor", "tear_off_desc": "para ayudar a difundir este mensaje vaya a", "tear_off_footer": "haga clic en el bot\u00f3n de abajo para imprimir", "built_with": "construido con", "print_button": "Imprimir volante", "download_button": "Descargar Herramienta y C\u00f3digo"}}}; // Injected at build time
         
         function t(path, lang) {
             const parts = path.split('.');
@@ -356,11 +301,7 @@
             localStorage.setItem('voxvera_lang', lang);
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const path = el.getAttribute('data-i18n');
-                if (path.includes('subtitle') || path.includes('content')) {
-                    el.innerHTML = t(path, lang);
-                } else {
-                    el.innerText = t(path, lang);
-                }
+                el.innerText = t(path, lang);
             });
             document.getElementById('lang-selector').value = lang;
             document.documentElement.lang = lang;
@@ -368,6 +309,7 @@
 
         window.onload = () => {
             const selector = document.getElementById('lang-selector');
+            // Populate selector
             Object.keys(locales).forEach(code => {
                 const opt = document.createElement('option');
                 opt.value = code;
@@ -398,6 +340,7 @@
                     <img src="qrcode-tear-offs.png" alt="QR Code">
                 </div>
             </div>
+            <!-- Repeat for other tear-offs -->
             <div class="tear-off">
                 <div class="tear-off-text">
                     <span data-i18n="web.tear_off_tor_browser">Use Tor Browser</span><br><br>
@@ -499,12 +442,12 @@
             </div>            
         </div>
         <div class="content">
-            <h1 id="top-secret-title" data-i18n="landing.title">TOP SECRET</h1>
-            <div class="distribute" id="do-not-distribute" data-i18n="landing.subtitle">DO <span class="redacted">NOT</span> DISTRIBUTE</div>
-            <h1 id="operation-title-2" data-i18n="landing.headline">OPERATION VOX VERA</h1>
+            <h1 id="top-secret-title">TOP SECRET</h1>
+            <div class="distribute" id="do-not-distribute">DO <span class="redacted">NOT</span> DISTRIBUTE</div>
+            <h1 id="operation-title-2">OPERATION VOX VERA</h1>
             <hr>
             <div class="message">
-                <div class="text-container" id="main-content" contenteditable="false" data-i18n="landing.content">Break free from censorship with VoxVera. An anonymous guerrilla marketing and message-spreading tool. Whether online or in the physical world, it can empower you to spread your ideas boldly, shielded by complete anonymity (if you host over Tor). Download the code, design a flyer site, host it online and amplify your message. 
+                <div class="text-container" id="main-content" contenteditable="false">Break free from censorship with VoxVera. An anonymous guerrilla marketing and message-spreading tool. Whether online or in the physical world, it can empower you to spread your ideas boldly, shielded by complete anonymity (if you host over Tor). Download the code, design a flyer site, host it online and amplify your message. 
 
 Use memetic power to share your ideas in your school, workplace, online communities, or even globally. VoxVera ensures your message resonates far and wide, with tear-off sections featuring unique URLs and QR codes for easy reprinting. 
 
@@ -514,7 +457,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
 </div>
                 <div class="qr-code-body">
                     <div class="qr-code-url">
-<span class="url-message" data-i18n="landing.url_message">Get VoxVera and start spreading your message.</span><br><br>
+<span class="url-message">Get VoxVera and start spreading your message.</span><br><br>
 <a id="qr-link-2" href="https://github.com/PR0M3TH3AN/VoxVera" target="_blank">https://github.com/PR0M3TH3AN/VoxVera</a>
                     </div>
                     <img src="qrcode-content.png" alt="QR Code">
@@ -529,9 +472,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     </div>
     <div class="button-bar">
         <button class="print-button" onclick="window.print()" data-i18n="web.print_button">Print Flyer</button>
-        <a class="download-button" href="download/voxvera-portable.zip" download data-i18n="web.download_button">Download Tool & Source</a>
+        <a class="download-button" href="download/voxvera-portable.zip" download data-i18n="web.download_button">Download</a>
         <select class="lang-select" id="lang-selector" onchange="setLanguage(this.value)"></select>
     </div>
 </body>
-
 </html>
