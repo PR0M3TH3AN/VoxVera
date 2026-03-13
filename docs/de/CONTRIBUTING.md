@@ -12,12 +12,12 @@ Create a new JSON file in `voxvera/locales/{lang_code}.json`.
 - **`meta`**: Include the native language name and a flag emoji.
 - **`cli`**: Translate all strings used in the terminal interface.
 - **`web`**: Translate strings used on the generated landing pages and flyers.
+- **`landing`**: Translate the specific content for the official VoxVera website (Title, Headline, etc.).
 
 ### 2. The Landing Page
-The main landing page (`site/index.html`) requires a direct update because it is a static file.
-- Open `site/index.html`.
-- Locate the `const locales` object in the `<script>` tag.
-- Add your language's `meta`, `landing`, and `web` tokens.
+The main landing page (`site/index.html`) must be synchronized to include your new language.
+- Open `site/index.html` and add your language to the `const locales` object in the `<script>` tag.
+- Run `voxvera build-site` to refresh the public assets and ensure the pre-rendered HTML matches your new locale.
 
 ### 3. Documentation
 VoxVera uses the **Doc-Sync Engine** to keep manuals in sync.

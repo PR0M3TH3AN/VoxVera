@@ -11,8 +11,10 @@ This guide is for AI agents (like Gemini, Claude, or GPT) contributing to the Vo
 ## Localization Protocol
 
 When adding a new language or updating an existing one:
-- **CLI/Flyers**: Update `voxvera/locales/{lang}.json`.
-- **Landing Page**: Directly update the `const locales` object in `site/index.html`.
+- **CLI/Flyers**: Update `voxvera/locales/{lang}.json`. Include `meta`, `cli`, `web`, and `landing` categories.
+- **Landing Page**: 
+    - Directly update the `const locales` object in `site/index.html`.
+    - **Crucial**: Run `voxvera build-site` to generate the latest portable bundle and refresh the pre-rendered HTML.
 - **Documentation**: 
     - Master templates live in `docs/templates/`.
     - Localized overrides live in `voxvera/locales/{lang}/docs/`.
@@ -21,7 +23,7 @@ When adding a new language or updating an existing one:
 ## Universal Mirroring
 
 VoxVera propagates through its own flyers.
-- Every `voxvera build` generates `voxvera-portable.zip`.
+- Every `voxvera build` and `voxvera build-site` generates `voxvera-portable.zip`.
 - If you modify the core source code, ensure the `bundle_portable` function in `voxvera/cli.py` still correctly captures all necessary directories (especially `vendor/`, `locales/`, and `resources/`).
 
 ## Verification Checklist
@@ -30,7 +32,8 @@ Before finishing a task, ensure you have:
 1. Run unit tests: `pytest tests/test_cli.py`.
 2. Verified the localization: `voxvera --lang {lang} check`.
 3. Rebuilt the documentation: `voxvera build-docs`.
-4. Verified the portable bundle exists: `ls -l voxvera/host/*/download/voxvera-portable.zip`.
+4. Synchronized the public site: `voxvera build-site`.
+5. Verified the portable bundle exists: `ls -l voxvera/host/*/download/voxvera-portable.zip` and `ls -l site/download/voxvera-portable.zip`.
 
 ---
 
