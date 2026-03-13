@@ -53,7 +53,7 @@
             margin-top: 20px;
         }
 
-        .print-button {
+        .print-button, .download-button, .lang-select {
             padding: 10px 20px;
             font-size: 14px;
             cursor: pointer;
@@ -61,23 +61,16 @@
             color: #fff;
             border: none;
             border-radius: 0px;
+            font-family: 'Courier New', Courier, monospace;
         }
 
-        .print-button:hover {
-            background-color: #444;
+        .lang-select {
+            background-color: #f0f0f0;
+            color: #000;
+            border: 1px solid #000;
         }
 
-        .download-button {
-            padding: 10px 20px;
-            font-size: 14px;
-            cursor: pointer;
-            background-color: #000;
-            color: #fff;
-            border: none;
-            border-radius: 0px;
-        }
-
-        .download-button:hover {
+        .print-button:hover, .download-button:hover {
             background-color: #444;
         }
 
@@ -273,12 +266,8 @@
                 overflow: hidden;
             }
 
-            .print-button {
-                display: none;
-            }
-
-            .download-button {
-                display: none;
+            .print-button, .download-button, .lang-select, .button-bar {
+                display: none !important;
             }
 
             body {
@@ -293,6 +282,88 @@
         }
 
     </style>
+    <script>
+        // VoxVera Multi-Language Engine (Direct Embed for Landing Page)
+        const locales = {
+            "en": {
+                "meta": {"language_name": "English", "flag": "🇺🇸"},
+                "landing": {
+                    "title": "TOP SECRET",
+                    "subtitle": "DO <span class=\"redacted\">NOT</span> DISTRIBUTE",
+                    "headline": "OPERATION VOX VERA",
+                    "content": "Break free from censorship with VoxVera. An anonymous guerrilla marketing and message-spreading tool. Whether online or in the physical world, it can empower you to spread your ideas boldly, shielded by complete anonymity (if you host over Tor). Download the code, design a flyer site, host it online and amplify your message.\n\nUse memetic power to share your ideas in your school, workplace, online communities, or even globally. VoxVera ensures your message resonates far and wide, with tear-off sections featuring unique URLs and QR codes for easy reprinting.\n\nPrivacy can be maintained. Flyers can be shared via the Tor network, protecting hoster and users from censorship.\n\nJoin us in a revolution that values truth and transparency. Together, we can build a network of informed citizens who are unafraid to speak out.",
+                    "url_message": "Get VoxVera and start spreading your message."
+                },
+                "web": {
+                    "tear_off_tor_browser": "Use Tor Browser",
+                    "tear_off_desc": "to help spread this message go to",
+                    "tear_off_footer": "click the button below to print",
+                    "built_with": "built with",
+                    "print_button": "Print Flyer",
+                    "download_button": "Download"
+                }
+            },
+            "es": {
+                "meta": {"language_name": "Español", "flag": "🇪🇸"},
+                "landing": {
+                    "title": "ALTO SECRETO",
+                    "subtitle": "NO <span class=\"redacted\">DISTRIBUIR</span>",
+                    "headline": "OPERACIÓN VOX VERA",
+                    "content": "Libérese de la censura con VoxVera. Una herramienta anónima de marketing de guerrilla y difusión de mensajes. Ya sea en línea o en el mundo físico, puede empoderarlo para difundir sus ideas con audacia, protegido por un anonimato completo (si hospeda a través de Tor). Descargue el código, diseñe un sitio de volantes, hospédelo en línea y amplifique su mensaje.\n\nUse el poder memético para compartir sus ideas en su escuela, lugar de trabajo, comunidades en línea o incluso globalmente. VoxVera asegura que su mensaje resuene a lo largo y ancho, con secciones desprendibles que cuentan con URLs y códigos QR únicos para una fácil reimpresión.\n\nLa privacidad puede mantenerse. Los volantes se pueden compartir a través de la red Tor, protegiendo al anfitrión y a los usuarios de la censura.\n\nÚnase a nosotros en una revolución que valora la verdad y la transparencia. Juntos, podemos construir una red de ciudadanos informados que no temen hablar.",
+                    "url_message": "Obtenga VoxVera y comience a difundir su mensaje."
+                },
+                "web": {
+                    "tear_off_tor_browser": "Use el Navegador Tor",
+                    "tear_off_desc": "para ayudar a difundir este mensaje vaya a",
+                    "tear_off_footer": "haga clic en el botón de abajo para imprimir",
+                    "built_with": "construido con",
+                    "print_button": "Imprimir volante",
+                    "download_button": "Descargar"
+                }
+            }
+        };
+        
+        function t(path, lang) {
+            const parts = path.split('.');
+            let val = locales[lang];
+            for (const part of parts) {
+                if (!val) return path;
+                val = val[part];
+            }
+            return val || path;
+        }
+
+        function setLanguage(lang) {
+            if (!locales[lang]) lang = 'en';
+            localStorage.setItem('voxvera_lang', lang);
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const path = el.getAttribute('data-i18n');
+                if (path.includes('subtitle') || path.includes('content')) {
+                    el.innerHTML = t(path, lang);
+                } else {
+                    el.innerText = t(path, lang);
+                }
+            });
+            document.getElementById('lang-selector').value = lang;
+            document.documentElement.lang = lang;
+        }
+
+        window.onload = () => {
+            const selector = document.getElementById('lang-selector');
+            Object.keys(locales).forEach(code => {
+                const opt = document.createElement('option');
+                opt.value = code;
+                opt.innerText = `${locales[code].meta.flag} ${locales[code].meta.language_name}`;
+                selector.appendChild(opt);
+            });
+
+            const savedLang = localStorage.getItem('voxvera_lang');
+            const browserLang = navigator.language.split('-')[0];
+            const defaultLang = savedLang || (locales[browserLang] ? browserLang : 'en');
+            
+            setLanguage(defaultLang);
+        };
+    </script>
 </head> 
 
 <body>
@@ -300,10 +371,10 @@
         <div class="left-tear-offs">
             <div class="tear-off">
                 <div class="tear-off-text">
-                    Use Tor Browser<br><br>
-                    to help spread this message go to<br>
+                    <span data-i18n="web.tear_off_tor_browser">Use Tor Browser</span><br><br>
+                    <span data-i18n="web.tear_off_desc">to help spread this message go to</span><br>
                     <a class="tear-off-link" href="https://voxvera.org/" target="_blank">https://voxvera.org/</a><br>
-                    click the button below to print
+                    <span data-i18n="web.tear_off_footer">click the button below to print</span>
                 </div>
                 <div class="qr-code">
                     <img src="qrcode-tear-offs.png" alt="QR Code">
@@ -311,10 +382,10 @@
             </div>
             <div class="tear-off">
                 <div class="tear-off-text">
-                    Use Tor Browser<br><br>
-                    to help spread this message go to<br>
+                    <span data-i18n="web.tear_off_tor_browser">Use Tor Browser</span><br><br>
+                    <span data-i18n="web.tear_off_desc">to help spread this message go to</span><br>
                     <a class="tear-off-link" href="https://voxvera.org/" target="_blank">https://voxvera.org/</a><br>
-                    click the button below to print
+                    <span data-i18n="web.tear_off_footer">click the button below to print</span>
                 </div>
                 <div class="qr-code">
                     <img src="qrcode-tear-offs.png" alt="QR Code">
@@ -322,10 +393,10 @@
             </div> 
             <div class="tear-off">
                 <div class="tear-off-text">
-                    Use Tor Browser<br><br>
-                    to help spread this message go to<br>
+                    <span data-i18n="web.tear_off_tor_browser">Use Tor Browser</span><br><br>
+                    <span data-i18n="web.tear_off_desc">to help spread this message go to</span><br>
                     <a class="tear-off-link" href="https://voxvera.org/" target="_blank">https://voxvera.org/</a><br>
-                    click the button below to print
+                    <span data-i18n="web.tear_off_footer">click the button below to print</span>
                 </div>
                 <div class="qr-code">
                     <img src="qrcode-tear-offs.png" alt="QR Code">
@@ -333,10 +404,10 @@
             </div> 
             <div class="tear-off">
                 <div class="tear-off-text">
-                    Use Tor Browser<br><br>
-                    to help spread this message go to<br>
+                    <span data-i18n="web.tear_off_tor_browser">Use Tor Browser</span><br><br>
+                    <span data-i18n="web.tear_off_desc">to help spread this message go to</span><br>
                     <a class="tear-off-link" href="https://voxvera.org/" target="_blank">https://voxvera.org/</a><br>
-                    click the button below to print
+                    <span data-i18n="web.tear_off_footer">click the button below to print</span>
                 </div>
                 <div class="qr-code">
                     <img src="qrcode-tear-offs.png" alt="QR Code">
@@ -344,10 +415,10 @@
             </div> 
             <div class="tear-off">
                 <div class="tear-off-text">
-                    Use Tor Browser<br><br>
-                    to help spread this message go to<br>
+                    <span data-i18n="web.tear_off_tor_browser">Use Tor Browser</span><br><br>
+                    <span data-i18n="web.tear_off_desc">to help spread this message go to</span><br>
                     <a class="tear-off-link" href="https://voxvera.org/" target="_blank">https://voxvera.org/</a><br>
-                    click the button below to print
+                    <span data-i18n="web.tear_off_footer">click the button below to print</span>
                 </div>
                 <div class="qr-code">
                     <img src="qrcode-tear-offs.png" alt="QR Code">
@@ -355,10 +426,10 @@
             </div> 
             <div class="tear-off">
                 <div class="tear-off-text">
-                    Use Tor Browser<br><br>
-                    to help spread this message go to<br>
+                    <span data-i18n="web.tear_off_tor_browser">Use Tor Browser</span><br><br>
+                    <span data-i18n="web.tear_off_desc">to help spread this message go to</span><br>
                     <a class="tear-off-link" href="https://voxvera.org/" target="_blank">https://voxvera.org/</a><br>
-                    click the button below to print
+                    <span data-i18n="web.tear_off_footer">click the button below to print</span>
                 </div>
                 <div class="qr-code">
                     <img src="qrcode-tear-offs.png" alt="QR Code">
@@ -366,10 +437,10 @@
             </div> 
             <div class="tear-off">
                 <div class="tear-off-text">
-                    Use Tor Browser<br><br>
-                    to help spread this message go to<br>
+                    <span data-i18n="web.tear_off_tor_browser">Use Tor Browser</span><br><br>
+                    <span data-i18n="web.tear_off_desc">to help spread this message go to</span><br>
                     <a class="tear-off-link" href="https://voxvera.org/" target="_blank">https://voxvera.org/</a><br>
-                    click the button below to print
+                    <span data-i18n="web.tear_off_footer">click the button below to print</span>
                 </div>
                 <div class="qr-code">
                     <img src="qrcode-tear-offs.png" alt="QR Code">
@@ -377,10 +448,10 @@
             </div> 
             <div class="tear-off">
                 <div class="tear-off-text">
-                    Use Tor Browser<br><br>
-                    to help spread this message go to<br>
+                    <span data-i18n="web.tear_off_tor_browser">Use Tor Browser</span><br><br>
+                    <span data-i18n="web.tear_off_desc">to help spread this message go to</span><br>
                     <a class="tear-off-link" href="https://voxvera.org/" target="_blank">https://voxvera.org/</a><br>
-                    click the button below to print
+                    <span data-i18n="web.tear_off_footer">click the button below to print</span>
                 </div>
                 <div class="qr-code">
                     <img src="qrcode-tear-offs.png" alt="QR Code">
@@ -388,10 +459,10 @@
             </div> 
             <div class="tear-off">
                 <div class="tear-off-text">
-                    Use Tor Browser<br><br>
-                    to help spread this message go to<br>
+                    <span data-i18n="web.tear_off_tor_browser">Use Tor Browser</span><br><br>
+                    <span data-i18n="web.tear_off_desc">to help spread this message go to</span><br>
                     <a class="tear-off-link" href="https://voxvera.org/" target="_blank">https://voxvera.org/</a><br>
-                    click the button below to print
+                    <span data-i18n="web.tear_off_footer">click the button below to print</span>
                 </div>
                 <div class="qr-code">
                     <img src="qrcode-tear-offs.png" alt="QR Code">
@@ -399,10 +470,10 @@
             </div> 
             <div class="tear-off">
                 <div class="tear-off-text">
-                    Use Tor Browser<br><br>
-                    to help spread this message go to<br>
+                    <span data-i18n="web.tear_off_tor_browser">Use Tor Browser</span><br><br>
+                    <span data-i18n="web.tear_off_desc">to help spread this message go to</span><br>
                     <a class="tear-off-link" href="https://voxvera.org/" target="_blank">https://voxvera.org/</a><br>
-                    click the button below to print
+                    <span data-i18n="web.tear_off_footer">click the button below to print</span>
                 </div>
                 <div class="qr-code">
                     <img src="qrcode-tear-offs.png" alt="QR Code">
@@ -410,12 +481,12 @@
             </div>            
         </div>
         <div class="content">
-            <h1 id="top-secret-title">TOP SECRET</h1>
-            <div class="distribute" id="do-not-distribute">DO <span class="redacted">NOT</span> DISTRIBUTE</div>
-            <h1 id="operation-title-2">OPERATION VOX VERA</h1>
+            <h1 id="top-secret-title" data-i18n="landing.title">TOP SECRET</h1>
+            <div class="distribute" id="do-not-distribute" data-i18n="landing.subtitle">DO <span class="redacted">NOT</span> DISTRIBUTE</div>
+            <h1 id="operation-title-2" data-i18n="landing.headline">OPERATION VOX VERA</h1>
             <hr>
             <div class="message">
-                <div class="text-container" id="main-content" contenteditable="false">Break free from censorship with VoxVera. An anonymous guerrilla marketing and message-spreading tool. Whether online or in the physical world, it can empower you to spread your ideas boldly, shielded by complete anonymity (if you host over Tor). Download the code, design a flyer site, host it online and amplify your message. 
+                <div class="text-container" id="main-content" contenteditable="false" data-i18n="landing.content">Break free from censorship with VoxVera. An anonymous guerrilla marketing and message-spreading tool. Whether online or in the physical world, it can empower you to spread your ideas boldly, shielded by complete anonymity (if you host over Tor). Download the code, design a flyer site, host it online and amplify your message. 
 
 Use memetic power to share your ideas in your school, workplace, online communities, or even globally. VoxVera ensures your message resonates far and wide, with tear-off sections featuring unique URLs and QR codes for easy reprinting. 
 
@@ -425,7 +496,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
 </div>
                 <div class="qr-code-body">
                     <div class="qr-code-url">
-<span class="url-message">Get VoxVera and start spreading your message.</span><br><br>
+<span class="url-message" data-i18n="landing.url_message">Get VoxVera and start spreading your message.</span><br><br>
 <a id="qr-link-2" href="https://github.com/PR0M3TH3AN/VoxVera" target="_blank">https://github.com/PR0M3TH3AN/VoxVera</a>
                     </div>
                     <img src="qrcode-content.png" alt="QR Code">
@@ -433,14 +504,16 @@ Join us in a revolution that values truth and transparency. Together, we can bui
             </div>        
             <hr>
             <div class="footer">
-                <p class="credit">built with <a href="https://github.com/PR0M3TH3AN/VoxVera">voxvera</a></p>
+                <p class="credit"><span data-i18n="web.built_with">built with</span> <a href="https://github.com/PR0M3TH3AN/VoxVera">voxvera</a></p>
                 <p class="binary" id="binary-message">0110010 0101011 0110010 0111101 0110100</p>
             </div>
         </div>
     </div>
     <div class="button-bar">
-        <button class="print-button" onclick="window.print()">Print this page</button>
-        <a class="download-button" href="https://github.com/PR0M3TH3AN/VoxVera/archive/refs/heads/main.zip" download>Download</a>
+        <button class="print-button" onclick="window.print()" data-i18n="web.print_button">Print Flyer</button>
+        <a class="download-button" href="https://github.com/PR0M3TH3AN/VoxVera/archive/refs/heads/main.zip" download data-i18n="web.download_button">Download</a>
+        <select class="lang-select" id="lang-selector" onchange="setLanguage(this.value)"></select>
     </div>
 </body>
+
 </html>
