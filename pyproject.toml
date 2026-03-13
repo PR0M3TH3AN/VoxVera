@@ -10,11 +10,11 @@ include = ["voxvera*"]
 include-package-data = true
 
 [tool.setuptools.package-data]
-voxvera = ["templates/**", "src/**", "resources/**", "locales/**"]
+voxvera = ["templates/**", "src/**", "resources/**", "locales/**", "resources/bin/**"]
 
 [project]
 name = "voxvera"
-version = "0.1.0"
+version = "0.1.1"
 description = "VoxVera CLI utilities"
 readme = "README.md"
 authors = [{name = "VoxVera"}]

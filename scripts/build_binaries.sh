@@ -10,7 +10,7 @@ cd "$(dirname "$0")/.."
 echo "Checking for PyInstaller..."
 if ! command -v pyinstaller &> /dev/null; then
     echo "PyInstaller not found. Installing..."
-    pip install pyinstaller
+    pip install pyinstaller --break-system-packages
 fi
 
 # Clean previous builds
@@ -19,12 +19,11 @@ mkdir -p voxvera/resources/bin
 
 echo "Building VoxVera binary for $(uname)..."
 
+# Use python module to call pyinstaller
+PY_CMD="python3 -m PyInstaller"
+
 # Build the binary
-# --onefile: Create a single executable
-# --add-data: Include non-python resources
-# --name: Resulting binary name
-# We include locales, src (templates), and the default resources
-pyinstaller --onefile \
+$PY_CMD --onefile \
     --add-data "voxvera/locales:voxvera/locales" \
     --add-data "voxvera/src:voxvera/src" \
     --add-data "voxvera/templates:voxvera/templates" \

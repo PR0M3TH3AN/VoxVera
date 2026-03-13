@@ -2,3 +2,4 @@ include voxvera/templates/**
 include voxvera/src/**
 include voxvera/resources/**
 include voxvera/locales/**
+include voxvera/resources/bin/**
