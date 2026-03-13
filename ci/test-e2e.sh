@@ -10,19 +10,19 @@ if [ -n "${VOXVERA_BIN:-}" ]; then
   voxvera_cmd="$VOXVERA_BIN"
   echo "Using provided VoxVera binary: $voxvera_cmd" >&2
 else
-  { time pip install -e .; } 2>&1
+  { time pip install --break-system-packages -e .; } 2>&1
   voxvera_cmd="$(command -v voxvera)"
 fi
 
 # Generate demo flyer
-"$voxvera_cmd" init --template voxvera <<EOI
+"$voxvera_cmd" --lang en init --template voxvera <<EOI
 DemoUser
 demosite
 EOI
-"$voxvera_cmd" build
+"$voxvera_cmd" --lang en build
 
 # Verify build output exists in host/
-folder_name=$(python3 -c "import json; print(json.load(open('voxvera/src/config.json'))['folder_name'])")
+folder_name=$(python3 -c "import json; print(json.load(open('voxvera/host/voxvera/config.json'))['folder_name'])")
 host_dir="voxvera/host/$folder_name"
 ls -R "$host_dir" >>"$LOG_DIR/tree.txt"
 

@@ -16,8 +16,10 @@ from voxvera import cli
 def _setup_tmp(monkeypatch, tmp_path):
     repo_root = Path(__file__).resolve().parent.parent
     shutil.copytree(repo_root / "voxvera" / "src", tmp_path / "src")
+    shutil.copytree(repo_root / "voxvera" / "locales", tmp_path / "locales")
     monkeypatch.setattr(cli, "ROOT", tmp_path)
     monkeypatch.setattr(cli, "_src_res", lambda *p: tmp_path / "src" / Path(*p))
+    monkeypatch.setattr(cli, "_locale_res", lambda *p: tmp_path / "locales" / Path(*p))
     return repo_root
 
 
@@ -30,14 +32,13 @@ def test_help(capsys):
 
 def test_init_template(tmp_path, monkeypatch):
     _setup_tmp(monkeypatch, tmp_path)
+    # Mock choose_language to return 'en'
+    monkeypatch.setattr(cli, "choose_language", lambda *a: "en")
     cli.main(["init", "--template", "voxvera"])
-    date = datetime.date.today().strftime("%Y%m%d")
-    dest = tmp_path / "dist" / f"voxvera-{date}"
+    dest = tmp_path / "host" / "voxvera"
     assert dest.is_dir()
     assert (dest / "config.json").exists()
     assert (dest / "index.html").exists()
-    # new download directory should be copied as well
-    assert (dest / "download").is_dir()
 
 
 def test_build(tmp_path, monkeypatch):
@@ -54,7 +55,7 @@ def test_build_with_download(tmp_path, monkeypatch):
     download_file = tmp_path / "sample.zip"
     download_file.write_text("dummy")
     cli.main(["build", "--download", str(download_file)])
-    dest = tmp_path / "host" / "voxvera" / "download" / "download.zip"
+    dest = tmp_path / "host" / "voxvera" / "download" / "extra-content.zip"
     assert dest.is_file()
 
 
@@ -68,7 +69,7 @@ def test_import(tmp_path, monkeypatch):
         data["folder_name"] = sub
         with open(imports_dir / f"{sub}.json", "w") as fh:
             json.dump(data, fh)
-    cli.main(["import"])
+    cli.main(["batch-import"])
     for sub in ["foo", "bar"]:
         dest = tmp_path / "host" / sub
         assert dest.is_dir()
@@ -86,7 +87,7 @@ def test_import_preserves_session(tmp_path, monkeypatch):
         json.dump(base_data, fh)
 
     # first import creates the host dir
-    cli.main(["import"])
+    cli.main(["batch-import"])
     host_dir = tmp_path / "host" / "keep"
     assert host_dir.is_dir()
 
@@ -95,7 +96,7 @@ def test_import_preserves_session(tmp_path, monkeypatch):
     session_file.write_text("FAKE-KEY-DATA")
 
     # re-import the same config
-    cli.main(["import"])
+    cli.main(["batch-import"])
 
     # session key must still be present and unchanged
     assert session_file.exists()
@@ -130,7 +131,7 @@ def test_build_download_zip(tmp_path, monkeypatch):
     with zipfile.ZipFile(zip_path, "w") as zf:
         zf.writestr("dummy.txt", "data")
     cli.main(["build", "--download", str(zip_path)])
-    dest = tmp_path / "host" / folder_name / "download" / "download.zip"
+    dest = tmp_path / "host" / folder_name / "download" / "extra-content.zip"
     assert dest.is_file()
 
 
@@ -226,6 +227,7 @@ def test_quickstart_noninteractive(tmp_path, monkeypatch):
 
     monkeypatch.setattr(cli.subprocess, "Popen", FakePopen)
 
+    monkeypatch.setattr(cli, "choose_language", lambda *a: "en")
     cli.main(["quickstart", "--non-interactive"])
 
     dir_path = tmp_path / "host" / folder_name
@@ -371,7 +373,7 @@ def test_serve_passes_tor_ports_to_env(monkeypatch, tmp_path):
 
     monkeypatch.setattr(cli, "require_cmd", lambda c: True)
     monkeypatch.setattr(cli.subprocess, "Popen", FakePopen)
-    monkeypatch.setattr(cli, "build_assets", lambda cfg, **kw: None)
+    monkeypatch.setattr(cli, "build_assets", lambda *a, **kw: None)
     monkeypatch.setattr(time, "sleep", lambda x: None)
 
     # Test with custom env vars

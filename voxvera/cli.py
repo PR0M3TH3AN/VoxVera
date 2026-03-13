@@ -1,10 +1,12 @@
 import argparse
+import glob
 import json
 import os
 import re
 import shutil
 import subprocess
 import sys
+import time
 import datetime
 from pathlib import Path
 from importlib import resources
@@ -297,14 +299,13 @@ def interactive_update(config_path: str):
 
 
 def copy_template(name: str) -> str:
-    """Copy a template directory into dist/ with a datestamped folder."""
-    date = datetime.date.today().strftime("%Y%m%d")
+    """Copy a template directory into host/."""
     with resources.as_file(_template_res(name)) as src:
         if not src.is_dir():
             print(f"Template {name} not found", file=sys.stderr)
             sys.exit(1)
-        dest = ROOT / "dist" / f"{name}-{date}"
-        os.makedirs(ROOT / "dist", exist_ok=True)
+        dest = ROOT / "host" / name
+        os.makedirs(ROOT / "host", exist_ok=True)
         shutil.copytree(src, dest, dirs_exist_ok=True)
     print(f"Template copied to {dest}")
     return str(dest)
@@ -381,7 +382,17 @@ def build_assets(
         if download_path:
             shutil.copy(download_path, download_dir / "extra-content.zip")
             
-        # ... rest of the copies ...
+        # Copy config if it's not already there
+        if Path(config_path) != dest / "config.json":
+            shutil.copy(config_path, dest / "config.json")
+            
+        # Copy QR codes if they exist
+        for qr_file in ["qrcode-content.png", "qrcode-tear-offs.png"]:
+            qr_src = Path(src_dir) / qr_file
+            if qr_src.exists():
+                shutil.copy(qr_src, dest / qr_file)
+                
+        print(f"Flyer files created under {dest}")
 
 
 def get_tor_ports():
