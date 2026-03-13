@@ -36,7 +36,7 @@ All build dependencies (QR generation, HTML minification, PDF parsing) are Pytho
    ```
    This automatically detects your Tor instance, starts OnionShare, and writes the generated .onion address into the flyer's tear-off links. QR codes are regenerated with the new address.
 
-The generated `host/<subdomain>` directory contains all flyer files. The `index.html` file fetches `config.json` at runtime, so the flyer must be served via a web server (OnionShare handles this). Visitors can use the **Download** button to retrieve any bundled files.
+The generated `host/<folder_name>` directory contains all flyer files. The `index.html` file fetches `config.json` at runtime, so the flyer must be served via a web server (OnionShare handles this). Visitors can use the **Download** button to retrieve any bundled files.
 
 ## How URLs Work
 
@@ -55,7 +55,7 @@ Place configuration files in an `imports/` directory at the project root and run
 voxvera import
 ```
 
-Each JSON file is copied to `src/config.json` and processed with `voxvera build`. Existing folders under `host/` with the same subdomain are cleaned before new files are written. OnionShare session keys (`.onionshare-session`) are preserved so the onion URL stays the same across re-imports.
+Each JSON file is copied to `src/config.json` and processed with `voxvera build`. Existing folders under `host/` with the same folder_name are cleaned before new files are written. OnionShare session keys (`.onionshare-session`) are preserved so the onion URL stays the same across re-imports.
 
 ## Hosting with OnionShare
 
@@ -73,7 +73,7 @@ TOR_SOCKS_PORT=9150 TOR_CONTROL_PORT=9151 voxvera serve
 
 The command launches `onionshare-cli` in persistent website mode, waits for the generated onion URL, writes it into `config.json` as the tear-off link, regenerates QR codes, and copies updated files into the `host` directory.
 
-The onion URL is derived from an Ed25519 keypair stored in `host/<subdomain>/.onionshare-session`. As long as this file exists, the URL stays the same even if you rebuild with new content. Keep OnionShare running to continue hosting.
+The onion URL is derived from an Ed25519 keypair stored in `host/<folder_name>/.onionshare-session`. As long as this file exists, the URL stays the same even if you rebuild with new content. Keep OnionShare running to continue hosting.
 
 ## All-in-One
 

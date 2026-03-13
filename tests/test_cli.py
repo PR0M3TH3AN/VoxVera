@@ -65,7 +65,7 @@ def test_import(tmp_path, monkeypatch):
     base_data = json.load(open(repo / "imports" / "example.json"))
     for sub in ["foo", "bar"]:
         data = dict(base_data)
-        data["subdomain"] = sub
+        data["folder_name"] = sub
         with open(imports_dir / f"{sub}.json", "w") as fh:
             json.dump(data, fh)
     cli.main(["import"])
@@ -81,7 +81,7 @@ def test_import_preserves_session(tmp_path, monkeypatch):
     imports_dir = tmp_path / "imports"
     imports_dir.mkdir()
     base_data = json.load(open(repo / "imports" / "example.json"))
-    base_data["subdomain"] = "keep"
+    base_data["folder_name"] = "keep"
     with open(imports_dir / "keep.json", "w") as fh:
         json.dump(base_data, fh)
 
@@ -125,12 +125,12 @@ def test_check_missing(capsys, monkeypatch):
 def test_build_download_zip(tmp_path, monkeypatch):
     _setup_tmp(monkeypatch, tmp_path)
     config = json.load(open(tmp_path / "src" / "config.json"))
-    subdomain = config["subdomain"]
+    folder_name = config["folder_name"]
     zip_path = tmp_path / "file.zip"
     with zipfile.ZipFile(zip_path, "w") as zf:
         zf.writestr("dummy.txt", "data")
     cli.main(["build", "--download", str(zip_path)])
-    dest = tmp_path / "host" / subdomain / "download" / "download.zip"
+    dest = tmp_path / "host" / folder_name / "download" / "download.zip"
     assert dest.is_file()
 
 
@@ -139,8 +139,8 @@ def test_serve_updates_url(tmp_path, monkeypatch):
     _setup_tmp(monkeypatch, tmp_path)
     cli.main(["build"])
     config = json.load(open(tmp_path / "src" / "config.json"))
-    subdomain = config["subdomain"]
-    dir_path = tmp_path / "host" / subdomain
+    folder_name = config["folder_name"]
+    dir_path = tmp_path / "host" / folder_name
 
     # Set a custom URL that should be preserved (content link)
     config["url"] = "https://example.com/external-resource"
@@ -152,7 +152,7 @@ def test_serve_updates_url(tmp_path, monkeypatch):
     orig_build = cli.build_assets
 
     def safe_build_assets(cfg, download_path=None):
-        dest = cli.ROOT / "host" / json.load(open(cfg))["subdomain"] / "config.json"
+        dest = cli.ROOT / "host" / json.load(open(cfg))["folder_name"] / "config.json"
         if Path(cfg) == dest:
             return
         return orig_build(cfg, download_path=download_path)
@@ -193,14 +193,14 @@ def test_quickstart_noninteractive(tmp_path, monkeypatch):
     """Test quickstart auto-generates onion URL for tear-off links."""
     _setup_tmp(monkeypatch, tmp_path)
     config = json.load(open(tmp_path / "src" / "config.json"))
-    subdomain = config["subdomain"]
+    folder_name = config["folder_name"]
 
     # No need for TOR_* env vars anymore - auto-detection should work
     monkeypatch.setattr(cli, "require_cmd", lambda c: True)
     orig_build = cli.build_assets
 
     def safe_build_assets(cfg, download_path=None):
-        dest = cli.ROOT / "host" / json.load(open(cfg))["subdomain"] / "config.json"
+        dest = cli.ROOT / "host" / json.load(open(cfg))["folder_name"] / "config.json"
         if Path(cfg) == dest:
             return
         return orig_build(cfg, download_path=download_path)
@@ -228,7 +228,7 @@ def test_quickstart_noninteractive(tmp_path, monkeypatch):
 
     cli.main(["quickstart", "--non-interactive"])
 
-    dir_path = tmp_path / "host" / subdomain
+    dir_path = tmp_path / "host" / folder_name
     assert (dir_path / "index.html").exists()
     log_file = dir_path / "onionshare.log"
     assert onion_url in log_file.read_text()
@@ -287,7 +287,7 @@ def test_build_without_url_skips_qr(tmp_path, monkeypatch, capsys):
     # Build should complete without error, just skip QR generation
     cli.main(["build"])
 
-    dest = tmp_path / "host" / config["subdomain"]
+    dest = tmp_path / "host" / config["folder_name"]
     assert dest.is_dir()
     assert (dest / "config.json").exists()
     assert (dest / "index.html").exists()
@@ -315,7 +315,7 @@ def test_build_with_only_url(tmp_path, monkeypatch):
 
     cli.main(["build"])
 
-    dest = tmp_path / "host" / config["subdomain"]
+    dest = tmp_path / "host" / config["folder_name"]
     # Only content QR should exist (tear-off will be set by serve)
     assert (dest / "qrcode-content.png").exists()
     assert not (dest / "qrcode-tear-offs.png").exists()
@@ -340,7 +340,7 @@ def test_build_with_only_tear_off_link(tmp_path, monkeypatch):
 
     cli.main(["build"])
 
-    dest = tmp_path / "host" / config["subdomain"]
+    dest = tmp_path / "host" / config["folder_name"]
     # Only tear-off QR should exist (will be updated by serve)
     assert not (dest / "qrcode-content.png").exists()
     assert (dest / "qrcode-tear-offs.png").exists()
@@ -351,7 +351,7 @@ def test_serve_passes_tor_ports_to_env(monkeypatch, tmp_path):
     _setup_tmp(monkeypatch, tmp_path)
     cli.main(["build"])
     config = json.load(open(tmp_path / "src" / "config.json"))
-    subdomain = config["subdomain"]
+    folder_name = config["folder_name"]
 
     captured_env = {}
 
@@ -397,7 +397,7 @@ def test_backward_compatibility_with_https_config(tmp_path, monkeypatch):
 
     cli.main(["build"])
 
-    dest = tmp_path / "host" / config["subdomain"]
+    dest = tmp_path / "host" / config["folder_name"]
     assert (dest / "qrcode-content.png").exists()
     assert (dest / "qrcode-tear-offs.png").exists()
 
@@ -415,6 +415,6 @@ def test_long_urls_in_qr(tmp_path, monkeypatch):
 
     cli.main(["build"])
 
-    dest = tmp_path / "host" / config["subdomain"]
+    dest = tmp_path / "host" / config["folder_name"]
     assert (dest / "qrcode-content.png").exists()
     assert (dest / "qrcode-tear-offs.png").exists()

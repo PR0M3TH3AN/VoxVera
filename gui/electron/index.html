@@ -18,7 +18,7 @@
   <h1>VoxVera</h1>
   <form id="config-form">
     <div><label>Name <input type="text" id="name"></label></div>
-    <div><label>Subdomain <input type="text" id="subdomain"></label></div>
+    <div><label>Subdomain <input type="text" id="folder_name"></label></div>
     <div><label>Title <input type="text" id="title"></label></div>
     <div><label>Subtitle <input type="text" id="subtitle"></label></div>
     <div><label>Headline <input type="text" id="headline"></label></div>
@@ -42,7 +42,7 @@
     document.addEventListener('DOMContentLoaded', load);
 
     document.getElementById('quickstart').addEventListener('click', async () => {
-      const ids = ['name','subdomain','title','subtitle','headline','content','url_message','url','tear_off_link','binary_message'];
+      const ids = ['name','folder_name','title','subtitle','headline','content','url_message','url','tear_off_link','binary_message'];
       const cfg = {};
       ids.forEach(id => {
         const el = document.getElementById(id);

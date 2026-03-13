@@ -94,7 +94,7 @@ voxvera quickstart
 | Field | Max | Where it appears |
 |---|---|---|
 | **name** | 60 chars | Browser tab title. Not printed on the flyer itself. |
-| **subdomain** | 63 chars | Used internally as the folder name under `host/`. Lowercase letters, numbers, and hyphens only. |
+| **folder_name** | 63 chars | Used internally as the folder name under `host/`. Lowercase letters, numbers, and hyphens only. |
 | **title** | 60 chars | Large heading at the top-right of the flyer (e.g. "TOP SECRET"). |
 | **subtitle** | 80 chars | Smaller text directly below the title (e.g. "DO NOT DISTRIBUTE"). Supports basic HTML like `<span class="redacted">`. |
 | **headline** | 80 chars | Second heading below the subtitle (e.g. "OPERATION VOX VERA"). |

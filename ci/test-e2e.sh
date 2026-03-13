@@ -22,8 +22,8 @@ EOI
 "$voxvera_cmd" build
 
 # Verify build output exists in host/
-subdomain=$(python3 -c "import json; print(json.load(open('voxvera/src/config.json'))['subdomain'])")
-host_dir="voxvera/host/$subdomain"
+folder_name=$(python3 -c "import json; print(json.load(open('voxvera/src/config.json'))['folder_name'])")
+host_dir="voxvera/host/$folder_name"
 ls -R "$host_dir" >>"$LOG_DIR/tree.txt"
 
 # Verify essential files

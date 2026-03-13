@@ -26,7 +26,7 @@ If no running Tor is found, the defaults (9050/9051) are used and OnionShare wil
 
 ## OnionShare crashes
 If `voxvera serve` prints "OnionShare exited unexpectedly", check the log file
-`host/<subdomain>/onionshare.log` for details. Common causes:
+`host/<folder_name>/onionshare.log` for details. Common causes:
 
 - Tor is not running (`sudo systemctl start tor`)
 - A port conflict with another service
@@ -34,7 +34,7 @@ If `voxvera serve` prints "OnionShare exited unexpectedly", check the log file
 
 ## Onion URL changed unexpectedly
 The onion URL is tied to the Ed25519 keypair stored in
-`host/<subdomain>/.onionshare-session`. If this file is deleted, a new
+`host/<folder_name>/.onionshare-session`. If this file is deleted, a new
 keypair (and URL) will be generated on the next `voxvera serve`. The
 `voxvera import` command preserves this file automatically, but manual
 deletion of the `host/` directory will destroy it.

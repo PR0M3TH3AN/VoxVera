@@ -111,7 +111,7 @@ class TestFullWorkflow:
         # Create test config
         config = {
             "name": "Test Flyer",
-            "subdomain": "testflyer",
+            "folder_name": "testflyer",
             "title": "TEST TITLE",
             "subtitle": "Test Subtitle",
             "headline": "Test Headline",
@@ -203,7 +203,7 @@ class TestFullWorkflow:
 
         config = {
             "name": "Reachability Test",
-            "subdomain": "reachtest",
+            "folder_name": "reachtest",
             "title": "Reachability Test",
             "subtitle": "Testing Tor reachability",
             "headline": "Test Headline",
@@ -323,7 +323,7 @@ class TestSiteFiles:
 
         config = {
             "name": "Test",
-            "subdomain": "filetest",
+            "folder_name": "filetest",
             "title": "Title",
             "subtitle": "Subtitle",
             "headline": "Headline",
@@ -369,7 +369,7 @@ class TestErrorHandling:
         config_path.write_text(
             json.dumps(
                 {
-                    "subdomain": "nonexistent",
+                    "folder_name": "nonexistent",
                     "name": "Test",
                     "title": "Title",
                     "subtitle": "Subtitle",

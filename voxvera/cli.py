@@ -160,9 +160,9 @@ def _len_validator(limit: int):
     return _v
 
 
-def _subdomain_validator(val: str):
+def _folder_name_validator(val: str):
     if len(val) > 63:
-        return "Subdomain must be at most 63 characters"
+        return "Folder name must be at most 63 characters"
     if not re.fullmatch(r"[a-z0-9-]+", val):
         return "Use only lowercase letters, numbers and '-'"
     return True
@@ -184,11 +184,11 @@ def interactive_update(config_path: str):
         },
         {
             "type": "input",
-            "message": "Subdomain",
-            "name": "subdomain",
-            "default": data.get("subdomain", ""),
+            "message": "Folder Name",
+            "name": "folder_name",
+            "default": data.get("folder_name", ""),
             "transformer": _len_transform(63),
-            "validate": _subdomain_validator,
+            "validate": _folder_name_validator,
         },
         {
             "type": "input",
@@ -299,8 +299,8 @@ def build_assets(
 
         with open(src_dir / "index.html", "w") as fh:
             fh.write(html)
-        subdomain = data["subdomain"]
-        dest = ROOT / "host" / subdomain
+        folder_name = data["folder_name"]
+        dest = ROOT / "host" / folder_name
         os.makedirs(dest, exist_ok=True)
         if download_path:
             os.makedirs(dest / "download", exist_ok=True)
@@ -372,8 +372,8 @@ def serve(config_path: str):
 
     socks, ctl = get_tor_ports()
 
-    subdomain = load_config(config_path)["subdomain"]
-    dir_path = ROOT / "host" / subdomain
+    folder_name = load_config(config_path)["folder_name"]
+    dir_path = ROOT / "host" / folder_name
     if not dir_path.is_dir():
         print(f"Directory {dir_path} not found", file=sys.stderr)
         sys.exit(1)
@@ -405,20 +405,29 @@ def serve(config_path: str):
         import re as _re
 
         onion_url = None
-        while onion_url is None:
-            time.sleep(1)
-            if proc.poll() is not None:
-                print("OnionShare exited unexpectedly", file=sys.stderr)
-                with open(logfile) as fh:
-                    sys.stderr.write(fh.read())
-                pid_file.unlink(missing_ok=True)
-                sys.exit(1)
-            if os.path.exists(logfile):
-                with open(logfile) as fh:
-                    content = fh.read()
-                m = _re.search(r"https?://[a-z0-9]+\.onion", content)
-                if m:
-                    onion_url = m.group(0)
+        console = Console()
+        with console.status("[bold green]Connecting to Tor relays and setting up hidden service...") as status:
+            while onion_url is None:
+                time.sleep(1)
+                if proc.poll() is not None:
+                    print("OnionShare exited unexpectedly", file=sys.stderr)
+                    with open(logfile) as fh:
+                        sys.stderr.write(fh.read())
+                    pid_file.unlink(missing_ok=True)
+                    sys.exit(1)
+                if os.path.exists(logfile):
+                    with open(logfile) as fh:
+                        content = fh.read()
+                    
+                    # Look for Tor bootstrap progress in logs to give feedback
+                    m_progress = _re.findall(r"Bootstrapped (\d+)%", content)
+                    if m_progress:
+                        status.update(f"[bold green]Tor Bootstrapping: {m_progress[-1]}% ...")
+
+                    m = _re.search(r"https?://[a-z0-9]+\.onion", content)
+                    if m:
+                        onion_url = m.group(0)
+        
         print(f"Onion URL: {onion_url}")
         # update config with the onion URL
         # tear_off_link is set to the onion address (for tear-off tabs)
@@ -462,8 +471,8 @@ def import_configs():
         print(f"Processing {json_file}")
         dest_config = ROOT / "src" / "config.json"
         shutil.copy(json_file, dest_config)
-        subdomain = load_config(json_file)["subdomain"]
-        _clear_host_dir(ROOT / "host" / subdomain)
+        folder_name = load_config(json_file)["folder_name"]
+        _clear_host_dir(ROOT / "host" / folder_name)
         build_assets(dest_config)
 
 
@@ -478,8 +487,8 @@ def get_servers() -> list[str]:
     return sorted(servers)
 
 
-def is_server_running(subdomain: str) -> bool:
-    pid_file = ROOT / "host" / subdomain / "server.pid"
+def is_server_running(folder_name: str) -> bool:
+    pid_file = ROOT / "host" / folder_name / "server.pid"
     if not pid_file.exists():
         return False
     try:
@@ -517,10 +526,10 @@ def is_server_running(subdomain: str) -> bool:
             return True
 
 
-def stop_server(subdomain: str):
-    pid_file = ROOT / "host" / subdomain / "server.pid"
+def stop_server(folder_name: str):
+    pid_file = ROOT / "host" / folder_name / "server.pid"
     if not pid_file.exists():
-        print(f"Server {subdomain} is not running.")
+        print(f"Server {folder_name} is not running.")
         return
     try:
         with open(pid_file, "r") as f:
@@ -530,20 +539,20 @@ def stop_server(subdomain: str):
             subprocess.run(["taskkill", "/F", "/PID", str(pid)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         else:
             os.kill(pid, signal.SIGTERM)
-        print(f"Stopped {subdomain} (PID {pid})")
+        print(f"Stopped {folder_name} (PID {pid})")
     except Exception as e:
-        print(f"Error stopping {subdomain}: {e}")
+        print(f"Error stopping {folder_name}: {e}")
     finally:
         pid_file.unlink(missing_ok=True)
 
 
-def delete_server(subdomain: str):
-    if is_server_running(subdomain):
-        stop_server(subdomain)
-    dir_path = ROOT / "host" / subdomain
+def delete_server(folder_name: str):
+    if is_server_running(folder_name):
+        stop_server(folder_name)
+    dir_path = ROOT / "host" / folder_name
     if dir_path.exists():
         shutil.rmtree(dir_path, ignore_errors=True)
-        print(f"Deleted server {subdomain}")
+        print(f"Deleted server {folder_name}")
 
 
 def manage_servers():
@@ -640,6 +649,8 @@ def main(argv=None):
             return
         elif not args.non_interactive:
             interactive_update(config_path)
+        build_assets(config_path)
+        serve(config_path)
     elif args.command == "build":
         build_assets(config_path, download_path=args.download)
     elif args.command == "serve":
