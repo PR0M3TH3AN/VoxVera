@@ -360,7 +360,14 @@ def build_assets(
         
         html = html.replace("{{locales}}", json.dumps(all_locales))
 
-        # Statically replace {{placeholders}} for Tor JS-disabled compatibility
+        # 1. Statically replace localization tokens {{t_web_...}} 
+        # This ensures the flyer is translated even with JS disabled.
+        lang_data = all_locales.get(data.get("lang", "en"), all_locales.get("en", {}))
+        web_tokens = lang_data.get("web", {})
+        for token, translation in web_tokens.items():
+            html = html.replace(f"{{{{t_web_{token}}}}}", str(translation))
+
+        # 2. Statically replace config placeholders {{key}}
         for key, value in data.items():
             html = html.replace(f"{{{{{key}}}}}", str(value))
 
@@ -736,10 +743,17 @@ def build_site():
     
     html = html.replace("{{locales}}", json.dumps(all_locales))
 
-    # Update relative path for download
+    # 1. Statically replace localization tokens (Default to EN for initial state)
+    lang_data = all_locales.get("en", {})
+    for category in ["web", "landing"]:
+        tokens = lang_data.get(category, {})
+        for token, translation in tokens.items():
+            html = html.replace(f"{{{{t_{category}_{token}}}}}", str(translation))
+
+    # 2. Update relative path for download
     html = html.replace("download/download.zip", "download/voxvera-portable.zip")
 
-    # Inject site-specific config data
+    # 3. Inject site-specific config data
     for key, value in data.items():
         html = html.replace(f"{{{{{key}}}}}", str(value))
 
