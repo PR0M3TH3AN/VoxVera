@@ -634,9 +634,9 @@ def is_server_running(folder_name: str) -> bool:
             output = subprocess.check_output(["ps", "-p", str(pid), "-o", "command="], stderr=subprocess.STDOUT).decode().lower()
             if "onionshare" in output or "python" in output or "tor" in output:
                 return True
-            return True
+            return False
         except Exception:
-            return True
+            return False
 
 
 def stop_server(folder_name: str):
