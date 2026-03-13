@@ -34,43 +34,47 @@ def require_cmd(cmd: str):
 
 def check_deps():
     console = Console()
-    tools = [
-        "node",
-        "javascript-obfuscator",
-        "html-minifier-terser",
-        "jq",
-        "qrencode",
-        "onionshare-cli",
-        "convert",
-        "pdftotext",
-    ]
 
-    found = []
-    missing = []
-    for t in tools:
-        if shutil.which(t):
-            found.append(t)
-        else:
-            missing.append(t)
+    # External CLI tools still required at runtime
+    cli_tools = ["onionshare-cli"]
+    # Python packages used by the build pipeline
+    py_packages = {
+        "qrcode": "qrcode",
+        "PIL (Pillow)": "PIL",
+        "jsmin": "jsmin",
+        "htmlmin": "htmlmin",
+        "pypdf": "pypdf",
+    }
 
     console.rule("Dependency Check")
-    for t in tools:
-        status = "found" if t in found else "missing"
-        color = "green" if t in found else "red"
-        console.print(f"{t}: [{color}]{status}[/{color}]")
 
-    if missing:
-        console.print(f"[red]Missing tools:[/red] {', '.join(missing)}")
+    for t in cli_tools:
+        if shutil.which(t):
+            console.print(f"{t}: [green]found[/green]")
+        else:
+            console.print(f"{t}: [red]missing[/red]")
+
+    for label, module in py_packages.items():
+        try:
+            __import__(module)
+            console.print(f"{label}: [green]found[/green]")
+        except ImportError:
+            console.print(f"{label}: [red]missing[/red]")
+
+    all_cli = all(shutil.which(t) for t in cli_tools)
+    all_py = True
+    for module in py_packages.values():
+        try:
+            __import__(module)
+        except ImportError:
+            all_py = False
+            break
+
+    if all_cli and all_py:
+        console.print("[green]All dependencies are installed.[/green]")
     else:
-        console.print("[green]All required tools are installed.[/green]")
+        console.print("[red]Some dependencies are missing. Run: pip install 'voxvera[all]'[/red]")
 
-
-def run(cmd, **kwargs):
-    try:
-        subprocess.run(cmd, check=True, **kwargs)
-    except FileNotFoundError:
-        print(f"Required command '{cmd[0]}' not found. Please install it.", file=sys.stderr)
-        sys.exit(1)
 
 
 def load_config(path: str) -> dict:
@@ -273,16 +277,8 @@ def interactive_update(config_path: str):
 
 
 def update_from_pdf(config_path: str, pdf_path: str):
-    import tempfile
-    tmpdir = tempfile.mkdtemp()
-    os.makedirs(os.path.join(tmpdir, 'from_client'), exist_ok=True)
-    shutil.copy(pdf_path, os.path.join(tmpdir, 'from_client', 'submission_form.pdf'))
-    with resources.as_file(_template_res('blank', 'extract_form_fields.sh')) as p:
-        shutil.copy(p, tmpdir)
-    shutil.copy(config_path, os.path.join(tmpdir, 'config.json'))
-    run(['bash', 'extract_form_fields.sh'], cwd=tmpdir)
-    shutil.copy(os.path.join(tmpdir, 'config.json'), config_path)
-    shutil.rmtree(tmpdir)
+    from voxvera.build import extract_form_fields
+    extract_form_fields(Path(pdf_path), Path(config_path))
 
 
 def copy_template(name: str) -> str:
@@ -301,12 +297,15 @@ def copy_template(name: str) -> str:
 
 def build_assets(config_path: str, pdf_path: str | None = None,
                  download_path: str | None = None):
+    from voxvera.build import generate_qr, obfuscate_html
+
     with resources.as_file(_src_res()) as src_dir:
-        # generate QR codes
-        run(['bash', 'generate_qr.sh', config_path], cwd=src_dir)
-        # obfuscate html
-        run(['bash', 'obfuscate_index.sh', config_path], cwd=src_dir)
-        run(['bash', 'obfuscate_nostr.sh', config_path], cwd=src_dir)
+        config_path = Path(config_path)
+        # generate QR codes (pure Python)
+        generate_qr(config_path, src_dir)
+        # minify HTML + inline JS (pure Python)
+        obfuscate_html(src_dir / 'index-master.html', src_dir / 'index.html')
+        obfuscate_html(src_dir / 'nostr-master.html', src_dir / 'nostr.html')
         data = load_config(config_path)
         with open(src_dir / 'index.html', 'r') as fh:
             html = fh.read()
@@ -351,8 +350,9 @@ def serve(config_path: str):
         '--use-running-tor',
         str(dir_path)
     ]
+    log_fh = open(logfile, 'w')
     proc = subprocess.Popen(cmd,
-                            stdout=open(logfile, 'w'),
+                            stdout=log_fh,
                             stderr=subprocess.STDOUT)
     try:
         import time
@@ -382,6 +382,18 @@ def serve(config_path: str):
         print(f"OnionShare running (PID {proc.pid}). See {logfile} for details.")
     except KeyboardInterrupt:
         pass
+    finally:
+        log_fh.close()
+
+
+def _clear_host_dir(dir_path: Path):
+    """Remove host directory contents but preserve the OnionShare session key."""
+    session = dir_path / '.onionshare-session'
+    saved = session.read_bytes() if session.exists() else None
+    shutil.rmtree(dir_path, ignore_errors=True)
+    if saved is not None:
+        os.makedirs(dir_path, exist_ok=True)
+        session.write_bytes(saved)
 
 
 def import_configs():
@@ -395,7 +407,7 @@ def import_configs():
         dest_config = ROOT / 'src' / 'config.json'
         shutil.copy(json_file, dest_config)
         subdomain = load_config(json_file)['subdomain']
-        shutil.rmtree(ROOT / 'host' / subdomain, ignore_errors=True)
+        _clear_host_dir(ROOT / 'host' / subdomain)
         build_assets(dest_config)
 
 
@@ -429,8 +441,6 @@ def main(argv=None):
             copy_template(args.template)
             return
         elif args.from_pdf:
-            if not require_cmd('pdftotext'):
-                sys.exit(1)
             update_from_pdf(config_path, args.from_pdf)
         elif not args.non_interactive:
             interactive_update(config_path)

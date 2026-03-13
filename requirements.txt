@@ -1,2 +1,7 @@
 InquirerPy
 rich
+qrcode[pil]
+Pillow
+jsmin
+htmlmin2
+pypdf

@@ -55,11 +55,13 @@ require_pkg() {
   fi
 }
 
+# Only external runtime dependencies needed (for voxvera serve)
 require_pkg tor tor
-require_pkg onionshare-cli onionshare-cli
-require_pkg jq jq
-require_pkg qrencode qrencode
-require_pkg convert imagemagick
+if [ "$PM" = "brew" ]; then
+  require_pkg onionshare onionshare
+else
+  require_pkg onionshare-cli onionshare-cli
+fi
 
 download_binary() {
   local url=$1
@@ -122,7 +124,7 @@ pip_repo_fallback() {
 }
 
 if command_exists pipx; then
-  if ! pipx install --force voxvera; then
+  if ! pipx install --force 'voxvera@git+https://github.com/PR0M3TH3AN/VoxVera.git@main'; then
     echo "pipx install failed, downloading binary"
     install_dir="$HOME/.local/bin"
     mkdir -p "$install_dir"
@@ -160,4 +162,6 @@ else
   fi
 fi
 
+echo ""
 echo "VoxVera installed successfully."
+echo "Run 'voxvera check' to verify your setup."

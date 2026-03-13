@@ -1,0 +1,151 @@
+"""Pure-Python replacements for the shell-based build pipeline.
+
+Eliminates the need for jq, qrencode, ImageMagick, javascript-obfuscator,
+html-minifier-terser, node, pdftotext, and poppler-utils.
+"""
+
+import json
+import re
+from pathlib import Path
+
+import htmlmin  # provided by htmlmin2 package
+import qrcode
+from jsmin import jsmin
+from PIL import Image
+
+
+def generate_qr(config_path: Path, output_dir: Path) -> None:
+    """Generate QR code PNGs from config URLs.
+
+    Replaces generate_qr.sh (qrencode + ImageMagick convert).
+    """
+    with open(config_path) as f:
+        config = json.load(f)
+
+    url = config.get("url", "")
+    tear = config.get("tear_off_link", "")
+    if not url:
+        raise ValueError(f"url missing in {config_path}")
+    if not tear:
+        raise ValueError(f"tear_off_link missing in {config_path}")
+
+    for data, filename in [(url, "qrcode-content.png"), (tear, "qrcode-tear-offs.png")]:
+        qr = qrcode.QRCode(box_size=10, border=0)
+        qr.add_data(data)
+        qr.make(fit=True)
+        img = qr.make_image(fill_color="black", back_color="white")
+        img = img.resize((128, 128), Image.LANCZOS)
+        img.save(output_dir / filename)
+
+
+def obfuscate_html(input_file: Path, output_file: Path) -> None:
+    """Minify JS inside <script> tags and minify the overall HTML.
+
+    Replaces obfuscate_index.sh / obfuscate_nostr.sh
+    (javascript-obfuscator + html-minifier-terser + node).
+    """
+    if not input_file.exists():
+        raise FileNotFoundError(f"Input file {input_file} does not exist.")
+
+    html = input_file.read_text(encoding="utf-8")
+
+    def _minify_script(match):
+        js = match.group(1)
+        return f"<script>{jsmin(js)}</script>"
+
+    html = re.sub(r"<script>(.*?)</script>", _minify_script, html, flags=re.DOTALL)
+    html = htmlmin.minify(
+        html,
+        remove_comments=True,
+        remove_empty_space=True,
+        remove_optional_attribute_quotes=False,
+    )
+    output_file.write_text(html, encoding="utf-8")
+
+
+def _normalize_content(raw: str) -> str:
+    """Join soft-wrapped lines while preserving paragraph breaks.
+
+    Replicates the awk logic from extract_form_fields.sh.
+    """
+    lines = raw.splitlines()
+    paragraphs: list[str] = []
+    current = ""
+
+    for line in lines:
+        stripped = line.strip()
+        if not stripped:
+            if current:
+                paragraphs.append(current)
+                current = ""
+            continue
+
+        if not current:
+            current = stripped
+        elif re.search(r"[.?!]$", current) and stripped[0:1].isupper():
+            current += " " + stripped
+        elif not re.search(r"[.?!]$", current):
+            current += " " + stripped
+        else:
+            paragraphs.append(current)
+            current = stripped
+
+    if current:
+        paragraphs.append(current)
+
+    return "\n\n".join(paragraphs)
+
+
+def extract_form_fields(pdf_path: Path, config_path: Path) -> None:
+    """Extract form data from a filled PDF and update config.json.
+
+    Replaces extract_form_fields.sh (pdftotext + jq + grep/awk/sed).
+    """
+    from pypdf import PdfReader
+
+    reader = PdfReader(str(pdf_path))
+    text = "\n".join(page.extract_text(extraction_mode="layout") or "" for page in reader.pages)
+
+    def _extract_field(label: str, lines_after: int = 1) -> str:
+        pattern = re.compile(re.escape(label), re.IGNORECASE)
+        text_lines = text.splitlines()
+        for i, line in enumerate(text_lines):
+            if pattern.search(line):
+                target = text_lines[i + lines_after] if i + lines_after < len(text_lines) else ""
+                return target.strip()
+        return ""
+
+    fields = {
+        "name": _extract_field("name (max 25 characters):", lines_after=3),
+        "subdomain": _extract_field("subdomain (max 30 characters):"),
+        "title": _extract_field("title (max 30 characters):"),
+        "subtitle": _extract_field("subtitle (max 45 characters):"),
+        "headline": _extract_field("headline (max 50 characters):"),
+        "url_message": _extract_field("url_message (max 60 characters):"),
+        "url": _extract_field("url (max 90 characters):"),
+    }
+
+    # Content: multi-line block between "content" label and "url_message" label
+    content_match = re.search(
+        r"content \(max 1,400 characters\):\s*\n(.*?)url_message",
+        text,
+        re.DOTALL | re.IGNORECASE,
+    )
+    if content_match:
+        fields["content"] = _normalize_content(content_match.group(1))
+
+    missing = [k for k, v in fields.items() if not v]
+    if missing:
+        raise ValueError(f"Empty fields extracted from PDF: {', '.join(missing)}")
+
+    onion_base = "6dshf2gnj7yzxlfcaczlyi57up4mvbtd5orinuj5bjsfycnhz2w456yd.onion"
+
+    with open(config_path) as f:
+        config = json.load(f)
+
+    existing_tear = config.get("tear_off_link", "")
+    fields["tear_off_link"] = existing_tear or f"http://{fields['subdomain']}.{onion_base}"
+
+    config.update(fields)
+    with open(config_path, "w") as f:
+        json.dump(config, f, indent=2)

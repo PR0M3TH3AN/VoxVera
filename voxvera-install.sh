@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # --------------------------------------------------------------------
 # VoxVera all-in-one installer (Linux) – run once as a normal user.
-# Installs system deps, Tor + OnionShare, npm helpers, and VoxVera itself.
+# Installs Tor + OnionShare and VoxVera itself.
+# Build dependencies (QR, HTML minification, PDF parsing) are Python
+# packages installed automatically — no Node.js or ImageMagick needed.
 # --------------------------------------------------------------------
 set -euo pipefail
 
@@ -18,35 +20,24 @@ elif command_exists dnf;      then PM=dnf   ; UPDATE="sudo dnf -y makecache"    
 elif command_exists yum;      then PM=yum   ; UPDATE="sudo yum makecache"                 ; INSTALL="sudo yum install -y"
 elif command_exists pacman;   then PM=pacman; UPDATE="sudo pacman -Sy"                    ; INSTALL="sudo pacman -S --noconfirm"
 elif command_exists apk;      then PM=apk   ; UPDATE="sudo apk update"                    ; INSTALL="sudo apk add --no-cache"
-else die "Unsupported distro – can’t find apt/yum/dnf/pacman/apk."
+else die "Unsupported distro – can't find apt/yum/dnf/pacman/apk."
 fi
 
 msg ">> Detected package manager: $PM"
 
 ## -------- install system packages ----------------------------------
-SYSTEM_PKGS=(torsocks tor jq qrencode imagemagick poppler-utils curl wget)
+# Only runtime dependencies for Tor hosting are needed as system packages.
+# Build tools (QR, minification, PDF parsing) are all Python packages now.
+SYSTEM_PKGS=(tor curl)
 # OnionShare package name differs per repo:
 [[ $PM =~ (apt|dnf|yum) ]] && SYSTEM_PKGS+=(onionshare-cli) || SYSTEM_PKGS+=(onionshare)
 
 $UPDATE && $INSTALL "${SYSTEM_PKGS[@]}"
 
-# node / npm
-if ! command_exists node || ! command_exists npm; then
-  msg ">> Installing Node.js / npm"
-  $INSTALL nodejs npm
-fi
-
-# npm global helpers (obfuscator + minifier)
-for pkg in javascript-obfuscator html-minifier-terser; do
-  if ! command_exists "$pkg"; then
-    sudo npm install -g "$pkg"
-  fi
-done
-
 ## -------- install VoxVera (prefers pipx, falls back) ---------------
 install_voxvera() {
   if command_exists pipx; then
-    pipx install --force voxvera && return 0
+    pipx install --force 'voxvera@git+https://github.com/PR0M3TH3AN/VoxVera.git@main' && return 0
   fi
   # fallback: binary
   local install_dir="$HOME/.local/bin"
@@ -62,7 +53,7 @@ install_voxvera() {
     return 0
   fi
   # fallback: pip
-  pip install --user voxvera
+  pip install --user 'voxvera@git+https://github.com/PR0M3TH3AN/VoxVera.git@main'
 }
 
 msg ">> Installing VoxVera"
@@ -87,4 +78,5 @@ msg "------------------------------------------------------------------"
 msg "   VoxVera install finished!"
 msg "   Tor rc file : $TOR_DIR/torrc"
 msg "   Make sure \$HOME/.local/bin is in your PATH."
+msg "   Run 'voxvera check' to verify your setup."
 msg "------------------------------------------------------------------"

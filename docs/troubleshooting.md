@@ -32,11 +32,24 @@ output.
 
 If problems persist, consult the OnionShare and Tor documentation for more advanced configuration tips.
 
+## Onion URL changed unexpectedly
+The onion URL is tied to the Ed25519 keypair stored in
+`host/<subdomain>/.onionshare-session`. If this file is deleted, a new
+keypair (and URL) will be generated on the next `voxvera serve`. The
+`voxvera import` command preserves this file automatically, but manual
+deletion of the `host/` directory will destroy it.
+
 ## Electron GUI
 If `npm start` fails with `spawn voxvera ENOENT`, the `voxvera` command is not in your `PATH`. Install it with `pipx install git+https://github.com/PR0M3TH3AN/VoxVera.git` or run `./install.sh` from the repository.
 
 ## Missing dependencies
-Run `voxvera check` to see which required tools are present. The command verifies
-`node`, `javascript-obfuscator`, `html-minifier-terser`, `jq`, `qrencode`,
-`onionshare-cli`, and other helpers, then prints a summary of any that are
-missing so you can install them.
+Run `voxvera check` to verify your setup. The command checks for required
+Python packages (`qrcode`, `Pillow`, `jsmin`, `htmlmin`, `pypdf`) and
+external tools (`onionshare-cli`), then prints a summary of anything
+missing. To install all Python dependencies:
+
+```bash
+pip install 'voxvera[all]'
+# or reinstall from source
+pipx install --force 'voxvera@git+https://github.com/PR0M3TH3AN/VoxVera.git@main'
+```

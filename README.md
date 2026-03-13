@@ -4,67 +4,76 @@ Generate printable flyers with QR codes linking to Tor (.onion) or HTTPS sites, 
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
-* **Interactive setup**: `voxvera init` prompts for metadata or extracts from a PDF form. When editing body text, a small Tkinter GUI window opens with existing content pre‑filled, falling back to the user's `$EDITOR` if the GUI isn't available.
-* **Template support**: `voxvera init --template <name>` copies built‑in templates (`blank`, `voxvera`).
-* **Build assets**: `voxvera build [--pdf <path>] [--download <file.zip>]` generates HTML, obfuscated JS/CSS, QR codes, and bundles PDFs.
+* **Interactive setup**: `voxvera init` prompts for metadata or extracts from a PDF form. When editing body text, a small Tkinter GUI window opens with existing content pre-filled, falling back to the user's `$EDITOR` if the GUI isn't available.
+* **Template support**: `voxvera init --template <name>` copies built-in templates (`blank`, `voxvera`).
+* **Build assets**: `voxvera build [--pdf <path>] [--download <file.zip>]` generates HTML, minified JS/CSS, QR codes, and bundles PDFs.
 * **Batch import**: `voxvera import` processes all JSON configs in `imports/`.
-* **Onion hosting**: `voxvera serve` publishes via Tor/OnionShare and updates flyer links.
-* **All‑in‑one**: `voxvera quickstart` runs init, build, and serve in sequence.
-* **Dependency check**: `voxvera check` verifies presence of required tools.
-* **GUI**: Minimal Electron wrapper (`gui/electron`) for non‑CLI users.
+* **Onion hosting**: `voxvera serve` publishes via Tor/OnionShare and updates flyer links. The onion URL is key-based and persists across content changes.
+* **All-in-one**: `voxvera quickstart` runs init, build, and serve in sequence.
+* **Dependency check**: `voxvera check` verifies presence of required tools and Python packages.
+* **GUI**: Minimal Electron wrapper (`gui/electron`) for non-CLI users.
 
 ---
 
-## 📥 Quick Start (Debian & Ubuntu)
+## Quick Start
 
-### 1️⃣ Install VoxVera and all dependencies
+### Install with pip/pipx (Linux, macOS, Windows)
 
-```bash
-# Download the installer
-curl -fsSL https://raw.githubusercontent.com/PR0M3TH3AN/VoxVera/main/voxvera-install.sh -o voxvera-install.sh
-chmod +x voxvera-install.sh
-
-# Run the installer (requires sudo for apt packages)
-./voxvera-install.sh
-```
-
-The script will:
-
-1. Update **apt** and install Tor, OnionShare, ImageMagick, Poppler, Node.js, and other CLI helpers.
-2. Fetch the latest VoxVera release and place it in `~/.local/bin` (creating the directory if needed).
-3. Create a minimal per‑user `torrc` under `~/.voxvera/` and (re)start the `tor` service.
-
-After the script finishes, open a new terminal or reload your shell to ensure `~/.local/bin` is on your **PATH**.
-
-If you prefer a user-level install, run:
+VoxVera is a pure Python package. All build dependencies (QR codes, HTML minification, PDF parsing) are handled by Python libraries — no Node.js, ImageMagick, or other system tools needed.
 
 ```bash
+# Recommended (isolated environment)
 pipx install 'voxvera@git+https://github.com/PR0M3TH3AN/VoxVera.git@main'
+
+# Or with pip
+pip install 'voxvera@git+https://github.com/PR0M3TH3AN/VoxVera.git@main'
 ```
 
-### 2️⃣ Run VoxVera (every session)
+The only external tool required for hosting is **OnionShare** (`onionshare-cli`). Install it separately if you plan to use `voxvera serve`:
+
+| Platform | Install OnionShare |
+|---|---|
+| Debian/Ubuntu | `sudo apt install onionshare-cli` |
+| Fedora | `sudo dnf install onionshare-cli` |
+| macOS | `brew install onionshare` |
+| Windows | [onionshare.org](https://onionshare.org/) |
+
+### One-line installer (Linux/macOS)
+
+For a batteries-included setup that also installs Tor and OnionShare:
 
 ```bash
-# First‑time only: make the wrapper executable
-chmod +x voxvera-run.sh
+curl -fsSL https://raw.githubusercontent.com/PR0M3TH3AN/VoxVera/main/install.sh | bash
+```
 
-# Start VoxVera
+### Windows (PowerShell)
+
+```powershell
+irm https://raw.githubusercontent.com/PR0M3TH3AN/VoxVera/main/install.ps1 | iex
+```
+
+### Run VoxVera
+
+```bash
+# Interactive: configure, build, and serve in one step
+voxvera quickstart
+
+# Or use the helper script (starts Tor if needed, then launches quickstart)
 ./voxvera-run.sh
 ```
 
-`voxvera-run.sh` checks that Tor is healthy, starts it if necessary, and then launches `voxvera quickstart`. Use it every time you work with VoxVera.
-
 ---
 
-## 🏗️ Typical Workflow
+## Typical Workflow
 
 ```bash
 # 1. Interactive metadata
 voxvera init
 
-# 2. Build flyersoxvera build --pdf form.pdf --download file.zip   # optional flags
+# 2. Build flyers
+voxvera build --pdf form.pdf --download file.zip   # optional flags
 
 # 3. Host via Tor
 voxvera serve
@@ -80,9 +89,31 @@ Run `voxvera --help` for the full CLI reference.
 
 ---
 
-## 🎮 GUI (optional)
+## Dependencies
 
-If you prefer a point‑and‑click experience:
+### Python packages (installed automatically)
+
+| Package | Replaces |
+|---|---|
+| `qrcode` + `Pillow` | `qrencode` + ImageMagick |
+| `jsmin` + `htmlmin2` | `javascript-obfuscator` + `html-minifier-terser` + Node.js |
+| `pypdf` | `pdftotext` / `poppler-utils` |
+| `InquirerPy` + `rich` | Interactive prompts and console output |
+
+### External tools (only for hosting)
+
+| Tool | Required for |
+|---|---|
+| `onionshare-cli` | `voxvera serve` (Tor hosting) |
+| `tor` | OnionShare runtime (installed by OnionShare or separately) |
+
+Run `voxvera check` to verify your setup.
+
+---
+
+## GUI (optional)
+
+If you prefer a point-and-click experience:
 
 ```bash
 cd gui/electron
@@ -90,20 +121,21 @@ npm install
 npm start
 ```
 
-The GUI internally calls the same CLI commands, so make sure the installer has run first.
+The GUI internally calls the same CLI commands, so make sure VoxVera is installed first.
 
 ---
 
-## 📄 Documentation
+## Documentation
 
 See the `docs/` folder for additional guides:
 
 * `docs/usage.md` — CLI workflows
 * `docs/templates.md` — available flyer templates
 * `docs/troubleshooting.md` — common fixes
+* `docs/docker.md` — Docker usage
 
 ---
 
-## 📜 License
+## License
 
-MIT © 2025 thePR0M3TH3AN
+MIT © 2025 thePR0M3TH3AN

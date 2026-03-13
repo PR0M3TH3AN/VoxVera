@@ -19,7 +19,6 @@ def _setup_tmp(monkeypatch, tmp_path):
     shutil.copytree(repo_root / "voxvera" / "src", tmp_path / "src")
     monkeypatch.setattr(cli, "ROOT", tmp_path)
     monkeypatch.setattr(cli, "_src_res", lambda *p: tmp_path / "src" / Path(*p))
-    monkeypatch.setattr(cli, "run", lambda *a, **k: None)
     return repo_root
 
 
@@ -77,21 +76,51 @@ def test_import(tmp_path, monkeypatch):
         assert (dest / "index.html").exists()
 
 
+def test_import_preserves_session(tmp_path, monkeypatch):
+    """Re-importing a config must not destroy the OnionShare session key."""
+    repo = _setup_tmp(monkeypatch, tmp_path)
+    imports_dir = tmp_path / "imports"
+    imports_dir.mkdir()
+    base_data = json.load(open(repo / "imports" / "example.json"))
+    base_data["subdomain"] = "keep"
+    with open(imports_dir / "keep.json", "w") as fh:
+        json.dump(base_data, fh)
+
+    # first import creates the host dir
+    cli.main(["import"])
+    host_dir = tmp_path / "host" / "keep"
+    assert host_dir.is_dir()
+
+    # simulate OnionShare having written a session key
+    session_file = host_dir / ".onionshare-session"
+    session_file.write_text("FAKE-KEY-DATA")
+
+    # re-import the same config
+    cli.main(["import"])
+
+    # session key must still be present and unchanged
+    assert session_file.exists()
+    assert session_file.read_text() == "FAKE-KEY-DATA"
+    # built assets should still be there too
+    assert (host_dir / "index.html").exists()
+
+
 def test_check_all_present(capsys, monkeypatch):
     monkeypatch.setattr(shutil, "which", lambda cmd: "/usr/bin/" + cmd)
     cli.main(["check"])
     captured = capsys.readouterr()
-    assert "All required tools are installed." in captured.out
+    assert "All dependencies are installed." in captured.out
 
 
 def test_check_missing(capsys, monkeypatch):
     def fake_which(cmd):
-        return None if cmd == "node" else "/usr/bin/" + cmd
+        return None if cmd == "onionshare-cli" else "/usr/bin/" + cmd
 
     monkeypatch.setattr(shutil, "which", fake_which)
     cli.main(["check"])
     captured = capsys.readouterr()
-    assert "node: missing" in captured.out
+    assert "onionshare-cli" in captured.out
+    assert "missing" in captured.out
 
 
 def test_build_download_zip(tmp_path, monkeypatch):
