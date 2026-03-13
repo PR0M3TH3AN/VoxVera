@@ -67,7 +67,7 @@ def obfuscate_html(input_file: Path, output_file: Path) -> None:
     html = htmlmin.minify(
         html,
         remove_comments=True,
-        remove_empty_space=True,
+        remove_empty_space=False,
         remove_optional_attribute_quotes=False,
     )
     output_file.write_text(html, encoding="utf-8")

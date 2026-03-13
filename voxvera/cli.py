@@ -154,7 +154,7 @@ def _len_validator(limit: int):
     def _v(val: str):
         length = len(val)
         if length > limit:
-            return f"Must be at most {limit} characters ({length})"
+            return f"❌ Input too long: {length}/{limit} characters. Please shorten it."
         return True
 
     return _v
