@@ -11,11 +11,16 @@ jobs:
     env:
       VOXVERA_E2E_OFFLINE: "1"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y python3-pip
+          pip install --break-system-packages .
       - name: Run end-to-end tests
         run: ci/test-e2e.sh
       - name: Upload logs
