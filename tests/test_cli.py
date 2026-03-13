@@ -251,6 +251,16 @@ def test_get_tor_ports_auto_detect_defaults(monkeypatch):
     """Test that get_tor_ports returns defaults when no env vars and no Tor running."""
     monkeypatch.delenv("TOR_SOCKS_PORT", raising=False)
     monkeypatch.delenv("TOR_CONTROL_PORT", raising=False)
+    
+    # Mock socket to always fail connection so it falls back to defaults
+    import socket
+    class MockSocket:
+        def __init__(self, *args, **kwargs): pass
+        def settimeout(self, *args, **kwargs): pass
+        def connect_ex(self, *args, **kwargs): return 1 # 1 is a failure code
+        def close(self): pass
+    monkeypatch.setattr(socket, "socket", MockSocket)
+    
     # Don't actually start Tor, so detection will fail and fall back to defaults
     socks, ctl = cli.get_tor_ports()
     assert socks == "9050"  # Default SOCKS port

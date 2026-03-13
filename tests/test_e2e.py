@@ -396,6 +396,15 @@ class TestTorIntegration:
         # Clear environment variables
         monkeypatch.delenv("TOR_SOCKS_PORT", raising=False)
         monkeypatch.delenv("TOR_CONTROL_PORT", raising=False)
+        
+        # Mock socket to always fail connection so it falls back to defaults
+        import socket
+        class MockSocket:
+            def __init__(self, *args, **kwargs): pass
+            def settimeout(self, *args, **kwargs): pass
+            def connect_ex(self, *args, **kwargs): return 1 # 1 is a failure code
+            def close(self): pass
+        monkeypatch.setattr(socket, "socket", MockSocket)
 
         # This should not raise an error, just return defaults
         socks, ctl = cli.get_tor_ports()

@@ -554,7 +554,7 @@ def manage_servers():
     while True:
         servers = get_servers()
         if not servers:
-            console.print("[red]No servers found. Use 'voxvera init' to create one.[/red]")
+            console.print("[red]No servers found. Use 'voxvera build' or 'voxvera quickstart' to create one.[/red]")
             return
             
         choices = []
