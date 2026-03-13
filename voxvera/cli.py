@@ -18,16 +18,19 @@ ROOT = Path(__file__).resolve().parent
 
 def _template_res(*parts) -> Traversable:
     """Return a Traversable for files under the packaged ``templates`` folder."""
-    return resources.files(__package__).joinpath('templates', *parts)
+    return resources.files(__package__).joinpath("templates", *parts)
+
 
 def _src_res(*parts) -> Traversable:
     """Return a Traversable for files under the packaged ``src`` folder."""
-    return resources.files(__package__).joinpath('src', *parts)
+    return resources.files(__package__).joinpath("src", *parts)
 
 
 def require_cmd(cmd: str):
     if shutil.which(cmd) is None:
-        print(f"Required command '{cmd}' not found. Please install it.", file=sys.stderr)
+        print(
+            f"Required command '{cmd}' not found. Please install it.", file=sys.stderr
+        )
         return False
     return True
 
@@ -73,17 +76,18 @@ def check_deps():
     if all_cli and all_py:
         console.print("[green]All dependencies are installed.[/green]")
     else:
-        console.print("[red]Some dependencies are missing. Run: pip install 'voxvera[all]'[/red]")
-
+        console.print(
+            "[red]Some dependencies are missing. Run: pip install 'voxvera[all]'[/red]"
+        )
 
 
 def load_config(path: str) -> dict:
-    with open(path, 'r') as fh:
+    with open(path, "r") as fh:
         return json.load(fh)
 
 
 def save_config(data: dict, path: str):
-    with open(path, 'w') as fh:
+    with open(path, "w") as fh:
         json.dump(data, fh, indent=2)
 
 
@@ -113,6 +117,7 @@ def open_editor(initial: str) -> str:
     try:
         import tkinter as tk
         from tkinter import scrolledtext
+
         root = tk.Tk()
         root.title("Edit text")
     except Exception:
@@ -142,6 +147,7 @@ def _len_transform(limit: int):
         if length > limit:
             return f"[red]{val} ({length}/{limit})[/red]"
         return f"{val} ({length}/{limit})"
+
     return _t
 
 
@@ -151,6 +157,7 @@ def _len_validator(limit: int):
         if length > limit:
             return f"Must be at most {limit} characters ({length})"
         return True
+
     return _v
 
 
@@ -225,32 +232,14 @@ def interactive_update(config_path: str):
     data["content"] = body
 
     console.rule("Links")
-    protocol = inquirer.select(
-        message="Default URL type",
-        choices=[("Tor (.onion)", "tor"), ("HTTPS", "https")],
-        default="tor",
-    ).execute()
-
-    onion_base = "6dshf2gnj7yzxlfcaczlyi57up4mvbtd5orinuj5bjsfycnhz2w456yd.onion"
-    if protocol == "tor":
-        constructed = f"http://{data['subdomain']}.{onion_base}"
-    else:
-        constructed = f"https://{data['subdomain']}.example.com"
-
+    # URL is the main content link (user-configurable, e.g., external resource)
+    # Tear-off link will be auto-generated from Tor keys when serving
     link_qs = [
         {
             "type": "input",
-            "message": "URL",
+            "message": "URL (content link - external resource)",
             "name": "url",
-            "default": data.get("url", constructed),
-            "transformer": _len_transform(200),
-            "validate": _len_validator(200),
-        },
-        {
-            "type": "input",
-            "message": "Tear-off link",
-            "name": "tear_off_link",
-            "default": data.get("tear_off_link", constructed),
+            "default": data.get("url", ""),
             "transformer": _len_transform(200),
             "validate": _len_validator(200),
         },
@@ -278,25 +267,27 @@ def interactive_update(config_path: str):
 
 def update_from_pdf(config_path: str, pdf_path: str):
     from voxvera.build import extract_form_fields
+
     extract_form_fields(Path(pdf_path), Path(config_path))
 
 
 def copy_template(name: str) -> str:
     """Copy a template directory into dist/ with a datestamped folder."""
-    date = datetime.date.today().strftime('%Y%m%d')
+    date = datetime.date.today().strftime("%Y%m%d")
     with resources.as_file(_template_res(name)) as src:
         if not src.is_dir():
             print(f"Template {name} not found", file=sys.stderr)
             sys.exit(1)
-        dest = ROOT / 'dist' / f"{name}-{date}"
-        os.makedirs(ROOT / 'dist', exist_ok=True)
+        dest = ROOT / "dist" / f"{name}-{date}"
+        os.makedirs(ROOT / "dist", exist_ok=True)
         shutil.copytree(src, dest, dirs_exist_ok=True)
     print(f"Template copied to {dest}")
     return str(dest)
 
 
-def build_assets(config_path: str, pdf_path: str | None = None,
-                 download_path: str | None = None):
+def build_assets(
+    config_path: str, pdf_path: str | None = None, download_path: str | None = None
+):
     from voxvera.build import generate_qr, obfuscate_html
 
     with resources.as_file(_src_res()) as src_dir:
@@ -304,81 +295,150 @@ def build_assets(config_path: str, pdf_path: str | None = None,
         # generate QR codes (pure Python)
         generate_qr(config_path, src_dir)
         # minify HTML + inline JS (pure Python)
-        obfuscate_html(src_dir / 'index-master.html', src_dir / 'index.html')
-        obfuscate_html(src_dir / 'nostr-master.html', src_dir / 'nostr.html')
+        obfuscate_html(src_dir / "index-master.html", src_dir / "index.html")
+        obfuscate_html(src_dir / "nostr-master.html", src_dir / "nostr.html")
         data = load_config(config_path)
-        with open(src_dir / 'index.html', 'r') as fh:
+        with open(src_dir / "index.html", "r") as fh:
             html = fh.read()
         pattern = r'<p class="binary" id="binary-message">.*?</p>'
         repl = f'<p class="binary" id="binary-message">{data.get("binary_message", "")}</p>'
         html = re.sub(pattern, repl, html, flags=re.S)
-        with open(src_dir / 'index.html', 'w') as fh:
+        with open(src_dir / "index.html", "w") as fh:
             fh.write(html)
-        subdomain = data['subdomain']
-        dest = ROOT / 'host' / subdomain
-        os.makedirs(dest / 'from_client', exist_ok=True)
+        subdomain = data["subdomain"]
+        dest = ROOT / "host" / subdomain
+        os.makedirs(dest / "from_client", exist_ok=True)
         if download_path:
-            os.makedirs(dest / 'download', exist_ok=True)
-            shutil.copy(download_path, dest / 'download' / 'download.zip')
-        shutil.copy(config_path, dest / 'config.json')
-        for fname in ['index.html', 'nostr.html', 'qrcode-content.png', 'qrcode-tear-offs.png', 'example.pdf', 'submission_form.pdf']:
+            os.makedirs(dest / "download", exist_ok=True)
+            shutil.copy(download_path, dest / "download" / "download.zip")
+        # Only copy config if it's not already in the destination
+        if Path(config_path) != dest / "config.json":
+            shutil.copy(config_path, dest / "config.json")
+        for fname in [
+            "index.html",
+            "nostr.html",
+            "example.pdf",
+            "submission_form.pdf",
+        ]:
             shutil.copy(src_dir / fname, dest)
+        # Copy QR codes only if they exist (may not be generated if URLs not set)
+        for qr_file in ["qrcode-content.png", "qrcode-tear-offs.png"]:
+            qr_src = Path(src_dir) / qr_file
+            if qr_src.exists():
+                shutil.copy(qr_src, dest / qr_file)
         if pdf_path:
-            shutil.copy(pdf_path, dest / 'from_client' / 'submission_form.pdf')
+            shutil.copy(pdf_path, dest / "from_client" / "submission_form.pdf")
         print(f"Flyer files created under {dest}")
 
 
+def get_tor_ports():
+    """Auto-detect Tor SOCKS and Control ports from common defaults."""
+    # Common default ports for Tor
+    socks_defaults = ["9050", "9150"]
+    ctl_defaults = ["9051", "9151"]
+
+    socks_port = os.getenv("TOR_SOCKS_PORT")
+    ctl_port = os.getenv("TOR_CONTROL_PORT")
+
+    # If env vars not set, try to auto-detect from running Tor
+    if not socks_port or not ctl_port:
+        import socket
+
+        for port in socks_defaults:
+            try:
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.settimeout(0.5)
+                result = sock.connect_ex(("127.0.0.1", int(port)))
+                sock.close()
+                if result == 0:
+                    socks_port = port
+                    break
+            except Exception:
+                pass
+
+        for port in ctl_defaults:
+            try:
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.settimeout(0.5)
+                result = sock.connect_ex(("127.0.0.1", int(port)))
+                sock.close()
+                if result == 0:
+                    ctl_port = port
+                    break
+            except Exception:
+                pass
+
+    # Fall back to defaults if nothing detected
+    if not socks_port:
+        socks_port = "9050"
+    if not ctl_port:
+        ctl_port = "9051"
+
+    return socks_port, ctl_port
+
+
 def serve(config_path: str):
-    if not require_cmd('onionshare-cli'):
-        sys.exit(1)
-    socks = os.getenv("TOR_SOCKS_PORT")
-    ctl = os.getenv("TOR_CONTROL_PORT")
-    if not socks or not ctl:
-        print("TOR_SOCKS_PORT and TOR_CONTROL_PORT must be set", file=sys.stderr)
+    if not require_cmd("onionshare-cli"):
         sys.exit(1)
 
-    subdomain = load_config(config_path)['subdomain']
-    dir_path = ROOT / 'host' / subdomain
+    socks, ctl = get_tor_ports()
+
+    subdomain = load_config(config_path)["subdomain"]
+    dir_path = ROOT / "host" / subdomain
     if not dir_path.is_dir():
         print(f"Directory {dir_path} not found", file=sys.stderr)
         sys.exit(1)
-    logfile = dir_path / 'onionshare.log'
+    logfile = dir_path / "onionshare.log"
+
+    # Set environment variables for OnionShare to use the detected Tor ports
+    env = os.environ.copy()
+    env["TOR_SOCKS_PORT"] = socks
+    env["TOR_CONTROL_PORT"] = ctl
 
     cmd = [
-        'onionshare-cli', '--website', '--public',
-        '--persistent', str(dir_path / '.onionshare-session'),
-        '--use-running-tor',
-        str(dir_path)
+        "onionshare-cli",
+        "--website",
+        "--public",
+        "--persistent",
+        str(dir_path / ".onionshare-session"),
+        "-v",
+        str(dir_path),
     ]
-    log_fh = open(logfile, 'w')
-    proc = subprocess.Popen(cmd,
-                            stdout=log_fh,
-                            stderr=subprocess.STDOUT)
+    log_fh = open(logfile, "w")
+    proc = subprocess.Popen(cmd, stdout=log_fh, stderr=subprocess.STDOUT, env=env)
     try:
         import time
         import re as _re
+
         onion_url = None
         while onion_url is None:
             time.sleep(1)
             if proc.poll() is not None:
-                print('OnionShare exited unexpectedly', file=sys.stderr)
+                print("OnionShare exited unexpectedly", file=sys.stderr)
                 with open(logfile) as fh:
                     sys.stderr.write(fh.read())
                 sys.exit(1)
             if os.path.exists(logfile):
                 with open(logfile) as fh:
                     content = fh.read()
-                m = _re.search(r'https?://[a-z0-9]+\.onion', content)
+                m = _re.search(r"https?://[a-z0-9]+\.onion", content)
                 if m:
                     onion_url = m.group(0)
         print(f"Onion URL: {onion_url}")
-        # update config
-        data = load_config(dir_path / 'config.json')
-        data['url'] = onion_url
-        data['tear_off_link'] = onion_url
-        save_config(data, dir_path / 'config.json')
-        # regenerate assets
-        build_assets(dir_path / 'config.json')
+        # update config with the onion URL
+        # tear_off_link is set to the onion address (for tear-off tabs)
+        # url remains as user-configured (for main content link)
+        config_file = dir_path / "config.json"
+        data = load_config(config_file)
+        data["tear_off_link"] = onion_url
+        save_config(data, config_file)
+        # regenerate assets with the new URL (pass config file path, not already in host dir)
+        # We need to rebuild from src to regenerate QR codes with the new onion URL
+        src_config = ROOT / "src" / "config.json"
+        if src_config.exists() and src_config != config_file:
+            # Update src config and rebuild
+            save_config(data, src_config)
+            build_assets(src_config)
         print(f"OnionShare running (PID {proc.pid}). See {logfile} for details.")
     except KeyboardInterrupt:
         pass
@@ -388,7 +448,7 @@ def serve(config_path: str):
 
 def _clear_host_dir(dir_path: Path):
     """Remove host directory contents but preserve the OnionShare session key."""
-    session = dir_path / '.onionshare-session'
+    session = dir_path / ".onionshare-session"
     saved = session.read_bytes() if session.exists() else None
     shutil.rmtree(dir_path, ignore_errors=True)
     if saved is not None:
@@ -398,45 +458,56 @@ def _clear_host_dir(dir_path: Path):
 
 def import_configs():
     import glob
-    files = sorted(glob.glob(str(ROOT / 'imports' / '*.json')))
+
+    files = sorted(glob.glob(str(ROOT / "imports" / "*.json")))
     if not files:
-        print('No JSON files found in imports')
+        print("No JSON files found in imports")
         return
     for json_file in files:
-        print(f'Processing {json_file}')
-        dest_config = ROOT / 'src' / 'config.json'
+        print(f"Processing {json_file}")
+        dest_config = ROOT / "src" / "config.json"
         shutil.copy(json_file, dest_config)
-        subdomain = load_config(json_file)['subdomain']
-        _clear_host_dir(ROOT / 'host' / subdomain)
+        subdomain = load_config(json_file)["subdomain"]
+        _clear_host_dir(ROOT / "host" / subdomain)
         build_assets(dest_config)
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(prog='voxvera')
-    parser.add_argument('--config', default=str(ROOT / 'src' / 'config.json'),
-                        help='Path to config.json')
-    sub = parser.add_subparsers(dest='command')
+    parser = argparse.ArgumentParser(prog="voxvera")
+    parser.add_argument(
+        "--config",
+        default=str(ROOT / "src" / "config.json"),
+        help="Path to config.json",
+    )
+    sub = parser.add_subparsers(dest="command")
 
-    p_init = sub.add_parser('init', help='Update configuration interactively or from PDF')
-    p_init.add_argument('--template', help='Copy a template into dist/')
-    p_init.add_argument('--from-pdf')
-    p_init.add_argument('--non-interactive', action='store_true')
+    p_init = sub.add_parser(
+        "init", help="Update configuration interactively or from PDF"
+    )
+    p_init.add_argument("--template", help="Copy a template into dist/")
+    p_init.add_argument("--from-pdf")
+    p_init.add_argument("--non-interactive", action="store_true")
 
-    p_build = sub.add_parser('build', help='Build flyer assets from config')
-    p_build.add_argument('--pdf')
-    p_build.add_argument('--download')
+    p_build = sub.add_parser("build", help="Build flyer assets from config")
+    p_build.add_argument("--pdf")
+    p_build.add_argument("--download")
 
-    sub.add_parser('import', help='Batch import JSON files from imports/')
-    sub.add_parser('serve', help='Serve flyer over OnionShare using config')
-    p_quickstart = sub.add_parser('quickstart', help='Init, build and serve in sequence')
-    p_quickstart.add_argument('--non-interactive', action='store_true',
-                              help='Skip interactive prompts and use existing config')
-    sub.add_parser('check', help='Check for required external dependencies')
+    sub.add_parser("import", help="Batch import JSON files from imports/")
+    sub.add_parser("serve", help="Serve flyer over OnionShare using config")
+    p_quickstart = sub.add_parser(
+        "quickstart", help="Init, build and serve in sequence"
+    )
+    p_quickstart.add_argument(
+        "--non-interactive",
+        action="store_true",
+        help="Skip interactive prompts and use existing config",
+    )
+    sub.add_parser("check", help="Check for required external dependencies")
 
     args = parser.parse_args(argv)
     config_path = Path(args.config).resolve()
 
-    if args.command == 'init':
+    if args.command == "init":
         if args.template:
             copy_template(args.template)
             return
@@ -444,13 +515,13 @@ def main(argv=None):
             update_from_pdf(config_path, args.from_pdf)
         elif not args.non_interactive:
             interactive_update(config_path)
-    elif args.command == 'build':
+    elif args.command == "build":
         build_assets(config_path, pdf_path=args.pdf, download_path=args.download)
-    elif args.command == 'serve':
+    elif args.command == "serve":
         serve(config_path)
-    elif args.command == 'import':
+    elif args.command == "import":
         import_configs()
-    elif args.command == 'quickstart':
+    elif args.command == "quickstart":
         if not args.non_interactive:
             if not sys.stdin.isatty():
                 print(
@@ -462,11 +533,11 @@ def main(argv=None):
             interactive_update(config_path)
         build_assets(config_path)
         serve(config_path)
-    elif args.command == 'check':
+    elif args.command == "check":
         check_deps()
     else:
         parser.print_help()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
