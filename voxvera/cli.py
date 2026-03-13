@@ -675,9 +675,6 @@ def manage_servers():
     
     while True:
         servers = get_servers()
-        if not servers:
-            console.print("[red]No servers found. Use 'voxvera build' or 'voxvera quickstart' to create one.[/red]")
-            return
             
         choices = []
         for s in servers:
@@ -696,9 +693,10 @@ def manage_servers():
             choices.append(Choice(s, label))
             
         choices.insert(0, Choice("create_new", "--- Create New Site/Flyer ---"))
-        choices.append(Choice("start_all", "--- Start All Sites ---"))
-        choices.append(Choice("stop_all", "--- Stop All Sites ---"))
-        choices.append(Choice("export_all", "--- Export All Sites ---"))
+        if servers:
+            choices.append(Choice("start_all", "--- Start All Sites ---"))
+            choices.append(Choice("stop_all", "--- Stop All Sites ---"))
+            choices.append(Choice("export_all", "--- Export All Sites ---"))
         choices.append(Choice("import_multiple", "--- Import Multiple Sites ---"))
         choices.append(Choice(None, "Exit"))
         
