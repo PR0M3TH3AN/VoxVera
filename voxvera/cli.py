@@ -176,21 +176,31 @@ def open_editor(initial: str) -> str:
     return result["text"]
 
 
+def _get_visual_width(text: str) -> int:
+    """Calculate the visual width of a string (handling CJK double-width)."""
+    try:
+        from wcwidth import wcswidth
+        width = wcswidth(text)
+        return width if width >= 0 else len(text)
+    except ImportError:
+        return len(text)
+
+
 def _len_transform(limit: int):
     def _t(val: str) -> str:
-        length = len(val)
-        if length > limit:
-            return f"[red]{val} ({length}/{limit})[/red]"
-        return f"{val} ({length}/{limit})"
+        width = _get_visual_width(val)
+        if width > limit:
+            return f"[red]{val} ({width}/{limit})[/red]"
+        return f"{val} ({width}/{limit})"
 
     return _t
 
 
 def _len_validator(limit: int):
     def _v(val: str):
-        length = len(val)
-        if length > limit:
-            return f"❌ Input too long: {length}/{limit} characters. Please shorten it."
+        width = _get_visual_width(val)
+        if width > limit:
+            return f"❌ Input too wide: {width}/{limit} visual units. Please shorten it."
         return True
 
     return _v
