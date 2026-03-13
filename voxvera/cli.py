@@ -322,22 +322,41 @@ def copy_template(name: str) -> str:
 
 
 def bundle_portable(dest_zip: Path):
-    """Bundle the entire VoxVera source, vendor libs, and Tor binaries into a ZIP."""
+    """Bundle the entire VoxVera source, standalone binaries, and dependencies into a ZIP."""
     with zipfile.ZipFile(dest_zip, 'w', zipfile.ZIP_DEFLATED) as zipf:
-        # Include the voxvera/ source directory
+        # 1. Include standalone binaries from resources/bin if they exist
+        bin_dir = ROOT / "resources" / "bin"
+        if bin_dir.exists():
+            for bin_file in bin_dir.iterdir():
+                if bin_file.is_file():
+                    zipf.write(bin_file, bin_file.name)
+
+        # 2. Include the voxvera/ source directory
         for root, dirs, files in os.walk(ROOT):
-            if "__pycache__" in root or "host" in root:
-                continue
+            if "__pycache__" in root or "host" in root or "vendor" in root:
+                if "vendor" in root: # We DO want vendor
+                    pass
+                else:
+                    continue
             for file in files:
                 file_path = Path(root) / file
                 arcname = file_path.relative_to(ROOT.parent)
                 zipf.write(file_path, arcname)
         
-        # Include the run scripts from project root
-        for script in ["voxvera-run.sh", "voxvera-install.sh", "README.md", "requirements.txt", "setup.sh"]:
+        # 3. Include the run scripts and root files
+        root_files = [
+            "voxvera-run.sh", "voxvera-install.sh", "README.md", 
+            "requirements.txt", "setup.sh", "install.sh"
+        ]
+        for script in root_files:
             script_path = ROOT.parent / script
             if script_path.exists():
                 zipf.write(script_path, script)
+
+        # 4. Create a simple Windows batch launcher if it doesn't exist
+        win_launcher = "voxvera.bat"
+        launcher_content = "@echo off\npython -m voxvera.cli manage\npause"
+        zipf.writestr(win_launcher, launcher_content)
 
     print(f"Portable bundle created at {dest_zip}")
 
