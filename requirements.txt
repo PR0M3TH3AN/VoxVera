@@ -5,3 +5,4 @@ Pillow
 jsmin
 htmlmin2
 pypdf
+wcwidth

@@ -33,7 +33,7 @@ done
 echo "Build output verified in $host_dir"
 
 # Run pytest unit tests
-python3 -m pytest tests/test_cli.py -v 2>&1 | tee "$LOG_DIR/pytest.log"
+python3 -m pytest tests/ -v 2>&1 | tee "$LOG_DIR/pytest.log"
 
 # Optional network tests
 if [ "${VOXVERA_E2E_OFFLINE:-}" != "1" ]; then

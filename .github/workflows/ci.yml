@@ -21,4 +21,4 @@ jobs:
       - name: Lint
         run: flake8 voxvera tests --exclude=voxvera/vendor --ignore=E501,W503,W293
       - name: Test
-        run: pytest tests/test_cli.py -v
+        run: pytest tests/ -v

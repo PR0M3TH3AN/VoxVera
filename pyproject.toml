@@ -26,6 +26,7 @@ dependencies = [
     "Pillow",
     "jsmin",
     "htmlmin2",
+    "wcwidth",
 ]
 
 [project.optional-dependencies]
