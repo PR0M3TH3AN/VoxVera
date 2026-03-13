@@ -70,16 +70,16 @@ voxvera manage
 ```
 
 Features:
-- **--- Create New Site/Flyer ---**: Start the full setup sequence.
-- **Start/Stop All Sites**: Launch or shut down every flyer in your fleet at once.
+- **--- Crear Nuevo Sitio/Volante ---**: Start the full setup sequence.
+- **--- Iniciar Todos los Sitios ---**: Launch or shut down every flyer in your fleet at once.
 - **Real-time Status**: View active `.onion` URLs and Tor bootstrapping progress indicators.
-- **Individual Control**: Export specific sites to ZIP or delete them.
+- **Individual Control**: Exportar a Zip specific sites to ZIP or delete them.
 
 ## Universal Mirroring (Viral Distribution)
 
 To ensure VoxVera remains accessible even if central repositories are censored, every flyer acts as a mirror for the tool.
 
-When you host a flyer, the **"Download Tool & Source"** button on the landing page provides a `voxvera-portable.zip` containing:
+When you host a flyer, the **"Descargar Herramienta y Código"** button on the landing page provides a `voxvera-portable.zip` containing:
 - The full source code and all supported languages.
 - All Python dependencies (pre-vendored).
 - Cross-platform Tor binaries.

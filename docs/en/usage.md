@@ -71,9 +71,9 @@ voxvera manage
 
 Features:
 - **--- Create New Site/Flyer ---**: Start the full setup sequence.
-- **Start/Stop All Sites**: Launch or shut down every flyer in your fleet at once.
+- **--- Start All Sites ---**: Launch or shut down every flyer in your fleet at once.
 - **Real-time Status**: View active `.onion` URLs and Tor bootstrapping progress indicators.
-- **Individual Control**: Export specific sites to ZIP or delete them.
+- **Individual Control**: Export to Zip specific sites to ZIP or delete them.
 
 ## Universal Mirroring (Viral Distribution)
 

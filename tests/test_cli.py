@@ -2,7 +2,6 @@ import os
 import sys
 import shutil
 import json
-import datetime
 from pathlib import Path
 import zipfile
 import time

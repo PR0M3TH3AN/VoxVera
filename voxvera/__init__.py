@@ -1,5 +1,4 @@
 import sys
-import os
 from pathlib import Path
 
 # Add the vendor directory to sys.path so we can run without pip install

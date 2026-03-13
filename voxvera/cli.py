@@ -479,7 +479,6 @@ def serve(config_path: str) -> str | None:
         f.write(str(proc.pid))
 
     try:
-        import time
         import re as _re
 
         onion_url = None
@@ -629,7 +628,6 @@ def import_site(zip_path: str):
 
 def import_multiple_sites(source_dir: str = None):
     """Import all zip files from a directory (defaults to ~/voxvera-exports)."""
-    import glob
     
     if not source_dir:
         source_dir = get_export_dir()
@@ -779,8 +777,6 @@ def vendorize():
 
 
 def batch_import_configs():
-    import glob
-
     files = sorted(glob.glob(str(ROOT / "imports" / "*.json")))
     if not files:
         print("No JSON files found in imports")
@@ -1023,7 +1019,6 @@ def choose_language(current_lang: str = None) -> str:
 
 
 def main(argv=None):
-    import glob
     parser = argparse.ArgumentParser(prog="voxvera")
     parser.add_argument(
         "--config",
