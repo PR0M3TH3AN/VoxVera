@@ -46,7 +46,6 @@ def check_deps():
         "PIL (Pillow)": "PIL",
         "jsmin": "jsmin",
         "htmlmin": "htmlmin",
-        "pypdf": "pypdf",
     }
 
     console.rule("Dependency Check")
@@ -265,12 +264,6 @@ def interactive_update(config_path: str):
     save_config(data, config_path)
 
 
-def update_from_pdf(config_path: str, pdf_path: str):
-    from voxvera.build import extract_form_fields
-
-    extract_form_fields(Path(pdf_path), Path(config_path))
-
-
 def copy_template(name: str) -> str:
     """Copy a template directory into dist/ with a datestamped folder."""
     date = datetime.date.today().strftime("%Y%m%d")
@@ -286,7 +279,7 @@ def copy_template(name: str) -> str:
 
 
 def build_assets(
-    config_path: str, pdf_path: str | None = None, download_path: str | None = None
+    config_path: str, download_path: str | None = None
 ):
     from voxvera.build import generate_qr, obfuscate_html
 
@@ -296,18 +289,19 @@ def build_assets(
         generate_qr(config_path, src_dir)
         # minify HTML + inline JS (pure Python)
         obfuscate_html(src_dir / "index-master.html", src_dir / "index.html")
-        obfuscate_html(src_dir / "nostr-master.html", src_dir / "nostr.html")
         data = load_config(config_path)
         with open(src_dir / "index.html", "r") as fh:
             html = fh.read()
-        pattern = r'<p class="binary" id="binary-message">.*?</p>'
-        repl = f'<p class="binary" id="binary-message">{data.get("binary_message", "")}</p>'
-        html = re.sub(pattern, repl, html, flags=re.S)
+        
+        # Statically replace {{placeholders}} with config values for Tor JS-disabled compatibility
+        for key, value in data.items():
+            html = html.replace(f"{{{{{key}}}}}", str(value))
+
         with open(src_dir / "index.html", "w") as fh:
             fh.write(html)
         subdomain = data["subdomain"]
         dest = ROOT / "host" / subdomain
-        os.makedirs(dest / "from_client", exist_ok=True)
+        os.makedirs(dest, exist_ok=True)
         if download_path:
             os.makedirs(dest / "download", exist_ok=True)
             shutil.copy(download_path, dest / "download" / "download.zip")
@@ -316,9 +310,6 @@ def build_assets(
             shutil.copy(config_path, dest / "config.json")
         for fname in [
             "index.html",
-            "nostr.html",
-            "example.pdf",
-            "submission_form.pdf",
         ]:
             shutil.copy(src_dir / fname, dest)
         # Copy QR codes only if they exist (may not be generated if URLs not set)
@@ -326,8 +317,6 @@ def build_assets(
             qr_src = Path(src_dir) / qr_file
             if qr_src.exists():
                 shutil.copy(qr_src, dest / qr_file)
-        if pdf_path:
-            shutil.copy(pdf_path, dest / "from_client" / "submission_form.pdf")
         print(f"Flyer files created under {dest}")
 
 
@@ -406,6 +395,11 @@ def serve(config_path: str):
     ]
     log_fh = open(logfile, "w")
     proc = subprocess.Popen(cmd, stdout=log_fh, stderr=subprocess.STDOUT, env=env)
+    
+    pid_file = dir_path / "server.pid"
+    with open(pid_file, "w") as f:
+        f.write(str(proc.pid))
+
     try:
         import time
         import re as _re
@@ -417,6 +411,7 @@ def serve(config_path: str):
                 print("OnionShare exited unexpectedly", file=sys.stderr)
                 with open(logfile) as fh:
                     sys.stderr.write(fh.read())
+                pid_file.unlink(missing_ok=True)
                 sys.exit(1)
             if os.path.exists(logfile):
                 with open(logfile) as fh:
@@ -472,6 +467,139 @@ def import_configs():
         build_assets(dest_config)
 
 
+def get_servers() -> list[str]:
+    host_dir = ROOT / "host"
+    if not host_dir.exists():
+        return []
+    servers = []
+    for d in host_dir.iterdir():
+        if d.is_dir() and (d / "config.json").exists():
+            servers.append(d.name)
+    return sorted(servers)
+
+
+def is_server_running(subdomain: str) -> bool:
+    pid_file = ROOT / "host" / subdomain / "server.pid"
+    if not pid_file.exists():
+        return False
+    try:
+        with open(pid_file, "r") as f:
+            pid = int(f.read().strip())
+    except ValueError:
+        pid_file.unlink(missing_ok=True)
+        return False
+
+    import platform
+    import subprocess
+    if platform.system() == "Windows":
+        try:
+            output = subprocess.check_output(f'tasklist /FI "PID eq {pid}" /NH', shell=True, stderr=subprocess.STDOUT).decode()
+            if "No tasks are running" in output:
+                pid_file.unlink(missing_ok=True)
+                return False
+            return True
+        except subprocess.CalledProcessError:
+            pid_file.unlink(missing_ok=True)
+            return False
+    else:
+        try:
+            os.kill(pid, 0)
+        except OSError:
+            pid_file.unlink(missing_ok=True)
+            return False
+        
+        try:
+            output = subprocess.check_output(["ps", "-p", str(pid), "-o", "command="], stderr=subprocess.STDOUT).decode().lower()
+            if "onionshare" in output or "python" in output or "tor" in output:
+                return True
+            return True
+        except Exception:
+            return True
+
+
+def stop_server(subdomain: str):
+    pid_file = ROOT / "host" / subdomain / "server.pid"
+    if not pid_file.exists():
+        print(f"Server {subdomain} is not running.")
+        return
+    try:
+        with open(pid_file, "r") as f:
+            pid = int(f.read().strip())
+        import platform, signal
+        if platform.system() == "Windows":
+            subprocess.run(["taskkill", "/F", "/PID", str(pid)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        else:
+            os.kill(pid, signal.SIGTERM)
+        print(f"Stopped {subdomain} (PID {pid})")
+    except Exception as e:
+        print(f"Error stopping {subdomain}: {e}")
+    finally:
+        pid_file.unlink(missing_ok=True)
+
+
+def delete_server(subdomain: str):
+    if is_server_running(subdomain):
+        stop_server(subdomain)
+    dir_path = ROOT / "host" / subdomain
+    if dir_path.exists():
+        shutil.rmtree(dir_path, ignore_errors=True)
+        print(f"Deleted server {subdomain}")
+
+
+def manage_servers():
+    from InquirerPy import inquirer
+    from InquirerPy.base.control import Choice
+    console = Console()
+    
+    while True:
+        servers = get_servers()
+        if not servers:
+            console.print("[red]No servers found. Use 'voxvera init' to create one.[/red]")
+            return
+            
+        choices = []
+        for s in servers:
+            running = is_server_running(s)
+            status_text = "[ON] " if running else "[OFF]"
+            choices.append(Choice(s, f"{status_text} {s}"))
+            
+        choices.append(Choice(None, "Exit"))
+        
+        selected = inquirer.select(
+            message="Select a server to manage (or Exit):",
+            choices=choices
+        ).execute()
+        
+        if selected is None:
+            break
+            
+        running = is_server_running(selected)
+        action_choices = [
+            Choice("toggle", "Stop" if running else "Start"),
+            Choice("delete", "Delete"),
+            Choice(None, "Back")
+        ]
+        
+        action = inquirer.select(
+            message=f"Manage {selected}:",
+            choices=action_choices
+        ).execute()
+        
+        if action == "toggle":
+            if running:
+                stop_server(selected)
+            else:
+                config_path = ROOT / "host" / selected / "config.json"
+                try:
+                    serve(str(config_path))
+                except SystemExit:
+                    pass
+        elif action == "delete":
+            confirm = inquirer.confirm(message=f"Are you sure you want to delete {selected}?").execute()
+            if confirm:
+                delete_server(selected)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="voxvera")
     parser.add_argument(
@@ -482,14 +610,12 @@ def main(argv=None):
     sub = parser.add_subparsers(dest="command")
 
     p_init = sub.add_parser(
-        "init", help="Update configuration interactively or from PDF"
+        "init", help="Update configuration interactively"
     )
     p_init.add_argument("--template", help="Copy a template into dist/")
-    p_init.add_argument("--from-pdf")
     p_init.add_argument("--non-interactive", action="store_true")
 
     p_build = sub.add_parser("build", help="Build flyer assets from config")
-    p_build.add_argument("--pdf")
     p_build.add_argument("--download")
 
     sub.add_parser("import", help="Batch import JSON files from imports/")
@@ -503,6 +629,7 @@ def main(argv=None):
         help="Skip interactive prompts and use existing config",
     )
     sub.add_parser("check", help="Check for required external dependencies")
+    sub.add_parser("manage", help="Manage VoxVera servers interactively")
 
     args = parser.parse_args(argv)
     config_path = Path(args.config).resolve()
@@ -511,16 +638,16 @@ def main(argv=None):
         if args.template:
             copy_template(args.template)
             return
-        elif args.from_pdf:
-            update_from_pdf(config_path, args.from_pdf)
         elif not args.non_interactive:
             interactive_update(config_path)
     elif args.command == "build":
-        build_assets(config_path, pdf_path=args.pdf, download_path=args.download)
+        build_assets(config_path, download_path=args.download)
     elif args.command == "serve":
         serve(config_path)
     elif args.command == "import":
         import_configs()
+    elif args.command == "manage":
+        manage_servers()
     elif args.command == "quickstart":
         if not args.non_interactive:
             if not sys.stdin.isatty():

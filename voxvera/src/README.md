@@ -3,10 +3,7 @@
 This directory contains the source assets used to build flyers:
 
 - `index-master.html` -- Main flyer template (HTML/CSS/JS)
-- `nostr-master.html` -- Nostr sharing page template
 - `config.json` -- Default configuration values
-- `example.pdf` -- Example PDF included with built flyers
-- `submission_form.pdf` -- Submission form included with built flyers
 - `qrcode-content.png` -- Generated QR code for the content link
 - `qrcode-tear-offs.png` -- Generated QR code for the tear-off link
 

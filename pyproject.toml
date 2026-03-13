@@ -26,7 +26,6 @@ dependencies = [
     "Pillow",
     "jsmin",
     "htmlmin2",
-    "pypdf",
 ]
 
 [project.optional-dependencies]

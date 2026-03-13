@@ -27,7 +27,7 @@ host_dir="voxvera/host/$subdomain"
 ls -R "$host_dir" >>"$LOG_DIR/tree.txt"
 
 # Verify essential files
-for f in index.html config.json nostr.html; do
+for f in index.html config.json; do
   [ -f "$host_dir/$f" ] || { echo "Missing $f in $host_dir" >&2; exit 1; }
 done
 echo "Build output verified in $host_dir"

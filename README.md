@@ -8,7 +8,7 @@ Generate printable flyers with QR codes linking to Tor (.onion) hidden services,
 
 * **Interactive setup**: `voxvera init` prompts for metadata or extracts from a PDF form. When editing body text, a small Tkinter GUI window opens with existing content pre-filled, falling back to the user's `$EDITOR` if the GUI isn't available.
 * **Template support**: `voxvera init --template <name>` copies built-in templates (`blank`, `voxvera`).
-* **Build assets**: `voxvera build [--pdf <path>] [--download <file.zip>]` generates HTML, minified JS/CSS, QR codes, and bundles PDFs.
+* **Build assets**: `voxvera build [--download <file.zip>]` generates HTML, minified JS/CSS, QR codes, and optionally bundles a download zip.
 * **Batch import**: `voxvera import` processes all JSON configs in `imports/`.
 * **Automatic Tor hosting**: `voxvera serve` publishes via Tor/OnionShare. The .onion address is automatically derived from Tor keys and written into the flyer's tear-off links. Tor ports are auto-detected -- no manual configuration needed.
 * **All-in-one**: `voxvera quickstart` runs init, build, and serve in sequence.
@@ -73,7 +73,7 @@ voxvera quickstart
 voxvera init
 
 # 2. Build flyer assets (HTML, QR codes, PDFs)
-voxvera build --pdf form.pdf --download file.zip   # optional flags
+voxvera build --download file.zip   # optional flags
 
 # 3. Host via Tor (auto-detects ports, generates .onion address)
 voxvera serve

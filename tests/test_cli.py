@@ -151,11 +151,11 @@ def test_serve_updates_url(tmp_path, monkeypatch):
     monkeypatch.setattr(cli, "require_cmd", lambda c: True)
     orig_build = cli.build_assets
 
-    def safe_build_assets(cfg, pdf_path=None, download_path=None):
+    def safe_build_assets(cfg, download_path=None):
         dest = cli.ROOT / "host" / json.load(open(cfg))["subdomain"] / "config.json"
         if Path(cfg) == dest:
             return
-        return orig_build(cfg, pdf_path=pdf_path, download_path=download_path)
+        return orig_build(cfg, download_path=download_path)
 
     monkeypatch.setattr(cli, "build_assets", safe_build_assets)
     monkeypatch.setattr(time, "sleep", lambda x: None)
@@ -199,11 +199,11 @@ def test_quickstart_noninteractive(tmp_path, monkeypatch):
     monkeypatch.setattr(cli, "require_cmd", lambda c: True)
     orig_build = cli.build_assets
 
-    def safe_build_assets(cfg, pdf_path=None, download_path=None):
+    def safe_build_assets(cfg, download_path=None):
         dest = cli.ROOT / "host" / json.load(open(cfg))["subdomain"] / "config.json"
         if Path(cfg) == dest:
             return
-        return orig_build(cfg, pdf_path=pdf_path, download_path=download_path)
+        return orig_build(cfg, download_path=download_path)
 
     monkeypatch.setattr(cli, "build_assets", safe_build_assets)
     monkeypatch.setattr(time, "sleep", lambda x: None)
@@ -259,7 +259,7 @@ def test_get_tor_ports_auto_detect_defaults(monkeypatch):
 
 def test_build_without_url_skips_qr(tmp_path, monkeypatch, capsys):
     """Test that build works even without URLs configured initially."""
-    repo_root = _setup_tmp(monkeypatch, tmp_path)
+    _setup_tmp(monkeypatch, tmp_path)
 
     # Remove URLs from config
     config = json.load(open(tmp_path / "src" / "config.json"))
@@ -288,7 +288,7 @@ def test_build_without_url_skips_qr(tmp_path, monkeypatch, capsys):
 
 def test_build_with_only_url(tmp_path, monkeypatch):
     """Test that QR codes work when only url (content link) is set."""
-    repo_root = _setup_tmp(monkeypatch, tmp_path)
+    _setup_tmp(monkeypatch, tmp_path)
 
     # Set only url (content link)
     config = json.load(open(tmp_path / "src" / "config.json"))

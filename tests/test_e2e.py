@@ -345,11 +345,8 @@ class TestSiteFiles:
         # Check all expected files exist
         expected_files = [
             "index.html",
-            "nostr.html",
             "config.json",
             "qrcode-content.png",
-            "example.pdf",
-            "submission_form.pdf",
         ]
 
         for filename in expected_files:
