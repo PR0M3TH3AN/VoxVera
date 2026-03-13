@@ -44,13 +44,17 @@ sudo apt install tor onionshare-cli   # Debian/Ubuntu
 
 ## Language Support
 
-VoxVera is fully localized. You can change your language preference at any time:
+VoxVera is fully localized. You can change your language preference permanently using either the interactive selector or a direct shortcut:
 
-```bash
-voxvera lang
-```
+- **Interactive Selector:** `voxvera lang`
+- **Direct Shortcut:** `voxvera --lang de` (sets preference to German)
 
-You can also force a specific language for a single command using flags in multiple languages:
+### Supported Languages:
+- **English:** `en`
+- **Spanish:** `es` (alias: `--idioma`)
+- **German:** `de` (alias: `--sprache`)
+
+You can also force a specific language for a single command without changing your permanent preference:
 - **English:** `voxvera --lang en check`
 - **German:** `voxvera --sprache de check`
 - **Spanish:** `voxvera --idioma es check`
