@@ -10,10 +10,12 @@ Generate printable flyers with QR codes linking to Tor (.onion) hidden services,
 * **Template support**: `voxvera init --template <name>` copies built-in templates (`blank`, `voxvera`).
 * **Build assets**: `voxvera build [--download <file.zip>]` generates HTML, minified JS/CSS, QR codes, and optionally bundles a download zip.
 * **Batch import**: `voxvera batch-import` processes all JSON configs in `imports/`.
-* **Automatic Tor hosting**: `voxvera serve` publishes via Tor/OnionShare. The .onion address is automatically derived from Tor keys and written into the flyer's tear-off links.
-* **Server Management**: `voxvera manage` provides an interactive UI to handle multiple flyers, start/stop services, and monitor their active .onion URLs.
-* **Flyer Migration**: `voxvera export` and `voxvera import` allow you to back up and move your flyers and their unique Tor identities between machines.
-* **Bulk Portability**: `voxvera export-all` and `voxvera import-multiple` automate the backup and restoration of your entire site collection via a centralized `~/voxvera-exports/` folder.
+* **Universal Mirroring**: Every flyer acts as a mirror for the tool. The "Download Tool & Source" button on every flyer provides a portable, zero-dependency version of VoxVera, creating a decentralized distribution network.
+* **Standalone Binaries**: Pre-built, zero-install executables for Linux, Windows, and macOS.
+* **Multi-Language Support**: Fully localized CLI and flyers (English, Spanish, German). Flyers automatically detect visitor language.
+* **Integrated Server Manager**: `voxvera manage` provides an interactive UI to handle multiple flyers, monitor bootstrapping, and manage .onion URLs.
+* **Tor-First Anonymity**: Automatic Tor hosting via OnionShare with persistent .onion addresses.
+* **Flyer Migration**: Bulk export and import of flyers and Tor keys via a centralized `~/voxvera-exports/` folder.
 * **All-in-one**: `voxvera quickstart` runs init, build, and serve in sequence.
 * **Dependency check**: `voxvera check` verifies presence of required tools and Python packages.
 * **GUI**: Minimal Electron wrapper (`gui/electron`) for non-CLI users.

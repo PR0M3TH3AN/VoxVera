@@ -4,127 +4,123 @@ This guide covers common CLI workflows. See `docs/docker.md` for Docker instruct
 
 ## Prerequisites
 
-Install VoxVera with the one-line installer (recommended):
+VoxVera is designed to be highly portable and requires minimal system dependencies.
+
+### 1. Standalone Binaries (Recommended)
+You can download standalone, zero-dependency binaries for your operating system:
+- **Linux:** `voxvera-linux`
+- **Windows:** `voxvera-windows.exe`
+- **macOS:** `voxvera-macos`
+
+These binaries include everything needed to run VoxVera (except `onionshare-cli`).
+
+### 2. One-Line Installer
+Alternatively, install via our automated script:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/PR0M3TH3AN/VoxVera/main/install.sh | bash
 ```
 
-This installs VoxVera, Tor, and OnionShare automatically. If you prefer a manual install:
+### 3. Manual Python Install
+If you prefer to run from source:
 
 ```bash
 pipx install 'voxvera@git+https://github.com/PR0M3TH3AN/VoxVera.git@main'
 sudo apt install tor onionshare-cli   # Debian/Ubuntu
 ```
 
-All build dependencies (QR generation, HTML minification, PDF parsing) are Python packages installed automatically.
-
 ## Step-by-Step
 
-1. Run `voxvera init` and follow the prompts. During init you will configure:
-   - Flyer metadata (name, title, subtitle, headline)
-   - Body text (opens in a text editor)
-   - **Content link** -- an external URL of your choice (website, download, etc.)
-   - URL message and binary message
-2. Build the flyer assets. Add an optional zip file with `--download`:
+1. **Initialize:** Run `voxvera init` and follow the prompts. You will be asked to select your language first.
+2. **Build:** Generate the flyer assets. Every build automatically creates a `voxvera-portable.zip` in the flyer's folder, allowing others to download the full tool directly from your flyer.
    ```bash
-   voxvera build --download path/to/file.zip
+   voxvera build
    ```
-3. Serve the flyer over Tor:
+3. **Serve:** Publish the flyer over Tor:
    ```bash
    voxvera serve
    ```
-   This automatically detects your Tor instance, starts OnionShare, and writes the generated .onion address into the flyer's tear-off links. QR codes are regenerated with the new address.
+   This automatically detects your Tor instance, starts OnionShare, and writes the generated .onion address into the flyer's tear-off links.
 
-The generated `host/<folder_name>` directory contains all flyer files. The `index.html` file fetches `config.json` at runtime, so the flyer must be served via a web server (OnionShare handles this). Visitors can use the **Download** button to retrieve any bundled files.
+## Language Support
+
+VoxVera is fully localized. You can change your language preference at any time:
+
+```bash
+voxvera lang
+```
+
+You can also force a specific language for a single command using flags in multiple languages:
+- **English:** `voxvera --lang en check`
+- **German:** `voxvera --sprache de check`
+- **Spanish:** `voxvera --idioma es check`
+
+The generated flyers automatically detect the visitor's browser language and switch the UI text accordingly.
 
 ## Server Management
 
-VoxVera includes a built-in interactive manager to handle multiple sites and their Tor identities simultaneously.
+Manage multiple flyers and their Tor identities from a single interactive menu:
 
 ```bash
 voxvera manage
 ```
 
-From this menu, you can:
-- **Create New Site/Flyer**: Launch the full init, build, and serve sequence.
-- **Start/Stop All Sites**: Launch or shut down every flyer in your `host/` directory at once.
-- **Individual Management**: Toggle specific sites, export them to ZIP, or delete them.
-- **Status Display**: View the active `.onion` URL for every running site directly in the menu.
+Features:
+- **--- Create New Site/Flyer ---**: Start the full setup sequence.
+- **Start/Stop All Sites**: Launch or shut down every flyer in your fleet at once.
+- **Real-time Status**: View active `.onion` URLs and Tor bootstrapping progress indicators.
+- **Individual Control**: Export specific sites to ZIP or delete them.
+
+## Universal Mirroring (Viral Distribution)
+
+To ensure VoxVera remains accessible even if central repositories are censored, every flyer acts as a mirror for the tool.
+
+When you host a flyer, the **"Download Tool & Source"** button on the landing page provides a `voxvera-portable.zip` containing:
+- The full source code and all supported languages.
+- All Python dependencies (pre-vendored).
+- Cross-platform Tor binaries.
+
+This allows anyone who scans your flyer to become a new distributor of the VoxVera tool.
 
 ## Export & Backup
 
-To move your flyers to another machine or back up your unique Tor identities (so your `.onion` URL never changes), use the export tools.
+Back up your unique Tor identities (so your `.onion` URL never changes) or move your flyers to another machine.
 
-- **Export a single site**:
-  ```bash
-  voxvera export <folder_name>
-  ```
-- **Export all sites**:
-  ```bash
-  voxvera export-all
-  ```
+- **Export a single site**: `voxvera export <folder_name>`
+- **Export all sites**: `voxvera export-all`
 
-**Storage location:** All exports are saved as ZIP files in a folder called `voxvera-exports` in your user's home directory (`~/voxvera-exports/`) on Windows, macOS, and Linux.
+**Storage location:** All exports are saved to `~/voxvera-exports/` on all platforms.
 
 ## Import & Recovery
 
-You can restore flyers (including their Tor keys) from ZIP archives created by the export command.
+Restore your entire setup on a new machine by moving your ZIP files to `~/voxvera-exports/` and running:
 
-- **Import a single site**:
-  ```bash
-  voxvera import path/to/export.zip
-  ```
-- **Import multiple sites**:
-  ```bash
-  voxvera import-multiple
-  ```
-  This command automatically scans your `~/voxvera-exports/` folder and restores every ZIP file it finds. This is the fastest way to migrate your entire VoxVera setup to a new machine.
+```bash
+voxvera import-multiple
+```
 
-## How URLs Work
+## Portability & Offline Use
 
-Each flyer has two separate URLs:
+If you need to run VoxVera on a machine without internet access, you can "vendorize" the dependencies first:
 
-- **Tear-off link** (auto-generated): The .onion address where the flyer is hosted. Written into every tear-off tab with a QR code. People who tear off a tab can visit the site to view/reprint the flyer.
-- **Content link** (user-configured): Any external URL you choose during `voxvera init`. Displayed in the main body of the flyer with its own QR code. Can point to a website, video, download, or anything else.
+```bash
+voxvera vendorize
+```
 
-You do not need to manually enter the .onion address -- `voxvera serve` handles this automatically.
+This downloads all required Python libraries into `voxvera/vendor/`. The tool will then prioritize these local files, allowing it to run without `pip install`.
 
 ## Batch Import (JSON)
 
-If you have multiple configuration JSON files and want to generate flyers for all of them at once, place them in an `imports/` directory at the project root and run:
+To bulk-generate flyers from multiple JSON configuration files, place them in the `imports/` directory and run:
 
 ```bash
 voxvera batch-import
 ```
 
-Each JSON file is processed, and its corresponding site folder is created in `host/`. Existing OnionShare session keys (`.onionshare-session`) are preserved if they already exist for that folder name.
+## How URLs Work
 
-## Hosting with OnionShare
+Each flyer has two separate URLs:
+- **Tear-off link** (auto-generated): The .onion address where the flyer is hosted.
+- **Content link** (user-configured): An external URL pointing to a website, video, or download.
 
-Use the CLI to publish the flyer over Tor:
-
-```bash
-voxvera serve
-```
-
-Tor ports are auto-detected from your running Tor instance (defaults: SOCKS 9050, control 9051). 
-
-The command launches `onionshare-cli` in persistent website mode, waits for the generated onion URL, writes it into `config.json` as the tear-off link, regenerates QR codes, and copies updated files into the `host` directory.
-
-The onion URL is derived from an Ed25519 keypair stored in `host/<folder_name>/.onionshare-session`. As long as this file exists, the URL stays the same even if you rebuild with new content. Keep OnionShare running to continue hosting.
-
-## All-in-One
-
-```bash
-voxvera quickstart                # interactive
-voxvera quickstart --non-interactive  # use existing config.json
-```
-
-## Checking Dependencies
-
-```bash
-voxvera check
-```
-
-This verifies that required Python packages and external tools (`onionshare-cli`) are available and prints a summary.
+You do not need to manually enter the .onion address; VoxVera handles this automatically during the `serve` phase.
