@@ -7,7 +7,6 @@ import shutil
 import subprocess
 import sys
 import time
-import datetime
 from pathlib import Path
 from importlib import resources
 from importlib.resources.abc import Traversable
@@ -334,7 +333,7 @@ def bundle_portable(dest_zip: Path):
         # 2. Include the voxvera/ source directory
         for root, dirs, files in os.walk(ROOT):
             if "__pycache__" in root or "host" in root or "vendor" in root:
-                if "vendor" in root: # We DO want vendor
+                if "vendor" in root:  # We DO want vendor
                     pass
                 else:
                     continue
@@ -345,7 +344,7 @@ def bundle_portable(dest_zip: Path):
         
         # 3. Include the run scripts and root files
         root_files = [
-            "voxvera-run.sh", "voxvera-install.sh", "README.md", 
+            "voxvera-run.sh", "voxvera-install.sh", "README.md",
             "requirements.txt", "setup.sh", "install.sh"
         ]
         for script in root_files:
@@ -389,7 +388,7 @@ def build_assets(
         
         html = html.replace("{{locales}}", json.dumps(all_locales))
 
-        # 1. Statically replace localization tokens {{t_web_...}} 
+        # 1. Statically replace localization tokens {{t_web_...}}
         # This ensures the flyer is translated even with JS disabled.
         lang_data = all_locales.get(data.get("lang", "en"), all_locales.get("en", {}))
         

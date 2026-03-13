@@ -3,7 +3,6 @@ import os
 import shutil
 import zipfile
 from pathlib import Path
-import pytest
 from voxvera import cli
 
 # Helper to find project root
