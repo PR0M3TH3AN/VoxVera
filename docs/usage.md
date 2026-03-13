@@ -21,7 +21,7 @@ All build dependencies (QR generation, HTML minification, PDF parsing) are Pytho
 
 ## Step-by-Step
 
-1. Run `voxvera init` and follow the prompts, or use `voxvera init --from-pdf path/to/form.pdf` to extract fields from a filled PDF form. During init you will configure:
+1. Run `voxvera init` and follow the prompts. During init you will configure:
    - Flyer metadata (name, title, subtitle, headline)
    - Body text (opens in a text editor)
    - **Content link** -- an external URL of your choice (website, download, etc.)
@@ -38,6 +38,49 @@ All build dependencies (QR generation, HTML minification, PDF parsing) are Pytho
 
 The generated `host/<folder_name>` directory contains all flyer files. The `index.html` file fetches `config.json` at runtime, so the flyer must be served via a web server (OnionShare handles this). Visitors can use the **Download** button to retrieve any bundled files.
 
+## Server Management
+
+VoxVera includes a built-in interactive manager to handle multiple sites and their Tor identities simultaneously.
+
+```bash
+voxvera manage
+```
+
+From this menu, you can:
+- **Create New Site/Flyer**: Launch the full init, build, and serve sequence.
+- **Start/Stop All Sites**: Launch or shut down every flyer in your `host/` directory at once.
+- **Individual Management**: Toggle specific sites, export them to ZIP, or delete them.
+- **Status Display**: View the active `.onion` URL for every running site directly in the menu.
+
+## Export & Backup
+
+To move your flyers to another machine or back up your unique Tor identities (so your `.onion` URL never changes), use the export tools.
+
+- **Export a single site**:
+  ```bash
+  voxvera export <folder_name>
+  ```
+- **Export all sites**:
+  ```bash
+  voxvera export-all
+  ```
+
+**Storage location:** All exports are saved as ZIP files in a folder called `voxvera-exports` in your user's home directory (`~/voxvera-exports/`) on Windows, macOS, and Linux.
+
+## Import & Recovery
+
+You can restore flyers (including their Tor keys) from ZIP archives created by the export command.
+
+- **Import a single site**:
+  ```bash
+  voxvera import path/to/export.zip
+  ```
+- **Import multiple sites**:
+  ```bash
+  voxvera import-multiple
+  ```
+  This command automatically scans your `~/voxvera-exports/` folder and restores every ZIP file it finds. This is the fastest way to migrate your entire VoxVera setup to a new machine.
+
 ## How URLs Work
 
 Each flyer has two separate URLs:
@@ -47,15 +90,15 @@ Each flyer has two separate URLs:
 
 You do not need to manually enter the .onion address -- `voxvera serve` handles this automatically.
 
-## Batch Import
+## Batch Import (JSON)
 
-Place configuration files in an `imports/` directory at the project root and run:
+If you have multiple configuration JSON files and want to generate flyers for all of them at once, place them in an `imports/` directory at the project root and run:
 
 ```bash
-voxvera import
+voxvera batch-import
 ```
 
-Each JSON file is copied to `src/config.json` and processed with `voxvera build`. Existing folders under `host/` with the same folder_name are cleaned before new files are written. OnionShare session keys (`.onionshare-session`) are preserved so the onion URL stays the same across re-imports.
+Each JSON file is processed, and its corresponding site folder is created in `host/`. Existing OnionShare session keys (`.onionshare-session`) are preserved if they already exist for that folder name.
 
 ## Hosting with OnionShare
 
@@ -65,11 +108,7 @@ Use the CLI to publish the flyer over Tor:
 voxvera serve
 ```
 
-Tor ports are auto-detected from your running Tor instance (defaults: SOCKS 9050, control 9051). You can override detection with environment variables if needed:
-
-```bash
-TOR_SOCKS_PORT=9150 TOR_CONTROL_PORT=9151 voxvera serve
-```
+Tor ports are auto-detected from your running Tor instance (defaults: SOCKS 9050, control 9051). 
 
 The command launches `onionshare-cli` in persistent website mode, waits for the generated onion URL, writes it into `config.json` as the tear-off link, regenerates QR codes, and copies updated files into the `host` directory.
 
@@ -80,12 +119,6 @@ The onion URL is derived from an Ed25519 keypair stored in `host/<folder_name>/.
 ```bash
 voxvera quickstart                # interactive
 voxvera quickstart --non-interactive  # use existing config.json
-```
-
-Or use the helper script which ensures Tor is running first:
-
-```bash
-./voxvera-run.sh
 ```
 
 ## Checking Dependencies

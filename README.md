@@ -9,8 +9,11 @@ Generate printable flyers with QR codes linking to Tor (.onion) hidden services,
 * **Interactive setup**: `voxvera init` prompts for metadata or extracts from a PDF form. When editing body text, a small Tkinter GUI window opens with existing content pre-filled, falling back to the user's `$EDITOR` if the GUI isn't available.
 * **Template support**: `voxvera init --template <name>` copies built-in templates (`blank`, `voxvera`).
 * **Build assets**: `voxvera build [--download <file.zip>]` generates HTML, minified JS/CSS, QR codes, and optionally bundles a download zip.
-* **Batch import**: `voxvera import` processes all JSON configs in `imports/`.
-* **Automatic Tor hosting**: `voxvera serve` publishes via Tor/OnionShare. The .onion address is automatically derived from Tor keys and written into the flyer's tear-off links. Tor ports are auto-detected -- no manual configuration needed.
+* **Batch import**: `voxvera batch-import` processes all JSON configs in `imports/`.
+* **Automatic Tor hosting**: `voxvera serve` publishes via Tor/OnionShare. The .onion address is automatically derived from Tor keys and written into the flyer's tear-off links.
+* **Server Management**: `voxvera manage` provides an interactive UI to handle multiple flyers, start/stop services, and monitor their active .onion URLs.
+* **Flyer Migration**: `voxvera export` and `voxvera import` allow you to back up and move your flyers and their unique Tor identities between machines.
+* **Bulk Portability**: `voxvera export-all` and `voxvera import-multiple` automate the backup and restoration of your entire site collection via a centralized `~/voxvera-exports/` folder.
 * **All-in-one**: `voxvera quickstart` runs init, build, and serve in sequence.
 * **Dependency check**: `voxvera check` verifies presence of required tools and Python packages.
 * **GUI**: Minimal Electron wrapper (`gui/electron`) for non-CLI users.
