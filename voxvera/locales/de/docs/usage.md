@@ -76,16 +76,16 @@ voxvera manage
 ```
 
 Funktionen:
-- **--- Neue Website/Flyer erstellen ---**: Starten Sie die vollständige Setup-Sequenz.
-- **--- Alle Websites starten ---**: Starten oder stoppen Sie alle Flyer in Ihrer Flotte auf einmal.
+- **{{t('cli.manage_create_new')}}**: Starten Sie die vollständige Setup-Sequenz.
+- **{{t('cli.manage_start_all')}}**: Starten oder stoppen Sie alle Flyer in Ihrer Flotte auf einmal.
 - **Echtzeit-Status**: Zeigen Sie aktive .onion-URLs und Tor-Bootstrapping-Fortschrittsanzeigen an.
-- **Individuelle Steuerung**: Als Zip exportieren Sie bestimmte Seiten in eine ZIP-Datei oder löschen Sie sie.
+- **Individuelle Steuerung**: {{t('cli.manage_action_export')}} Sie bestimmte Seiten in eine ZIP-Datei oder löschen Sie sie.
 
 ## Universelle Spiegelung (Virale Verteilung)
 
 Um sicherzustellen, dass VoxVera auch dann zugänglich bleibt, wenn zentrale Repositories zensiert werden, fungiert jeder Flyer als Spiegel für das Tool.
 
-Wenn Sie einen Flyer hosten, bietet die Schaltfläche **"Tool & Quellcode herunterladen"** auf der Landingpage eine `voxvera-portable.zip` an, die Folgendes enthält:
+Wenn Sie einen Flyer hosten, bietet die Schaltfläche **"{{t('web.download_button')}}"** auf der Landingpage eine `voxvera-portable.zip` an, die Folgendes enthält:
 - Den vollständigen Quellcode und alle unterstützten Sprachen.
 - Alle Python-Abhängigkeiten (vorinstalliert).
 - Plattformübergreifende Tor-Binärdateien.

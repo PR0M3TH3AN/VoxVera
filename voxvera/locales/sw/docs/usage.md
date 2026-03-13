@@ -70,16 +70,16 @@ voxvera manage
 ```
 
 Vipengele:
-- **--- Unda Tovuti/Kipeperushi Kipya ---**: Anza mchakato mzima wa usanidi.
-- **--- Anzisha Tovuti Zote ---**: Anzisha au simamisha vipeperushi vyote kwenye kundi lako kwa mpigo mmoja.
+- **{{t('cli.manage_create_new')}}**: Anza mchakato mzima wa usanidi.
+- **{{t('cli.manage_start_all')}}**: Anzisha au simamisha vipeperushi vyote kwenye kundi lako kwa mpigo mmoja.
 - **Hali ya Wakati Halisi**: Angalia URL za .onion zinazofanya kazi na viashiria vya maendeleo ya kuanza kwa Tor.
-- **Udhibiti wa Kibinafsi**: Hamisha kama Zip tovuti maalum kwenye ZIP au uzifute.
+- **Udhibiti wa Kibinafsi**: {{t('cli.manage_action_export')}} tovuti maalum kwenye ZIP au uzifute.
 
 ## Uakisi wa Ulimwengu (Usambazaji wa Virusi)
 
 Ili kuhakikisha VoxVera inaendelea kupatikana hata kama hifadhi kuu zitadhibitiwa, kila kipeperushi hufanya kazi kama kioo cha zana hiyo.
 
-Unapohifadhi kipeperushi, kitufe cha **"Pakua Zana na Chanzo"** kwenye ukurasa wa kutua hutoa `voxvera-portable.zip` iliyo na:
+Unapohifadhi kipeperushi, kitufe cha **"{{t('web.download_button')}}"** kwenye ukurasa wa kutua hutoa `voxvera-portable.zip` iliyo na:
 - Chanzo kamili na lugha zote zinazotumika.
 - Vitegemezi vyote vya Python (vilivyowekwa mapema).
 - Programu za Tor za mifumo mbalimbali.

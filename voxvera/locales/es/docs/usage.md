@@ -76,16 +76,16 @@ voxvera manage
 ```
 
 Características:
-- **--- Crear Nuevo Sitio/Volante ---**: Inicie la secuencia de configuración completa.
-- **--- Iniciar Todos los Sitios ---**: Inicie o apague todos los volantes de su flota a la vez.
+- **{{t('cli.manage_create_new')}}**: Inicie la secuencia de configuración completa.
+- **{{t('cli.manage_start_all')}}**: Inicie o apague todos los volantes de su flota a la vez.
 - **Estado en tiempo real**: Vea las URL .onion activas e indicadores de progreso de arranque de Tor.
-- **Control individual**: Exportar a Zip sitios específicos a ZIP o elimínelos.
+- **Control individual**: {{t('cli.manage_action_export')}} sitios específicos a ZIP o elimínelos.
 
 ## Espejo universal (Distribución viral)
 
 Para garantizar que VoxVera siga siendo accesible incluso si los repositorios centrales son censurados, cada volante actúa como un espejo para la herramienta.
 
-Cuando hospeda un volante, el botón **"Descargar Herramienta y Código"** en la página de inicio proporciona un `voxvera-portable.zip` que contiene:
+Cuando hospeda un volante, el botón **"{{t('web.download_button')}}"** en la página de inicio proporciona un `voxvera-portable.zip` que contiene:
 - El código fuente completo y todos los idiomas soportados.
 - Todas las dependencias de Python (pre-vendeurizadas).
 - Binarios de Tor multiplataforma.

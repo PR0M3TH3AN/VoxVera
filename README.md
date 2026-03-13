@@ -13,6 +13,13 @@ VoxVera is available in multiple languages. Select your preferred language for t
 | 🇺🇸 **English** | [usage.md](docs/en/usage.md) | [CONTRIBUTING.md](docs/en/CONTRIBUTING.md) | [AGENTS.md](docs/en/AGENTS.md) |
 | 🇪🇸 **Español** | [usage.md](docs/es/usage.md) | [CONTRIBUTING.md](docs/es/CONTRIBUTING.md) | [AGENTS.md](docs/es/AGENTS.md) |
 | 🇩🇪 **Deutsch** | [usage.md](docs/de/usage.md) | [CONTRIBUTING.md](docs/de/CONTRIBUTING.md) | [AGENTS.md](docs/de/AGENTS.md) |
+| 🇫🇷 **Français** | [usage.md](docs/fr/usage.md) | [CONTRIBUTING.md](docs/fr/CONTRIBUTING.md) | [AGENTS.md](docs/fr/AGENTS.md) |
+| 🇷🇺 **Русский** | [usage.md](docs/ru/usage.md) | [CONTRIBUTING.md](docs/ru/CONTRIBUTING.md) | [AGENTS.md](docs/ru/AGENTS.md) |
+| 🇮🇱 **עברית** | [usage.md](docs/he/usage.md) | [CONTRIBUTING.md](docs/he/CONTRIBUTING.md) | [AGENTS.md](docs/he/AGENTS.md) |
+| 🇸🇦 **العربية** | [usage.md](docs/ar/usage.md) | [CONTRIBUTING.md](docs/ar/CONTRIBUTING.md) | [AGENTS.md](docs/ar/AGENTS.md) |
+| 🇯🇵 **日本語** | [usage.md](docs/ja/usage.md) | [CONTRIBUTING.md](docs/ja/CONTRIBUTING.md) | [AGENTS.md](docs/ja/AGENTS.md) |
+| 🇮🇳 **हिन्दी** | [usage.md](docs/hi/usage.md) | [CONTRIBUTING.md](docs/hi/CONTRIBUTING.md) | [AGENTS.md](docs/hi/AGENTS.md) |
+| 🇰🇪 **Kiswahili** | [usage.md](docs/sw/usage.md) | [CONTRIBUTING.md](docs/sw/CONTRIBUTING.md) | [AGENTS.md](docs/sw/AGENTS.md) |
 
 ---
 
