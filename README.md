@@ -8,11 +8,11 @@ Generate printable flyers with QR codes linking to Tor (.onion) hidden services,
 
 VoxVera is available in multiple languages. Select your preferred language for the detailed usage guide:
 
-| Language | Documentation |
-| :--- | :--- |
-| 🇺🇸 **English** | [docs/en/usage.md](docs/en/usage.md) |
-| 🇪🇸 **Español** | [docs/es/usage.md](docs/es/usage.md) |
-| 🇩🇪 **Deutsch** | [docs/de/usage.md](docs/de/usage.md) |
+| Language | Documentation | Contributing | Agent Guide |
+| :--- | :--- | :--- | :--- |
+| 🇺🇸 **English** | [usage.md](docs/en/usage.md) | [CONTRIBUTING.md](docs/en/CONTRIBUTING.md) | [AGENTS.md](docs/en/AGENTS.md) |
+| 🇪🇸 **Español** | [usage.md](docs/es/usage.md) | [CONTRIBUTING.md](docs/es/CONTRIBUTING.md) | [AGENTS.md](docs/es/AGENTS.md) |
+| 🇩🇪 **Deutsch** | [usage.md](docs/de/usage.md) | [CONTRIBUTING.md](docs/de/CONTRIBUTING.md) | [AGENTS.md](docs/de/AGENTS.md) |
 
 ---
 
