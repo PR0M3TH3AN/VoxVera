@@ -69,7 +69,9 @@
     "manage_action_back": "Volver",
     "manage_delete_confirm": "¿Está seguro de que desea eliminar {name}?",
     "bootstrapping_msg": "[{name}] Conectando a repetidores Tor y configurando servicio oculto...",
-    "bootstrapping_progress": "[{name}] Arranque de Tor: {progress}% ..."
+    "bootstrapping_progress": "[{name}] Arranque de Tor: {progress}% ...",
+    "no_urls_qr_skip": "No hay URLs configuradas todavía. Los códigos QR se generarán después de 'voxvera serve'",
+    "input_file_not_found": "El archivo de entrada {path} no existe."
   },
   "web": {
     "tear_off_tor_browser": "Use el Navegador Tor",

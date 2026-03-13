@@ -69,7 +69,9 @@
     "manage_action_back": "Back",
     "manage_delete_confirm": "Are you sure you want to delete {name}?",
     "bootstrapping_msg": "[{name}] Connecting to Tor relays and setting up hidden service...",
-    "bootstrapping_progress": "[{name}] Tor Bootstrapping: {progress}% ..."
+    "bootstrapping_progress": "[{name}] Tor Bootstrapping: {progress}% ...",
+    "no_urls_qr_skip": "No URLs configured yet. QR codes will be generated after 'voxvera serve'",
+    "input_file_not_found": "Input file {path} does not exist."
   },
   "web": {
     "tear_off_tor_browser": "Use Tor Browser",

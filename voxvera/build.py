@@ -28,9 +28,8 @@ def generate_qr(config_path: Path, output_dir: Path) -> None:
 
     # Skip QR generation if no URLs configured yet (will be generated after serve)
     if not url and not tear:
-        print(
-            "No URLs configured yet. QR codes will be generated after 'voxvera serve'"
-        )
+        from voxvera.cli import t
+        print(t("cli.no_urls_qr_skip"))
         return
 
     # Generate QR codes for available URLs
@@ -55,7 +54,8 @@ def obfuscate_html(input_file: Path, output_file: Path) -> None:
     Replaces obfuscate_index.sh (javascript-obfuscator + html-minifier-terser + node).
     """
     if not input_file.exists():
-        raise FileNotFoundError(f"Input file {input_file} does not exist.")
+        from voxvera.cli import t
+        raise FileNotFoundError(t("cli.input_file_not_found", path=str(input_file)))
 
     html = input_file.read_text(encoding="utf-8")
 
