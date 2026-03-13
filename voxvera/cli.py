@@ -470,7 +470,114 @@ def _clear_host_dir(dir_path: Path):
         session.write_bytes(saved)
 
 
-def import_configs():
+import zipfile
+import tempfile
+
+def get_export_dir() -> Path:
+    """Get the default export directory (~/voxvera-exports)."""
+    export_dir = Path.home() / "voxvera-exports"
+    os.makedirs(export_dir, exist_ok=True)
+    return export_dir
+
+
+def export_site(folder_name: str, output_path: str = None):
+    """Export a site folder and its keys into a zip archive."""
+    source_dir = ROOT / "host" / folder_name
+    if not source_dir.exists():
+        print(f"Error: Site folder '{folder_name}' not found in {ROOT / 'host'}")
+        return
+
+    if not output_path:
+        export_dir = get_export_dir()
+        output_path = export_dir / f"{folder_name}_export.zip"
+    else:
+        output_path = Path(output_path)
+
+    with zipfile.ZipFile(output_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        for root, dirs, files in os.walk(source_dir):
+            for file in files:
+                file_path = Path(root) / file
+                arcname = file_path.relative_to(source_dir)
+                zipf.write(file_path, arcname)
+    
+    print(f"Exported '{folder_name}' to {output_path}")
+
+
+def export_all_sites():
+    """Export all available sites in the host directory."""
+    servers = get_servers()
+    if not servers:
+        print("No sites found to export.")
+        return
+    
+    export_dir = get_export_dir()
+    print(f"Exporting {len(servers)} sites to {export_dir}...")
+    for server in servers:
+        export_site(server)
+    print("Export all complete.")
+
+
+def import_site(zip_path: str):
+    """Import a site folder and its keys from a zip archive."""
+    zip_path = Path(zip_path)
+    if not zip_path.exists():
+        print(f"Error: Zip file '{zip_path}' not found.")
+        return
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        with zipfile.ZipFile(zip_path, 'r') as zipf:
+            zipf.extractall(tmpdir)
+        
+        tmp_path = Path(tmpdir)
+        config_file = tmp_path / "config.json"
+        if not config_file.exists():
+            print("Error: Invalid export file. Missing 'config.json'.")
+            return
+        
+        data = load_config(config_file)
+        folder_name = data.get("folder_name")
+        if not folder_name:
+            print("Error: Invalid config.json. Missing 'folder_name'.")
+            return
+        
+        dest_dir = ROOT / "host" / folder_name
+        if dest_dir.exists():
+            confirm = inquirer.confirm(message=f"Site '{folder_name}' already exists. Overwrite?").execute()
+            if not confirm:
+                print("Import cancelled.")
+                return
+            shutil.rmtree(dest_dir)
+        
+        shutil.copytree(tmp_path, dest_dir)
+        print(f"Successfully imported '{folder_name}' to {dest_dir}")
+
+
+def import_multiple_sites(source_dir: str = None):
+    """Import all zip files from a directory (defaults to ~/voxvera-exports)."""
+    import glob
+    
+    if not source_dir:
+        source_dir = get_export_dir()
+    else:
+        source_dir = Path(source_dir)
+    
+    if not source_dir.exists():
+        print(f"Error: Directory '{source_dir}' not found.")
+        return
+    
+    zip_files = sorted(glob.glob(str(source_dir / "*.zip")))
+    if not zip_files:
+        print(f"No zip files found in {source_dir}")
+        return
+    
+    print(f"Found {len(zip_files)} site(s) to import from {source_dir}...")
+    for zip_path in zip_files:
+        print(f"\nImporting {Path(zip_path).name}...")
+        import_site(zip_path)
+    print("\nImport multiple complete.")
+
+
+def batch_import_configs():
     import glob
 
     files = sorted(glob.glob(str(ROOT / "imports" / "*.json")))
@@ -582,6 +689,8 @@ def manage_servers():
             status_text = "[ON] " if running else "[OFF]"
             choices.append(Choice(s, f"{status_text} {s}"))
             
+        choices.append(Choice("export_all", "--- Export All Sites ---"))
+        choices.append(Choice("import_multiple", "--- Import Multiple Sites ---"))
         choices.append(Choice(None, "Exit"))
         
         selected = inquirer.select(
@@ -591,10 +700,19 @@ def manage_servers():
         
         if selected is None:
             break
+        
+        if selected == "export_all":
+            export_all_sites()
+            continue
+        
+        if selected == "import_multiple":
+            import_multiple_sites()
+            continue
             
         running = is_server_running(selected)
         action_choices = [
             Choice("toggle", "Stop" if running else "Start"),
+            Choice("export", "Export to Zip"),
             Choice("delete", "Delete"),
             Choice(None, "Back")
         ]
@@ -613,6 +731,8 @@ def manage_servers():
                     serve(str(config_path))
                 except SystemExit:
                     pass
+        elif action == "export":
+            export_site(selected)
         elif action == "delete":
             confirm = inquirer.confirm(message=f"Are you sure you want to delete {selected}?").execute()
             if confirm:
@@ -637,7 +757,19 @@ def main(argv=None):
     p_build = sub.add_parser("build", help="Build flyer assets from config")
     p_build.add_argument("--download")
 
-    sub.add_parser("import", help="Batch import JSON files from imports/")
+    p_export = sub.add_parser("export", help="Export a site and its keys into a zip archive")
+    p_export.add_argument("folder_name", help="Name of the site folder in host/")
+    p_export.add_argument("--output", help="Custom output path for the zip")
+
+    sub.add_parser("export-all", help="Export all sites and their keys to ~/voxvera-exports")
+    
+    p_import = sub.add_parser("import", help="Import a site and its keys from a zip archive")
+    p_import.add_argument("zip_path", help="Path to the exported zip file")
+
+    p_import_multiple = sub.add_parser("import-multiple", help="Import multiple sites and their keys from a directory")
+    p_import_multiple.add_argument("--dir", help="Directory containing export zips (defaults to ~/voxvera-exports)")
+
+    sub.add_parser("batch-import", help="Batch import JSON files from imports/")
     sub.add_parser("serve", help="Serve flyer over OnionShare using config")
     p_quickstart = sub.add_parser(
         "quickstart", help="Init, build and serve in sequence"
@@ -663,10 +795,18 @@ def main(argv=None):
         serve(config_path)
     elif args.command == "build":
         build_assets(config_path, download_path=args.download)
+    elif args.command == "export":
+        export_site(args.folder_name, args.output)
+    elif args.command == "export-all":
+        export_all_sites()
+    elif args.command == "import":
+        import_site(args.zip_path)
+    elif args.command == "import-multiple":
+        import_multiple_sites(args.dir)
     elif args.command == "serve":
         serve(config_path)
-    elif args.command == "import":
-        import_configs()
+    elif args.command == "batch-import":
+        batch_import_configs()
     elif args.command == "manage":
         manage_servers()
     elif args.command == "quickstart":
