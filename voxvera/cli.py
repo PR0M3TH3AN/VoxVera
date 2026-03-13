@@ -386,6 +386,8 @@ def serve(config_path: str):
         "--public",
         "--persistent",
         str(dir_path / ".onionshare-session"),
+        "--tor-timeout",
+        "300",
         "-v",
         str(dir_path),
     ]
@@ -403,14 +405,22 @@ def serve(config_path: str):
         onion_url = None
         console = Console()
         with console.status("[bold green]Connecting to Tor relays and setting up hidden service...") as status:
+            last_progress = None
             while onion_url is None:
                 time.sleep(1)
                 if proc.poll() is not None:
-                    print("OnionShare exited unexpectedly", file=sys.stderr)
+                    status.stop()
+                    console.print("[bold red]OnionShare exited unexpectedly.[/bold red]")
+                    console.print(f"[yellow]Common causes: Network blocked, inaccurate system clock, or OnionShare already running.[/yellow]")
+                    console.print(f"[dim]See {logfile} for full logs.[/dim]")
                     with open(logfile) as fh:
-                        sys.stderr.write(fh.read())
+                        lines = fh.readlines()
+                        # Print the last 20 lines of the log to help debug
+                        for line in lines[-20:]:
+                            sys.stderr.write(line)
                     pid_file.unlink(missing_ok=True)
                     sys.exit(1)
+                
                 if os.path.exists(logfile):
                     with open(logfile) as fh:
                         content = fh.read()
@@ -418,7 +428,10 @@ def serve(config_path: str):
                     # Look for Tor bootstrap progress in logs to give feedback
                     m_progress = _re.findall(r"Bootstrapped (\d+)%", content)
                     if m_progress:
-                        status.update(f"[bold green]Tor Bootstrapping: {m_progress[-1]}% ...")
+                        current_progress = m_progress[-1]
+                        if current_progress != last_progress:
+                            status.update(f"[bold green]Tor Bootstrapping: {current_progress}% ...")
+                            last_progress = current_progress
 
                     m = _re.search(r"https?://[a-z0-9]+\.onion", content)
                     if m:
