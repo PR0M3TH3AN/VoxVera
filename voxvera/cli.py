@@ -362,7 +362,7 @@ def get_tor_ports():
     return socks_port, ctl_port
 
 
-def serve(config_path: str):
+def serve(config_path: str) -> str | None:
     if not require_cmd("onionshare-cli"):
         sys.exit(1)
 
@@ -405,13 +405,13 @@ def serve(config_path: str):
 
         onion_url = None
         console = Console()
-        with console.status("[bold green]Connecting to Tor relays and setting up hidden service...") as status:
+        with console.status(f"[bold green][{folder_name}] Connecting to Tor relays and setting up hidden service...") as status:
             last_progress = None
             while onion_url is None:
                 time.sleep(1)
                 if proc.poll() is not None:
                     status.stop()
-                    console.print("[bold red]OnionShare exited unexpectedly.[/bold red]")
+                    console.print(f"[bold red]OnionShare for {folder_name} exited unexpectedly.[/bold red]")
                     console.print(f"[yellow]Common causes: Network blocked, inaccurate system clock, or OnionShare already running.[/yellow]")
                     console.print(f"[dim]See {logfile} for full logs.[/dim]")
                     with open(logfile) as fh:
@@ -420,7 +420,7 @@ def serve(config_path: str):
                         for line in lines[-20:]:
                             sys.stderr.write(line)
                     pid_file.unlink(missing_ok=True)
-                    sys.exit(1)
+                    return None
                 
                 if os.path.exists(logfile):
                     with open(logfile) as fh:
@@ -431,14 +431,13 @@ def serve(config_path: str):
                     if m_progress:
                         current_progress = m_progress[-1]
                         if current_progress != last_progress:
-                            status.update(f"[bold green]Tor Bootstrapping: {current_progress}% ...")
+                            status.update(f"[bold green][{folder_name}] Tor Bootstrapping: {current_progress}% ...")
                             last_progress = current_progress
 
                     m = _re.search(r"https?://[a-z0-9]+\.onion", content)
                     if m:
                         onion_url = m.group(0)
         
-        print(f"Onion URL: {onion_url}")
         # update config with the onion URL in the host directory
         config_file = dir_path / "config.json"
         data = load_config(config_file)
@@ -448,9 +447,11 @@ def serve(config_path: str):
         # regenerate assets with the new URL using the host-local config
         build_assets(str(config_file))
         
-        print(f"OnionShare running (PID {proc.pid}). See {logfile} for details.")
+        print(f"[{folder_name}] Onion URL: {onion_url}")
+        print(f"[{folder_name}] OnionShare running (PID {proc.pid}).")
+        return onion_url
     except KeyboardInterrupt:
-        pass
+        return None
     finally:
         log_fh.close()
 
@@ -720,13 +721,22 @@ def manage_servers():
             continue
 
         if selected == "start_all":
+            results = []
             for s in servers:
                 if not is_server_running(s):
                     config_path = ROOT / "host" / s / "config.json"
                     try:
-                        serve(str(config_path))
+                        url = serve(str(config_path))
+                        if url:
+                            results.append((s, url))
                     except Exception as e:
-                        print(f"Error starting {s}: {e}")
+                        console.print(f"[red]Error starting {s}: {e}[/red]")
+            
+            if results:
+                console.rule("Startup Summary")
+                for s, url in results:
+                    console.print(f"[green]✔ {s}: [bold]{url}[/bold][/green]")
+                inquirer.confirm(message="Press Enter to continue", default=True).execute()
             continue
 
         if selected == "stop_all":
