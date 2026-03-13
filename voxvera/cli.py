@@ -721,7 +721,7 @@ def build_site():
         with open(template_path, "r") as fh:
             html = fh.read()
 
-    # Bundle locales
+    # Bundle locales (Include landing tokens for the main site)
     all_locales = {}
     locale_files = sorted(glob.glob(str(ROOT / "locales" / "*.json")))
     for lp in locale_files:
@@ -730,7 +730,8 @@ def build_site():
             l_data = json.load(lf)
             all_locales[code] = {
                 "meta": l_data.get("meta", {}),
-                "web": l_data.get("web", {})
+                "web": l_data.get("web", {}),
+                "landing": l_data.get("landing", {})
             }
     
     html = html.replace("{{locales}}", json.dumps(all_locales))
