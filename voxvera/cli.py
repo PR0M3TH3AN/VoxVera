@@ -755,8 +755,11 @@ def build_site():
     
     html = html.replace("{{locales}}", json.dumps(all_locales))
 
-    # 1. Statically replace localization tokens (Default to EN for initial state)
-    lang_data = all_locales.get("en", {})
+    # 1. Statically replace localization tokens
+    # Get the language from config if available, else default to en
+    current_lang = data.get("lang", "en")
+    lang_data = all_locales.get(current_lang, all_locales.get("en", {}))
+    
     for category in ["web", "landing"]:
         tokens = lang_data.get(category, {})
         for token, translation in tokens.items():
