@@ -15,6 +15,9 @@ from rich.console import Console
 # package root (contains bundled templates and src/)
 ROOT = Path(__file__).resolve().parent
 
+# Global locale state
+CURRENT_LOCALE = {}
+
 
 def _template_res(*parts) -> Traversable:
     """Return a Traversable for files under the packaged ``templates`` folder."""
@@ -24,6 +27,39 @@ def _template_res(*parts) -> Traversable:
 def _src_res(*parts) -> Traversable:
     """Return a Traversable for files under the packaged ``src`` folder."""
     return resources.files(__package__).joinpath("src", *parts)
+
+
+def _locale_res(*parts) -> Traversable:
+    """Return a Traversable for files under the packaged ``locales`` folder."""
+    return resources.files(__package__).joinpath("locales", *parts)
+
+
+def load_locale(lang_code: str = "en"):
+    """Load the specified locale JSON file."""
+    global CURRENT_LOCALE
+    try:
+        with resources.as_file(_locale_res(f"{lang_code}.json")) as locale_file:
+            if not locale_file.exists():
+                lang_code = "en"  # Fallback
+                with resources.as_file(_locale_res("en.json")) as fallback_file:
+                    CURRENT_LOCALE = json.loads(fallback_file.read_text(encoding="utf-8"))
+            else:
+                CURRENT_LOCALE = json.loads(locale_file.read_text(encoding="utf-8"))
+    except Exception as e:
+        print(f"Error loading locale {lang_code}: {e}")
+        # Final safety fallback to empty dict to avoid KeyErrors
+        CURRENT_LOCALE = {"cli": {}, "web": {}, "meta": {}}
+
+
+def t(path: str, **kwargs) -> str:
+    """Retrieve a localized string by dot-path (e.g., 'cli.welcome')."""
+    parts = path.split(".")
+    val = CURRENT_LOCALE
+    for part in parts:
+        val = val.get(part, {})
+    if not isinstance(val, str):
+        return path  # Return the token path if not found
+    return val.format(**kwargs)
 
 
 def require_cmd(cmd: str):
@@ -48,22 +84,22 @@ def check_deps():
         "htmlmin": "htmlmin",
     }
 
-    console.rule("Dependency Check")
+    console.rule(t("cli.dep_check_header"))
 
-    for t in cli_tools:
-        if shutil.which(t):
-            console.print(f"{t}: [green]found[/green]")
+    for t_cmd in cli_tools:
+        if shutil.which(t_cmd):
+            console.print(f"{t_cmd}: [green]{t('cli.dep_found')}[/green]")
         else:
-            console.print(f"{t}: [red]missing[/red]")
+            console.print(f"{t_cmd}: [red]{t('cli.dep_missing')}[/red]")
 
     for label, module in py_packages.items():
         try:
             __import__(module)
-            console.print(f"{label}: [green]found[/green]")
+            console.print(f"{label}: [green]{t('cli.dep_found')}[/green]")
         except ImportError:
-            console.print(f"{label}: [red]missing[/red]")
+            console.print(f"{label}: [red]{t('cli.dep_missing')}[/red]")
 
-    all_cli = all(shutil.which(t) for t in cli_tools)
+    all_cli = all(shutil.which(t_cmd) for t_cmd in cli_tools)
     all_py = True
     for module in py_packages.values():
         try:
@@ -73,11 +109,9 @@ def check_deps():
             break
 
     if all_cli and all_py:
-        console.print("[green]All dependencies are installed.[/green]")
+        console.print(f"[green]{t('cli.all_deps_installed')}[/green]")
     else:
-        console.print(
-            "[red]Some dependencies are missing. Run: pip install 'voxvera[all]'[/red]"
-        )
+        console.print(f"[red]{t('cli.all_deps_installed')}[/red]")
 
 
 def load_config(path: str) -> dict:
@@ -172,11 +206,11 @@ def interactive_update(config_path: str):
     data = load_config(config_path)
     console = Console()
 
-    console.rule("Metadata")
+    console.rule(t("cli.init_name"))
     meta_qs = [
         {
             "type": "input",
-            "message": "Name",
+            "message": t("cli.init_name"),
             "name": "name",
             "default": data.get("name", ""),
             "transformer": _len_transform(60),
@@ -184,7 +218,7 @@ def interactive_update(config_path: str):
         },
         {
             "type": "input",
-            "message": "Folder Name",
+            "message": t("cli.init_folder"),
             "name": "folder_name",
             "default": data.get("folder_name", ""),
             "transformer": _len_transform(63),
@@ -192,7 +226,7 @@ def interactive_update(config_path: str):
         },
         {
             "type": "input",
-            "message": "Title",
+            "message": t("cli.init_title"),
             "name": "title",
             "default": data.get("title", ""),
             "transformer": _len_transform(60),
@@ -200,7 +234,7 @@ def interactive_update(config_path: str):
         },
         {
             "type": "input",
-            "message": "Subtitle",
+            "message": t("cli.init_subtitle"),
             "name": "subtitle",
             "default": data.get("subtitle", ""),
             "transformer": _len_transform(80),
@@ -208,7 +242,7 @@ def interactive_update(config_path: str):
         },
         {
             "type": "input",
-            "message": "Headline",
+            "message": t("cli.init_headline"),
             "name": "headline",
             "default": data.get("headline", ""),
             "transformer": _len_transform(80),
@@ -217,26 +251,24 @@ def interactive_update(config_path: str):
     ]
     data.update(prompt(meta_qs))
 
-    console.rule("Body text")
+    console.rule(t("cli.init_body"))
     while True:
         body = open_editor(data.get("content", ""))
         length = len(body)
         if length > 1000:
-            console.print(f"Body length: {length}/1000 exceeds limit", style="red")
-            if not inquirer.confirm(message="Edit again?", default=True).execute():
+            console.print(f"{t('cli.body_length')}: {length}/1000 {t('cli.body_limit_exceeded')}", style="red")
+            if not inquirer.confirm(message=t("cli.edit_again"), default=True).execute():
                 break
         else:
-            console.print(f"Body length: {length}/1000", style="green")
+            console.print(f"{t('cli.body_length')}: {length}/1000", style="green")
             break
     data["content"] = body
 
-    console.rule("Links")
-    # URL is the main content link (user-configurable, e.g., external resource)
-    # Tear-off link will be auto-generated from Tor keys when serving
+    console.rule(t("cli.init_links"))
     link_qs = [
         {
             "type": "input",
-            "message": "URL (content link - external resource)",
+            "message": t("cli.url_label"),
             "name": "url",
             "default": data.get("url", ""),
             "transformer": _len_transform(200),
@@ -244,7 +276,7 @@ def interactive_update(config_path: str):
         },
         {
             "type": "input",
-            "message": "URL message",
+            "message": t("cli.url_message_label"),
             "name": "url_message",
             "default": data.get("url_message", ""),
             "transformer": _len_transform(120),
@@ -252,7 +284,7 @@ def interactive_update(config_path: str):
         },
         {
             "type": "input",
-            "message": "Binary message",
+            "message": t("cli.binary_message_label"),
             "name": "binary_message",
             "default": data.get("binary_message", ""),
             "transformer": _len_transform(120),
@@ -292,6 +324,21 @@ def build_assets(
         with open(src_dir / "index-master.html", "r") as fh:
             html = fh.read()
         
+        # Bundle locales for the web engine
+        all_locales = {}
+        locale_files = sorted(glob.glob(str(ROOT / "locales" / "*.json")))
+        for lp in locale_files:
+            code = Path(lp).stem
+            with open(lp, "r", encoding="utf-8") as lf:
+                l_data = json.load(lf)
+                # Only include web and meta to keep HTML size small
+                all_locales[code] = {
+                    "meta": l_data.get("meta", {}),
+                    "web": l_data.get("web", {})
+                }
+        
+        html = html.replace("{{locales}}", json.dumps(all_locales))
+
         # Statically replace {{placeholders}} with config values for Tor JS-disabled compatibility
         for key, value in data.items():
             html = html.replace(f"{{{{{key}}}}}", str(value))
@@ -781,14 +828,57 @@ def manage_servers():
                 delete_server(selected)
 
 
+def choose_language(current_lang: str = None) -> str:
+    """Prompt the user to select a language."""
+    # List available locales
+    locale_files = sorted(glob.glob(str(ROOT / "locales" / "*.json")))
+    choices = []
+    
+    # Use fallback if no locales folder (e.g. first run/dev)
+    if not locale_files:
+        return "en"
+
+    default_idx = 0
+    for i, path in enumerate(locale_files):
+        code = Path(path).stem
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                meta = json.load(f).get("meta", {})
+                name = meta.get("language_name", code)
+                flag = meta.get("flag", "")
+                choices.append({"name": f"{flag} {name} ({code})", "value": code})
+                if code == current_lang:
+                    default_idx = i
+        except Exception:
+            choices.append({"name": code, "value": code})
+
+    # If only one choice, don't bother asking
+    if len(choices) <= 1:
+        return choices[0]["value"] if choices else "en"
+
+    lang = inquirer.select(
+        message="Select your language / Seleccione su idioma:",
+        choices=choices,
+        default=choices[default_idx]["value"] if current_lang else choices[0]["value"]
+    ).execute()
+    return lang
+
+
 def main(argv=None):
+    import glob
     parser = argparse.ArgumentParser(prog="voxvera")
     parser.add_argument(
         "--config",
         default=str(ROOT / "src" / "config.json"),
         help="Path to config.json",
     )
+    parser.add_argument(
+        "--lang",
+        help="Force language code (e.g. en, es)",
+    )
     sub = parser.add_subparsers(dest="command")
+
+    # ... (parsers as before) ...
 
     p_init = sub.add_parser(
         "init", help="Update configuration interactively"
@@ -826,6 +916,27 @@ def main(argv=None):
 
     args = parser.parse_args(argv)
     config_path = Path(args.config).resolve()
+
+    # Determine language
+    current_lang = args.lang
+    config_data = {}
+    if config_path.exists():
+        try:
+            config_data = load_config(str(config_path))
+            if not current_lang:
+                current_lang = config_data.get("lang")
+        except Exception:
+            pass
+
+    if not current_lang and args.command in ["init", "quickstart", "manage"]:
+        current_lang = choose_language()
+        # Save choice to config if possible
+        if config_path.exists():
+            config_data["lang"] = current_lang
+            save_config(config_data, str(config_path))
+    
+    # Load the locale
+    load_locale(current_lang or "en")
 
     if args.command == "init":
         if args.template:
