@@ -652,6 +652,53 @@ def import_multiple_sites(source_dir: str = None):
     print("\nImport multiple complete.")
 
 
+def build_docs():
+    """Generate localized documentation from templates and locale data."""
+    template_dir = ROOT.parent / "docs" / "templates"
+    if not template_dir.exists():
+        print("Error: docs/templates/ not found.")
+        return
+
+    # List all supported languages
+    locale_files = sorted(glob.glob(str(ROOT / "locales" / "*.json")))
+    langs = [Path(f).stem for f in locale_files]
+
+    for lang in langs:
+        print(f"Generating documentation for: {lang}")
+        load_locale(lang)
+        dest_dir = ROOT.parent / "docs" / lang
+        os.makedirs(dest_dir, exist_ok=True)
+
+        # Process each template
+        for t_file in glob.glob(str(template_dir / "*.md")):
+            name = Path(t_file).name
+            with open(t_file, "r", encoding="utf-8") as f:
+                content = f.read()
+
+            # Replace tokens: {{t('path.to.token')}}
+            # This regex looks for {{t('...')}} and {{t("...")}}
+            import re as _re
+            
+            def replace_token(match):
+                token_path = match.group(1)
+                return t(token_path)
+
+            content = _re.sub(r"\{\{t\(['\"](.+?)['\"]\)\}\}", replace_token, content)
+
+            # Look for localized overrides in voxvera/locales/{lang}/docs/{name}
+            override_path = ROOT / "locales" / lang / "docs" / name
+            if override_path.exists():
+                with open(override_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+                # Process tokens in the override as well
+                content = _re.sub(r"\{\{t\(['\"](.+?)['\"]\)\}\}", replace_token, content)
+
+            with open(dest_dir / name, "w", encoding="utf-8") as f:
+                f.write(content)
+
+    print("Documentation build complete.")
+
+
 def vendorize():
     """Download all dependencies into voxvera/vendor/ for portable use."""
     vendor_dir = ROOT / "vendor"
@@ -970,6 +1017,7 @@ def main(argv=None):
     )
     sub.add_parser("check", help="Check for required external dependencies")
     sub.add_parser("vendorize", help="Download all dependencies into voxvera/vendor/ for portability")
+    sub.add_parser("build-docs", help="Generate localized documentation from templates")
     sub.add_parser("manage", help="Manage VoxVera servers interactively")
 
     args = parser.parse_args(argv)
@@ -1056,6 +1104,8 @@ def main(argv=None):
         check_deps()
     elif args.command == "vendorize":
         vendorize()
+    elif args.command == "build-docs":
+        build_docs()
     else:
         parser.print_help()
 

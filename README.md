@@ -4,6 +4,18 @@ Generate printable flyers with QR codes linking to Tor (.onion) hidden services,
 
 ---
 
+## Documentation
+
+VoxVera is available in multiple languages. Select your preferred language for the detailed usage guide:
+
+| Language | Documentation |
+| :--- | :--- |
+| 🇺🇸 **English** | [docs/en/usage.md](docs/en/usage.md) |
+| 🇪🇸 **Español** | [docs/es/usage.md](docs/es/usage.md) |
+| 🇩🇪 **Deutsch** | [docs/de/usage.md](docs/de/usage.md) |
+
+---
+
 ## Key Features
 
 * **Interactive setup**: `voxvera init` prompts for metadata or extracts from a PDF form. When editing body text, a small Tkinter GUI window opens with existing content pre-filled, falling back to the user's `$EDITOR` if the GUI isn't available.
