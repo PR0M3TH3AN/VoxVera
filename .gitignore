@@ -42,3 +42,7 @@ voxvera/src/index.html
 voxvera/src/nostr.html
 voxvera/src/qrcode-content.png
 voxvera/src/qrcode-tear-offs.png
+
+# PyInstaller
+*.spec
+dist_bin/
