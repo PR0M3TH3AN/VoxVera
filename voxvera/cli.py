@@ -215,8 +215,8 @@ def interactive_update(config_path: str):
             "message": t("cli.init_name"),
             "name": "name",
             "default": data.get("name", ""),
-            "transformer": _len_transform(60),
-            "validate": _len_validator(60),
+            "transformer": _len_transform(31),
+            "validate": _len_validator(31),
         },
         {
             "type": "input",
@@ -231,24 +231,24 @@ def interactive_update(config_path: str):
             "message": t("cli.init_title"),
             "name": "title",
             "default": data.get("title", ""),
-            "transformer": _len_transform(60),
-            "validate": _len_validator(60),
+            "transformer": _len_transform(31),
+            "validate": _len_validator(31),
         },
         {
             "type": "input",
             "message": t("cli.init_subtitle"),
             "name": "subtitle",
             "default": data.get("subtitle", ""),
-            "transformer": _len_transform(80),
-            "validate": _len_validator(80),
+            "transformer": _len_transform(27),
+            "validate": _len_validator(27),
         },
         {
             "type": "input",
             "message": t("cli.init_headline"),
             "name": "headline",
             "default": data.get("headline", ""),
-            "transformer": _len_transform(80),
-            "validate": _len_validator(80),
+            "transformer": _len_transform(31),
+            "validate": _len_validator(31),
         },
     ]
     data.update(prompt(meta_qs))
@@ -927,16 +927,16 @@ def manage_servers():
                     pass
             choices.append(Choice(s, label))
             
-        choices.insert(0, Choice("create_new", "--- Create New Site/Flyer ---"))
+        choices.insert(0, Choice("create_new", t("cli.manage_create_new")))
         if servers:
-            choices.append(Choice("start_all", "--- Start All Sites ---"))
-            choices.append(Choice("stop_all", "--- Stop All Sites ---"))
-            choices.append(Choice("export_all", "--- Export All Sites ---"))
-        choices.append(Choice("import_multiple", "--- Import Multiple Sites ---"))
-        choices.append(Choice(None, "Exit"))
+            choices.append(Choice("start_all", t("cli.manage_start_all")))
+            choices.append(Choice("stop_all", t("cli.manage_stop_all")))
+            choices.append(Choice("export_all", t("cli.manage_export_all")))
+        choices.append(Choice("import_multiple", t("cli.manage_import_multiple")))
+        choices.append(Choice(None, t("cli.manage_exit")))
         
         selected = inquirer.select(
-            message="Select a server to manage (or Exit):",
+            message=t("cli.manage_select_server"),
             choices=choices
         ).execute()
         
@@ -963,13 +963,13 @@ def manage_servers():
                         if url:
                             results.append((s, url))
                     except Exception as e:
-                        console.print(f"[red]Error starting {s}: {e}[/red]")
+                        console.print(f"[red]{t('cli.manage_startup_summary')}: {e}[/red]")
             
             if results:
-                console.rule("Startup Summary")
+                console.rule(t("cli.manage_startup_summary"))
                 for s, url in results:
                     console.print(f"[green]✔ {s}: [bold]{url}[/bold][/green]")
-                inquirer.confirm(message="Press Enter to continue", default=True).execute()
+                inquirer.confirm(message=t("cli.manage_press_enter"), default=True).execute()
             continue
 
         if selected == "stop_all":
@@ -988,14 +988,14 @@ def manage_servers():
             
         running = is_server_running(selected)
         action_choices = [
-            Choice("toggle", "Stop" if running else "Start"),
-            Choice("export", "Export to Zip"),
-            Choice("delete", "Delete"),
-            Choice(None, "Back")
+            Choice("toggle", t("cli.manage_action_toggle_stop") if running else t("cli.manage_action_toggle_start")),
+            Choice("export", t("cli.manage_action_export")),
+            Choice("delete", t("cli.manage_action_delete")),
+            Choice(None, t("cli.manage_action_back"))
         ]
         
         action = inquirer.select(
-            message=f"Manage {selected}:",
+            message=t("cli.manage_action_menu", name=selected),
             choices=action_choices
         ).execute()
         
@@ -1011,7 +1011,7 @@ def manage_servers():
         elif action == "export":
             export_site(selected)
         elif action == "delete":
-            confirm = inquirer.confirm(message=f"Are you sure you want to delete {selected}?").execute()
+            confirm = inquirer.confirm(message=t("cli.manage_delete_confirm", name=selected)).execute()
             if confirm:
                 delete_server(selected)
 
