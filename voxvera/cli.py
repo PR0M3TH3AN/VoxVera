@@ -1004,6 +1004,18 @@ def main(argv=None):
         print(f"Language changed to {new_lang}")
         return
 
+    if not args.command:
+        if args.lang:
+            # If they just ran 'voxvera --lang de', save it and exit
+            if config_path.exists():
+                config_data["lang"] = args.lang
+                save_config(config_data, str(config_path))
+            print(f"Language changed to {args.lang}")
+            return
+        else:
+            parser.print_help()
+            return
+
     if args.command == "init":
         if args.template:
             copy_template(args.template)
