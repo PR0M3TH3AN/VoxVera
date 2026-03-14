@@ -29,10 +29,29 @@ msg ">> Detected package manager: $PM"
 # Only runtime dependencies for Tor hosting are needed as system packages.
 # Build tools (QR, minification, PDF parsing) are all Python packages now.
 SYSTEM_PKGS=(tor curl)
-# OnionShare package name differs per repo:
-[[ $PM =~ (apt|dnf|yum) ]] && SYSTEM_PKGS+=(onionshare-cli) || SYSTEM_PKGS+=(onionshare)
-
 $UPDATE && $INSTALL "${SYSTEM_PKGS[@]}"
+
+# Handle OnionShare separately to allow fallback to pipx
+if ! command_exists onionshare-cli && ! command_exists onionshare; then
+  msg "Attempting to install OnionShare..."
+  OS_PKG="onionshare-cli"
+  [[ ! $PM =~ (apt|dnf|yum) ]] && OS_PKG="onionshare"
+
+  if ! $INSTALL "$OS_PKG"; then
+    warn "OnionShare not found in system repositories. Attempting pipx install fallback."
+    if ! command_exists pipx; then
+      msg "Installing pipx..."
+      [ "$PM" = "apt" ] && $INSTALL pipx python3-venv || $INSTALL pipx
+      pipx ensurepath --force
+      export PATH="$HOME/.local/bin:$PATH"
+    fi
+    if command_exists pipx; then
+      pipx install git+https://github.com/onionshare/onionshare.git#subdirectory=cli || warn "pipx OnionShare install failed"
+    else
+      warn "pipx not found. Skipping OnionShare installation."
+    fi
+  fi
+fi
 
 ## -------- install VoxVera (prefers pipx, falls back) ---------------
 install_voxvera() {

@@ -60,7 +60,31 @@ require_pkg tor tor
 if [ "$PM" = "brew" ]; then
   require_pkg onionshare onionshare
 else
-  require_pkg onionshare-cli onionshare-cli
+  # Onionshare-cli is often missing or outdated in apt/dnf repos.
+  # We try system install first, then fallback to pipx.
+  if ! command_exists onionshare-cli; then
+    echo "Installing onionshare-cli..."
+    if ! install_pkg onionshare-cli; then
+      echo "Onionshare-cli not found in system repositories. Attempting pipx install fallback."
+      if ! command_exists pipx; then
+        echo "Installing pipx and python3-venv..."
+        if [ "$PM" = "apt" ]; then
+          install_pkg pipx python3-venv
+        else
+          install_pkg pipx
+        fi
+        pipx ensurepath --force
+        export PATH="$HOME/.local/bin:$PATH"
+      fi
+      if command_exists pipx; then
+        echo "Installing onionshare-cli via pipx..."
+        pipx install git+https://github.com/onionshare/onionshare.git#subdirectory=cli
+      else
+        echo "Could not install pipx. Please install onionshare-cli manually." >&2
+        exit 1
+      fi
+    fi
+  fi
 fi
 
 download_binary() {
