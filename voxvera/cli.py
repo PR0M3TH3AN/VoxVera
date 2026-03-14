@@ -248,13 +248,42 @@ def interactive_update(config_path: str):
     data = load_config(config_path)
     console = Console()
 
+    # Define the fields and their localized fallback paths
+    # We use these if the value in data is missing or matches the hardcoded English default
+    localized_defaults = {
+        "name": t("landing.name"),
+        "title": t("landing.title"),
+        "subtitle": t("landing.subtitle"),
+        "headline": t("landing.headline"),
+        "content": t("landing.content"),
+        "url_message": t("landing.url_message"),
+    }
+
+    # Hardcoded English defaults from the template for comparison
+    english_defaults = {
+        "name": "Vox Vera Printable Flyers",
+        "title": "TOP SECRET",
+        "subtitle": "DO ~~NOT~~ DISTRIBUTE",
+        "headline": "OPERATION VOX VERA",
+    }
+
+    def get_default(key):
+        val = data.get(key, "")
+        # If empty OR it matches the hardcoded English default, and we have a localized version
+        if (not val or val == english_defaults.get(key)) and localized_defaults.get(key):
+            # Only use localized if it is actually different from the path (token not found)
+            loc_val = localized_defaults.get(key)
+            if loc_val != f"landing.{key}":
+                return loc_val
+        return val
+
     console.rule(t("cli.init_name"))
     meta_qs = [
         {
             "type": "input",
             "message": t("cli.init_name"),
             "name": "name",
-            "default": data.get("name", ""),
+            "default": get_default("name"),
             "transformer": _len_transform(31),
             "validate": _len_validator(31),
         },
@@ -262,7 +291,7 @@ def interactive_update(config_path: str):
             "type": "input",
             "message": t("cli.init_folder"),
             "name": "folder_name",
-            "default": data.get("folder_name", ""),
+            "default": data.get("folder_name", "voxvera"),
             "transformer": _len_transform(63),
             "validate": _folder_name_validator,
         },
@@ -270,7 +299,7 @@ def interactive_update(config_path: str):
             "type": "input",
             "message": t("cli.init_title"),
             "name": "title",
-            "default": data.get("title", ""),
+            "default": get_default("title"),
             "transformer": _len_transform(31),
             "validate": _len_validator(31),
         },
@@ -278,7 +307,7 @@ def interactive_update(config_path: str):
             "type": "input",
             "message": t("cli.init_subtitle"),
             "name": "subtitle",
-            "default": data.get("subtitle", ""),
+            "default": get_default("subtitle"),
             "transformer": _len_transform(27),
             "validate": _len_validator(27),
         },
@@ -286,7 +315,7 @@ def interactive_update(config_path: str):
             "type": "input",
             "message": t("cli.init_headline"),
             "name": "headline",
-            "default": data.get("headline", ""),
+            "default": get_default("headline"),
             "transformer": _len_transform(31),
             "validate": _len_validator(31),
         },
@@ -296,9 +325,7 @@ def interactive_update(config_path: str):
     console.rule(t("cli.init_body"))
     while True:
         # Use existing content if present, else fallback to localized landing default
-        initial_content = data.get("content")
-        if not initial_content or initial_content.strip() == "":
-            initial_content = t("landing.content")
+        initial_content = get_default("content")
 
         body = open_editor(initial_content)
         length = len(body)
@@ -317,7 +344,7 @@ def interactive_update(config_path: str):
             "type": "input",
             "message": t("cli.url_label"),
             "name": "url",
-            "default": data.get("url", ""),
+            "default": data.get("url", "https://voxvera.org/"),
             "transformer": _len_transform(200),
             "validate": _len_validator(200),
         },
@@ -325,10 +352,11 @@ def interactive_update(config_path: str):
             "type": "input",
             "message": t("cli.url_message_label"),
             "name": "url_message",
-            "default": data.get("url_message", ""),
+            "default": get_default("url_message"),
             "transformer": _len_transform(120),
             "validate": _len_validator(120),
         },
+
         {
             "type": "input",
             "message": t("cli.binary_message_label"),
@@ -603,7 +631,7 @@ def serve(config_path: str) -> str | None:
                 if proc.poll() is not None:
                     status.stop()
                     console.print(f"[bold red]OnionShare for {folder_name} exited unexpectedly.[/bold red]")
-                    console.print(f"[yellow]Common causes: Network blocked, inaccurate system clock, or OnionShare already running.[/yellow]")
+                    console.print("[yellow]Common causes: Network blocked, inaccurate system clock, or OnionShare already running.[/yellow]")
                     console.print(f"[dim]See {logfile} for full logs.[/dim]")
                     with open(logfile) as fh:
                         lines = fh.readlines()
@@ -659,6 +687,7 @@ def _clear_host_dir(dir_path: Path):
 
 import zipfile
 import tempfile
+
 
 def get_export_dir() -> Path:
     """Get the default export directory (~/voxvera-exports)."""
