@@ -472,7 +472,8 @@ def build_assets(
                 l_data = json.load(lf)
                 all_locales[code] = {
                     "meta": l_data.get("meta", {}),
-                    "web": l_data.get("web", {})
+                    "web": l_data.get("web", {}),
+                    "landing": l_data.get("landing", {})
                 }
 
         html = html.replace("{{locales}}", json.dumps(all_locales))
@@ -488,15 +489,17 @@ def build_assets(
             translation = re.sub(r"~~(.*?)~~", r'<span class="redacted">\1</span>', str(translation))
             html = html.replace(f"{{{{t_web_{token}}}}}", translation)
 
-        # Landing tokens (should be cleared for regular flyers)
-        landing_tokens = lang_data.get("landing", {})
-        for token in landing_tokens.keys():
-            html = html.replace(f"{{{{t_landing_{token}}}}}", "")
+        # 2. Statically replace landing tokens with user content OR localized defaults
+        # We want the user-provided data from config to take precedence.
+        landing_fields = ["title", "subtitle", "headline", "content", "url_message"]
+        landing_defaults = lang_data.get("landing", {})
 
-        # Explicitly handle content and url_message if they were t_landing'd
-        # We want the user's custom content to win
-        html = html.replace("{{t_landing_content}}", "{{content}}")
-        html = html.replace("{{t_landing_url_message}}", "{{url_message}}")
+        for field in landing_fields:
+            # Use data from config if available, otherwise use localized default
+            value = data.get(field, landing_defaults.get(field, ""))
+            # Support Markdown-style redaction ~~text~~
+            val_str = re.sub(r"~~(.*?)~~", r'<span class="redacted">\1</span>', str(value))
+            html = html.replace(f"{{{{t_landing_{field}}}}}", val_str)
 
         # 2. Statically replace config placeholders {{key}}
         for key, value in data.items():
@@ -878,19 +881,29 @@ def build_site():
 
     html = html.replace("{{locales}}", json.dumps(all_locales))
 
-    # 1. Statically replace localization tokens
+    # 1. Statically replace localization tokens (web tokens)
     # Get the language from config if available, else default to en
     current_lang = data.get("lang", "en")
     lang_data = all_locales.get(current_lang, all_locales.get("en", {}))
 
-    for category in ["web", "landing"]:
-        tokens = lang_data.get(category, {})
-        for token, translation in tokens.items():
-            # Support Markdown-style redaction ~~text~~ -> <span class="redacted">text</span>
-            translation = re.sub(r"~~(.*?)~~", r'<span class="redacted">\1</span>', str(translation))
-            html = html.replace(f"{{{{t_{category}_{token}}}}}", translation)
+    web_tokens = lang_data.get("web", {})
+    for token, translation in web_tokens.items():
+        # Support Markdown-style redaction ~~text~~ -> <span class="redacted">text</span>
+        translation = re.sub(r"~~(.*?)~~", r'<span class="redacted">\1</span>', str(translation))
+        html = html.replace(f"{{{{t_web_{token}}}}}", translation)
 
-    # 2. Update relative path for download
+    # 2. Statically replace landing tokens with user content OR localized defaults
+    landing_fields = ["title", "subtitle", "headline", "content", "url_message"]
+    landing_defaults = lang_data.get("landing", {})
+
+    for field in landing_fields:
+        # Use data from config if available, otherwise use localized default
+        value = data.get(field, landing_defaults.get(field, ""))
+        # Support Markdown-style redaction ~~text~~
+        val_str = re.sub(r"~~(.*?)~~", r'<span class="redacted">\1</span>', str(value))
+        html = html.replace(f"{{{{t_landing_{field}}}}}", val_str)
+
+    # 3. Update relative path for download
     html = html.replace("download/download.zip", "download/voxvera-portable.zip")
 
     # 3. Inject site-specific config data (handles any remaining {{key}} placeholders)
