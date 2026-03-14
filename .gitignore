@@ -46,3 +46,6 @@ voxvera/src/qrcode-tear-offs.png
 # PyInstaller
 *.spec
 dist_bin/
+voxvera/resources/bin/voxvera-*
+site/download/voxvera-portable.zip
+site/download/voxvera-linux
