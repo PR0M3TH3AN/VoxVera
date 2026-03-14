@@ -28,6 +28,15 @@ If you have downloaded the source code ZIP:
    - **Linux/macOS:** `./setup.sh`
    - **Windows:** `.\voxvera-install.sh` (or run `python -m pip install .`)
 
+## Uninstallation
+
+If you wish to remove VoxVera from your system, you can use the provided uninstall scripts from the source directory. This will safely remove the CLI tool and any downloaded dependencies.
+
+- **Linux / macOS:** Run `./uninstall.sh`
+- **Windows (PowerShell):** Run `.\uninstall.ps1`
+
+*Note: Uninstallation will not delete your generated flyers or your `.onion` keys stored in the `~/voxvera-exports` or local `host/` folders.*
+
 ## Step-by-Step
 
 1. **Initialize:** Run `voxvera init` and follow the prompts. You will be asked to select your language first.
