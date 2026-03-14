@@ -79,7 +79,12 @@
     "tear_off_footer": "click the button below to print",
     "built_with": "built with",
     "print_button": "Print this page",
-    "download_button": "Download Tool & Source"
+    "download_button": "Download",
+    "dl_portable": "Portable (Source + Dependencies)",
+    "dl_linux": "Linux Standalone",
+    "dl_windows": "Windows Standalone (.exe)",
+    "dl_macos": "macOS Standalone",
+    "dl_source": "Source Code Only (.zip)"
   },
   "landing": {
     "title": "TOP SECRET",

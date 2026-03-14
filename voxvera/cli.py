@@ -320,6 +320,31 @@ def copy_template(name: str) -> str:
     return str(dest)
 
 
+def bundle_source(dest_zip: Path):
+    """Bundle only the VoxVera source code and root scripts (no binaries or vendor)."""
+    with zipfile.ZipFile(dest_zip, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        # 1. Include the voxvera/ source directory (excluding vendor, host, bin, pycache)
+        for root, dirs, files in os.walk(ROOT):
+            if "__pycache__" in root or "host" in root or "vendor" in root or "resources/bin" in root:
+                continue
+            for file in files:
+                file_path = Path(root) / file
+                arcname = file_path.relative_to(ROOT.parent)
+                zipf.write(file_path, arcname)
+        
+        # 2. Include the run scripts and root files
+        root_files = [
+            "voxvera-run.sh", "voxvera-install.sh", "README.md",
+            "requirements.txt", "setup.sh", "install.sh", "CONTRIBUTING.md", "LICENSE"
+        ]
+        for script in root_files:
+            script_path = ROOT.parent / script
+            if script_path.exists():
+                zipf.write(script_path, script)
+
+    print(f"Source bundle created at {dest_zip}")
+
+
 def bundle_portable(dest_zip: Path):
     """Bundle the entire VoxVera source, standalone binaries, and dependencies into a ZIP."""
     with zipfile.ZipFile(dest_zip, 'w', zipfile.ZIP_DEFLATED) as zipf:
@@ -807,10 +832,22 @@ def build_site():
     with open(site_dir / "index.html", "w") as fh:
         fh.write(html)
 
-    # 3. Create the latest portable bundle in site/download/
+    # 3. Create the download assets in site/download/
     download_dir = site_dir / "download"
     os.makedirs(download_dir, exist_ok=True)
+    
+    # Bundle portable version (source + vendor + binaries)
     bundle_portable(download_dir / "voxvera-portable.zip")
+    
+    # Bundle source version (source only)
+    bundle_source(download_dir / "voxvera-source.zip")
+    
+    # Copy standalone binaries if they exist
+    bin_dir = ROOT / "resources" / "bin"
+    if bin_dir.exists():
+        for bin_file in bin_dir.iterdir():
+            if bin_file.is_file():
+                shutil.copy(bin_file, download_dir / bin_file.name)
 
     print("site/ directory successfully synchronized.")
 

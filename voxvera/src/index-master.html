@@ -330,6 +330,51 @@
             padding: 20px 0 30px;
         }
 
+        /* Dropdown styles */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            background-color: #f9f9f9;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            border: 1px solid #000;
+            margin-bottom: 5px;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .dropdown-content a:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #eee;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown:hover .download-button {
+            background-color: #333;
+            color: #fff;
+        }
+
     </style>
     <script>
         // VoxVera Multi-Language Engine
@@ -531,7 +576,16 @@
     </div>
     <div class="button-bar">
         <button class="print-button" onclick="window.print()" data-i18n="web.print_button">{{t_web_print_button}}</button>
-        <a class="download-button" href="download/download.zip" download data-i18n="web.download_button">{{t_web_download_button}}</a>
+        <div class="dropdown">
+            <button class="download-button" data-i18n="web.download_button">{{t_web_download_button}}</button>
+            <div class="dropdown-content">
+                <a href="download/voxvera-portable.zip" download data-i18n="web.dl_portable">Portable (Source + Dependencies)</a>
+                <a href="download/voxvera-linux" download data-i18n="web.dl_linux">Linux Standalone</a>
+                <a href="download/voxvera-windows.exe" download data-i18n="web.dl_windows">Windows Standalone (.exe)</a>
+                <a href="download/voxvera-macos" download data-i18n="web.dl_macos">macOS Standalone</a>
+                <a href="download/voxvera-source.zip" download data-i18n="web.dl_source">Source Code Only (.zip)</a>
+            </div>
+        </div>
         <select class="lang-select" id="lang-selector" onchange="setLanguage(this.value)"></select>
     </div>
 </body>
