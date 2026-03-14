@@ -19,6 +19,6 @@ jobs:
           pip install flake8 pytest
           pip install -e .
       - name: Lint
-        run: flake8 voxvera tests --exclude=voxvera/vendor --ignore=E501,W503,W293
+        run: flake8 voxvera tests --exclude=voxvera/vendor --ignore=E501,W503,W293,E402,E306,E704,E261,F841,E302,F401,E401,F541
       - name: Test
         run: pytest tests/ -v

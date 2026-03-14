@@ -2,14 +2,14 @@ import os
 import sys
 import shutil
 import json
-from pathlib import Path
 import zipfile
 import time
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
+import socket
+from pathlib import Path
 import pytest
 from voxvera import cli
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
 def _setup_tmp(monkeypatch, tmp_path):
@@ -252,16 +252,23 @@ def test_get_tor_ports_auto_detect_defaults(monkeypatch):
     """Test that get_tor_ports returns defaults when no env vars and no Tor running."""
     monkeypatch.delenv("TOR_SOCKS_PORT", raising=False)
     monkeypatch.delenv("TOR_CONTROL_PORT", raising=False)
-    
+
     # Mock socket to always fail connection so it falls back to defaults
-    import socket
     class MockSocket:
-        def __init__(self, *args, **kwargs): pass
-        def settimeout(self, *args, **kwargs): pass
-        def connect_ex(self, *args, **kwargs): return 1 # 1 is a failure code
-        def close(self): pass
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def settimeout(self, *args, **kwargs):
+            pass
+
+        def connect_ex(self, *args, **kwargs):
+            return 1  # 1 is a failure code
+
+        def close(self):
+            pass
+
     monkeypatch.setattr(socket, "socket", MockSocket)
-    
+
     # Don't actually start Tor, so detection will fail and fall back to defaults
     socks, ctl = cli.get_tor_ports()
     assert socks == "9050"  # Default SOCKS port
@@ -324,7 +331,7 @@ def test_build_with_only_url(tmp_path, monkeypatch):
 
 def test_build_with_only_tear_off_link(tmp_path, monkeypatch):
     """Test that QR codes work when only tear_off_link is set (pre-serve)."""
-    repo_root = _setup_tmp(monkeypatch, tmp_path)
+    _setup_tmp(monkeypatch, tmp_path)
 
     # Set only tear_off_link (before serve sets it to onion)
     config = json.load(open(tmp_path / "src" / "config.json"))
@@ -351,8 +358,6 @@ def test_serve_passes_tor_ports_to_env(monkeypatch, tmp_path):
     """Test that serve() passes detected Tor ports via env to subprocess."""
     _setup_tmp(monkeypatch, tmp_path)
     cli.main(["build"])
-    config = json.load(open(tmp_path / "src" / "config.json"))
-    folder_name = config["folder_name"]
 
     captured_env = {}
 
@@ -387,7 +392,7 @@ def test_serve_passes_tor_ports_to_env(monkeypatch, tmp_path):
 
 def test_backward_compatibility_with_https_config(tmp_path, monkeypatch):
     """Test that old configs with https URLs still work for building."""
-    repo_root = _setup_tmp(monkeypatch, tmp_path)
+    _setup_tmp(monkeypatch, tmp_path)
 
     # Simulate old config with HTTPS URLs
     config = json.load(open(tmp_path / "src" / "config.json"))
@@ -405,7 +410,7 @@ def test_backward_compatibility_with_https_config(tmp_path, monkeypatch):
 
 def test_long_urls_in_qr(tmp_path, monkeypatch):
     """Test that long URLs still generate valid QR codes."""
-    repo_root = _setup_tmp(monkeypatch, tmp_path)
+    _setup_tmp(monkeypatch, tmp_path)
 
     config = json.load(open(tmp_path / "src" / "config.json"))
     # Very long URL (close to 200 char limit)

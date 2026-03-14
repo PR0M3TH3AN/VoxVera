@@ -149,7 +149,6 @@ class TestFullWorkflow:
                 self._running = True
 
                 # Write to log file to simulate OnionShare
-                log_file = host_dir / "onionshare.log"
                 if stdout is not None:
                     stdout.write(f"Started at {onion_url}\n")
                     stdout.flush()
@@ -267,8 +266,6 @@ class TestFullWorkflow:
                 pytest.skip(
                     "Could not get onion URL within 60s. Log tail: " + content[-500:]
                 )
-
-            print(f"Onion URL: {onion_url}")
 
             # Try to reach the site via Tor
             import requests
@@ -399,11 +396,20 @@ class TestTorIntegration:
         
         # Mock socket to always fail connection so it falls back to defaults
         import socket
+
         class MockSocket:
-            def __init__(self, *args, **kwargs): pass
-            def settimeout(self, *args, **kwargs): pass
-            def connect_ex(self, *args, **kwargs): return 1 # 1 is a failure code
-            def close(self): pass
+            def __init__(self, *args, **kwargs):
+                pass
+
+            def settimeout(self, *args, **kwargs):
+                pass
+
+            def connect_ex(self, *args, **kwargs):
+                return 1  # 1 is a failure code
+
+            def close(self):
+                pass
+
         monkeypatch.setattr(socket, "socket", MockSocket)
 
         # This should not raise an error, just return defaults
