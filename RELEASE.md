@@ -22,13 +22,19 @@ flake8 voxvera/ --exclude=voxvera/vendor/
 
 ## 2. Generate Localized Assets
 
-Documentation and site templates must be regenerated to reflect the latest locale strings and binary names.
+All documentation and site templates must be synchronized with the translation system. This ensures that any changes to documentation are reflected across all 14+ supported languages.
 
+### Synchronize Documentation
+If you have modified any documentation templates in `docs/templates/`, you **must** use the translation system to regenerate the localized documentation before release:
 ```bash
-# Regenerate docs/ folders for all languages
+# Regenerate docs/ folders for all languages from templates and locales
 python3 -m voxvera.cli build-docs
+```
 
-# Synchronize site/ directory (QRs, HTML, and portable Zips)
+### Synchronize Site Assets
+The main `site/` directory (including QRs, HTML, and portable Zips) must also be refreshed to include the latest binary names and locale strings:
+```bash
+# Refresh site/ directory
 python3 -m voxvera.cli build-site
 ```
 
