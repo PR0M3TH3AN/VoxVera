@@ -65,6 +65,22 @@ jobs:
           chmod +x packaging/build_deb.sh
           ./packaging/build_deb.sh dist/${{ matrix.artifact_name }}
 
+      - name: Build AppImage (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          mkdir -p voxvera/resources/bin
+          cp dist/${{ matrix.artifact_name }} voxvera/resources/bin/voxvera-linux-x86_64
+          chmod +x packaging/build_appimage.sh
+          ./packaging/build_appimage.sh
+
+      - name: Build Flatpak (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak flatpak-builder
+          chmod +x packaging/build_flatpak.sh
+          ./packaging/build_flatpak.sh || echo "Flatpak build failed"
+
       - name: Build .dmg (macOS)
         if: matrix.os == 'macos-latest'
         run: |
@@ -79,6 +95,8 @@ jobs:
             dist/${{ matrix.artifact_name }}
             voxvera/resources/bin/*.deb
             voxvera/resources/bin/*.dmg
+            voxvera/resources/bin/*.AppImage
+            voxvera/resources/bin/*.flatpak
 
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -88,6 +106,8 @@ jobs:
             dist/${{ matrix.artifact_name }}
             voxvera/resources/bin/*.deb
             voxvera/resources/bin/*.dmg
+            voxvera/resources/bin/*.AppImage
+            voxvera/resources/bin/*.flatpak
           fail_on_unmatched_files: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

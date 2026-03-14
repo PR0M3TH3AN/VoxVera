@@ -17,6 +17,10 @@ mkdir -p "$APPDIR/usr/bin"
 cp "$BINARY" "$APPDIR/usr/bin/voxvera"
 chmod +x "$APPDIR/usr/bin/voxvera"
 
+# AppRun symlink (Crucial for AppImage to launch)
+ln -sf usr/bin/voxvera "$APPDIR/AppRun"
+chmod +x "$APPDIR/AppRun"
+
 # Desktop file
 cat > "$APPDIR/voxvera.desktop" <<EOD
 [Desktop Entry]

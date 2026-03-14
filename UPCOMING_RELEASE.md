@@ -1,14 +1,7 @@
-# Upcoming Release Notes
-
-*This document serves as a running changelog for the NEXT version of VoxVera. AI agents must append notable changes here as they are completed. Once a release is explicitly requested by the user, these notes will be used to format the GitHub Release description, and this file should be cleared/reset for the next cycle.*
-
-### Version: Unreleased
+### Version: v0.1.8
 
 #### 🚀 New Features
-- *(Add new features here)*
-
-#### 🛠 Improvements
-- *(Add improvements here)*
+- **Automated Flatpak & AppImage Releases:** Integrated the Linux AppImage and Flatpak generation into the GitHub Actions CI/CD pipeline. Every release now automatically receives these portable formats.
 
 #### 🐛 Bug Fixes
-- *(Add bug fixes here)*
+- **AppImage Launch Fix:** Resolved a critical issue where the AppImage would fail to launch due to a missing `AppRun` entrypoint.
