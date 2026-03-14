@@ -1,0 +1,27 @@
+app-id: org.voxvera.VoxVera
+runtime: org.freedesktop.Platform
+runtime-version: '23.08'
+sdk: org.freedesktop.Sdk
+command: voxvera
+finish-args:
+  - --share=network
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --device=dri
+  - --share=ipc
+  - --filesystem=xdg-run/tor:ro # If using external Tor
+modules:
+  - name: voxvera
+    buildsystem: simple
+    build-commands:
+      - install -D voxvera /app/bin/voxvera
+      - install -D org.voxvera.VoxVera.desktop /app/share/applications/org.voxvera.VoxVera.desktop
+      - install -D org.voxvera.VoxVera.png /app/share/icons/hicolor/512x512/apps/org.voxvera.VoxVera.png
+    sources:
+      - type: file
+        path: ../../voxvera/resources/bin/voxvera-linux-x86_64
+        dest-filename: voxvera
+      - type: file
+        path: org.voxvera.VoxVera.desktop
+      - type: file
+        path: org.voxvera.VoxVera.png

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=VoxVera
+Comment=Anonymous message-spreading and flyer-generation tool
+Exec=voxvera
+Icon=org.voxvera.VoxVera
+Categories=Utility;Network;
+Terminal=true
+StartupWMClass=voxvera

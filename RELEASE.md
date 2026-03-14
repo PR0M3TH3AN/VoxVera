@@ -54,6 +54,12 @@ Wraps the standard binary into a self-contained AppImage.
 ./packaging/build_appimage.sh
 ```
 
+### Flatpak (Linux)
+Generates a standalone `.flatpak` bundle. Requires `flatpak-builder`.
+```bash
+./packaging/build_flatpak.sh
+```
+
 ## 4. Release Execution
 
 1. **Version Bump:** Update `__version__` in `voxvera/__init__.py` and `version` in `pyproject.toml`.
