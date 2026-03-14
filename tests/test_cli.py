@@ -112,10 +112,15 @@ def test_check_all_present(capsys, monkeypatch):
 
 
 def test_check_missing(capsys, monkeypatch):
-    def fake_which(cmd):
-        return None if cmd == "onionshare-cli" else "/usr/bin/" + cmd
+    import builtins
+    original_import = builtins.__import__
 
-    monkeypatch.setattr(shutil, "which", fake_which)
+    def fake_import(name, *args, **kwargs):
+        if name == "onionshare_cli":
+            raise ImportError("Mocked missing")
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", fake_import)
     cli.main(["check"])
     captured = capsys.readouterr()
     assert "onionshare-cli" in captured.out

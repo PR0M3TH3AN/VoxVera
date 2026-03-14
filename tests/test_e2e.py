@@ -46,7 +46,11 @@ def check_tor_running():
 
 def check_onionshare_cli():
     """Check if onionshare-cli is installed."""
-    return shutil.which("onionshare-cli") is not None
+    try:
+        import onionshare_cli  # noqa: F401
+        return True
+    except ImportError:
+        return False
 
 
 @pytest.fixture(scope="module")
@@ -222,12 +226,14 @@ class TestFullWorkflow:
         host_dir = tmp_path / "host" / "reachtest"
         assert host_dir.is_dir(), f"Build did not create {host_dir}"
 
-        # Launch onionshare-cli directly against the built host directory
+        # Launch onionshare-cli directly against the built host directory using our internal wrapper
         logfile = host_dir / "onionshare.log"
         log_fh = open(logfile, "w")
 
         cmd = [
-            "onionshare-cli",
+            sys.executable,
+            "-m", "voxvera.cli",
+            "_internal_onionshare",
             "--website",
             "--public",
             "--persistent",

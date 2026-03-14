@@ -19,6 +19,9 @@ mkdir -p voxvera/resources/bin
 
 echo "Building VoxVera binary for $(uname)..."
 
+echo "Ensuring Tor binaries are downloaded..."
+bash scripts/download_tor.sh
+
 # Use python module to call pyinstaller
 PY_CMD="python3 -m PyInstaller"
 

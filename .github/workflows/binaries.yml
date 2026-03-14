@@ -38,6 +38,12 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
 
+      - name: Download Tor Binaries
+        shell: bash
+        run: |
+          chmod +x scripts/download_tor.sh
+          ./scripts/download_tor.sh
+
       - name: Build with PyInstaller
         shell: bash
         run: |

@@ -64,6 +64,14 @@ def t(path: str, **kwargs) -> str:
 
 
 def require_cmd(cmd: str):
+    if cmd == "onionshare-cli":
+        try:
+            import onionshare_cli  # noqa: F401
+            return True
+        except ImportError:
+            print("Required tool 'onionshare-cli' not bundled or installed.", file=sys.stderr)
+            return False
+
     if shutil.which(cmd) is None:
         print(
             f"Required command '{cmd}' not found. Please install it.", file=sys.stderr
@@ -75,10 +83,11 @@ def require_cmd(cmd: str):
 def check_deps():
     console = Console()
 
-    # External CLI tools still required at runtime
-    cli_tools = ["onionshare-cli"]
+    # External CLI tools still required at runtime (none anymore if bundled)
+    cli_tools = []
     # Python packages used by the build pipeline
     py_packages = {
+        "onionshare-cli": "onionshare_cli",
         "qrcode": "qrcode",
         "PIL (Pillow)": "PIL",
         "jsmin": "jsmin",
@@ -445,6 +454,11 @@ def build_assets(
                     "landing": l_data.get("landing", {})
                 }
 
+                # Override landing data with user custom config data so JS doesn't overwrite it
+                for field in ["title", "subtitle", "headline", "content", "url_message"]:
+                    if field in data and data[field]:
+                        all_locales[code]["landing"][field] = data[field]
+
         html = html.replace("{{locales}}", json.dumps(all_locales))
 
         # 1. Statically replace localization tokens {{t_web_...}}
@@ -554,10 +568,29 @@ def get_tor_ports():
     return socks_port, ctl_port
 
 
-def serve(config_path: str) -> str | None:
-    if not require_cmd("onionshare-cli"):
+def _internal_onionshare():
+    """Hidden command to run the bundled onionshare-cli."""
+    import platform
+
+    # Try to add bundled Tor to PATH so OnionShare can find it
+    system = platform.system().lower()
+    platform_dir = "win" if "windows" in system else "mac" if "darwin" in system else "linux"
+    tor_dir = ROOT / "resources" / "tor" / platform_dir
+    if tor_dir.exists():
+        os.environ["PATH"] = str(tor_dir) + os.pathsep + os.environ.get("PATH", "")
+
+    try:
+        from onionshare_cli import main
+        # sys.argv is ['voxvera', '_internal_onionshare', '--website', ...]
+        # We need to make it look like ['onionshare-cli', '--website', ...]
+        sys.argv = ["onionshare-cli"] + sys.argv[2:]
+        sys.exit(main())
+    except ImportError:
+        print("Error: onionshare-cli not bundled or installed.", file=sys.stderr)
         sys.exit(1)
 
+
+def serve(config_path: str) -> str | None:
     socks, ctl = get_tor_ports()
 
     folder_name = load_config(config_path)["folder_name"]
@@ -572,8 +605,11 @@ def serve(config_path: str) -> str | None:
     env["TOR_SOCKS_PORT"] = socks
     env["TOR_CONTROL_PORT"] = ctl
 
+    # Run the bundled onionshare-cli via our hidden command
+    # sys.argv[0] is the current executable (python script or PyInstaller binary)
     cmd = [
-        "onionshare-cli",
+        sys.argv[0],
+        "_internal_onionshare",
         "--website",
         "--public",
         "--persistent",
@@ -584,6 +620,12 @@ def serve(config_path: str) -> str | None:
         "-v",
         str(dir_path),
     ]
+
+    # If running via 'python -m voxvera.cli', sys.argv[0] might be the script path,
+    # so we should ensure it's executed correctly if not a PyInstaller binary.
+    if not getattr(sys, 'frozen', False) and sys.argv[0].endswith('.py'):
+        cmd = [sys.executable, sys.argv[0]] + cmd[1:]
+
     log_fh = open(logfile, "w")
     proc = subprocess.Popen(cmd, stdout=log_fh, stderr=subprocess.STDOUT, env=env)
 
@@ -847,6 +889,11 @@ def build_site():
                 "web": l_data.get("web", {}),
                 "landing": l_data.get("landing", {})
             }
+
+            # Override landing data with user custom config data so JS doesn't overwrite it
+            for field in ["title", "subtitle", "headline", "content", "url_message"]:
+                if field in data and data[field]:
+                    all_locales[code]["landing"][field] = data[field]
 
     html = html.replace("{{locales}}", json.dumps(all_locales))
 
@@ -1228,8 +1275,14 @@ def main(argv=None):
     sub.add_parser("build-docs", help="Generate localized documentation from templates")
     sub.add_parser("build-site", help="Refresh the main site/ directory assets and bundle")
     sub.add_parser("manage", help="Manage VoxVera servers interactively")
+    sub.add_parser("_internal_onionshare", help=argparse.SUPPRESS)
 
-    args = parser.parse_args(argv)
+    args, unknown_args = parser.parse_known_args(argv)
+
+    if args.command == "_internal_onionshare":
+        _internal_onionshare()
+        return
+
     config_path = Path(args.config).resolve()
 
     # Determine language

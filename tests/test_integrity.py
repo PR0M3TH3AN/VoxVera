@@ -115,9 +115,12 @@ def test_portable_bundle_integrity(tmp_path, monkeypatch):
     shutil.copytree(REPO_ROOT / "voxvera" / "locales", voxvera_dir / "locales")
     os.makedirs(voxvera_dir / "vendor", exist_ok=True)
     (voxvera_dir / "vendor" / "anchor.txt").write_text("anchor")
-    (project_root / "voxvera-run.sh").write_text("echo run")
-    (project_root / "uninstall.sh").write_text("echo uninstall")
-    (project_root / "uninstall.ps1").write_text("echo uninstall")
+    
+    # Copy real scripts from repo
+    for script in ["voxvera-run.sh", "uninstall.sh", "uninstall.ps1", "install.sh", "install.ps1", "setup.sh"]:
+        if (REPO_ROOT / script).exists():
+            shutil.copy(REPO_ROOT / script, project_root / script)
+    
     # ROOT in cli.py points to the voxvera/ directory
     monkeypatch.setattr(cli, "ROOT", voxvera_dir)
     

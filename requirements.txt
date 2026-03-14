@@ -6,3 +6,5 @@ jsmin
 htmlmin2
 pypdf
 wcwidth
+onionshare-cli
+
