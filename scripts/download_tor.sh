@@ -33,10 +33,10 @@ DEST="$(dirname "$0")/../voxvera/resources/tor/$PLATFORM"
 mkdir -p "$DEST"
 
 TOR_BIN=$(find "$TMPDIR" -type f -name "$EXE" | head -n 1)
-OBFS_BIN=$(find "$TMPDIR" -type f -name "obfs4proxy*" | head -n 1)
+OBFS_BIN=$(find "$TMPDIR" -type f \( -name "lyrebird*" -o -name "obfs4proxy*" \) | head -n 1)
 
 if [[ -z "$TOR_BIN" || -z "$OBFS_BIN" ]]; then
-  echo "Failed to locate tor or obfs4proxy in archive" >&2
+  echo "Failed to locate tor or lyrebird/obfs4proxy in archive" >&2
   exit 1
 fi
 
