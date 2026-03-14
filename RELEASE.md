@@ -8,14 +8,14 @@ This document outlines the mandatory steps to perform before every release to en
 
 ## 1. Pre-Flight Checks (Quality Assurance)
 
-Before any release, the codebase must pass all internal quality checks.
+Before any release, the codebase must pass all internal quality checks **without taking any shortcuts**. All tests must be rigorous, use real data where appropriate, and passing them should be a true mark of quality.
 
 ### Run Tests
 Ensure all core CLI, E2E, and Integrity tests pass:
 ```bash
 pytest tests/
 ```
-*Note: The `test_integrity.py` check is critical as it verifies that all 14+ language locales have synchronized keys.*
+*Note: The `test_integrity.py` check is critical as it verifies that all 14+ language locales have synchronized keys and all binary bundles are 100% self-contained.*
 
 ### Run Linting
 Ensure the code adheres to style guidelines (no trailing whitespace, proper spacing, etc.):
@@ -24,12 +24,14 @@ Ensure the code adheres to style guidelines (no trailing whitespace, proper spac
 flake8 voxvera/ --exclude=voxvera/vendor/
 ```
 
-## 2. Generate Localized Assets
+## 2. Update & Generate Localized Assets
+
+Before releasing, you must ensure that **all documentation accurately reflects the new features and functions** introduced in the release. 
 
 All documentation and site templates must be synchronized with the translation system. This ensures that any changes to documentation are reflected across all 14+ supported languages.
 
 ### Synchronize Documentation
-If you have modified any documentation templates in `docs/templates/`, you **must** use the translation system to regenerate the localized documentation before release:
+If you have modified any documentation templates in `docs/templates/` (which you should, to cover new features), you **must** use the translation system to regenerate the localized documentation before release:
 ```bash
 # Regenerate docs/ folders for all languages from templates and locales
 python3 -m voxvera.cli build-docs
