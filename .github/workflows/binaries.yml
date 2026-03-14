@@ -51,8 +51,34 @@ jobs:
             --name "${{ matrix.artifact_name }}" \
             voxvera/cli.py
 
+      - name: Build .deb (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          chmod +x packaging/build_deb.sh
+          ./packaging/build_deb.sh dist/${{ matrix.artifact_name }}
+
+      - name: Build .dmg (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          chmod +x packaging/build_dmg.sh
+          ./packaging/build_dmg.sh dist/${{ matrix.artifact_name }}
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.asset_name }}
-          path: dist/${{ matrix.artifact_name }}
+          path: |
+            dist/${{ matrix.artifact_name }}
+            voxvera/resources/bin/*.deb
+            voxvera/resources/bin/*.dmg
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            dist/${{ matrix.artifact_name }}
+            voxvera/resources/bin/*.deb
+            voxvera/resources/bin/*.dmg
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

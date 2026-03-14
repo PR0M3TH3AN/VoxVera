@@ -60,6 +60,18 @@ Generates a standalone `.flatpak` bundle. Requires `flatpak-builder`.
 ./packaging/build_flatpak.sh
 ```
 
+### Debian Package (Linux)
+Generates a `.deb` package for Debian/Ubuntu systems.
+```bash
+./packaging/build_deb.sh
+```
+
+### DMG (macOS)
+Generates a `.dmg` installer for macOS (must be run on macOS).
+```bash
+./packaging/build_dmg.sh
+```
+
 ## 4. Release Execution
 
 1. **Version Bump:** Update `__version__` in `voxvera/__init__.py` and `version` in `pyproject.toml`.
@@ -70,8 +82,10 @@ Generates a standalone `.flatpak` bundle. Requires `flatpak-builder`.
    git tag -a vX.Y.Z -m "VoxVera vX.Y.Z"
    git push origin main --tags
    ```
-3. **GitHub Release:**
-   Create a release and upload the assets from `voxvera/resources/bin/` and `site/download/`.
-   ```bash
-   gh release create vX.Y.Z voxvera/resources/bin/* site/download/*.zip --title "VoxVera vX.Y.Z" --notes "Release notes here..."
-   ```
+## 5. Automated Releases (GitHub Actions)
+
+The repository is configured with a **Build Standalone Binaries** workflow that automatically runs when a new tag (`v*`) is pushed. This workflow:
+- Builds native executables for **Linux**, **Windows (.exe)**, and **macOS**.
+- Automatically attaches these binaries to the corresponding GitHub Release.
+
+This ensures that Windows users receive a professional `voxvera-windows.exe` rather than having to rely on `.bat` or `.sh` scripts.

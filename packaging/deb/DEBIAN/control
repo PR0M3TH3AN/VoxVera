@@ -1,0 +1,9 @@
+Package: voxvera
+Version: 0.1.4
+Section: utils
+Priority: optional
+Architecture: amd64
+Maintainer: VoxVera <info@voxvera.org>
+Description: VoxVera CLI utilities
+ Anonymous message-spreading and flyer-generation tool.
+Depends: libc6
