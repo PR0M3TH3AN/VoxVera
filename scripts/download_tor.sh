@@ -1,12 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="${VERSION:-13.5.18}"
-BASE_URL="https://www.torproject.org/dist/torbrowser"
+VERSION="${VERSION:-15.0.7}"
+BASE_URL="https://dist.torproject.org/torbrowser"
+
+ARCH=$(uname -m)
+if [ "$ARCH" == "aarch64" ] || [ "$ARCH" == "arm64" ]; then
+    TOR_ARCH="aarch64"
+else
+    TOR_ARCH="x86_64"
+fi
 
 case "$(uname -s)" in
-  Linux*)  PLATFORM=linux;  ARCHIVE="tor-expert-bundle-linux-x86_64-${VERSION}.tar.gz"; EXE=tor;;
-  Darwin*) PLATFORM=mac;    ARCHIVE="tor-expert-bundle-macos-x86_64-${VERSION}.tar.gz"; EXE=tor;;
+  Linux*)  PLATFORM=linux;  ARCHIVE="tor-expert-bundle-linux-${TOR_ARCH}-${VERSION}.tar.gz"; EXE=tor;;
+  Darwin*) PLATFORM=mac;    ARCHIVE="tor-expert-bundle-macos-${TOR_ARCH}-${VERSION}.tar.gz"; EXE=tor;;
   MINGW*|MSYS*|CYGWIN*) PLATFORM=win; ARCHIVE="tor-expert-bundle-windows-x86_64-${VERSION}.tar.gz"; EXE=tor.exe;;
   *) echo "Unsupported OS" >&2; exit 1;;
 esac
