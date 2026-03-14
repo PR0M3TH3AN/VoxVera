@@ -576,16 +576,9 @@
     </div>
     <div class="button-bar">
         <button class="print-button" onclick="window.print()" data-i18n="web.print_button">{{t_web_print_button}}</button>
-        <div class="dropdown">
+        <a id="download-link" href="download/voxvera-source.zip" download>
             <button class="download-button" data-i18n="web.download_button">{{t_web_download_button}}</button>
-            <div class="dropdown-content">
-                <a href="download/voxvera-portable.zip" download data-i18n="web.dl_portable">Portable (Source + Dependencies)</a>
-                <a href="download/voxvera-linux" download data-i18n="web.dl_linux">Linux Standalone</a>
-                <a href="download/voxvera-windows.exe" download data-i18n="web.dl_windows">Windows Standalone (.exe)</a>
-                <a href="download/voxvera-macos" download data-i18n="web.dl_macos">macOS Standalone</a>
-                <a href="download/voxvera-source.zip" download data-i18n="web.dl_source">Source Code Only (.zip)</a>
-            </div>
-        </div>
+        </a>
         <select class="lang-select" id="lang-selector" onchange="setLanguage(this.value)"></select>
     </div>
 </body>

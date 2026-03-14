@@ -4,30 +4,29 @@ This guide covers common CLI workflows. See `docs/docker.md` for Docker instruct
 
 ## Prerequisites
 
-VoxVera is designed to be highly portable and requires minimal system dependencies.
+VoxVera is designed to be highly portable. You can run it directly from the source code on any platform with Python installed.
 
-### 1. Standalone Binaries (Recommended)
-You can download standalone, zero-dependency binaries for your operating system:
-- **Linux:** [voxvera-linux](https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera-linux)
-- **Windows:** [voxvera-windows.exe](https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera-windows.exe)
-- **macOS:** [voxvera-macos](https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera-macos)
+### 1. Automated Install (Recommended)
+The easiest way to install VoxVera is using our cross-platform installer script:
 
-These binaries include everything needed to run VoxVera (except `onionshare-cli`).
-
-### 2. One-Line Installer
-Alternatively, install via our automated script:
-
+**Linux / macOS:**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/PR0M3TH3AN/VoxVera/main/install.sh | bash
 ```
 
-### 3. Manual Python Install
-If you prefer to run from source:
-
-```bash
-pipx install 'voxvera@git+https://github.com/PR0M3TH3AN/VoxVera.git@main'
-sudo apt install tor onionshare-cli   # Debian/Ubuntu
+**Windows (PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/PR0M3TH3AN/VoxVera/main/install.ps1 | iex
 ```
+
+### 2. Manual Source Install
+If you have downloaded the source code ZIP:
+
+1. **Extract** the ZIP file.
+2. **Open a terminal** in the extracted folder.
+3. **Run the setup script**:
+   - **Linux/macOS:** `./setup.sh`
+   - **Windows:** `.\voxvera-install.sh` (or run `python -m pip install .`)
 
 ## Step-by-Step
 
@@ -79,10 +78,10 @@ Features:
 
 To ensure VoxVera remains accessible even if central repositories are censored, every flyer acts as a mirror for the tool.
 
-When you host a flyer, the **"Download"** button on the landing page provides a `voxvera-portable.zip` containing:
+When you host a flyer, the **"Download Source Code"** button on the landing page provides a `voxvera-source.zip` containing:
 - The full source code and all supported languages.
-- All Python dependencies (pre-vendored).
-- Cross-platform Tor binaries.
+- Installation and setup scripts for all platforms.
+- Complete documentation and templates.
 
 This allows anyone who scans your flyer to become a new distributor of the VoxVera tool.
 

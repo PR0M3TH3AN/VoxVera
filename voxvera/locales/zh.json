@@ -80,12 +80,7 @@
     "tear_off_footer": "点击下方按钮进行打印",
     "built_with": "构建自",
     "print_button": "打印传单",
-    "download_button": "下载工具与源码",
-    "dl_portable": "Portable (Source + Dependencies)",
-    "dl_linux": "Linux Standalone",
-    "dl_windows": "Windows Standalone (.exe)",
-    "dl_macos": "macOS Standalone",
-    "dl_source": "Source Code Only (.zip)"
+    "download_button": "下载工具与源码"
   },
   "landing": {
     "title": "绝密",

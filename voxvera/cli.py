@@ -385,11 +385,12 @@ def copy_template(name: str) -> str:
 
 
 def bundle_source(dest_zip: Path):
-    """Bundle only the VoxVera source code and root scripts (no binaries or vendor)."""
+    """Bundle the VoxVera source code, dependencies (vendor), and root scripts."""
     with zipfile.ZipFile(dest_zip, 'w', zipfile.ZIP_DEFLATED) as zipf:
-        # 1. Include the voxvera/ source directory (excluding vendor, host, bin, pycache)
+        # 1. Include the voxvera/ source directory (excluding host, bin, pycache)
+        # We DO include vendor here so the source zip is fully functional offline.
         for root, dirs, files in os.walk(ROOT):
-            if "__pycache__" in root or "host" in root or "vendor" in root or "resources/bin" in root:
+            if "__pycache__" in root or "host" in root or "resources/bin" in root:
                 continue
             for file in files:
                 file_path = Path(root) / file
@@ -399,7 +400,8 @@ def bundle_source(dest_zip: Path):
         # 2. Include the run scripts and root files
         root_files = [
             "voxvera-run.sh", "voxvera-install.sh", "README.md",
-            "requirements.txt", "setup.sh", "install.sh", "CONTRIBUTING.md", "LICENSE"
+            "requirements.txt", "setup.sh", "install.sh", "uninstall.sh",
+            "install.ps1", "uninstall.ps1", "CONTRIBUTING.md", "LICENSE"
         ]
         for script in root_files:
             script_path = ROOT.parent / script
@@ -410,43 +412,10 @@ def bundle_source(dest_zip: Path):
 
 
 def bundle_portable(dest_zip: Path):
-    """Bundle the entire VoxVera source, standalone binaries, and dependencies into a ZIP."""
-    with zipfile.ZipFile(dest_zip, 'w', zipfile.ZIP_DEFLATED) as zipf:
-        # 1. Include standalone binaries from resources/bin if they exist
-        bin_dir = ROOT / "resources" / "bin"
-        if bin_dir.exists():
-            for bin_file in bin_dir.iterdir():
-                if bin_file.is_file():
-                    zipf.write(bin_file, bin_file.name)
-
-        # 2. Include the voxvera/ source directory
-        for root, dirs, files in os.walk(ROOT):
-            if "__pycache__" in root or "host" in root or "vendor" in root or "resources/bin" in root:
-                if "vendor" in root:  # We DO want vendor
-                    pass
-                else:
-                    continue
-            for file in files:
-                file_path = Path(root) / file
-                arcname = file_path.relative_to(ROOT.parent)
-                zipf.write(file_path, arcname)
-
-        # 3. Include the run scripts and root files
-        root_files = [
-            "voxvera-run.sh", "voxvera-install.sh", "README.md",
-            "requirements.txt", "setup.sh", "install.sh"
-        ]
-        for script in root_files:
-            script_path = ROOT.parent / script
-            if script_path.exists():
-                zipf.write(script_path, script)
-
-        # 4. Create a simple Windows batch launcher if it doesn't exist
-        win_launcher = "voxvera.bat"
-        launcher_content = "@echo off\npython -m voxvera.cli manage\npause"
-        zipf.writestr(win_launcher, launcher_content)
-
-    print(f"Portable bundle created at {dest_zip}")
+    """Bundle the entire VoxVera source and dependencies into a ZIP (Viral distribution)."""
+    # For now, we prioritize source code as requested by the user.
+    # We rename it to voxvera-source.zip for clarity.
+    bundle_source(dest_zip)
 
 
 def build_assets(
@@ -512,16 +481,16 @@ def build_assets(
         dest = ROOT / "host" / folder_name
         os.makedirs(dest, exist_ok=True)
 
-        # Update download link to point to our viral portable bundle
-        html = html.replace("download/download.zip", "download/voxvera-portable.zip")
+        # Update download link to point to our viral source bundle
+        html = html.replace("download/download.zip", "download/voxvera-source.zip")
 
         with open(dest / "index.html", "w") as fh:
             fh.write(html)
 
-        # Create the viral portable bundle
+        # Create the viral source bundle
         download_dir = dest / "download"
         os.makedirs(download_dir, exist_ok=True)
-        bundle_portable(download_dir / "voxvera-portable.zip")
+        bundle_source(download_dir / "voxvera-source.zip")
 
         if download_path:
             shutil.copy(download_path, download_dir / "extra-content.zip")
@@ -904,23 +873,20 @@ def build_site():
         html = html.replace(f"{{{{t_landing_{field}}}}}", val_str)
 
     # 3. Update relative path for download
-    html = html.replace("download/download.zip", "download/voxvera-portable.zip")
+    html = html.replace("download/download.zip", "download/voxvera-source.zip")
 
-    # 3. Inject site-specific config data (handles any remaining {{key}} placeholders)
+    # 4. Inject site-specific config data (handles any remaining {{key}} placeholders)
     for key, value in data.items():
         html = html.replace(f"{{{{{key}}}}}", str(value))
 
     with open(site_dir / "index.html", "w") as fh:
         fh.write(html)
 
-    # 3. Create the download assets in site/download/
+    # 5. Create the download assets in site/download/
     download_dir = site_dir / "download"
     os.makedirs(download_dir, exist_ok=True)
 
-    # Bundle portable version (source + vendor + binaries)
-    bundle_portable(download_dir / "voxvera-portable.zip")
-
-    # Bundle source version (source only)
+    # Bundle source version
     bundle_source(download_dir / "voxvera-source.zip")
 
     # Copy standalone binaries if they exist

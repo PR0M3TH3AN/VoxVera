@@ -80,12 +80,7 @@
     "tear_off_footer": "प्रिंट करने के लिए नीचे दिए गए बटन पर क्लिक करें",
     "built_with": "बनाया गया",
     "print_button": "फ्लायर प्रिंट करें",
-    "download_button": "टूल और कोड डाउनलोड करें",
-    "dl_portable": "Portable (Source + Dependencies)",
-    "dl_linux": "Linux Standalone",
-    "dl_windows": "Windows Standalone (.exe)",
-    "dl_macos": "macOS Standalone",
-    "dl_source": "Source Code Only (.zip)"
+    "download_button": "टूल और कोड डाउनलोड करें"
   },
   "landing": {
     "title": "अति गोपनीय",

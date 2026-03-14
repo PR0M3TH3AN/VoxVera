@@ -23,13 +23,17 @@ echo "Building VoxVera binary for $(uname)..."
 PY_CMD="python3 -m PyInstaller"
 
 # Build the binary
+ARCH=$(uname -m)
+OS_NAME=$(uname -s | tr '[:upper:]' '[:lower:]')
+BINARY_NAME="voxvera-$OS_NAME-$ARCH"
+
 $PY_CMD --onefile \
     --add-data "voxvera/locales:voxvera/locales" \
     --add-data "voxvera/src:voxvera/src" \
     --add-data "voxvera/templates:voxvera/templates" \
     --add-data "voxvera/resources:voxvera/resources" \
     --add-data "requirements.txt:." \
-    --name "voxvera-$(uname -s | tr '[:upper:]' '[:lower:]')" \
+    --name "$BINARY_NAME" \
     --distpath voxvera/resources/bin \
     voxvera/cli.py
 

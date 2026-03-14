@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-__version__ = "0.1.4"
+__version__ = "0.1.5"
 
 # Add the vendor directory to sys.path as a fallback.
 # For standard installs (pip/pipx), the installed dependencies in the venv

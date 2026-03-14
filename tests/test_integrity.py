@@ -116,7 +116,8 @@ def test_portable_bundle_integrity(tmp_path, monkeypatch):
     os.makedirs(voxvera_dir / "vendor", exist_ok=True)
     (voxvera_dir / "vendor" / "anchor.txt").write_text("anchor")
     (project_root / "voxvera-run.sh").write_text("echo run")
-    
+    (project_root / "uninstall.sh").write_text("echo uninstall")
+    (project_root / "uninstall.ps1").write_text("echo uninstall")
     # ROOT in cli.py points to the voxvera/ directory
     monkeypatch.setattr(cli, "ROOT", voxvera_dir)
     
@@ -133,7 +134,9 @@ def test_portable_bundle_integrity(tmp_path, monkeypatch):
         assert any("voxvera/locales/en.json" in n for n in names)
         # Verify vendored libs
         assert any("voxvera/vendor/anchor.txt" in n for n in names)
-        # Verify launchers
-        assert "voxvera.bat" in names
+        # Verify uninstallers
+        assert "uninstall.sh" in names
+        assert "uninstall.ps1" in names
+
         # Verify root scripts
         assert "voxvera-run.sh" in names

@@ -1,21 +1,23 @@
 #!/usr/bin/env bash
 set -e
 
-if [ ! -f dist/voxvera-linux ]; then
-  echo "Run PyInstaller first" >&2
+# Ensure we are in project root
+cd "$(dirname "$0")/.."
+
+ARCH=$(uname -m)
+BINARY="voxvera/resources/bin/voxvera-linux-$ARCH"
+
+if [ ! -f "$BINARY" ]; then
+  echo "Binary not found: $BINARY. Run scripts/build_binaries.sh first." >&2
   exit 1
 fi
 
-APPDIR=dist/AppDir
+APPDIR=build/AppDir
 mkdir -p "$APPDIR/usr/bin"
-cp dist/voxvera-linux "$APPDIR/usr/bin/voxvera"
+cp "$BINARY" "$APPDIR/usr/bin/voxvera"
 chmod +x "$APPDIR/usr/bin/voxvera"
-mkdir -p "$APPDIR/usr/lib/voxvera/resources"
-cp -r voxvera/resources/tor "$APPDIR/usr/lib/voxvera/resources/"
-# also bundle Tor for the Electron GUI
-mkdir -p gui/electron/voxvera/resources
-cp -r voxvera/resources/tor gui/electron/voxvera/resources/
 
+# Desktop file
 cat > "$APPDIR/voxvera.desktop" <<EOD
 [Desktop Entry]
 Type=Application
@@ -23,13 +25,23 @@ Name=VoxVera
 Exec=voxvera
 Icon=voxvera
 Categories=Utility;
+Terminal=true
 EOD
 
-touch "$APPDIR/voxvera.png"
+# Use a generic icon since we don't have one
+# (AppImageTool requires an icon file to exist)
+# We will copy a qrcode as a placeholder if nothing else exists
+cp site/qrcode-content.png "$APPDIR/voxvera.png"
 
-wget -q https://github.com/AppImage/AppImageKit/releases/latest/download/appimagetool-x86_64.AppImage -O appimagetool
+# Download appimagetool
+echo "Downloading appimagetool..."
+wget -q https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool
 chmod +x appimagetool
-./appimagetool --appimage-extract-and-run "$APPDIR" dist/VoxVera.AppImage
+
+# Run appimagetool
+echo "Running appimagetool..."
+export ARCH
+./appimagetool --appimage-extract-and-run "$APPDIR" voxvera/resources/bin/VoxVera-x86_64.AppImage
 rm appimagetool
 
-echo "AppImage created at dist/VoxVera.AppImage"
+echo "AppImage created at voxvera/resources/bin/VoxVera-x86_64.AppImage"
