@@ -1,9 +1,12 @@
 import sys
 from pathlib import Path
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
-# Add the vendor directory to sys.path so we can run without pip install
+# Add the vendor directory to sys.path as a fallback.
+# For standard installs (pip/pipx), the installed dependencies in the venv
+# should take priority. We append here so vendor acts as a fallback.
 vendor_dir = Path(__file__).parent / "vendor"
 if vendor_dir.exists():
-    sys.path.insert(0, str(vendor_dir))
+    if str(vendor_dir) not in sys.path:
+        sys.path.append(str(vendor_dir))
