@@ -1,5 +1,9 @@
 # VoxVera Release Process
 
+**⚠️ ATTENTION AI AGENTS (CRITICAL WORKFLOW):**
+Do **NOT** automatically package, tag, or push a new release after completing a set of changes. Releases should **ONLY** be triggered when the user explicitly requests one (e.g., "Package a release now" or "Let's release this").
+Instead of releasing immediately, you must append a summary of your completed work to the `UPCOMING_RELEASE.md` file. This allows development to span multiple context sessions and ensures that new releases contain a substantial amount of value. When a release is finally requested, use the contents of `UPCOMING_RELEASE.md` to format the GitHub Release notes, and then clear the document for the next cycle.
+
 This document outlines the mandatory steps to perform before every release to ensure code quality, cross-language integrity, and professional distribution assets.
 
 ## 1. Pre-Flight Checks (Quality Assurance)
