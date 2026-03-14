@@ -46,7 +46,7 @@ install_voxvera() {
   url=$(curl -fsSLI -o /dev/null -w '%{url_effective}' \
         https://github.com/PR0M3TH3AN/VoxVera/releases/latest)
   latest="${url%/}" ; latest="${latest##*/}"      # vX.Y.Z tag
-  url="https://github.com/PR0M3TH3AN/VoxVera/releases/download/${latest/\/}/voxvera"
+  url="https://github.com/PR0M3TH3AN/VoxVera/releases/download/${latest/\/}/voxvera-linux"
   if curl -fsSL "$url" -o "$dest"; then
     chmod +x "$dest"
     PATH="$install_dir:$PATH"

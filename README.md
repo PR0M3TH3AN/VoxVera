@@ -12,9 +12,9 @@ VoxVera is designed for maximum portability and censorship resistance.
 
 ### 1. Standalone Binaries (Recommended)
 Download the zero-dependency executable for your OS:
-- 🐧 [**Linux**](voxvera/resources/bin/voxvera-linux)
-- 🪟 **Windows** (Coming soon - use Portable ZIP)
-- 🍏 **macOS** (Coming soon - use Portable ZIP)
+- 🐧 [**Linux**](https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera-linux)
+- 🪟 [**Windows**](https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera-windows.exe)
+- 🍏 [**macOS**](https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera-macos)
 
 ### 2. Universal Mirroring (The "Viral" Method)
 If you found a physical VoxVera flyer, scan it and click **"Download Tool & Source"**. You will receive a `voxvera-portable.zip` containing the full tool, all dependencies, and all 14 languages—ready to run offline.

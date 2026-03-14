@@ -128,7 +128,17 @@ if command_exists pipx; then
     echo "pipx install failed, downloading binary"
     install_dir="$HOME/.local/bin"
     mkdir -p "$install_dir"
-    url="https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera"
+    
+    # Detect OS for binary selection
+    OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
+    case "$OS" in
+      linux*)  BINARY="voxvera-linux" ;;
+      darwin*) BINARY="voxvera-macos" ;;
+      msys*|cygwin*|mingw*) BINARY="voxvera-windows.exe" ;;
+      *) BINARY="voxvera-linux" ;; # fallback to linux
+    esac
+
+    url="https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/${BINARY}"
     dest="$install_dir/voxvera"
     if download_binary "$url" "$dest"; then
       check_local_bin
@@ -146,7 +156,17 @@ if command_exists pipx; then
 else
   install_dir="$HOME/.local/bin"
   mkdir -p "$install_dir"
-  url="https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera"
+  
+  # Detect OS for binary selection
+  OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
+  case "$OS" in
+    linux*)  BINARY="voxvera-linux" ;;
+    darwin*) BINARY="voxvera-macos" ;;
+    msys*|cygwin*|mingw*) BINARY="voxvera-windows.exe" ;;
+    *) BINARY="voxvera-linux" ;; # fallback to linux
+  esac
+
+  url="https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/${BINARY}"
   dest="$install_dir/voxvera"
   if download_binary "$url" "$dest"; then
     check_local_bin

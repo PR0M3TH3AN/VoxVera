@@ -27,7 +27,7 @@ jobs:
             --add-data "voxvera/templates:voxvera/templates" \
             --add-data "voxvera/resources:voxvera/resources" \
             --add-data "requirements.txt:." \
-            --name voxvera \
+            --name voxvera-linux \
             voxvera/cli.py
       - name: Create AppImage
         run: |
@@ -58,5 +58,5 @@ jobs:
           files: |
             dist/*.whl
             dist/*.tar.gz
-            dist/voxvera
+            dist/voxvera-linux
             dist/VoxVera.AppImage

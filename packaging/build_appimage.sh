@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 set -e
 
-if [ ! -f dist/voxvera ]; then
+if [ ! -f dist/voxvera-linux ]; then
   echo "Run PyInstaller first" >&2
   exit 1
 fi
 
 APPDIR=dist/AppDir
 mkdir -p "$APPDIR/usr/bin"
-cp dist/voxvera "$APPDIR/usr/bin/voxvera"
+cp dist/voxvera-linux "$APPDIR/usr/bin/voxvera"
 chmod +x "$APPDIR/usr/bin/voxvera"
 mkdir -p "$APPDIR/usr/lib/voxvera/resources"
 cp -r voxvera/resources/tor "$APPDIR/usr/lib/voxvera/resources/"
