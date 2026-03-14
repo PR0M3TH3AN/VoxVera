@@ -10,6 +10,8 @@ jobs:
   build:
     name: Build for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -86,5 +88,6 @@ jobs:
             dist/${{ matrix.artifact_name }}
             voxvera/resources/bin/*.deb
             voxvera/resources/bin/*.dmg
+          fail_on_unmatched_files: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
