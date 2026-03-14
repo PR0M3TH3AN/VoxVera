@@ -332,7 +332,7 @@ def bundle_portable(dest_zip: Path):
 
         # 2. Include the voxvera/ source directory
         for root, dirs, files in os.walk(ROOT):
-            if "__pycache__" in root or "host" in root or "vendor" in root:
+            if "__pycache__" in root or "host" in root or "vendor" in root or "resources/bin" in root:
                 if "vendor" in root:  # We DO want vendor
                     pass
                 else:
