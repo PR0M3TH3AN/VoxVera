@@ -41,12 +41,13 @@ jobs:
       - name: Build with PyInstaller
         shell: bash
         run: |
+          if [ "$RUNNER_OS" == "Windows" ]; then SEP=";"; else SEP=":"; fi
           pyinstaller --onefile \
-            --add-data "voxvera/locales:voxvera/locales" \
-            --add-data "voxvera/src:voxvera/src" \
-            --add-data "voxvera/templates:voxvera/templates" \
-            --add-data "voxvera/resources:voxvera/resources" \
-            --add-data "requirements.txt:." \
+            --add-data "voxvera/locales${SEP}voxvera/locales" \
+            --add-data "voxvera/src${SEP}voxvera/src" \
+            --add-data "voxvera/templates${SEP}voxvera/templates" \
+            --add-data "voxvera/resources${SEP}voxvera/resources" \
+            --add-data "requirements.txt${SEP}." \
             --name "${{ matrix.artifact_name }}" \
             voxvera/cli.py
 

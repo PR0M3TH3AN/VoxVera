@@ -29,7 +29,7 @@ touch "$APPDIR/voxvera.png"
 
 wget -q https://github.com/AppImage/AppImageKit/releases/latest/download/appimagetool-x86_64.AppImage -O appimagetool
 chmod +x appimagetool
-./appimagetool "$APPDIR" dist/VoxVera.AppImage
+./appimagetool --appimage-extract-and-run "$APPDIR" dist/VoxVera.AppImage
 rm appimagetool
 
 echo "AppImage created at dist/VoxVera.AppImage"
