@@ -79,7 +79,12 @@
     "tear_off_footer": "Klicken Sie auf die Schaltfläche unten zum Drucken",
     "built_with": "erstellt mit",
     "print_button": "Flyer drucken",
-    "download_button": "Tool & Quellcode herunterladen"
+    "download_button": "Tool & Quellcode herunterladen",
+    "dl_portable": "Portable (Source + Dependencies)",
+    "dl_linux": "Linux Standalone",
+    "dl_windows": "Windows Standalone (.exe)",
+    "dl_macos": "macOS Standalone",
+    "dl_source": "Source Code Only (.zip)"
   },
   "landing": {
     "title": "STRENG GEHEIM",

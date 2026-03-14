@@ -80,7 +80,12 @@
     "tear_off_footer": "下のボタンをクリックして印刷してください",
     "built_with": "built with",
     "print_button": "フライヤーを印刷",
-    "download_button": "ツールとソースをダウンロード"
+    "download_button": "ツールとソースをダウンロード",
+    "dl_portable": "Portable (Source + Dependencies)",
+    "dl_linux": "Linux Standalone",
+    "dl_windows": "Windows Standalone (.exe)",
+    "dl_macos": "macOS Standalone",
+    "dl_source": "Source Code Only (.zip)"
   },
   "landing": {
     "title": "極秘事項",

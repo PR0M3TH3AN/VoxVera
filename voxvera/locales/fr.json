@@ -80,7 +80,12 @@
     "tear_off_footer": "cliquez sur le bouton ci-dessous pour imprimer",
     "built_with": "créé avec",
     "print_button": "Imprimer le flyer",
-    "download_button": "Télécharger l'outil et le code"
+    "download_button": "Télécharger l'outil et le code",
+    "dl_portable": "Portable (Source + Dependencies)",
+    "dl_linux": "Linux Standalone",
+    "dl_windows": "Windows Standalone (.exe)",
+    "dl_macos": "macOS Standalone",
+    "dl_source": "Source Code Only (.zip)"
   },
   "landing": {
     "title": "TOP SECRET",

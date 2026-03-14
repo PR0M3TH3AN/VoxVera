@@ -79,7 +79,12 @@
     "tear_off_footer": "haga clic en el botón de abajo para imprimir",
     "built_with": "construido con",
     "print_button": "Imprimir volante",
-    "download_button": "Descargar Herramienta y Código"
+    "download_button": "Descargar Herramienta y Código",
+    "dl_portable": "Portable (Source + Dependencies)",
+    "dl_linux": "Linux Standalone",
+    "dl_windows": "Windows Standalone (.exe)",
+    "dl_macos": "macOS Standalone",
+    "dl_source": "Source Code Only (.zip)"
   },
   "landing": {
     "title": "ALTO SECRETO",

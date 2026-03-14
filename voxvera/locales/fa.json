@@ -80,7 +80,12 @@
     "tear_off_footer": "برای چاپ روی دکمه زیر کلیک کنید",
     "built_with": "ساخته شده با",
     "print_button": "چاپ اعلامیه",
-    "download_button": "دانلود ابزار و کد منبع"
+    "download_button": "دانلود ابزار و کد منبع",
+    "dl_portable": "Portable (Source + Dependencies)",
+    "dl_linux": "Linux Standalone",
+    "dl_windows": "Windows Standalone (.exe)",
+    "dl_macos": "macOS Standalone",
+    "dl_source": "Source Code Only (.zip)"
   },
   "landing": {
     "title": "به‌کلی محرمانه",

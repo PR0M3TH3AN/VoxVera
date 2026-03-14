@@ -80,7 +80,12 @@
     "tear_off_footer": "לחץ על הכפתור למטה להדפסה",
     "built_with": "נבנה עם",
     "print_button": "הדפס פלייר",
-    "download_button": "הורד כלי וקוד מקור"
+    "download_button": "הורד כלי וקוד מקור",
+    "dl_portable": "Portable (Source + Dependencies)",
+    "dl_linux": "Linux Standalone",
+    "dl_windows": "Windows Standalone (.exe)",
+    "dl_macos": "macOS Standalone",
+    "dl_source": "Source Code Only (.zip)"
   },
   "landing": {
     "title": "סודי ביותר",

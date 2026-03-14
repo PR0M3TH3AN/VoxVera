@@ -80,7 +80,12 @@
     "tear_off_footer": "нажмите кнопку ниже, чтобы распечатать",
     "built_with": "создано с помощью",
     "print_button": "Печать листовки",
-    "download_button": "Скачать инструмент и код"
+    "download_button": "Скачать инструмент и код",
+    "dl_portable": "Portable (Source + Dependencies)",
+    "dl_linux": "Linux Standalone",
+    "dl_windows": "Windows Standalone (.exe)",
+    "dl_macos": "macOS Standalone",
+    "dl_source": "Source Code Only (.zip)"
   },
   "landing": {
     "title": "СОВЕРШЕННО СЕКРЕТНО",

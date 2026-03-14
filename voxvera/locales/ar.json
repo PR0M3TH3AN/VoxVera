@@ -80,7 +80,12 @@
     "tear_off_footer": "انقر فوق الزر أدناه للطباعة",
     "built_with": "بني بواسطة",
     "print_button": "اطبع المنشور",
-    "download_button": "تحميل الأداة والكود"
+    "download_button": "تحميل الأداة والكود",
+    "dl_portable": "Portable (Source + Dependencies)",
+    "dl_linux": "Linux Standalone",
+    "dl_windows": "Windows Standalone (.exe)",
+    "dl_macos": "macOS Standalone",
+    "dl_source": "Source Code Only (.zip)"
   },
   "landing": {
     "title": "سري للغاية",
