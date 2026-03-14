@@ -17,7 +17,7 @@ Download the zero-dependency executable for your OS:
 - 🍏 [**macOS**](https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera-macos)
 
 ### 2. Universal Mirroring (The "Viral" Method)
-If you found a physical VoxVera flyer, scan it and click **"Download Tool & Source"**. You will receive a `voxvera-portable.zip` containing the full tool, all dependencies, and all 14 languages—ready to run offline.
+If you found a physical VoxVera flyer, scan it and click **"Download"**. You will receive a `voxvera-portable.zip` containing the full tool, all dependencies, and all 14 languages—ready to run offline.
 
 ### 3. One-Line Installer (Linux/macOS)
 ```bash

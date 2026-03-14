@@ -79,7 +79,7 @@ Features:
 
 To ensure VoxVera remains accessible even if central repositories are censored, every flyer acts as a mirror for the tool.
 
-When you host a flyer, the **"Download Tool & Source"** button on the landing page provides a `voxvera-portable.zip` containing:
+When you host a flyer, the **"Download"** button on the landing page provides a `voxvera-portable.zip` containing:
 - The full source code and all supported languages.
 - All Python dependencies (pre-vendored).
 - Cross-platform Tor binaries.

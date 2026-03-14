@@ -8,9 +8,9 @@ VoxVera is designed to be highly portable and requires minimal system dependenci
 
 ### 1. Standalone Binaries (Recommended)
 You can download standalone, zero-dependency binaries for your operating system:
-- **Linux:** `voxvera-linux`
-- **Windows:** `voxvera-windows.exe`
-- **macOS:** `voxvera-macos`
+- **Linux:** [voxvera-linux](https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera-linux)
+- **Windows:** [voxvera-windows.exe](https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera-windows.exe)
+- **macOS:** [voxvera-macos](https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera-macos)
 
 These binaries include everything needed to run VoxVera (except `onionshare-cli`).
 
