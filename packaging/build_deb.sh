@@ -39,6 +39,7 @@ sed -i "s/^Version: .*/Version: $VERSION/" "$PKG_DIR/DEBIAN/control"
 sed -i "s/^Architecture: .*/Architecture: $DEB_ARCH/" "$PKG_DIR/DEBIAN/control"
 
 # Build the package
+mkdir -p voxvera/resources/bin
 dpkg-deb --build "$PKG_DIR" "voxvera/resources/bin/voxvera_${VERSION}_${DEB_ARCH}.deb"
 
 echo "Debian package created at voxvera/resources/bin/voxvera_${VERSION}_${DEB_ARCH}.deb"

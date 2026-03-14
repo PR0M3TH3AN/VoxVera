@@ -30,6 +30,7 @@ rm -rf "$BUILD_DIR" "$REPO_DIR"
 flatpak-builder --force-clean --repo="$REPO_DIR" "$BUILD_DIR" "$MANIFEST"
 
 # Generate a standalone .flatpak file
+mkdir -p voxvera/resources/bin
 flatpak build-bundle "$REPO_DIR" voxvera/resources/bin/VoxVera-x86_64.flatpak org.voxvera.VoxVera
 
 echo "Flatpak bundle created at voxvera/resources/bin/VoxVera-x86_64.flatpak"

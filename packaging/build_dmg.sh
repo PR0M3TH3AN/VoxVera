@@ -33,6 +33,7 @@ cp "$BINARY" "$STAGING_DIR/voxvera"
 chmod +x "$STAGING_DIR/voxvera"
 
 # Create the DMG
+mkdir -p voxvera/resources/bin
 hdiutil create -volname "VoxVera $VERSION" -srcfolder "$STAGING_DIR" -ov -format UDZO "voxvera/resources/bin/$DMG_NAME"
 
 echo "DMG created at voxvera/resources/bin/$DMG_NAME"

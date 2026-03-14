@@ -45,6 +45,7 @@ chmod +x appimagetool
 # Run appimagetool
 echo "Running appimagetool..."
 export ARCH
+mkdir -p voxvera/resources/bin
 ./appimagetool --appimage-extract-and-run "$APPDIR" voxvera/resources/bin/VoxVera-x86_64.AppImage
 rm appimagetool
 
