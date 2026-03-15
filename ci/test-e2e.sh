@@ -50,6 +50,8 @@ if [ "${VOXVERA_E2E_OFFLINE:-}" != "1" ]; then
   OS_PID=$!
 
   # Wait for URL
+  echo "Waiting for OnionShare to generate URL..."
+  sleep 15
   URL=""
   i=0
   while [ $i -lt 90 ]; do
