@@ -22,16 +22,23 @@ CURRENT_LOCALE = {}
 
 def _template_res(*parts) -> Traversable:
     """Return a Traversable for files under the packaged ``templates`` folder."""
+    if getattr(sys, 'frozen', False):
+        # PyInstaller bundle: use sys._MEIPASS
+        return Path(sys._MEIPASS).joinpath("voxvera", "templates", *parts)
     return resources.files(__package__).joinpath("templates", *parts)
 
 
 def _src_res(*parts) -> Traversable:
     """Return a Traversable for files under the packaged ``src`` folder."""
+    if getattr(sys, 'frozen', False):
+        return Path(sys._MEIPASS).joinpath("voxvera", "src", *parts)
     return resources.files(__package__).joinpath("src", *parts)
 
 
 def _locale_res(*parts) -> Traversable:
     """Return a Traversable for files under the packaged ``locales`` folder."""
+    if getattr(sys, 'frozen', False):
+        return Path(sys._MEIPASS).joinpath("voxvera", "locales", *parts)
     return resources.files(__package__).joinpath("locales", *parts)
 
 
@@ -39,13 +46,22 @@ def load_locale(lang_code: str = "en"):
     """Load the specified locale JSON file."""
     global CURRENT_LOCALE
     try:
-        with resources.as_file(_locale_res(f"{lang_code}.json")) as locale_file:
+        res = _locale_res(f"{lang_code}.json")
+        if getattr(sys, 'frozen', False):
+            # When frozen, we already have a Path object
+            locale_file = res
             if not locale_file.exists():
-                lang_code = "en"  # Fallback
-                with resources.as_file(_locale_res("en.json")) as fallback_file:
-                    CURRENT_LOCALE = json.loads(fallback_file.read_text(encoding="utf-8"))
-            else:
-                CURRENT_LOCALE = json.loads(locale_file.read_text(encoding="utf-8"))
+                lang_code = "en"
+                locale_file = _locale_res("en.json")
+            CURRENT_LOCALE = json.loads(locale_file.read_text(encoding="utf-8"))
+        else:
+            with resources.as_file(res) as locale_file:
+                if not locale_file.exists():
+                    lang_code = "en"  # Fallback
+                    with resources.as_file(_locale_res("en.json")) as fallback_file:
+                        CURRENT_LOCALE = json.loads(fallback_file.read_text(encoding="utf-8"))
+                else:
+                    CURRENT_LOCALE = json.loads(locale_file.read_text(encoding="utf-8"))
     except Exception as e:
         print(f"Error loading locale {lang_code}: {e}")
         # Final safety fallback to empty dict to avoid KeyErrors
@@ -575,8 +591,15 @@ def _internal_onionshare():
     # Try to add bundled Tor to PATH so OnionShare can find it
     system = platform.system().lower()
     platform_dir = "win" if "windows" in system else "mac" if "darwin" in system else "linux"
-    tor_dir = ROOT / "resources" / "tor" / platform_dir
-    if tor_dir.exists():
+
+    if getattr(sys, 'frozen', False):
+        tor_dir = Path(sys._MEIPASS).joinpath("voxvera", "resources", "tor", platform_dir)
+    else:
+        tor_dir = ROOT / "resources" / "tor" / platform_dir
+
+    # Check if bundled Tor is a real binary and not a placeholder (size > 100 bytes)
+    bundled_tor = tor_dir / ("tor.exe" if "windows" in system else "tor")
+    if bundled_tor.exists() and bundled_tor.stat().st_size > 100:
         os.environ["PATH"] = str(tor_dir) + os.pathsep + os.environ.get("PATH", "")
 
     try:
@@ -808,9 +831,15 @@ def import_multiple_sites(source_dir: str = None):
 
 def build_docs():
     """Generate localized documentation from templates and locale data."""
-    template_dir = ROOT.parent / "docs" / "templates"
+    if getattr(sys, 'frozen', False):
+        template_dir = Path(sys._MEIPASS).joinpath("docs", "templates")
+        doc_root = Path(sys._MEIPASS).joinpath("docs")
+    else:
+        template_dir = ROOT.parent / "docs" / "templates"
+        doc_root = ROOT.parent / "docs"
+
     if not template_dir.exists():
-        print("Error: docs/templates/ not found.")
+        print(f"Error: {template_dir} not found.")
         return
 
     # List all supported languages
@@ -820,7 +849,7 @@ def build_docs():
     for lang in langs:
         print(f"Generating documentation for: {lang}")
         load_locale(lang)
-        dest_dir = ROOT.parent / "docs" / lang
+        dest_dir = doc_root / lang
         os.makedirs(dest_dir, exist_ok=True)
 
         # Process each template
@@ -855,14 +884,18 @@ def build_docs():
 
 def build_site():
     """Refresh the main site/ directory with the latest template, QRs, and portable bundle."""
-    site_dir = ROOT.parent / "site"
+    if getattr(sys, 'frozen', False):
+        site_dir = Path(sys._MEIPASS).joinpath("site")
+    else:
+        site_dir = ROOT.parent / "site"
+
     if not site_dir.exists():
-        print("Error: site/ directory not found.")
+        print(f"Error: {site_dir} directory not found.")
         return
 
     config_path = site_dir / "config.json"
     if not config_path.exists():
-        print("Error: site/config.json not found.")
+        print(f"Error: {config_path} not found.")
         return
 
     print("Refreshing site/ assets...")
@@ -873,9 +906,15 @@ def build_site():
 
     # 2. Build the HTML from master template
     data = load_config(config_path)
-    with resources.as_file(_src_res("index-master.html")) as template_path:
+    res = _src_res("index-master.html")
+    if getattr(sys, 'frozen', False):
+        template_path = res
         with open(template_path, "r") as fh:
             html = fh.read()
+    else:
+        with resources.as_file(res) as template_path:
+            with open(template_path, "r") as fh:
+                html = fh.read()
 
     # Bundle locales (Include landing tokens for the main site)
     all_locales = {}
