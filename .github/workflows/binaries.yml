@@ -14,14 +14,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, windows-latest, macos-latest]
+        os: [ubuntu-20.04, windows-latest, macos-latest]
         include:
-          - os: ubuntu-22.04
-            artifact_name: voxvera-linux
+          - os: ubuntu-20.04
+            artifact_name: voxvera-linux-x86_64
           - os: windows-latest
             artifact_name: voxvera-windows.exe
           - os: macos-latest
-            artifact_name: voxvera-macos
+            artifact_name: voxvera-macos-x86_64
 
     steps:
       - name: Checkout code
@@ -57,7 +57,7 @@ jobs:
             voxvera/cli.py
 
       - name: Build .deb (Linux)
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == 'ubuntu-20.04'
         run: |
           mkdir -p voxvera/resources/bin
           cp dist/${{ matrix.artifact_name }} voxvera/resources/bin/voxvera-linux-x86_64
@@ -65,7 +65,7 @@ jobs:
           ./packaging/build_deb.sh dist/${{ matrix.artifact_name }}
 
       - name: Build AppImage (Linux)
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == 'ubuntu-20.04'
         run: |
           mkdir -p voxvera/resources/bin
           cp dist/${{ matrix.artifact_name }} voxvera/resources/bin/voxvera-linux-x86_64
@@ -73,7 +73,7 @@ jobs:
           ./packaging/build_appimage.sh dist/${{ matrix.artifact_name }}
 
       - name: Build Flatpak (Linux)
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == 'ubuntu-20.04'
         run: |
           mkdir -p voxvera/resources/bin
           cp dist/${{ matrix.artifact_name }} voxvera/resources/bin/voxvera-linux-x86_64

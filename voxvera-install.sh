@@ -76,29 +76,27 @@ install_voxvera() {
     latest=$(curl -fsSLI -o /dev/null -w '%{url_effective}' https://github.com/PR0M3TH3AN/VoxVera/releases/latest | grep -oE '[^/]+$')
     
     OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
+    ARCH=$(uname -m)
     case "$OS" in
       linux*)  BINARY="voxvera-linux" ;;
       darwin*) BINARY="voxvera-macos" ;;
       *)       BINARY="voxvera-linux" ;;
     esac
     
-    # Try to download architecture-specific binary first (x86_64)
-    ARCH=$(uname -m)
-    if [ "$ARCH" == "x86_64" ]; then
-      url="https://github.com/PR0M3TH3AN/VoxVera/releases/download/${latest}/${BINARY}-x86_64"
-      if curl -fsSL "$url" -o "$dest"; then
-        chmod +x "$dest"
-        msg "VoxVera binary (${ARCH}) installed to $dest"
-        return 0
-      fi
-    fi
-
-    # Fallback to generic binary
-    url="https://github.com/PR0M3TH3AN/VoxVera/releases/download/${latest}/${BINARY}"
-    if curl -fsSL "$url" -o "$dest"; then
+    # Try to download architecture-specific binary (e.g. voxvera-linux-x86_64)
+    url="https://github.com/PR0M3TH3AN/VoxVera/releases/download/${latest}/${BINARY}-${ARCH}"
+    
+    msg "Downloading from: $url"
+    local status
+    status=$(curl -w "%{http_code}" -fsSL "$url" -o "$dest" || echo "failed")
+    
+    if [ "$status" = "200" ]; then
       chmod +x "$dest"
-      msg "VoxVera binary installed to $dest"
+      msg "VoxVera binary (${ARCH}) installed to $dest"
       return 0
+    else
+      warn "Binary download failed (status: $status). Falling back to source installation."
+      [ -f "$dest" ] && rm "$dest"
     fi
   fi
 
