@@ -249,7 +249,6 @@ class TestFullWorkflow:
             "_internal_onionshare",
             "--website",
             "--public",
-            "--tor-mode", "unmanaged",
             "--persistent",
             str(host_dir / ".onionshare-session"),
             "-v",

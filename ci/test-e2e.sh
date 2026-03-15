@@ -92,7 +92,6 @@ if [ "${VOXVERA_E2E_OFFLINE:-}" != "1" ]; then
   export TOR_CONTROL_PORT=9051
   
   onionshare-cli --website --public \
-    --tor-mode unmanaged \
     --persistent "$host_dir/.onionshare-session" \
     -v \
     "$host_dir" >"$LOG_DIR/onionshare.log" 2>&1 &
