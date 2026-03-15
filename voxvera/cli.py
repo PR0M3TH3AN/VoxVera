@@ -461,6 +461,14 @@ def build_assets(
         # Bundle locales for the web engine
         all_locales = {}
         locale_files = sorted(glob.glob(str(ROOT / "locales" / "*.json")))
+        
+        # Load master defaults from src/config.json
+        src_config_path = ROOT / "src" / "config.json"
+        master_defaults = {}
+        if src_config_path.exists():
+            with open(src_config_path, "r", encoding="utf-8") as sf:
+                master_defaults = json.load(sf)
+
         for lp in locale_files:
             code = Path(lp).stem
             with open(lp, "r", encoding="utf-8") as lf:
@@ -471,10 +479,12 @@ def build_assets(
                     "landing": l_data.get("landing", {})
                 }
 
-                # Override landing data with user custom config data so JS doesn't overwrite it
+                # Override landing data with user custom config data if it differs from master defaults
                 for field in ["title", "subtitle", "headline", "content", "url_message"]:
                     if field in data and data[field]:
-                        all_locales[code]["landing"][field] = data[field]
+                        # Only override if the value is different from the master default
+                        if data[field] != master_defaults.get(field):
+                            all_locales[code]["landing"][field] = data[field]
 
         html = html.replace("{{locales}}", json.dumps(all_locales))
 
@@ -497,6 +507,13 @@ def build_assets(
         for field in landing_fields:
             # Use data from config if available, otherwise use localized default
             value = data.get(field, landing_defaults.get(field, ""))
+            
+            # If the value from config is just the master default, 
+            # and we are NOT in English, use the localized default instead.
+            if data.get("lang", "en") != "en":
+                if value == master_defaults.get(field):
+                    value = landing_defaults.get(field, value)
+
             # Support Markdown-style redaction ~~text~~
             val_str = re.sub(r"~~(.*?)~~", r'<span class="redacted">\1</span>', str(value))
             html = html.replace(f"{{{{t_landing_{field}}}}}", val_str)
@@ -920,6 +937,14 @@ def build_site():
     # Bundle locales (Include landing tokens for the main site)
     all_locales = {}
     locale_files = sorted(glob.glob(str(ROOT / "locales" / "*.json")))
+    
+    # Load master defaults from src/config.json
+    src_config_path = ROOT / "src" / "config.json"
+    master_defaults = {}
+    if src_config_path.exists():
+        with open(src_config_path, "r", encoding="utf-8") as sf:
+            master_defaults = json.load(sf)
+
     for lp in locale_files:
         code = Path(lp).stem
         with open(lp, "r", encoding="utf-8") as lf:
@@ -930,10 +955,12 @@ def build_site():
                 "landing": l_data.get("landing", {})
             }
 
-            # Override landing data with user custom config data so JS doesn't overwrite it
+            # Override landing data with user custom config data if it differs from master defaults
             for field in ["title", "subtitle", "headline", "content", "url_message"]:
                 if field in data and data[field]:
-                    all_locales[code]["landing"][field] = data[field]
+                    # Only override if the value is different from the master default
+                    if data[field] != master_defaults.get(field):
+                        all_locales[code]["landing"][field] = data[field]
 
     html = html.replace("{{locales}}", json.dumps(all_locales))
 
@@ -955,6 +982,13 @@ def build_site():
     for field in landing_fields:
         # Use data from config if available, otherwise use localized default
         value = data.get(field, landing_defaults.get(field, ""))
+        
+        # If the value from config is just the master default, 
+        # and we are NOT in English, use the localized default instead.
+        if current_lang != "en":
+            if value == master_defaults.get(field):
+                value = landing_defaults.get(field, value)
+
         # Support Markdown-style redaction ~~text~~
         val_str = re.sub(r"~~(.*?)~~", r'<span class="redacted">\1</span>', str(value))
         html = html.replace(f"{{{{t_landing_{field}}}}}", val_str)
