@@ -87,15 +87,18 @@ install_voxvera() {
     url="https://github.com/PR0M3TH3AN/VoxVera/releases/download/${latest}/${BINARY}-${ARCH}"
     
     msg "Downloading from: $url"
+    set +e
     local status
-    status=$(curl -w "%{http_code}" -fsSL "$url" -o "$dest" || echo "failed")
+    status=$(curl -w "%{http_code}" -fsSL "$url" -o "$dest")
+    local curl_exit=$?
+    set -e
     
-    if [ "$status" = "200" ]; then
+    if [ $curl_exit -eq 0 ] && [ "$status" = "200" ]; then
       chmod +x "$dest"
       msg "VoxVera binary (${ARCH}) installed to $dest"
       return 0
     else
-      warn "Binary download failed (status: $status). Falling back to source installation."
+      warn "Binary download failed (status: $status, exit: $curl_exit). Falling back to source installation."
       [ -f "$dest" ] && rm "$dest"
     fi
   fi

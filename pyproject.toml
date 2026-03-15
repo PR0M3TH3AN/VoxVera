@@ -14,7 +14,7 @@ voxvera = ["templates/**", "src/**", "resources/**", "locales/**", "resources/bi
 
 [project]
 name = "voxvera"
-version = "0.2.6"
+version = "0.2.7"
 description = "VoxVera CLI utilities"
 readme = "README.md"
 authors = [{name = "VoxVera"}]
@@ -29,6 +29,8 @@ dependencies = [
     "pypdf",
     "wcwidth",
     "onionshare-cli",
+    "flask<2.3.0",
+    "werkzeug<3.0.0",
 ]
 [project.optional-dependencies]
 test = [

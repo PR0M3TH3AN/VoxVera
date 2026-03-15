@@ -137,15 +137,18 @@ if command_exists curl; then
   # For Windows, PyInstaller might add .exe but here we focus on linux/mac
   
   msg "Downloading from: $url"
-  status=$(curl -w "%{http_code}" -fsSL "$url" -o "$dest" || echo "failed")
+  set +e
+  status=$(curl -w "%{http_code}" -fsSL "$url" -o "$dest")
+  curl_exit=$?
+  set -e
   
-  if [ "$status" = "200" ]; then
+  if [ $curl_exit -eq 0 ] && [ "$status" = "200" ]; then
     chmod +x "$dest"
     msg "VoxVera binary (${ARCH}) installed to $dest"
     [[ ":$PATH:" != *":$HOME/.local/bin:"* ]] && warn "Add \$HOME/.local/bin to your PATH."
     exit 0
   else
-    warn "Binary download failed (status: $status). Falling back to source installation."
+    warn "Binary download failed (status: $status, exit: $curl_exit). Falling back to source installation."
     [ -f "$dest" ] && rm "$dest"
   fi
 fi
