@@ -17,12 +17,12 @@ fi
 # Generate demo flyer
 "$voxvera_cmd" --lang en init --template voxvera <<EOI
 DemoUser
-demosite
+voxvera
 EOI
 "$voxvera_cmd" --lang en build
 
 # Verify build output exists in host/
-folder_name="demosite"
+folder_name="voxvera"
 host_dir="voxvera/host/$folder_name"
 ls -R "$host_dir" >>"$LOG_DIR/tree.txt"
 
