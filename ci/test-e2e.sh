@@ -102,8 +102,9 @@ if [ "${VOXVERA_E2E_OFFLINE:-}" != "1" ]; then
   echo "Waiting for OnionShare to generate URL (up to 120s)..."
   URL=""
   for i in {1..120}; do
-    if grep -Eo 'http[^ ]+\.onion' "$LOG_DIR/onionshare.log" | head -n1 >"$LOG_DIR/url.txt"; then
-      URL=$(cat "$LOG_DIR/url.txt")
+    # Use -a to process as text even if there are binary chars (ANSI codes)
+    if grep -aEo 'http[s]?://[a-z2-7]{56}\.onion' "$LOG_DIR/onionshare.log" | head -n1 >"$LOG_DIR/url.txt"; then
+      URL=$(cat "$LOG_DIR/url.txt" | tr -d '\r\n ')
       if [ -n "$URL" ]; then
         echo "Successfully generated Onion URL: $URL"
         break

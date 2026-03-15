@@ -619,6 +619,8 @@ def _internal_onionshare():
     bundled_tor = tor_dir / ("tor.exe" if "windows" in system else "tor")
     if bundled_tor.exists() and bundled_tor.stat().st_size > 100:
         os.environ["PATH"] = str(tor_dir) + os.pathsep + os.environ.get("PATH", "")
+        # Robustness: explicitly tell OnionShare where Tor is
+        os.environ["TOR_BINARY"] = str(bundled_tor)
 
     try:
         from onionshare_cli import main
