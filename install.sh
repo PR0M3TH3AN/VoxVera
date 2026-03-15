@@ -5,7 +5,16 @@ command_exists() {
   command -v "$1" >/dev/null 2>&1
 }
 
-# Detect package manager
+# Detect package manager and sudo
+if command_exists sudo; then
+  SUDO="sudo"
+elif [ "$(id -u)" -eq 0 ]; then
+  SUDO=""
+else
+  echo "This script requires root privileges. Please install sudo or run as root." >&2
+  exit 1
+fi
+
 if command_exists apt-get; then
   PM="apt"
 elif command_exists dnf; then
@@ -23,68 +32,68 @@ else
   exit 1
 fi
 
+msg() { echo -e "\e[32m$*\e[0m"; }
+warn() { echo -e "\e[33m$*\e[0m" >&2; }
+die() { echo -e "\e[31m$*\e[0m" >&2; exit 1; }
+
 install_pkg() {
   case "$PM" in
     apt)
-      sudo apt-get update
-      sudo apt-get install -y "$@"
+      $SUDO apt-get install -y "$@"
       ;;
     dnf)
-      sudo dnf install -y "$@"
+      $SUDO dnf install -y "$@"
       ;;
     yum)
-      sudo yum install -y "$@"
+      $SUDO yum install -y "$@"
       ;;
     pacman)
-      sudo pacman -Sy --noconfirm "$@"
+      $SUDO pacman -S --noconfirm "$@"
       ;;
     brew)
       brew install "$@"
       ;;
     apk)
-      sudo apk add --no-cache "$@"
+      $SUDO apk add --no-cache "$@"
       ;;
   esac
 }
 
-require_pkg() {
-  local cmd=$1
-  local pkg=$2
-  if ! command_exists "$cmd"; then
-    install_pkg "$pkg"
-  fi
-}
-
-# Only external runtime dependencies needed (for voxvera serve)
-require_pkg tor tor
-if [ "$PM" = "brew" ]; then
-  require_pkg onionshare onionshare
+# Ensure core dependencies are present (always run to ensure they are up to date)
+msg "Checking and updating system dependencies..."
+if [ "$PM" = "apt" ]; then
+  $SUDO apt-get update
+  SYSTEM_PKGS=(tor curl git python3-pip python3-venv)
+  [ -n "$(command -v pipx)" ] || SYSTEM_PKGS+=(pipx)
+  install_pkg "${SYSTEM_PKGS[@]}"
+elif [ "$PM" = "brew" ]; then
+  brew install tor onionshare curl git
 else
-  # Onionshare-cli is often missing or outdated in apt/dnf repos.
-  # We try system install first, then fallback to pipx.
-  if ! command_exists onionshare-cli; then
-    echo "Installing onionshare-cli..."
-    if ! install_pkg onionshare-cli; then
-      echo "Onionshare-cli not found in system repositories. Attempting pipx install fallback."
-      if ! command_exists pipx; then
-        echo "Installing pipx and python3-venv..."
-        if [ "$PM" = "apt" ]; then
-          install_pkg pipx python3-venv
-        else
-          install_pkg pipx
-        fi
-        pipx ensurepath --force
-        export PATH="$HOME/.local/bin:$PATH"
-      fi
-      if command_exists pipx; then
-        echo "Installing onionshare-cli via pipx..."
-        pipx install git+https://github.com/onionshare/onionshare.git#subdirectory=cli
-      else
-        echo "Could not install pipx. Please install onionshare-cli manually." >&2
-        exit 1
-      fi
+  install_pkg tor curl git
+fi
+
+# Onionshare-cli - ensure it's installed and working (always attempt update if using pipx)
+msg "Ensuring onionshare-cli is installed and up-to-date..."
+if command_exists pipx && (pipx list | grep -q onionshare || ! command_exists onionshare-cli); then
+  msg "Installing/Updating onionshare-cli via pipx..."
+  pipx install --force git+https://github.com/onionshare/onionshare.git#subdirectory=cli || warn "pipx onionshare-cli install/update failed"
+elif ! command_exists onionshare-cli && ! command_exists onionshare; then
+  if ! install_pkg onionshare-cli; then
+    warn "Onionshare-cli not found in system repositories. Attempting pipx install fallback."
+    if ! command_exists pipx; then
+      install_pkg pipx
+      pipx ensurepath --force
+      export PATH="$HOME/.local/bin:$PATH"
+    fi
+    if command_exists pipx; then
+      msg "Installing onionshare-cli via pipx..."
+      pipx install --force git+https://github.com/onionshare/onionshare.git#subdirectory=cli || warn "pipx onionshare-cli install failed"
+    else
+      warn "Could not install pipx. Please install onionshare-cli manually."
     fi
   fi
+else
+  msg "onionshare-cli found (system package), skipping pipx install. Run 'pipx install --force ...' if you want the latest git version."
 fi
 
 download_binary() {
@@ -93,119 +102,58 @@ download_binary() {
   if command_exists curl; then
     local status
     status=$(curl -w "%{http_code}" -fsSL "$url" -o "$dest" || true)
-    if [ "$status" = "404" ]; then
-      return 2
-    elif [ "$status" != "200" ]; then
-      return 1
-    fi
+    if [ "$status" = "404" ]; then return 2; elif [ "$status" != "200" ]; then return 1; fi
   elif command_exists wget; then
     local out
     out=$(wget --server-response -q "$url" -O "$dest" 2>&1 || true)
-    if echo "$out" | grep -q "404 Not Found"; then
-      return 2
-    elif ! echo "$out" | grep -q "200 OK"; then
-      return 1
-    fi
+    if echo "$out" | grep -q "404 Not Found"; then return 2; elif ! echo "$out" | grep -q "200 OK"; then return 1; fi
   else
-    echo "Install curl or wget to download voxvera" >&2
+    warn "Install curl or wget to download voxvera"
     return 1
   fi
   chmod +x "$dest"
 }
 
-check_local_bin() {
-  if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
-    echo "Add \$HOME/.local/bin to your PATH to run VoxVera."
-  fi
-}
-
-pip_fallback() {
-  if command_exists pip; then
-    echo "Attempting pip install as fallback..."
-    if pip install --user voxvera; then
-      echo "VoxVera installed successfully via pip."
-      exit 0
-    fi
-    echo "pip installation failed." >&2
-  else
-    echo "pip not found for fallback installation" >&2
-  fi
-  exit 1
-}
-
-pip_repo_fallback() {
-  if command_exists pip; then
-    echo "Attempting pip install from repository as fallback..."
-    if pip install --user git+https://github.com/PR0M3TH3AN/VoxVera; then
-      echo "VoxVera installed successfully from repository."
-      exit 0
-    fi
-    echo "pip installation from repository failed." >&2
-  else
-    echo "pip not found for fallback installation" >&2
-  fi
-  exit 1
-}
-
+# Install VoxVera (Always use --force to ensure fresh installation)
 if command_exists pipx; then
-  if ! pipx install --force 'voxvera@git+https://github.com/PR0M3TH3AN/VoxVera.git@main'; then
-    echo "pipx install failed, downloading binary"
-    install_dir="$HOME/.local/bin"
-    mkdir -p "$install_dir"
-    
-    # Detect OS for binary selection
-    OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
-    case "$OS" in
-      linux*)  BINARY="voxvera-linux" ;;
-      darwin*) BINARY="voxvera-macos" ;;
-      msys*|cygwin*|mingw*) BINARY="voxvera-windows.exe" ;;
-      *) BINARY="voxvera-linux" ;; # fallback to linux
-    esac
-
-    url="https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/${BINARY}"
-    dest="$install_dir/voxvera"
-    if download_binary "$url" "$dest"; then
-      check_local_bin
-    else
-      rc=$?
-      echo "Binary download failed." >&2
-      if [ $rc -eq 2 ]; then
-        echo "Release asset not found, installing from repository." >&2
-        pip_repo_fallback
-      else
-        pip_fallback
-      fi
-    fi
+  msg "Installing/Re-installing VoxVera via pipx..."
+  if pipx install --force 'voxvera@git+https://github.com/PR0M3TH3AN/VoxVera.git@main'; then
+    msg "VoxVera installed/updated successfully via pipx."
+    exit 0
   fi
-else
-  install_dir="$HOME/.local/bin"
-  mkdir -p "$install_dir"
-  
-  # Detect OS for binary selection
-  OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
-  case "$OS" in
-    linux*)  BINARY="voxvera-linux" ;;
-    darwin*) BINARY="voxvera-macos" ;;
-    msys*|cygwin*|mingw*) BINARY="voxvera-windows.exe" ;;
-    *) BINARY="voxvera-linux" ;; # fallback to linux
-  esac
+  warn "pipx install failed, trying binary fallback..."
+fi
 
-  url="https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/${BINARY}"
-  dest="$install_dir/voxvera"
-  if download_binary "$url" "$dest"; then
-    check_local_bin
+install_dir="$HOME/.local/bin"
+mkdir -p "$install_dir"
+OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
+case "$OS" in
+  linux*)  BINARY="voxvera-linux" ;;
+  darwin*) BINARY="voxvera-macos" ;;
+  *)       BINARY="voxvera-linux" ;;
+esac
+
+url="https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/${BINARY}"
+dest="$install_dir/voxvera"
+msg "Downloading VoxVera binary from $url..."
+if download_binary "$url" "$dest"; then
+  msg "VoxVera binary downloaded to $dest"
+  [[ ":$PATH:" != *":$HOME/.local/bin:"* ]] && warn "Add \$HOME/.local/bin to your PATH."
+else
+  warn "Binary download failed. Attempting pip install as last resort..."
+  # Use --break-system-packages on Debian 12+ if necessary
+  PIP_OPTS="--user --upgrade"
+  if [ -f /etc/debian_version ]; then
+     DEB_VER=$(cat /etc/debian_version | cut -d. -f1)
+     if [[ "$DEB_VER" =~ ^[0-9]+$ ]] && [ "$DEB_VER" -ge 12 ]; then
+       PIP_OPTS="$PIP_OPTS --break-system-packages"
+     fi
+  fi
+  if pip install $PIP_OPTS 'voxvera@git+https://github.com/PR0M3TH3AN/VoxVera.git@main'; then
+    msg "VoxVera installed via pip."
   else
-    rc=$?
-    echo "Binary download failed." >&2
-    if [ $rc -eq 2 ]; then
-      echo "Release asset not found, installing from repository." >&2
-      pip_repo_fallback
-    else
-      pip_fallback
-    fi
+    die "Installation failed."
   fi
 fi
 
-echo ""
-echo "VoxVera installed successfully."
-echo "Run 'voxvera check' to verify your setup."
+msg "\nVoxVera installed/updated successfully. Run 'voxvera check' to verify."

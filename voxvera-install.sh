@@ -2,8 +2,6 @@
 # --------------------------------------------------------------------
 # VoxVera all-in-one installer (Linux) – run once as a normal user.
 # Installs Tor + OnionShare and VoxVera itself.
-# Build dependencies (QR, HTML minification, PDF parsing) are Python
-# packages installed automatically — no Node.js or ImageMagick needed.
 # --------------------------------------------------------------------
 set -euo pipefail
 
@@ -14,25 +12,37 @@ msg()   { printf "\e[32m%s\e[0m\n" "$*"; }
 warn()  { printf "\e[33m%s\e[0m\n" "$*" >&2; }
 die()   { printf "\e[31mERROR: %s\e[0m\n" "$*" >&2; exit 1; }
 
+# Detect sudo/root
+if command_exists sudo; then
+  SUDO="sudo"
+elif [ "$(id -u)" -eq 0 ]; then
+  SUDO=""
+else
+  die "This script requires root privileges. Please install sudo or run as root."
+fi
+
 ## -------- determine package manager --------------------------------
-if   command_exists apt-get; then PM=apt   ; UPDATE="sudo apt-get update"                ; INSTALL="sudo apt-get install -y"
-elif command_exists dnf;      then PM=dnf   ; UPDATE="sudo dnf -y makecache"              ; INSTALL="sudo dnf install -y"
-elif command_exists yum;      then PM=yum   ; UPDATE="sudo yum makecache"                 ; INSTALL="sudo yum install -y"
-elif command_exists pacman;   then PM=pacman; UPDATE="sudo pacman -Sy"                    ; INSTALL="sudo pacman -S --noconfirm"
-elif command_exists apk;      then PM=apk   ; UPDATE="sudo apk update"                    ; INSTALL="sudo apk add --no-cache"
+if   command_exists apt-get; then PM=apt   ; UPDATE="$SUDO apt-get update"                ; INSTALL="$SUDO apt-get install -y"
+elif command_exists dnf;      then PM=dnf   ; UPDATE="$SUDO dnf -y makecache"              ; INSTALL="$SUDO dnf install -y"
+elif command_exists yum;      then PM=yum   ; UPDATE="$SUDO yum makecache"                 ; INSTALL="$SUDO yum install -y"
+elif command_exists pacman;   then PM=pacman; UPDATE="$SUDO pacman -Sy"                    ; INSTALL="$SUDO pacman -S --noconfirm"
+elif command_exists apk;      then PM=apk   ; UPDATE="$SUDO apk update"                    ; INSTALL="$SUDO apk add --no-cache"
 else die "Unsupported distro – can't find apt/yum/dnf/pacman/apk."
 fi
 
 msg ">> Detected package manager: $PM"
 
 ## -------- install system packages ----------------------------------
-# Only runtime dependencies for Tor hosting are needed as system packages.
-# Build tools (QR, minification, PDF parsing) are all Python packages now.
-SYSTEM_PKGS=(tor curl)
+msg ">> Installing system dependencies..."
+SYSTEM_PKGS=(tor curl git python3-pip python3-venv)
 $UPDATE && $INSTALL "${SYSTEM_PKGS[@]}"
 
-# Handle OnionShare separately to allow fallback to pipx
-if ! command_exists onionshare-cli && ! command_exists onionshare; then
+# Onionshare-cli - ensure it's installed and working (always attempt update if using pipx)
+msg ">> Ensuring onionshare-cli is installed and up-to-date..."
+if command_exists pipx && (pipx list | grep -q onionshare || ! command_exists onionshare-cli); then
+  msg "Installing/Updating onionshare-cli via pipx..."
+  pipx install --force git+https://github.com/onionshare/onionshare.git#subdirectory=cli || warn "pipx OnionShare install/update failed"
+elif ! command_exists onionshare-cli && ! command_exists onionshare; then
   msg "Attempting to install OnionShare..."
   OS_PKG="onionshare-cli"
   [[ ! $PM =~ (apt|dnf|yum) ]] && OS_PKG="onionshare"
@@ -41,12 +51,13 @@ if ! command_exists onionshare-cli && ! command_exists onionshare; then
     warn "OnionShare not found in system repositories. Attempting pipx install fallback."
     if ! command_exists pipx; then
       msg "Installing pipx..."
-      [ "$PM" = "apt" ] && $INSTALL pipx python3-venv || $INSTALL pipx
+      $INSTALL pipx
       pipx ensurepath --force
       export PATH="$HOME/.local/bin:$PATH"
     fi
     if command_exists pipx; then
-      pipx install git+https://github.com/onionshare/onionshare.git#subdirectory=cli || warn "pipx OnionShare install failed"
+      msg "Installing/Updating onionshare-cli via pipx..."
+      pipx install --force git+https://github.com/onionshare/onionshare.git#subdirectory=cli || warn "pipx OnionShare install failed"
     else
       warn "pipx not found. Skipping OnionShare installation."
     fi
@@ -56,23 +67,34 @@ fi
 ## -------- install VoxVera (prefers pipx, falls back) ---------------
 install_voxvera() {
   if command_exists pipx; then
+    msg "Installing/Re-installing VoxVera via pipx..."
     pipx install --force 'voxvera@git+https://github.com/PR0M3TH3AN/VoxVera.git@main' && return 0
   fi
   # fallback: binary
   local install_dir="$HOME/.local/bin"
   mkdir -p "$install_dir"
   local url latest dest="$install_dir/voxvera"
-  url=$(curl -fsSLI -o /dev/null -w '%{url_effective}' \
-        https://github.com/PR0M3TH3AN/VoxVera/releases/latest)
-  latest="${url%/}" ; latest="${latest##*/}"      # vX.Y.Z tag
-  url="https://github.com/PR0M3TH3AN/VoxVera/releases/download/${latest/\/}/voxvera-linux"
-  if curl -fsSL "$url" -o "$dest"; then
-    chmod +x "$dest"
-    PATH="$install_dir:$PATH"
-    return 0
+  if command_exists curl; then
+    msg "Downloading VoxVera binary..."
+    url=$(curl -fsSLI -o /dev/null -w '%{url_effective}' \
+          https://github.com/PR0M3TH3AN/VoxVera/releases/latest)
+    latest="${url%/}" ; latest="${latest##*/}"      # vX.Y.Z tag
+    url="https://github.com/PR0M3TH3AN/VoxVera/releases/download/${latest/\/}/voxvera-linux"
+    if curl -fsSL "$url" -o "$dest"; then
+      chmod +x "$dest"
+      return 0
+    fi
   fi
   # fallback: pip
-  pip install --user 'voxvera@git+https://github.com/PR0M3TH3AN/VoxVera.git@main'
+  msg "Installing/Updating VoxVera via pip..."
+  PIP_OPTS="--user --upgrade"
+  if [ -f /etc/debian_version ]; then
+     DEB_VER=$(cat /etc/debian_version | cut -d. -f1)
+     if [[ "$DEB_VER" =~ ^[0-9]+$ ]] && [ "$DEB_VER" -ge 12 ]; then
+       PIP_OPTS="$PIP_OPTS --break-system-packages"
+     fi
+  fi
+  pip install $PIP_OPTS 'voxvera@git+https://github.com/PR0M3TH3AN/VoxVera.git@main'
 }
 
 msg ">> Installing VoxVera"
@@ -89,8 +111,8 @@ EOF
 
 # enable + start tor via systemctl if available
 if command_exists systemctl; then
-  sudo systemctl enable tor || true
-  sudo systemctl restart tor
+  $SUDO systemctl enable tor || true
+  $SUDO systemctl restart tor || true
 fi
 
 msg "------------------------------------------------------------------"
