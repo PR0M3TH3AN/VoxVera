@@ -63,17 +63,23 @@ if [ "${VOXVERA_E2E_OFFLINE:-}" != "1" ]; then
   echo "Starting network-dependent tests..."
   
   # Ensure no previous Tor instances are interfering
-  # On GitHub Actions, Tor might already be running as a service
+  # On GitHub Actions, Tor might already be running as a service, but we want our own
+  # instance with known configuration if possible, or use the existing one.
   if pgrep -x tor > /dev/null; then
-    echo "Tor is already running. Attempting to use existing instance."
-  else
-    echo "Starting a fresh Tor instance..."
-    tor --RunAsDaemon 1 --SocksPort 9050 --ControlPort 9051 --CookieAuthentication 0 >"$LOG_DIR/tor.log" 2>&1
-    sleep 10
+    echo "Tor is already running. We will attempt to use it, but if it fails we might need to stop it."
+    # If system tor is running, it might not have the right ports or auth.
+    # For now, let's try to just use it.
   fi
 
+  echo "Starting a fresh Tor instance on port 9052/9053 to avoid conflicts..."
+  tor --SocksPort 9052 --ControlPort 9053 --CookieAuthentication 0 --DataDirectory "$LOG_DIR/tor_data" >"$LOG_DIR/tor.log" 2>&1 &
+  TOR_PID=$!
+  sleep 15
+
   # Start OnionShare
-  echo "Starting OnionShare..."
+  echo "Starting OnionShare (using Tor on 9052)..."
+  export TOR_SOCKS_PORT=9052
+  export TOR_CONTROL_PORT=9053
   onionshare-cli --website --public \
     --persistent "$host_dir/.onionshare-session" \
     -v \
@@ -112,16 +118,16 @@ if [ "${VOXVERA_E2E_OFFLINE:-}" != "1" ]; then
   fi
 
   # Fetch page via Tor (retry a few times as circuits can be flaky)
-  echo "Verifying reachability via Tor..."
+  echo "Verifying reachability via Tor (on port 9052)..."
   FETCHED=0
   for attempt in {1..5}; do
     echo "Attempt $attempt..."
-    if curl --socks5-hostname 127.0.0.1:9050 -fsSL "$URL" | grep -q '<title>'; then
+    if curl --socks5-hostname 127.0.0.1:9052 -fsSL "$URL" | grep -q '<title>'; then
       echo "Success: Site is reachable via Tor."
       FETCHED=1
       break
     fi
-    sleep 5
+    sleep 10
   done
 
   if [ $FETCHED -eq 0 ]; then
@@ -132,6 +138,7 @@ if [ "${VOXVERA_E2E_OFFLINE:-}" != "1" ]; then
   # Clean up
   echo "Cleaning up..."
   kill $OS_PID || true
+  kill ${TOR_PID:-} || true
   wait $OS_PID 2>/dev/null || true
 else
   echo "Skipping network-dependent tests (VOXVERA_E2E_OFFLINE=1)" >&2

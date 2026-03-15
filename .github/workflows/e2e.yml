@@ -8,8 +8,6 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    env:
-      VOXVERA_E2E_OFFLINE: "1"
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python

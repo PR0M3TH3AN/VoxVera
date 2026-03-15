@@ -113,14 +113,18 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: artifacts
-          pattern: binaries-*
-          merge-multiple: true
+
+      - name: Flatten artifacts for release
+        run: |
+          mkdir -p release_assets
+          find artifacts -type f -exec cp {} release_assets/ \;
+          ls -R release_assets/
 
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            artifacts/**/*
+            release_assets/*
           fail_on_unmatched_files: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
