@@ -55,3 +55,4 @@ site/download/*.dmg
 site/download/*.AppImage
 site/download/*.flatpak
 site/download/voxvera-linux
+site/download/voxvera-linux-x86_64
