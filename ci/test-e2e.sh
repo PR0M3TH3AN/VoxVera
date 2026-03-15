@@ -76,14 +76,24 @@ if [ "${VOXVERA_E2E_OFFLINE:-}" != "1" ]; then
   TOR_PID=$!
   
   # Wait for Tor to bootstrap
-  echo "Waiting for Tor to bootstrap..."
-  for i in {1..60}; do
+  echo "Waiting for Tor to bootstrap (up to 120s)..."
+  BOOTSTRAPPED=0
+  for i in {1..120}; do
     if grep -q "Bootstrapped 100%" "$LOG_DIR/tor.log"; then
       echo "Tor bootstrapped successfully."
+      BOOTSTRAPPED=1
       break
     fi
+    [ $((i % 10)) -eq 0 ] && echo "... still bootstrapping Tor ($i s) ..."
     sleep 1
   done
+
+  if [ $BOOTSTRAPPED -eq 0 ]; then
+    echo "CRITICAL: Tor failed to bootstrap after 120s" >&2
+    tail -n 20 "$LOG_DIR/tor.log"
+    kill ${TOR_PID:-} || true
+    exit 1
+  fi
 
   # Start OnionShare
   echo "Starting OnionShare..."
@@ -96,6 +106,15 @@ if [ "${VOXVERA_E2E_OFFLINE:-}" != "1" ]; then
     -v \
     "$host_dir" >"$LOG_DIR/onionshare.log" 2>&1 &
   OS_PID=$!
+
+  # Check if OnionShare process is still alive after a few seconds
+  sleep 5
+  if ! kill -0 $OS_PID 2>/dev/null; then
+    echo "CRITICAL: OnionShare-cli failed to start" >&2
+    cat "$LOG_DIR/onionshare.log"
+    kill ${TOR_PID:-} || true
+    exit 1
+  fi
 
   # Wait for URL with timeout and feedback
   echo "Waiting for OnionShare to generate URL (up to 120s)..."
