@@ -12,6 +12,7 @@ from importlib import resources
 from importlib.resources.abc import Traversable
 from InquirerPy import prompt, inquirer
 from rich.console import Console
+from voxvera import __version__
 
 # package root (contains bundled templates and src/)
 ROOT = Path(__file__).resolve().parent
