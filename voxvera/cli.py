@@ -1272,6 +1272,12 @@ def main(argv=None):
         "--lang", "--language", "--sprache", "--idioma",
         help="Force language code (e.g. en, es, de)",
     )
+    parser.add_argument(
+        "--version", "-V",
+        action="version",
+        version=f"VoxVera {__version__}",
+        help="Show version information and exit",
+    )
     sub = parser.add_subparsers(dest="command")
 
     sub.add_parser("lang", help="Change language preference")
