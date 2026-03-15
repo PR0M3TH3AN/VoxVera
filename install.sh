@@ -115,47 +115,67 @@ download_binary() {
 }
 
 # Install VoxVera (Always use --force to ensure fresh installation)
+if command_exists curl; then
+  msg "Attempting to download latest VoxVera binary..."
+  # Get the latest release tag
+  latest=$(curl -fsSLI -o /dev/null -w '%{url_effective}' https://github.com/PR0M3TH3AN/VoxVera/releases/latest | grep -oE '[^/]+$')
+  
+  install_dir="$HOME/.local/bin"
+  mkdir -p "$install_dir"
+  dest="$install_dir/voxvera"
+  OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
+  case "$OS" in
+    linux*)  BINARY="voxvera-linux" ;;
+    darwin*) BINARY="voxvera-macos" ;;
+    *)       BINARY="voxvera-linux" ;;
+  esac
+  
+  # Try to download architecture-specific binary first (x86_64)
+  ARCH=$(uname -m)
+  if [ "$ARCH" == "x86_64" ]; then
+    url="https://github.com/PR0M3TH3AN/VoxVera/releases/download/${latest}/${BINARY}-x86_64"
+    if curl -fsSL "$url" -o "$dest"; then
+      chmod +x "$dest"
+      msg "VoxVera binary (${ARCH}) installed to $dest"
+      [[ ":$PATH:" != *":$HOME/.local/bin:"* ]] && warn "Add \$HOME/.local/bin to your PATH."
+      exit 0
+    fi
+  fi
+
+  # Fallback to generic binary
+  url="https://github.com/PR0M3TH3AN/VoxVera/releases/download/${latest}/${BINARY}"
+  if curl -fsSL "$url" -o "$dest"; then
+    chmod +x "$dest"
+    msg "VoxVera binary installed to $dest"
+    [[ ":$PATH:" != *":$HOME/.local/bin:"* ]] && warn "Add \$HOME/.local/bin to your PATH."
+    exit 0
+  fi
+fi
+
 if command_exists pipx; then
-  msg "Installing/Re-installing VoxVera via pipx..."
+  msg "Falling back to pipx installation (this may take a few minutes)..."
   if pipx install --force 'voxvera@git+https://github.com/PR0M3TH3AN/VoxVera.git@main'; then
     pipx ensurepath --force
     msg "\nVoxVera installed/updated successfully via pipx."
     msg "IMPORTANT: Please restart your terminal or run 'source ~/.bashrc' (or your shell config) to use 'voxvera'."
     exit 0
   fi
-  warn "pipx install failed, trying binary fallback..."
+  warn "pipx install failed, trying pip fallback..."
 fi
 
-install_dir="$HOME/.local/bin"
-mkdir -p "$install_dir"
-OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
-case "$OS" in
-  linux*)  BINARY="voxvera-linux" ;;
-  darwin*) BINARY="voxvera-macos" ;;
-  *)       BINARY="voxvera-linux" ;;
-esac
-
-url="https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/${BINARY}"
-dest="$install_dir/voxvera"
-msg "Downloading VoxVera binary from $url..."
-if download_binary "$url" "$dest"; then
-  msg "VoxVera binary downloaded to $dest"
-  [[ ":$PATH:" != *":$HOME/.local/bin:"* ]] && warn "Add \$HOME/.local/bin to your PATH."
+# Fallback to pip
+msg "Installing/Updating VoxVera via pip..."
+PIP_OPTS="--user --upgrade"
+if [ -f /etc/debian_version ]; then
+   DEB_VER=$(cat /etc/debian_version | cut -d. -f1)
+   if [[ "$DEB_VER" =~ ^[0-9]+$ ]] && [ "$DEB_VER" -ge 12 ]; then
+     PIP_OPTS="$PIP_OPTS --break-system-packages"
+   fi
+fi
+if pip install $PIP_OPTS 'voxvera@git+https://github.com/PR0M3TH3AN/VoxVera.git@main'; then
+  msg "VoxVera installed via pip."
 else
-  warn "Binary download failed. Attempting pip install as last resort..."
-  # Use --break-system-packages on Debian 12+ if necessary
-  PIP_OPTS="--user --upgrade"
-  if [ -f /etc/debian_version ]; then
-     DEB_VER=$(cat /etc/debian_version | cut -d. -f1)
-     if [[ "$DEB_VER" =~ ^[0-9]+$ ]] && [ "$DEB_VER" -ge 12 ]; then
-       PIP_OPTS="$PIP_OPTS --break-system-packages"
-     fi
-  fi
-  if pip install $PIP_OPTS 'voxvera@git+https://github.com/PR0M3TH3AN/VoxVera.git@main'; then
-    msg "VoxVera installed via pip."
-  else
-    die "Installation failed."
-  fi
+  die "Installation failed."
 fi
 
 msg "\nVoxVera installed/updated successfully. Run 'voxvera check' to verify."

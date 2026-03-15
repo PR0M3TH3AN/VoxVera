@@ -15,9 +15,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         include:
-          - os: ubuntu-20.04
+          - os: ubuntu-latest
             artifact_name: voxvera-linux
             asset_name: voxvera-linux
           - os: windows-latest
@@ -63,6 +63,8 @@ jobs:
       - name: Build .deb (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
+          mkdir -p voxvera/resources/bin
+          cp dist/${{ matrix.artifact_name }} voxvera/resources/bin/voxvera-linux-x86_64
           chmod +x packaging/build_deb.sh
           ./packaging/build_deb.sh dist/${{ matrix.artifact_name }}
 
@@ -72,19 +74,23 @@ jobs:
           mkdir -p voxvera/resources/bin
           cp dist/${{ matrix.artifact_name }} voxvera/resources/bin/voxvera-linux-x86_64
           chmod +x packaging/build_appimage.sh
-          ./packaging/build_appimage.sh
+          ./packaging/build_appimage.sh dist/${{ matrix.artifact_name }}
 
       - name: Build Flatpak (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
+          mkdir -p voxvera/resources/bin
+          cp dist/${{ matrix.artifact_name }} voxvera/resources/bin/voxvera-linux-x86_64
           sudo apt-get update
           sudo apt-get install -y flatpak flatpak-builder
           chmod +x packaging/build_flatpak.sh
-          ./packaging/build_flatpak.sh || echo "Flatpak build failed"
+          ./packaging/build_flatpak.sh dist/${{ matrix.artifact_name }} || echo "Flatpak build failed"
 
       - name: Build .dmg (macOS)
         if: matrix.os == 'macos-latest'
         run: |
+          mkdir -p voxvera/resources/bin
+          cp dist/${{ matrix.artifact_name }} voxvera/resources/bin/voxvera-macos-x86_64
           chmod +x packaging/build_dmg.sh
           ./packaging/build_dmg.sh dist/${{ matrix.artifact_name }}
 

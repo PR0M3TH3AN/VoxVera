@@ -64,31 +64,54 @@ elif ! command_exists onionshare-cli && ! command_exists onionshare; then
   fi
 fi
 
-## -------- install VoxVera (prefers pipx, falls back) ---------------
+## -------- install VoxVera (prefers binary, falls back) -------------
 install_voxvera() {
+  local install_dir="$HOME/.local/bin"
+  mkdir -p "$install_dir"
+  local url latest dest="$install_dir/voxvera"
+
+  if command_exists curl; then
+    msg "Attempting to download latest VoxVera binary..."
+    # Get the latest release tag
+    latest=$(curl -fsSLI -o /dev/null -w '%{url_effective}' https://github.com/PR0M3TH3AN/VoxVera/releases/latest | grep -oE '[^/]+$')
+    
+    OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
+    case "$OS" in
+      linux*)  BINARY="voxvera-linux" ;;
+      darwin*) BINARY="voxvera-macos" ;;
+      *)       BINARY="voxvera-linux" ;;
+    esac
+    
+    # Try to download architecture-specific binary first (x86_64)
+    ARCH=$(uname -m)
+    if [ "$ARCH" == "x86_64" ]; then
+      url="https://github.com/PR0M3TH3AN/VoxVera/releases/download/${latest}/${BINARY}-x86_64"
+      if curl -fsSL "$url" -o "$dest"; then
+        chmod +x "$dest"
+        msg "VoxVera binary (${ARCH}) installed to $dest"
+        return 0
+      fi
+    fi
+
+    # Fallback to generic binary
+    url="https://github.com/PR0M3TH3AN/VoxVera/releases/download/${latest}/${BINARY}"
+    if curl -fsSL "$url" -o "$dest"; then
+      chmod +x "$dest"
+      msg "VoxVera binary installed to $dest"
+      return 0
+    fi
+  fi
+
+  # Fallback to pipx
   if command_exists pipx; then
-    msg "Installing/Re-installing VoxVera via pipx..."
+    msg "Falling back to pipx installation (this may take a few minutes)..."
     if pipx install --force 'voxvera@git+https://github.com/PR0M3TH3AN/VoxVera.git@main'; then
       pipx ensurepath --force
       return 0
     fi
   fi
-  # fallback: binary
-  local install_dir="$HOME/.local/bin"
-  mkdir -p "$install_dir"
-  local url latest dest="$install_dir/voxvera"
-  if command_exists curl; then
-    msg "Downloading VoxVera binary..."
-    url=$(curl -fsSLI -o /dev/null -w '%{url_effective}' \
-          https://github.com/PR0M3TH3AN/VoxVera/releases/latest)
-    latest="${url%/}" ; latest="${latest##*/}"      # vX.Y.Z tag
-    url="https://github.com/PR0M3TH3AN/VoxVera/releases/download/${latest/\/}/voxvera-linux"
-    if curl -fsSL "$url" -o "$dest"; then
-      chmod +x "$dest"
-      return 0
-    fi
-  fi
-  # fallback: pip
+
+  # Fallback to pip
   msg "Installing/Updating VoxVera via pip..."
   PIP_OPTS="--user --upgrade"
   if [ -f /etc/debian_version ]; then
