@@ -125,10 +125,23 @@ if [ "${VOXVERA_E2E_OFFLINE:-}" != "1" ]; then
   # Robustness: Manually update the config.json with the URL so verification passes
   # and the site is actually using the live onion address.
   echo "Updating $host_dir/config.json with live URL: $URL"
-  python3 -c "import json, sys; d=json.load(open('$host_dir/config.json')); d['url']='$URL'; json.dump(d, open('$host_dir/config.json', 'w'), indent=2)"
+  python3 <<EOF
+import json
+import os
+path = "$host_dir/config.json"
+with open(path, 'r') as f:
+    data = json.load(f)
+data['url'] = "$URL"
+with open(path + '.new', 'w') as f:
+    json.dump(data, f, indent=2)
+os.replace(path + '.new', path)
+EOF
+
+  echo "Verifying content of $host_dir/config.json:"
+  cat "$host_dir/config.json"
 
   # Verify URL in config
-  if ! grep -q "$URL" "$host_dir/config.json"; then
+  if ! grep -Fq "$URL" "$host_dir/config.json"; then
     echo "CRITICAL: URL $URL not found in $host_dir/config.json" >&2
     cat "$host_dir/config.json"
     kill $OS_PID || true

@@ -49,6 +49,11 @@ jobs:
           if [ "$RUNNER_OS" == "Windows" ]; then SEP=";"; else SEP=":"; fi
           pyinstaller --onefile \
             --collect-all onionshare_cli \
+            --collect-all flask_socketio \
+            --collect-all engineio \
+            --collect-all socketio \
+            --collect-all eventlet \
+            --collect-all gevent \
             --add-data "voxvera/locales${SEP}voxvera/locales" \
             --add-data "voxvera/src${SEP}voxvera/src" \
             --add-data "voxvera/templates${SEP}voxvera/templates" \
