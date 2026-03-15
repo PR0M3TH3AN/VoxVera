@@ -107,10 +107,12 @@ class TestFullWorkflow:
         # Setup temp workspace
         repo_root = Path(__file__).resolve().parent.parent
         shutil.copytree(repo_root / "voxvera" / "src", tmp_path / "src")
+        shutil.copytree(repo_root / "voxvera" / "locales", tmp_path / "locales")
 
         # Monkeypatch ROOT to use temp directory
         monkeypatch.setattr(cli, "ROOT", tmp_path)
         monkeypatch.setattr(cli, "_src_res", lambda *p: tmp_path / "src" / Path(*p))
+        monkeypatch.setattr(cli, "_locale_res", lambda *p: tmp_path / "locales" / Path(*p))
 
         # Create test config
         config = {
@@ -201,8 +203,11 @@ class TestFullWorkflow:
         # Setup
         repo_root = Path(__file__).resolve().parent.parent
         shutil.copytree(repo_root / "voxvera" / "src", tmp_path / "src")
+        shutil.copytree(repo_root / "voxvera" / "locales", tmp_path / "locales")
+
         monkeypatch.setattr(cli, "ROOT", tmp_path)
         monkeypatch.setattr(cli, "_src_res", lambda *p: tmp_path / "src" / Path(*p))
+        monkeypatch.setattr(cli, "_locale_res", lambda *p: tmp_path / "locales" / Path(*p))
 
         config = {
             "name": "Reachability Test",
@@ -321,8 +326,11 @@ class TestSiteFiles:
         # Setup
         repo_root = Path(__file__).resolve().parent.parent
         shutil.copytree(repo_root / "voxvera" / "src", tmp_path / "src")
+        shutil.copytree(repo_root / "voxvera" / "locales", tmp_path / "locales")
+
         monkeypatch.setattr(cli, "ROOT", tmp_path)
         monkeypatch.setattr(cli, "_src_res", lambda *p: tmp_path / "src" / Path(*p))
+        monkeypatch.setattr(cli, "_locale_res", lambda *p: tmp_path / "locales" / Path(*p))
 
         config = {
             "name": "Test",
