@@ -5,7 +5,7 @@ set -e
 cd "$(dirname "$0")/.."
 
 ARCH=$(uname -m)
-BINARY="voxvera/resources/bin/voxvera-linux-$ARCH"
+BINARY=${1:-"voxvera/resources/bin/voxvera-linux-$ARCH"}
 
 if [ ! -f "$BINARY" ]; then
   echo "Binary not found: $BINARY. Run scripts/build_binaries.sh first." >&2

@@ -235,18 +235,26 @@ class TestFullWorkflow:
         logfile = host_dir / "onionshare.log"
         log_fh = open(logfile, "w")
 
+        # Pass Tor environment variables to ensure it uses the running Tor
+        env = os.environ.copy()
+        tor_port = check_tor_running()
+        if tor_port:
+            env["TOR_SOCKS_PORT"] = str(tor_port)
+            env["TOR_CONTROL_PORT"] = str(tor_port + 1)
+
         cmd = [
             sys.executable,
             "-m", "voxvera.cli",
             "_internal_onionshare",
             "--website",
             "--public",
+            "--tor-mode", "unmanaged",
             "--persistent",
             str(host_dir / ".onionshare-session"),
             "-v",
             str(host_dir),
         ]
-        proc = subprocess.Popen(cmd, stdout=log_fh, stderr=subprocess.STDOUT)
+        proc = subprocess.Popen(cmd, stdout=log_fh, stderr=subprocess.STDOUT, env=env)
 
         try:
             # Wait for onion URL to appear in the log

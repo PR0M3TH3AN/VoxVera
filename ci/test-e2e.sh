@@ -62,25 +62,37 @@ python3 -m pytest tests/ -v 2>&1 | tee "$LOG_DIR/pytest.log"
 if [ "${VOXVERA_E2E_OFFLINE:-}" != "1" ]; then
   echo "Starting network-dependent tests..."
   
-  # Ensure no previous Tor instances are interfering
-  # On GitHub Actions, Tor might already be running as a service, but we want our own
-  # instance with known configuration if possible, or use the existing one.
-  if pgrep -x tor > /dev/null; then
-    echo "Tor is already running. We will attempt to use it, but if it fails we might need to stop it."
-    # If system tor is running, it might not have the right ports or auth.
-    # For now, let's try to just use it.
-  fi
+  # GitHub Actions Ubuntu runners have Tor pre-installed and running as a service.
+  # We stop it to ensure we can run our own instance with known configuration on default ports.
+  echo "Stopping system Tor service if running..."
+  sudo systemctl stop tor || true
+  
+  # Kill any lingering tor processes
+  sudo pkill -x tor || true
 
-  echo "Starting a fresh Tor instance on port 9052/9053 to avoid conflicts..."
-  tor --SocksPort 9052 --ControlPort 9053 --CookieAuthentication 0 --DataDirectory "$LOG_DIR/tor_data" >"$LOG_DIR/tor.log" 2>&1 &
+  echo "Starting a fresh Tor instance on default ports (9050/9051)..."
+  mkdir -p "$LOG_DIR/tor_data"
+  tor --SocksPort 9050 --ControlPort 9051 --CookieAuthentication 0 --DataDirectory "$LOG_DIR/tor_data" >"$LOG_DIR/tor.log" 2>&1 &
   TOR_PID=$!
-  sleep 15
+  
+  # Wait for Tor to bootstrap
+  echo "Waiting for Tor to bootstrap..."
+  for i in {1..60}; do
+    if grep -q "Bootstrapped 100%" "$LOG_DIR/tor.log"; then
+      echo "Tor bootstrapped successfully."
+      break
+    fi
+    sleep 1
+  done
 
   # Start OnionShare
-  echo "Starting OnionShare (using Tor on 9052)..."
-  export TOR_SOCKS_PORT=9052
-  export TOR_CONTROL_PORT=9053
+  echo "Starting OnionShare..."
+  # Explicitly set environment variables that OnionShare-cli respects
+  export TOR_SOCKS_PORT=9050
+  export TOR_CONTROL_PORT=9051
+  
   onionshare-cli --website --public \
+    --tor-mode unmanaged \
     --persistent "$host_dir/.onionshare-session" \
     -v \
     "$host_dir" >"$LOG_DIR/onionshare.log" 2>&1 &
@@ -118,11 +130,11 @@ if [ "${VOXVERA_E2E_OFFLINE:-}" != "1" ]; then
   fi
 
   # Fetch page via Tor (retry a few times as circuits can be flaky)
-  echo "Verifying reachability via Tor (on port 9052)..."
+  echo "Verifying reachability via Tor (on port 9050)..."
   FETCHED=0
   for attempt in {1..5}; do
     echo "Attempt $attempt..."
-    if curl --socks5-hostname 127.0.0.1:9052 -fsSL "$URL" | grep -q '<title>'; then
+    if curl --socks5-hostname 127.0.0.1:9050 -fsSL "$URL" | grep -q '<title>'; then
       echo "Success: Site is reachable via Tor."
       FETCHED=1
       break
