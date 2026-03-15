@@ -72,7 +72,8 @@
     "bootstrapping_msg": "[{name}] Подключение к реле Tor и настройка скрытого сервиса...",
     "bootstrapping_progress": "[{name}] Загрузка Tor: {progress}% ...",
     "no_urls_qr_skip": "URL еще не настроены. QR-коды будут созданы после 'voxvera serve'",
-    "input_file_not_found": "Входной файл {path} не существует."
+    "input_file_not_found": "Входной файл {path} не существует.",
+    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)"
   },
   "web": {
     "tear_off_tor_browser": "Используйте Tor Browser",
@@ -80,7 +81,8 @@
     "tear_off_footer": "нажмите кнопку ниже, чтобы распечатать",
     "built_with": "создано с помощью",
     "print_button": "Печать листовки",
-    "download_button": "Скачать инструмент и код"
+    "download_button": "Скачать инструмент и код",
+    "download_attachment": "Download Attachment"
   },
   "landing": {
     "title": "СОВЕРШЕННО СЕКРЕТНО",

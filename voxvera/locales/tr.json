@@ -72,7 +72,8 @@
     "bootstrapping_msg": "[{name}] Tor rölelerine bağlanılıyor ve gizli servis kuruluyor...",
     "bootstrapping_progress": "[{name}] Tor Başlatılıyor: %{progress} ...",
     "no_urls_qr_skip": "Henüz URL yapılandırılmadı. QR kodları 'voxvera serve' komutundan sonra oluşturulacak",
-    "input_file_not_found": "{path} giriş dosyası mevcut değil."
+    "input_file_not_found": "{path} giriş dosyası mevcut değil.",
+    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)"
   },
   "web": {
     "tear_off_tor_browser": "Tor Tarayıcı Kullanın",
@@ -80,7 +81,8 @@
     "tear_off_footer": "yazdırmak için aşağıdaki düğmeye tıklayın",
     "built_with": "ile yapıldı",
     "print_button": "İlanı Yazdır",
-    "download_button": "Aracı ve Kaynak Kodunu İndir"
+    "download_button": "Aracı ve Kaynak Kodunu İndir",
+    "download_attachment": "Download Attachment"
   },
   "landing": {
     "title": "ÇOK GİZLİ",

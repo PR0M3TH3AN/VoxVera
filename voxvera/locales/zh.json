@@ -72,7 +72,8 @@
     "bootstrapping_msg": "[{name}] 正在连接 Tor 中继并设置隐藏服务...",
     "bootstrapping_progress": "[{name}] Tor 引导中: {progress}% ...",
     "no_urls_qr_skip": "尚未配置 URL。QR 码将在 'voxvera serve' 后生成",
-    "input_file_not_found": "输入文件 {path} 不存在。"
+    "input_file_not_found": "输入文件 {path} 不存在。",
+    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)"
   },
   "web": {
     "tear_off_tor_browser": "使用 Tor 浏览器",
@@ -80,7 +81,8 @@
     "tear_off_footer": "点击下方按钮进行打印",
     "built_with": "构建自",
     "print_button": "打印传单",
-    "download_button": "下载工具与源码"
+    "download_button": "下载工具与源码",
+    "download_attachment": "Download Attachment"
   },
   "landing": {
     "title": "绝密",

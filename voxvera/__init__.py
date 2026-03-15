@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-__version__ = "0.2.3"
+__version__ = "0.2.4"
 
 # Add the vendor directory to sys.path as a fallback.
 if getattr(sys, 'frozen', False):

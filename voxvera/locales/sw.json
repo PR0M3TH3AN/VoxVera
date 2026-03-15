@@ -72,7 +72,8 @@
     "bootstrapping_msg": "[{name}] Inajunganisha na seva za Tor na kuandaa huduma ya siri...",
     "bootstrapping_progress": "[{name}] Tor Inapakia: {progress}% ...",
     "no_urls_qr_skip": "Hakuna URL zilizowekwa bado. QR codes zitaundwa baada ya 'voxvera serve'",
-    "input_file_not_found": "Faili ya kuingiza {path} haipo."
+    "input_file_not_found": "Faili ya kuingiza {path} haipo.",
+    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)"
   },
   "web": {
     "tear_off_tor_browser": "Tumia Kivinjari cha Tor",
@@ -80,7 +81,8 @@
     "tear_off_footer": "bonyeza kitufe hapa chini ili kuchapisha",
     "built_with": "imejengwa na",
     "print_button": "Chapa Kipeperushi",
-    "download_button": "Pakua Zana na Chanzo"
+    "download_button": "Pakua Zana na Chanzo",
+    "download_attachment": "Download Attachment"
   },
   "landing": {
     "title": "SIRI KUBWA",

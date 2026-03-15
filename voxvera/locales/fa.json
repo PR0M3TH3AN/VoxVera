@@ -72,7 +72,8 @@
     "bootstrapping_msg": "[{name}] در حال اتصال به رله‌های Tor و راه‌اندازی سرویس مخفی...",
     "bootstrapping_progress": "[{name}] راه‌اندازی Tor: {progress}% ...",
     "no_urls_qr_skip": "هنوز آدرسی پیکربندی نشده است. کدهای QR پس از 'voxvera serve' ایجاد می‌شوند",
-    "input_file_not_found": "فایل ورودی {path} وجود ندارد."
+    "input_file_not_found": "فایل ورودی {path} وجود ندارد.",
+    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)"
   },
   "web": {
     "tear_off_tor_browser": "از مرورگر Tor استفاده کنید",
@@ -80,7 +81,8 @@
     "tear_off_footer": "برای چاپ روی دکمه زیر کلیک کنید",
     "built_with": "ساخته شده با",
     "print_button": "چاپ اعلامیه",
-    "download_button": "دانلود ابزار و کد منبع"
+    "download_button": "دانلود ابزار و کد منبع",
+    "download_attachment": "Download Attachment"
   },
   "landing": {
     "title": "به‌کلی محرمانه",

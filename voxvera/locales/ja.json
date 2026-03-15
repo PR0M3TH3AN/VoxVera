@@ -72,7 +72,8 @@
     "bootstrapping_msg": "[{name}] Tor リレーに接続し、隠しサービスをセットアップ中...",
     "bootstrapping_progress": "[{name}] Tor 起動中: {progress}% ...",
     "no_urls_qr_skip": "URLがまだ設定されていません。QRコードは 'voxvera serve' の後に生成されます",
-    "input_file_not_found": "入力ファイル {path} が存在しません。"
+    "input_file_not_found": "入力ファイル {path} が存在しません。",
+    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)"
   },
   "web": {
     "tear_off_tor_browser": "Tor Browserを使用してください",
@@ -80,7 +81,8 @@
     "tear_off_footer": "下のボタンをクリックして印刷してください",
     "built_with": "built with",
     "print_button": "フライヤーを印刷",
-    "download_button": "ツールとソースをダウンロード"
+    "download_button": "ツールとソースをダウンロード",
+    "download_attachment": "Download Attachment"
   },
   "landing": {
     "title": "極秘事項",

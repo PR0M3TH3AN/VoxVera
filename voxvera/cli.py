@@ -394,6 +394,12 @@ def interactive_update(config_path: str):
             "transformer": _len_transform(120),
             "validate": _len_validator(120),
         },
+        {
+            "type": "input",
+            "message": t("cli.attachment_path_label"),
+            "name": "attachment_path",
+            "default": data.get("attachment_path", ""),
+        },
     ]
     data.update(prompt(link_qs))
 
@@ -528,6 +534,18 @@ def build_assets(
             val_str = re.sub(r"~~(.*?)~~", r'<span class="redacted">\1</span>', val_str)
             html = html.replace(f"{{{{{key}}}}}", val_str)
 
+        # Handle optional file attachment
+        attachment_path = data.get("attachment_path")
+        attachment_url = ""
+        attachment_display = "none"
+        if attachment_path and os.path.isfile(attachment_path):
+            att_filename = os.path.basename(attachment_path)
+            attachment_url = f"download/{att_filename}"
+            attachment_display = "inline-block"
+
+        html = html.replace("{{attachment_url}}", attachment_url)
+        html = html.replace("{{attachment_display}}", attachment_display)
+
         folder_name = data["folder_name"]
         dest = ROOT / "host" / folder_name
         os.makedirs(dest, exist_ok=True)
@@ -545,6 +563,9 @@ def build_assets(
 
         if download_path:
             shutil.copy(download_path, download_dir / "extra-content.zip")
+
+        if attachment_path and os.path.isfile(attachment_path):
+            shutil.copy(attachment_path, download_dir / os.path.basename(attachment_path))
 
         # Copy config if it's not already there
         if Path(config_path) != dest / "config.json":

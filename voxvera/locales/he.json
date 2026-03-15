@@ -72,7 +72,8 @@
     "bootstrapping_msg": "[{name}] מתחבר לממסרי Tor ומגדיר שירות נסתר...",
     "bootstrapping_progress": "[{name}] איתחול Tor: {progress}% ...",
     "no_urls_qr_skip": "עדיין לא הוגדרו כתובות URL. קודי QR ייווצרו לאחר 'voxvera serve'",
-    "input_file_not_found": "קובץ הקלט {path} אינו קיים."
+    "input_file_not_found": "קובץ הקלט {path} אינו קיים.",
+    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)"
   },
   "web": {
     "tear_off_tor_browser": "השתמש בדפדפן Tor",
@@ -80,7 +81,8 @@
     "tear_off_footer": "לחץ על הכפתור למטה להדפסה",
     "built_with": "נבנה עם",
     "print_button": "הדפס פלייר",
-    "download_button": "הורד כלי וקוד מקור"
+    "download_button": "הורד כלי וקוד מקור",
+    "download_attachment": "Download Attachment"
   },
   "landing": {
     "title": "סודי ביותר",

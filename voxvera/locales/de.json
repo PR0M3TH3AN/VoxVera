@@ -71,7 +71,8 @@
     "bootstrapping_msg": "[{name}] Verbindung zu Tor-Relays herstellen und Hidden Service einrichten...",
     "bootstrapping_progress": "[{name}] Tor-Bootstrapping: {progress}% ...",
     "no_urls_qr_skip": "Noch keine URLs konfiguriert. QR-Codes werden nach 'voxvera serve' generiert",
-    "input_file_not_found": "Eingabedatei {path} existiert nicht."
+    "input_file_not_found": "Eingabedatei {path} existiert nicht.",
+    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)"
   },
   "web": {
     "tear_off_tor_browser": "Tor-Browser verwenden",
@@ -79,7 +80,8 @@
     "tear_off_footer": "Klicken Sie auf die Schaltfläche unten zum Drucken",
     "built_with": "erstellt mit",
     "print_button": "Flyer drucken",
-    "download_button": "Tool & Quellcode herunterladen"
+    "download_button": "Tool & Quellcode herunterladen",
+    "download_attachment": "Download Attachment"
   },
   "landing": {
     "title": "STRENG GEHEIM",

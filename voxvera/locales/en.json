@@ -22,6 +22,7 @@
     "url_label": "URL (content link - external resource)",
     "url_message_label": "URL message",
     "binary_message_label": "Binary message",
+    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
     "template_not_found": "Template {name} not found",
     "template_copied": "Template copied to {dest}",
     "flyer_created": "Flyer files created under {dest}",
@@ -79,7 +80,8 @@
     "tear_off_footer": "click the button below to print",
     "built_with": "built with",
     "print_button": "Print this page",
-    "download_button": "Download Source Code"
+    "download_button": "Download Source Code",
+    "download_attachment": "Download Attachment"
   },
   "landing": {
     "title": "TOP SECRET",

@@ -72,7 +72,8 @@
     "bootstrapping_msg": "[{name}] جاري الاتصال بمرحلات Tor وإعداد الخدمة المخفية...",
     "bootstrapping_progress": "[{name}] تمهيد Tor: {progress}% ...",
     "no_urls_qr_skip": "لم يتم تكوين أي روابط بعد. سيتم إنشاء أكواد QR بعد 'voxvera serve'",
-    "input_file_not_found": "ملف الإدخال {path} غير موجود."
+    "input_file_not_found": "ملف الإدخال {path} غير موجود.",
+    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)"
   },
   "web": {
     "tear_off_tor_browser": "استخدم متصفح Tor",
@@ -80,7 +81,8 @@
     "tear_off_footer": "انقر فوق الزر أدناه للطباعة",
     "built_with": "بني بواسطة",
     "print_button": "اطبع المنشور",
-    "download_button": "تحميل الأداة والكود"
+    "download_button": "تحميل الأداة والكود",
+    "download_attachment": "Download Attachment"
   },
   "landing": {
     "title": "سري للغاية",

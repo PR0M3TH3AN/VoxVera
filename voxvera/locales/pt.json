@@ -72,7 +72,8 @@
     "bootstrapping_msg": "[{name}] Conectando aos repetidores Tor e configurando serviço oculto...",
     "bootstrapping_progress": "[{name}] Inicialização do Tor: {progress}% ...",
     "no_urls_qr_skip": "Nenhuma URL configurada ainda. Os códigos QR serão gerados após 'voxvera serve'",
-    "input_file_not_found": "Arquivo de entrada {path} não existe."
+    "input_file_not_found": "Arquivo de entrada {path} não existe.",
+    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)"
   },
   "web": {
     "tear_off_tor_browser": "Use o Tor Browser",
@@ -80,7 +81,8 @@
     "tear_off_footer": "clique no botão abaixo para imprimir",
     "built_with": "construído com",
     "print_button": "Imprimir Panfleto",
-    "download_button": "Baixar Ferramenta e Código"
+    "download_button": "Baixar Ferramenta e Código",
+    "download_attachment": "Download Attachment"
   },
   "landing": {
     "title": "ALTO SECRETO",

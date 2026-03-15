@@ -8,5 +8,7 @@
   "url_message": "Get VoxVera and start spreading your message.",
   "url": "https://github.com/PR0M3TH3AN/VoxVera",
   "tear_off_link": "https://voxvera.org/",
-  "binary_message": "0110010 0101011 0110010 0111101 0110100"
+  "binary_message": "0110010 0101011 0110010 0111101 0110100",
+  "attachment_path": "",
+  "attachment_filename": ""
 }
