@@ -68,7 +68,10 @@ fi
 install_voxvera() {
   if command_exists pipx; then
     msg "Installing/Re-installing VoxVera via pipx..."
-    pipx install --force 'voxvera@git+https://github.com/PR0M3TH3AN/VoxVera.git@main' && return 0
+    if pipx install --force 'voxvera@git+https://github.com/PR0M3TH3AN/VoxVera.git@main'; then
+      pipx ensurepath --force
+      return 0
+    fi
   fi
   # fallback: binary
   local install_dir="$HOME/.local/bin"
@@ -118,6 +121,9 @@ fi
 msg "------------------------------------------------------------------"
 msg "   VoxVera install finished!"
 msg "   Tor rc file : $TOR_DIR/torrc"
-msg "   Make sure \$HOME/.local/bin is in your PATH."
-msg "   Run 'voxvera check' to verify your setup."
+msg ""
+msg "   IMPORTANT: Please restart your terminal or run 'source ~/.bashrc'"
+msg "   (or your shell config) to use 'voxvera'."
+msg ""
+msg "   Run 'voxvera check' to verify your setup after refreshing."
 msg "------------------------------------------------------------------"

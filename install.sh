@@ -118,7 +118,9 @@ download_binary() {
 if command_exists pipx; then
   msg "Installing/Re-installing VoxVera via pipx..."
   if pipx install --force 'voxvera@git+https://github.com/PR0M3TH3AN/VoxVera.git@main'; then
-    msg "VoxVera installed/updated successfully via pipx."
+    pipx ensurepath --force
+    msg "\nVoxVera installed/updated successfully via pipx."
+    msg "IMPORTANT: Please restart your terminal or run 'source ~/.bashrc' (or your shell config) to use 'voxvera'."
     exit 0
   fi
   warn "pipx install failed, trying binary fallback..."
