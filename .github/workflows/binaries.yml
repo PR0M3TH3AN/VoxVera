@@ -35,7 +35,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          pip install pyinstaller
+          pip install pyinstaller pyinstaller-hooks-contrib
 
       - name: Download Tor Binaries
         shell: bash
@@ -48,6 +48,7 @@ jobs:
         run: |
           if [ "$RUNNER_OS" == "Windows" ]; then SEP=";"; else SEP=":"; fi
           pyinstaller --onefile \
+            --collect-all onionshare_cli \
             --add-data "voxvera/locales${SEP}voxvera/locales" \
             --add-data "voxvera/src${SEP}voxvera/src" \
             --add-data "voxvera/templates${SEP}voxvera/templates" \

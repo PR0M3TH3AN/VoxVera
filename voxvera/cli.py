@@ -15,7 +15,10 @@ from rich.console import Console
 from voxvera import __version__
 
 # package root (contains bundled templates and src/)
-ROOT = Path(__file__).resolve().parent
+if getattr(sys, 'frozen', False):
+    ROOT = Path(sys._MEIPASS).joinpath("voxvera")
+else:
+    ROOT = Path(__file__).resolve().parent
 
 # Global locale state
 CURRENT_LOCALE = {}
