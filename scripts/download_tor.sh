@@ -4,46 +4,70 @@ set -euo pipefail
 VERSION="${VERSION:-15.0.7}"
 BASE_URL="https://dist.torproject.org/torbrowser"
 
-ARCH=$(uname -m)
-if [ "$ARCH" == "aarch64" ] || [ "$ARCH" == "arm64" ]; then
-    TOR_ARCH="aarch64"
-else
-    TOR_ARCH="x86_64"
-fi
+# ARCH=$(uname -m) # Not needed for multi-platform download if we hardcode/loop targets
 
-case "$(uname -s)" in
-  Linux*)  PLATFORM=linux;  ARCHIVE="tor-expert-bundle-linux-${TOR_ARCH}-${VERSION}.tar.gz"; EXE=tor;;
-  Darwin*) PLATFORM=mac;    ARCHIVE="tor-expert-bundle-macos-${TOR_ARCH}-${VERSION}.tar.gz"; EXE=tor;;
-  MINGW*|MSYS*|CYGWIN*) PLATFORM=win; ARCHIVE="tor-expert-bundle-windows-x86_64-${VERSION}.tar.gz"; EXE=tor.exe;;
-  *) echo "Unsupported OS" >&2; exit 1;;
-esac
+download_platform() {
+    local platform=$1
+    local arch=$2
+    local archive=$3
+    local exe=$4
+    
+    local tmpdir=$(mktemp -d)
+    # trap 'rm -rf "$tmpdir"' EXIT # We'll clean up manually in the loop
 
-TMPDIR=$(mktemp -d)
-trap 'rm -rf "$TMPDIR"' EXIT
+    local url="$BASE_URL/${VERSION}/${archive}"
+    local dest="$(dirname "$0")/../voxvera/resources/tor/$platform"
+    
+    echo "--- Platform: $platform ($arch) ---"
+    echo "Downloading $url"
+    if ! curl -L "$url" -o "$tmpdir/$archive"; then
+        echo "Failed to download $url" >&2
+        rm -rf "$tmpdir"
+        return 1
+    fi
 
-URL="$BASE_URL/${VERSION}/${ARCHIVE}"
+    echo "Extracting..."
+    if [[ "$archive" == *.zip ]]; then
+        unzip -q "$tmpdir/$archive" -d "$tmpdir"
+    else
+        tar -xf "$tmpdir/$archive" -C "$tmpdir"
+    fi
 
-echo "Downloading $URL"
-curl -L "$URL" -o "$TMPDIR/$ARCHIVE"
+    mkdir -p "$dest"
 
-echo "Extracting..."
-tar -xf "$TMPDIR/$ARCHIVE" -C "$TMPDIR"
+    local tor_bin=$(find "$tmpdir" -type f -name "$exe" | head -n 1)
+    local obfs_bin=$(find "$tmpdir" -type f \( -name "lyrebird*" -o -name "obfs4proxy*" \) | head -n 1)
 
-DEST="$(dirname "$0")/../voxvera/resources/tor/$PLATFORM"
-mkdir -p "$DEST"
+    if [[ -z "$tor_bin" || -z "$obfs_bin" ]]; then
+      echo "Failed to locate tor or lyrebird/obfs4proxy in archive for $platform" >&2
+      rm -rf "$tmpdir"
+      return 1
+    fi
 
-TOR_BIN=$(find "$TMPDIR" -type f -name "$EXE" | head -n 1)
-OBFS_BIN=$(find "$TMPDIR" -type f \( -name "lyrebird*" -o -name "obfs4proxy*" \) | head -n 1)
+    echo "Installing binaries to $dest"
+    cp "$tor_bin" "$dest/$(basename "$exe")"
+    cp "$obfs_bin" "$dest/$(basename "$obfs_bin")"
 
-if [[ -z "$TOR_BIN" || -z "$OBFS_BIN" ]]; then
-  echo "Failed to locate tor or lyrebird/obfs4proxy in archive" >&2
-  exit 1
-fi
+    chmod +x "$dest/$(basename "$exe")" "$dest/$(basename "$obfs_bin")"
+    
+    # If it's lyrebird, create a symlink for obfs4proxy for compatibility
+    if [[ "$(basename "$obfs_bin")" == "lyrebird"* ]]; then
+        local obfs_name="obfs4proxy"
+        [[ "$platform" == "win" ]] && obfs_name="obfs4proxy.exe"
+        echo "Creating symlink $obfs_name -> $(basename "$obfs_bin")"
+        (cd "$dest" && rm -f "$obfs_name" && ln -s "$(basename "$obfs_bin")" "$obfs_name")
+    fi
 
-cp "$TOR_BIN" "$DEST/$(basename "$EXE")"
-cp "$OBFS_BIN" "$DEST/$(basename "$OBFS_BIN")"
+    rm -rf "$tmpdir"
+}
 
-chmod +x "$DEST/$(basename "$EXE")" "$DEST/$(basename "$OBFS_BIN")"
+# Linux x86_64
+download_platform "linux" "x86_64" "tor-expert-bundle-linux-x86_64-${VERSION}.tar.gz" "tor"
 
-echo "Installed binaries to $DEST"
+# macOS x86_64 (Intel) - works on M1/M2 via Rosetta if needed, but expert bundle usually has universal or specific
+download_platform "mac" "x86_64" "tor-expert-bundle-macos-x86_64-${VERSION}.tar.gz" "tor"
 
+# Windows x86_64
+download_platform "win" "x86_64" "tor-expert-bundle-windows-x86_64-${VERSION}.tar.gz" "tor.exe"
+
+echo "All platforms updated."
