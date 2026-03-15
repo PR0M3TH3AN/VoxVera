@@ -49,6 +49,7 @@ dist_bin/
 voxvera/resources/bin/*
 !voxvera/resources/bin/.gitkeep
 site/download/*.zip
+!site/download/voxvera-source.zip
 site/download/*.exe
 site/download/*.deb
 site/download/*.dmg
