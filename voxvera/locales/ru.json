@@ -73,7 +73,8 @@
     "bootstrapping_progress": "[{name}] Загрузка Tor: {progress}% ...",
     "no_urls_qr_skip": "URL еще не настроены. QR-коды будут созданы после 'voxvera serve'",
     "input_file_not_found": "Входной файл {path} не существует.",
-    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)"
+    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
+    "manage_action_edit": "Edit"
   },
   "web": {
     "tear_off_tor_browser": "Используйте Tor Browser",

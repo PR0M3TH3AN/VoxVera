@@ -73,7 +73,8 @@
     "bootstrapping_progress": "[{name}] איתחול Tor: {progress}% ...",
     "no_urls_qr_skip": "עדיין לא הוגדרו כתובות URL. קודי QR ייווצרו לאחר 'voxvera serve'",
     "input_file_not_found": "קובץ הקלט {path} אינו קיים.",
-    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)"
+    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
+    "manage_action_edit": "Edit"
   },
   "web": {
     "tear_off_tor_browser": "השתמש בדפדפן Tor",

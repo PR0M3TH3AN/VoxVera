@@ -73,7 +73,8 @@
     "bootstrapping_progress": "[{name}] Tor Inapakia: {progress}% ...",
     "no_urls_qr_skip": "Hakuna URL zilizowekwa bado. QR codes zitaundwa baada ya 'voxvera serve'",
     "input_file_not_found": "Faili ya kuingiza {path} haipo.",
-    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)"
+    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
+    "manage_action_edit": "Edit"
   },
   "web": {
     "tear_off_tor_browser": "Tumia Kivinjari cha Tor",

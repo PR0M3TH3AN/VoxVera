@@ -73,7 +73,8 @@
     "bootstrapping_progress": "[{name}] Tor बूटस्ट्रैपिंग: {progress}% ...",
     "no_urls_qr_skip": "अभी तक कोई URL कॉन्फ़िगर नहीं किया गया है। QR कोड 'voxvera serve' के बाद जेनरेट किए जाएंगे",
     "input_file_not_found": "इनपुट फ़ाइल {path} मौजूद नहीं है।",
-    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)"
+    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
+    "manage_action_edit": "Edit"
   },
   "web": {
     "tear_off_tor_browser": "Tor Browser का उपयोग करें",

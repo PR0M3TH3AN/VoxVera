@@ -65,6 +65,7 @@
     "manage_action_menu": "Manage {name}:",
     "manage_action_toggle_stop": "Stop",
     "manage_action_toggle_start": "Start",
+    "manage_action_edit": "Edit",
     "manage_action_export": "Export to Zip",
     "manage_action_delete": "Delete",
     "manage_action_back": "Back",

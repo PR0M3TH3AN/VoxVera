@@ -73,7 +73,8 @@
     "bootstrapping_progress": "[{name}] Tor 引导中: {progress}% ...",
     "no_urls_qr_skip": "尚未配置 URL。QR 码将在 'voxvera serve' 后生成",
     "input_file_not_found": "输入文件 {path} 不存在。",
-    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)"
+    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
+    "manage_action_edit": "Edit"
   },
   "web": {
     "tear_off_tor_browser": "使用 Tor 浏览器",

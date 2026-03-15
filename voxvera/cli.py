@@ -1084,14 +1084,15 @@ def batch_import_configs():
 
 
 def get_servers() -> list[str]:
-    host_dir = ROOT / "host"
-    if not host_dir.exists():
-        return []
-    servers = []
-    for d in host_dir.iterdir():
-        if d.is_dir() and (d / "config.json").exists():
-            servers.append(d.name)
-    return sorted(servers)
+    # Check both bundled ROOT/host and local CWD/host
+    search_paths = [ROOT / "host", Path.cwd() / "host"]
+    servers = set()
+    for host_dir in search_paths:
+        if host_dir.exists():
+            for d in host_dir.iterdir():
+                if d.is_dir() and (d / "config.json").exists():
+                    servers.append(d.name) if hasattr(servers, 'append') else servers.add(d.name)
+    return sorted(list(servers))
 
 
 def is_server_running(folder_name: str) -> bool:
@@ -1259,6 +1260,7 @@ def manage_servers():
         running = is_server_running(selected)
         action_choices = [
             Choice("toggle", t("cli.manage_action_toggle_stop") if running else t("cli.manage_action_toggle_start")),
+            Choice("edit", t("cli.manage_action_edit")),
             Choice("export", t("cli.manage_action_export")),
             Choice("delete", t("cli.manage_action_delete")),
             Choice(None, t("cli.manage_action_back"))
@@ -1278,6 +1280,18 @@ def manage_servers():
                     serve(str(config_path))
                 except SystemExit:
                     pass
+        elif action == "edit":
+            config_path = ROOT / "host" / selected / "config.json"
+            try:
+                interactive_update(str(config_path))
+                # Re-build assets after update
+                build_assets(str(config_path))
+                console.print(f"[green]✔ {selected} updated and rebuilt successfully.[/green]")
+            except (KeyboardInterrupt, Exception) as e:
+                if not isinstance(e, KeyboardInterrupt):
+                    console.print(f"[red]Error updating site: {e}[/red]")
+                else:
+                    console.print("\n[yellow]Update cancelled.[/yellow]")
         elif action == "export":
             export_site(selected)
         elif action == "delete":

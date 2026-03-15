@@ -14,7 +14,7 @@ voxvera = ["templates/**", "src/**", "resources/**", "locales/**", "resources/bi
 
 [project]
 name = "voxvera"
-version = "0.2.4"
+version = "0.2.5"
 description = "VoxVera CLI utilities"
 readme = "README.md"
 authors = [{name = "VoxVera"}]

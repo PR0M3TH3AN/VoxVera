@@ -73,7 +73,8 @@
     "bootstrapping_progress": "[{name}] Tor 起動中: {progress}% ...",
     "no_urls_qr_skip": "URLがまだ設定されていません。QRコードは 'voxvera serve' の後に生成されます",
     "input_file_not_found": "入力ファイル {path} が存在しません。",
-    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)"
+    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
+    "manage_action_edit": "Edit"
   },
   "web": {
     "tear_off_tor_browser": "Tor Browserを使用してください",

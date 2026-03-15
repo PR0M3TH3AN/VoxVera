@@ -72,7 +72,8 @@
     "bootstrapping_progress": "[{name}] Arranque de Tor: {progress}% ...",
     "no_urls_qr_skip": "No hay URLs configuradas todavía. Los códigos QR se generarán después de 'voxvera serve'",
     "input_file_not_found": "El archivo de entrada {path} no existe.",
-    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)"
+    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
+    "manage_action_edit": "Edit"
   },
   "web": {
     "tear_off_tor_browser": "Use el Navegador Tor",
