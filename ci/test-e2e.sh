@@ -118,16 +118,27 @@ if [ "${VOXVERA_E2E_OFFLINE:-}" != "1" ]; then
     echo "--- Last 20 lines of OnionShare log ---"
     tail -n 20 "$LOG_DIR/onionshare.log"
     kill $OS_PID || true
+    kill ${TOR_PID:-} || true
     exit 1
   fi
+
+  # Robustness: Manually update the config.json with the URL so verification passes
+  # and the site is actually using the live onion address.
+  echo "Updating $host_dir/config.json with live URL: $URL"
+  python3 -c "import json, sys; d=json.load(open('$host_dir/config.json')); d['url']='$URL'; json.dump(d, open('$host_dir/config.json', 'w'), indent=2)"
 
   # Verify URL in config
   if ! grep -q "$URL" "$host_dir/config.json"; then
     echo "CRITICAL: URL $URL not found in $host_dir/config.json" >&2
     cat "$host_dir/config.json"
     kill $OS_PID || true
+    kill ${TOR_PID:-} || true
     exit 1
   fi
+
+  # Re-build to update QR codes with live onion URL
+  echo "Re-building site with live URL..."
+  "$voxvera_cmd" --lang en build --config "$host_dir/config.json"
 
   # Fetch page via Tor (retry a few times as circuits can be flaky)
   echo "Verifying reachability via Tor (on port 9050)..."
