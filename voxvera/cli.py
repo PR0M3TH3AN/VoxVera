@@ -508,7 +508,7 @@ def build_assets(
             # Use data from config if available, otherwise use localized default
             value = data.get(field, landing_defaults.get(field, ""))
             
-            # If the value from config is just the master default, 
+            # If the value from config is just the master default,
             # and we are NOT in English, use the localized default instead.
             if data.get("lang", "en") != "en":
                 if value == master_defaults.get(field):
@@ -985,7 +985,7 @@ def build_site():
         # Use data from config if available, otherwise use localized default
         value = data.get(field, landing_defaults.get(field, ""))
         
-        # If the value from config is just the master default, 
+        # If the value from config is just the master default,
         # and we are NOT in English, use the localized default instead.
         if current_lang != "en":
             if value == master_defaults.get(field):
