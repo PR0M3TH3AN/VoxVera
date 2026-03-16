@@ -145,8 +145,10 @@ else
   msg "onionshare-cli found (system package), skipping pipx install. Run 'pipx install --force ...' if you want the latest git version."
 fi
 
-# Clean up stale user-local packages
-msg "Cleaning up stale user-local packages that may conflict with system onionshare-cli..."
+# --- Clean up stale state from previous installs (preserves ~/host tor sites) ---
+msg "Cleaning up stale state from previous installs..."
+
+# Stale user-local packages that may conflict with system onionshare-cli
 for pydir in "$HOME"/.local/lib/python3.*/site-packages; do
   [ -d "$pydir" ] || continue
   for pkg in werkzeug flask flask_socketio onionshare_cli voxvera; do
@@ -156,6 +158,29 @@ for pydir in "$HOME"/.local/lib/python3.*/site-packages; do
     fi
   done
 done
+
+# Stale pip wheel cache for voxvera (forces clean rebuild)
+for cache_dir in "$HOME"/.cache/pip/wheels; do
+  [ -d "$cache_dir" ] || continue
+  find "$cache_dir" -name 'voxvera-*.whl' -delete 2>/dev/null || true
+done
+
+# Leftover temp files from previous failed install attempts
+rm -rf /tmp/voxvera-* 2>/dev/null || true
+
+# Stale top-level config.json from older VoxVera versions (not inside ~/host)
+[ -f "$HOME/config.json" ] && grep -q '"folder_name"' "$HOME/config.json" 2>/dev/null && {
+  warn "Removing stale ~/config.json (leftover from older VoxVera version)"
+  rm -f "$HOME/config.json"
+}
+
+# Stale top-level imports/ directory (older versions put it in ~/)
+if [ -d "$HOME/imports" ] && ls "$HOME/imports"/*.json &>/dev/null; then
+  if head -1 "$HOME/imports"/*.json 2>/dev/null | grep -q '"folder_name"\|"headline"'; then
+    warn "Removing stale ~/imports/ (leftover from older VoxVera version)"
+    rm -rf "$HOME/imports"
+  fi
+fi
 
 # --- Helper: build pip flags for this distro ---
 pip_flags() {
@@ -187,7 +212,8 @@ install_from_local() {
 cleanup_stale_binary() {
   local bin="$HOME/.local/bin/voxvera"
   [ -f "$bin" ] || return 0
-  if file "$bin" 2>/dev/null | grep -qiE 'ELF|executable|Mach-O'; then
+  # Only remove actual compiled binaries (PyInstaller/native), not pip/pipx Python scripts
+  if file "$bin" 2>/dev/null | grep -qiE 'ELF|Mach-O'; then
     warn "Removing stale standalone binary at $bin (would shadow pipx/pip entrypoint)"
     rm -f "$bin"
   fi
@@ -332,7 +358,15 @@ install_pip_git() {
 #   5. pip git — git clone internally, last resort
 for strategy in install_binary install_tarball install_shallow install_pipx install_pip_git; do
   if $strategy; then
+    # Ensure ~/.local/bin is on PATH
+    if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+      export PATH="$HOME/.local/bin:$PATH"
+    fi
+    # Clear bash's cached command path so the new binary is found immediately
+    hash -r 2>/dev/null || true
     msg "\nVoxVera installed/updated successfully. Run 'voxvera check' to verify."
+    # Detect if the parent shell will still have a stale hash
+    msg "If 'voxvera' is not found, run:  hash -r  (or open a new terminal)"
     exit 0
   fi
 done
