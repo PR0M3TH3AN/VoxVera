@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-__version__ = "0.2.7"
+__version__ = "0.2.8"
 
 # Add the vendor directory to sys.path. We prepend it to ensure our bundled
 # dependencies take priority over potentially incompatible system packages

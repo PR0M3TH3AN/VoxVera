@@ -14,11 +14,26 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 def _setup_tmp(monkeypatch, tmp_path):
     repo_root = Path(__file__).resolve().parent.parent
-    shutil.copytree(repo_root / "voxvera" / "src", tmp_path / "src")
-    shutil.copytree(repo_root / "voxvera" / "locales", tmp_path / "locales")
-    monkeypatch.setattr(cli, "ROOT", tmp_path)
-    monkeypatch.setattr(cli, "_src_res", lambda *p: tmp_path / "src" / Path(*p))
-    monkeypatch.setattr(cli, "_locale_res", lambda *p: tmp_path / "locales" / Path(*p))
+    
+    # Use a unique subdirectory for this test run to ensure isolation
+    test_data_dir = tmp_path / "data"
+    test_data_dir.mkdir(exist_ok=True)
+    
+    # Internal resources (ROOT)
+    res_root = test_data_dir / "voxvera"
+    res_root.mkdir()
+    shutil.copytree(repo_root / "voxvera" / "src", res_root / "src")
+    shutil.copytree(repo_root / "voxvera" / "locales", res_root / "locales")
+    shutil.copytree(repo_root / "voxvera" / "templates", res_root / "templates")
+    
+    monkeypatch.setattr(cli, "ROOT", res_root)
+    monkeypatch.setattr(cli, "DATA_DIR", test_data_dir)
+    monkeypatch.setattr(cli, "_src_res", lambda *p: res_root / "src" / Path(*p))
+    monkeypatch.setattr(cli, "_locale_res", lambda *p: res_root / "locales" / Path(*p))
+    monkeypatch.setattr(cli, "_template_res", lambda *p: res_root / "templates" / Path(*p))
+    
+    # Create a default config.json in DATA_DIR
+    shutil.copy(res_root / "src" / "config.json", test_data_dir / "config.json")
     return repo_root
 
 
@@ -31,10 +46,11 @@ def test_help(capsys):
 
 def test_init_template(tmp_path, monkeypatch):
     _setup_tmp(monkeypatch, tmp_path)
+    test_data_dir = tmp_path / "data"
     # Mock choose_language to return 'en'
     monkeypatch.setattr(cli, "choose_language", lambda *a: "en")
     cli.main(["init", "--template", "voxvera"])
-    dest = tmp_path / "host" / "voxvera"
+    dest = test_data_dir / "host" / "voxvera"
     assert dest.is_dir()
     assert (dest / "config.json").exists()
     assert (dest / "index.html").exists()
@@ -43,7 +59,8 @@ def test_init_template(tmp_path, monkeypatch):
 def test_build(tmp_path, monkeypatch):
     _setup_tmp(monkeypatch, tmp_path)
     cli.main(["build"])
-    dest = tmp_path / "host" / "voxvera"
+    test_data_dir = tmp_path / "data"
+    dest = test_data_dir / "host" / "voxvera"
     assert dest.is_dir()
     assert (dest / "config.json").exists()
     assert (dest / "index.html").exists()
@@ -54,14 +71,16 @@ def test_build_with_download(tmp_path, monkeypatch):
     download_file = tmp_path / "sample.zip"
     download_file.write_text("dummy")
     cli.main(["build", "--download", str(download_file)])
-    dest = tmp_path / "host" / "voxvera" / "download" / "extra-content.zip"
+    test_data_dir = tmp_path / "data"
+    dest = test_data_dir / "host" / "voxvera" / "download" / "extra-content.zip"
     assert dest.is_file()
 
 
 def test_import(tmp_path, monkeypatch):
     repo = _setup_tmp(monkeypatch, tmp_path)
-    imports_dir = tmp_path / "imports"
-    imports_dir.mkdir()
+    test_data_dir = tmp_path / "data"
+    imports_dir = test_data_dir / "imports"
+    imports_dir.mkdir(parents=True, exist_ok=True)
     base_data = json.load(open(repo / "imports" / "example.json"))
     for sub in ["foo", "bar"]:
         data = dict(base_data)
@@ -70,7 +89,8 @@ def test_import(tmp_path, monkeypatch):
             json.dump(data, fh)
     cli.main(["batch-import"])
     for sub in ["foo", "bar"]:
-        dest = tmp_path / "host" / sub
+        test_data_dir = tmp_path / "data"
+        dest = test_data_dir / "host" / sub
         assert dest.is_dir()
         assert (dest / "index.html").exists()
 
@@ -78,8 +98,9 @@ def test_import(tmp_path, monkeypatch):
 def test_import_preserves_session(tmp_path, monkeypatch):
     """Re-importing a config must not destroy the OnionShare session key."""
     repo = _setup_tmp(monkeypatch, tmp_path)
-    imports_dir = tmp_path / "imports"
-    imports_dir.mkdir()
+    test_data_dir = tmp_path / "data"
+    imports_dir = test_data_dir / "imports"
+    imports_dir.mkdir(parents=True, exist_ok=True)
     base_data = json.load(open(repo / "imports" / "example.json"))
     base_data["folder_name"] = "keep"
     with open(imports_dir / "keep.json", "w") as fh:
@@ -87,7 +108,8 @@ def test_import_preserves_session(tmp_path, monkeypatch):
 
     # first import creates the host dir
     cli.main(["batch-import"])
-    host_dir = tmp_path / "host" / "keep"
+    test_data_dir = tmp_path / "data"
+    host_dir = test_data_dir / "host" / "keep"
     assert host_dir.is_dir()
 
     # simulate OnionShare having written a session key
@@ -129,13 +151,15 @@ def test_check_missing(capsys, monkeypatch):
 
 def test_build_download_zip(tmp_path, monkeypatch):
     _setup_tmp(monkeypatch, tmp_path)
-    config = json.load(open(tmp_path / "src" / "config.json"))
+    res_root = tmp_path / "data" / "voxvera"
+    test_data_dir = tmp_path / "data"
+    config = json.load(open(res_root / "src" / "config.json"))
     folder_name = config["folder_name"]
     zip_path = tmp_path / "file.zip"
     with zipfile.ZipFile(zip_path, "w") as zf:
         zf.writestr("dummy.txt", "data")
     cli.main(["build", "--download", str(zip_path)])
-    dest = tmp_path / "host" / folder_name / "download" / "extra-content.zip"
+    dest = test_data_dir / "host" / folder_name / "download" / "extra-content.zip"
     assert dest.is_file()
 
 
@@ -143,9 +167,11 @@ def test_serve_updates_url(tmp_path, monkeypatch):
     """Test that serve() auto-generates onion URL for tear-off links."""
     _setup_tmp(monkeypatch, tmp_path)
     cli.main(["build"])
-    config = json.load(open(tmp_path / "src" / "config.json"))
+    res_root = tmp_path / "data" / "voxvera"
+    test_data_dir = tmp_path / "data"
+    config = json.load(open(res_root / "src" / "config.json"))
     folder_name = config["folder_name"]
-    dir_path = tmp_path / "host" / folder_name
+    dir_path = test_data_dir / "host" / folder_name
 
     # Set a custom URL that should be preserved (content link)
     config["url"] = "https://example.com/external-resource"
@@ -197,7 +223,9 @@ def test_serve_updates_url(tmp_path, monkeypatch):
 def test_quickstart_noninteractive(tmp_path, monkeypatch):
     """Test quickstart auto-generates onion URL for tear-off links."""
     _setup_tmp(monkeypatch, tmp_path)
-    config = json.load(open(tmp_path / "src" / "config.json"))
+    res_root = tmp_path / "data" / "voxvera"
+    test_data_dir = tmp_path / "data"
+    config = json.load(open(res_root / "src" / "config.json"))
     folder_name = config["folder_name"]
 
     # No need for TOR_* env vars anymore - auto-detection should work
@@ -232,9 +260,12 @@ def test_quickstart_noninteractive(tmp_path, monkeypatch):
     monkeypatch.setattr(cli.subprocess, "Popen", FakePopen)
 
     monkeypatch.setattr(cli, "choose_language", lambda *a: "en")
+    config_path = test_data_dir / "config.json"
     cli.main(["quickstart", "--non-interactive"])
+    # quickstart no longer calls serve, so we call it manually to test URL update
+    cli.serve(str(config_path))
 
-    dir_path = tmp_path / "host" / folder_name
+    dir_path = test_data_dir / "host" / folder_name
     assert (dir_path / "index.html").exists()
     log_file = dir_path / "onionshare.log"
     assert onion_url in log_file.read_text()
@@ -285,22 +316,23 @@ def test_build_without_url_skips_qr(tmp_path, monkeypatch, capsys):
     _setup_tmp(monkeypatch, tmp_path)
 
     # Remove URLs from config
-    config = json.load(open(tmp_path / "src" / "config.json"))
+    res_root = tmp_path / "data" / "voxvera"
+    test_data_dir = tmp_path / "data"
+    config = json.load(open(res_root / "src" / "config.json"))
     config["url"] = ""
     config["tear_off_link"] = ""
-    with open(tmp_path / "src" / "config.json", "w") as f:
+    with open(test_data_dir / "config.json", "w") as f:
         json.dump(config, f)
 
-    # Remove any existing QR files from src to test fresh generation
+    # Remove any existing QR files from src and host to test fresh generation
     for qr_file in ["qrcode-content.png", "qrcode-tear-offs.png"]:
-        qr_path = tmp_path / "src" / qr_file
-        if qr_path.exists():
-            qr_path.unlink()
-
+        (res_root / "src" / qr_file).unlink(missing_ok=True)
+        (test_data_dir / "host" / config["folder_name"] / qr_file).unlink(missing_ok=True)
     # Build should complete without error, just skip QR generation
     cli.main(["build"])
 
-    dest = tmp_path / "host" / config["folder_name"]
+    test_data_dir = tmp_path / "data"
+    dest = test_data_dir / "host" / config["folder_name"]
     assert dest.is_dir()
     assert (dest / "config.json").exists()
     assert (dest / "index.html").exists()
@@ -314,21 +346,22 @@ def test_build_with_only_url(tmp_path, monkeypatch):
     _setup_tmp(monkeypatch, tmp_path)
 
     # Set only url (content link)
-    config = json.load(open(tmp_path / "src" / "config.json"))
+    res_root = tmp_path / "data" / "voxvera"
+    test_data_dir = tmp_path / "data"
+    config = json.load(open(res_root / "src" / "config.json"))
     config["url"] = "https://example.com/external-resource"
     config["tear_off_link"] = ""
-    with open(tmp_path / "src" / "config.json", "w") as f:
+    with open(test_data_dir / "config.json", "w") as f:
         json.dump(config, f)
 
-    # Remove any existing QR files from src to test fresh generation
+    # Remove any existing QR files from src and host to test fresh generation
     for qr_file in ["qrcode-content.png", "qrcode-tear-offs.png"]:
-        qr_path = tmp_path / "src" / qr_file
-        if qr_path.exists():
-            qr_path.unlink()
-
+        (res_root / "src" / qr_file).unlink(missing_ok=True)
+        (test_data_dir / "host" / config["folder_name"] / qr_file).unlink(missing_ok=True)
     cli.main(["build"])
 
-    dest = tmp_path / "host" / config["folder_name"]
+    test_data_dir = tmp_path / "data"
+    dest = test_data_dir / "host" / config["folder_name"]
     # Only content QR should exist (tear-off will be set by serve)
     assert (dest / "qrcode-content.png").exists()
     assert not (dest / "qrcode-tear-offs.png").exists()
@@ -339,21 +372,22 @@ def test_build_with_only_tear_off_link(tmp_path, monkeypatch):
     _setup_tmp(monkeypatch, tmp_path)
 
     # Set only tear_off_link (before serve sets it to onion)
-    config = json.load(open(tmp_path / "src" / "config.json"))
+    res_root = tmp_path / "data" / "voxvera"
+    test_data_dir = tmp_path / "data"
+    config = json.load(open(res_root / "src" / "config.json"))
     config["url"] = ""
     config["tear_off_link"] = "http://preconfigured.onion"
-    with open(tmp_path / "src" / "config.json", "w") as f:
+    with open(test_data_dir / "config.json", "w") as f:
         json.dump(config, f)
 
-    # Remove any existing QR files from src to test fresh generation
+    # Remove any existing QR files from src and host to test fresh generation
     for qr_file in ["qrcode-content.png", "qrcode-tear-offs.png"]:
-        qr_path = tmp_path / "src" / qr_file
-        if qr_path.exists():
-            qr_path.unlink()
-
+        (res_root / "src" / qr_file).unlink(missing_ok=True)
+        (test_data_dir / "host" / config["folder_name"] / qr_file).unlink(missing_ok=True)
     cli.main(["build"])
 
-    dest = tmp_path / "host" / config["folder_name"]
+    test_data_dir = tmp_path / "data"
+    dest = test_data_dir / "host" / config["folder_name"]
     # Only tear-off QR should exist (will be updated by serve)
     assert not (dest / "qrcode-content.png").exists()
     assert (dest / "qrcode-tear-offs.png").exists()
@@ -400,15 +434,18 @@ def test_backward_compatibility_with_https_config(tmp_path, monkeypatch):
     _setup_tmp(monkeypatch, tmp_path)
 
     # Simulate old config with HTTPS URLs
-    config = json.load(open(tmp_path / "src" / "config.json"))
+    res_root = tmp_path / "data" / "voxvera"
+    test_data_dir = tmp_path / "data"
+    config = json.load(open(res_root / "src" / "config.json"))
     config["url"] = "https://example.com/old-style"
     config["tear_off_link"] = "https://example.com/tear-off"
-    with open(tmp_path / "src" / "config.json", "w") as f:
+    with open(test_data_dir / "config.json", "w") as f:
         json.dump(config, f)
 
     cli.main(["build"])
 
-    dest = tmp_path / "host" / config["folder_name"]
+    test_data_dir = tmp_path / "data"
+    dest = test_data_dir / "host" / config["folder_name"]
     assert (dest / "qrcode-content.png").exists()
     assert (dest / "qrcode-tear-offs.png").exists()
 
@@ -417,15 +454,18 @@ def test_long_urls_in_qr(tmp_path, monkeypatch):
     """Test that long URLs still generate valid QR codes."""
     _setup_tmp(monkeypatch, tmp_path)
 
-    config = json.load(open(tmp_path / "src" / "config.json"))
+    res_root = tmp_path / "data" / "voxvera"
+    test_data_dir = tmp_path / "data"
+    config = json.load(open(res_root / "src" / "config.json"))
     # Very long URL (close to 200 char limit)
     config["url"] = "http://" + "a" * 190 + ".onion"
     config["tear_off_link"] = "https://example.com/" + "path/" * 20
-    with open(tmp_path / "src" / "config.json", "w") as f:
+    with open(test_data_dir / "config.json", "w") as f:
         json.dump(config, f)
 
     cli.main(["build"])
 
-    dest = tmp_path / "host" / config["folder_name"]
+    test_data_dir = tmp_path / "data"
+    dest = test_data_dir / "host" / config["folder_name"]
     assert (dest / "qrcode-content.png").exists()
     assert (dest / "qrcode-tear-offs.png").exists()

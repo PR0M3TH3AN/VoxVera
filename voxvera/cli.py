@@ -17,8 +17,14 @@ from voxvera import __version__
 # package root (contains bundled templates and src/)
 if getattr(sys, 'frozen', False):
     ROOT = Path(sys._MEIPASS).joinpath("voxvera")
+    # Ensure the bundle root is in sys.path for collected packages
+    if sys._MEIPASS not in sys.path:
+        sys.path.insert(0, sys._MEIPASS)
 else:
     ROOT = Path(__file__).resolve().parent
+
+# Persistent data directory (where host/ and projects live)
+DATA_DIR = Path(os.environ.get("VOXVERA_DIR", Path.cwd()))
 
 # Global locale state
 CURRENT_LOCALE = {}
@@ -412,9 +418,13 @@ def copy_template(name: str) -> str:
         if not src.is_dir():
             print(f"Template {name} not found", file=sys.stderr)
             sys.exit(1)
-        dest = ROOT / "host" / name
-        os.makedirs(ROOT / "host", exist_ok=True)
+        dest = DATA_DIR / "host" / name
+        os.makedirs(DATA_DIR / "host", exist_ok=True)
         shutil.copytree(src, dest, dirs_exist_ok=True)
+        # Clear any QR codes that might have been in the template
+        # to ensure a clean build slate.
+        for qr_file in ["qrcode-content.png", "qrcode-tear-offs.png"]:
+            (dest / qr_file).unlink(missing_ok=True)
     print(f"Template copied to {dest}")
     return str(dest)
 
@@ -460,8 +470,6 @@ def build_assets(
 
     with resources.as_file(_src_res()) as src_dir:
         config_path = Path(config_path)
-        # generate QR codes (pure Python)
-        generate_qr(config_path, src_dir)
 
         data = load_config(config_path)
         with open(src_dir / "index-master.html", "r") as fh:
@@ -547,10 +555,30 @@ def build_assets(
         html = html.replace("{{attachment_display}}", attachment_display)
 
         folder_name = data["folder_name"]
-        dest = ROOT / "host" / folder_name
+        dest = DATA_DIR / "host" / folder_name
         os.makedirs(dest, exist_ok=True)
 
+        # 1. Refresh QR codes directly in destination
+        # generate_qr only creates them if URLs are present in config
+        from voxvera.build import generate_qr
+        
+        # We generate to a temp dir first to ensure we ONLY get what's in current config
+        import tempfile
+        with tempfile.TemporaryDirectory() as qr_tmp:
+            qr_tmp_path = Path(qr_tmp)
+            generate_qr(config_path, qr_tmp_path)
+            
+            # Clear old QR codes from destination and copy new ones
+            for qr_file in ["qrcode-content.png", "qrcode-tear-offs.png"]:
+                qr_dest = dest / qr_file
+                qr_src = qr_tmp_path / qr_file
+                if qr_src.exists():
+                    shutil.copy(qr_src, qr_dest)
+                elif qr_dest.exists():
+                    qr_dest.unlink()
+
         # Update download link to point to our viral source bundle
+
         html = html.replace("download/download.zip", "download/voxvera-source.zip")
 
         with open(dest / "index.html", "w") as fh:
@@ -570,12 +598,6 @@ def build_assets(
         # Copy config if it's not already there
         if Path(config_path) != dest / "config.json":
             shutil.copy(config_path, dest / "config.json")
-
-        # Copy QR codes if they exist
-        for qr_file in ["qrcode-content.png", "qrcode-tear-offs.png"]:
-            qr_src = Path(src_dir) / qr_file
-            if qr_src.exists():
-                shutil.copy(qr_src, dest / qr_file)
 
         print(f"Flyer files created under {dest}")
 
@@ -648,20 +670,24 @@ def _internal_onionshare():
 
     try:
         from onionshare_cli import main
-        # sys.argv is ['voxvera', '_internal_onionshare', '--website', ...]
-        # We need to make it look like ['onionshare-cli', '--website', ...]
+        # sys.argv is ['voxvera', '_internal_onionshare', '--website', ... ]
+        # We need to make it look like ['onionshare-cli', '--website', ... ]
         sys.argv = ["onionshare-cli"] + sys.argv[2:]
         sys.exit(main())
-    except ImportError:
-        print("Error: onionshare-cli not bundled or installed.", file=sys.stderr)
+    except ImportError as e:
+        import traceback
+        traceback.print_exc()
+        print(f"Error: onionshare-cli not bundled or installed correctly: {e}", file=sys.stderr)
+        print(f"DEBUG: sys.path = {sys.path}", file=sys.stderr)
         sys.exit(1)
+
 
 
 def serve(config_path: str) -> str | None:
     socks, ctl = get_tor_ports()
 
     folder_name = load_config(config_path)["folder_name"]
-    dir_path = ROOT / "host" / folder_name
+    dir_path = DATA_DIR / "host" / folder_name
     if not dir_path.is_dir():
         print(f"Directory {dir_path} not found", file=sys.stderr)
         sys.exit(1)
@@ -928,25 +954,31 @@ def build_docs():
 
 def build_site():
     """Refresh the main site/ directory with the latest template, QRs, and portable bundle."""
+    # When frozen, site/ source is in sys._MEIPASS, but we might want to output to CWD/site
     if getattr(sys, 'frozen', False):
-        site_dir = Path(sys._MEIPASS).joinpath("site")
+        src_site = Path(sys._MEIPASS).joinpath("site")
+        dest_site = Path.cwd() / "site"
     else:
-        site_dir = ROOT.parent / "site"
+        src_site = ROOT.parent / "site"
+        dest_site = src_site
 
-    if not site_dir.exists():
-        print(f"Error: {site_dir} directory not found.")
+    if not src_site.exists():
+        print(f"Error: {src_site} directory not found.")
         return
 
-    config_path = site_dir / "config.json"
+    config_path = dest_site / "config.json"
     if not config_path.exists():
-        print(f"Error: {config_path} not found.")
-        return
+        # Fallback to source if dest doesn't have it (e.g. first run)
+        config_path = src_site / "config.json"
+        if not config_path.exists():
+            print(f"Error: {config_path} not found.")
+            return
 
-    print("Refreshing site/ assets...")
+    print(f"Refreshing {dest_site} assets...")
 
     # 1. Refresh QR codes using site/config.json
     from voxvera.build import generate_qr
-    generate_qr(config_path, site_dir)
+    generate_qr(config_path, dest_site)
 
     # 2. Build the HTML from master template
     data = load_config(config_path)
@@ -1026,11 +1058,12 @@ def build_site():
     for key, value in data.items():
         html = html.replace(f"{{{{{key}}}}}", str(value))
 
-    with open(site_dir / "index.html", "w") as fh:
+    os.makedirs(dest_site, exist_ok=True)
+    with open(dest_site / "index.html", "w") as fh:
         fh.write(html)
 
     # 5. Create the download assets in site/download/
-    download_dir = site_dir / "download"
+    download_dir = dest_site / "download"
     os.makedirs(download_dir, exist_ok=True)
 
     # Bundle source version
@@ -1070,33 +1103,39 @@ def vendorize():
 
 
 def batch_import_configs():
-    files = sorted(glob.glob(str(ROOT / "imports" / "*.json")))
+    files = sorted(glob.glob(str(DATA_DIR / "imports" / "*.json")))
     if not files:
         print("No JSON files found in imports")
         return
     for json_file in files:
         print(f"Processing {json_file}")
-        dest_config = ROOT / "src" / "config.json"
+        # Use a temp config path in DATA_DIR instead of bundled ROOT
+        dest_config = DATA_DIR / "temp_config.json"
         shutil.copy(json_file, dest_config)
         folder_name = load_config(json_file)["folder_name"]
-        _clear_host_dir(ROOT / "host" / folder_name)
-        build_assets(dest_config)
+        _clear_host_dir(DATA_DIR / "host" / folder_name)
+        build_assets(str(dest_config))
+        dest_config.unlink(missing_ok=True)
 
 
 def get_servers() -> list[str]:
-    # Check both bundled ROOT/host and local CWD/host
-    search_paths = [ROOT / "host", Path.cwd() / "host"]
+    # Check both bundled ROOT/host and local DATA_DIR/host
+    search_paths = []
+    if ROOT != DATA_DIR:
+        search_paths.append(ROOT / "host")
+    search_paths.append(DATA_DIR / "host")
+    
     servers = set()
     for host_dir in search_paths:
         if host_dir.exists():
             for d in host_dir.iterdir():
                 if d.is_dir() and (d / "config.json").exists():
-                    servers.append(d.name) if hasattr(servers, 'append') else servers.add(d.name)
+                    servers.add(d.name)
     return sorted(list(servers))
 
 
 def is_server_running(folder_name: str) -> bool:
-    pid_file = ROOT / "host" / folder_name / "server.pid"
+    pid_file = DATA_DIR / "host" / folder_name / "server.pid"
     if not pid_file.exists():
         return False
     try:
@@ -1135,7 +1174,7 @@ def is_server_running(folder_name: str) -> bool:
 
 
 def stop_server(folder_name: str):
-    pid_file = ROOT / "host" / folder_name / "server.pid"
+    pid_file = DATA_DIR / "host" / folder_name / "server.pid"
     if not pid_file.exists():
         print(f"Server {folder_name} is not running.")
         return
@@ -1157,7 +1196,7 @@ def stop_server(folder_name: str):
 def delete_server(folder_name: str):
     if is_server_running(folder_name):
         stop_server(folder_name)
-    dir_path = ROOT / "host" / folder_name
+    dir_path = DATA_DIR / "host" / folder_name
     if dir_path.exists():
         shutil.rmtree(dir_path, ignore_errors=True)
         print(f"Deleted server {folder_name}")
@@ -1179,7 +1218,7 @@ def manage_servers():
             label = f"{status_text} {s}"
             if running:
                 try:
-                    site_data = load_config(ROOT / "host" / s / "config.json")
+                    site_data = load_config(DATA_DIR / "host" / s / "config.json")
                     url = site_data.get("tear_off_link")
                     if url:
                         label += f" ({url})"
@@ -1204,7 +1243,7 @@ def manage_servers():
             break
 
         if selected == "create_new":
-            config_path = ROOT / "src" / "config.json"
+            config_path = DATA_DIR / "config.json"
             # Reset config from template for a fresh start
             try:
                 template_config = _template_res("voxvera", "config.json")
@@ -1228,7 +1267,7 @@ def manage_servers():
             results = []
             for s in servers:
                 if not is_server_running(s):
-                    config_path = ROOT / "host" / s / "config.json"
+                    config_path = DATA_DIR / "host" / s / "config.json"
                     try:
                         url = serve(str(config_path))
                         if url:
@@ -1275,13 +1314,13 @@ def manage_servers():
             if running:
                 stop_server(selected)
             else:
-                config_path = ROOT / "host" / selected / "config.json"
+                config_path = DATA_DIR / "host" / selected / "config.json"
                 try:
                     serve(str(config_path))
                 except SystemExit:
                     pass
         elif action == "edit":
-            config_path = ROOT / "host" / selected / "config.json"
+            config_path = DATA_DIR / "host" / selected / "config.json"
             try:
                 interactive_update(str(config_path))
                 # Re-build assets after update
@@ -1340,7 +1379,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(prog="voxvera")
     parser.add_argument(
         "--config",
-        default=str(ROOT / "src" / "config.json"),
+        default=str(DATA_DIR / "config.json"),
         help="Path to config.json",
     )
     parser.add_argument(
@@ -1453,7 +1492,6 @@ def main(argv=None):
         elif not args.non_interactive:
             interactive_update(config_path)
         build_assets(config_path)
-        serve(config_path)
     elif args.command == "build":
         build_assets(config_path, download_path=args.download)
     elif args.command == "export":
@@ -1481,7 +1519,6 @@ def main(argv=None):
                 sys.exit(1)
             interactive_update(config_path)
         build_assets(config_path)
-        serve(config_path)
     elif args.command == "check":
         check_deps()
     elif args.command == "vendorize":

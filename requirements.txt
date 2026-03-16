@@ -7,4 +7,6 @@ htmlmin2
 pypdf
 wcwidth
 onionshare-cli
+flask<2.3.0
+werkzeug<3.0.0
 

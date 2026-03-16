@@ -107,13 +107,18 @@ class TestFullWorkflow:
 
         # Setup temp workspace
         repo_root = Path(__file__).resolve().parent.parent
-        shutil.copytree(repo_root / "voxvera" / "src", tmp_path / "src")
-        shutil.copytree(repo_root / "voxvera" / "locales", tmp_path / "locales")
+        # Internal resources (ROOT)
+        res_root = tmp_path / "voxvera"
+        res_root.mkdir()
+        shutil.copytree(repo_root / "voxvera" / "src", res_root / "src")
+        shutil.copytree(repo_root / "voxvera" / "locales", res_root / "locales")
+        shutil.copytree(repo_root / "voxvera" / "templates", res_root / "templates")
 
-        # Monkeypatch ROOT to use temp directory
-        monkeypatch.setattr(cli, "ROOT", tmp_path)
-        monkeypatch.setattr(cli, "_src_res", lambda *p: tmp_path / "src" / Path(*p))
-        monkeypatch.setattr(cli, "_locale_res", lambda *p: tmp_path / "locales" / Path(*p))
+        monkeypatch.setattr(cli, "ROOT", res_root)
+        monkeypatch.setattr(cli, "DATA_DIR", tmp_path)
+        monkeypatch.setattr(cli, "_src_res", lambda *p: res_root / "src" / Path(*p))
+        monkeypatch.setattr(cli, "_locale_res", lambda *p: res_root / "locales" / Path(*p))
+        monkeypatch.setattr(cli, "_template_res", lambda *p: res_root / "templates" / Path(*p))
 
         # Create test config
         config = {
@@ -203,12 +208,17 @@ class TestFullWorkflow:
 
         # Setup
         repo_root = Path(__file__).resolve().parent.parent
-        shutil.copytree(repo_root / "voxvera" / "src", tmp_path / "src")
-        shutil.copytree(repo_root / "voxvera" / "locales", tmp_path / "locales")
+        res_root = tmp_path / "voxvera"
+        res_root.mkdir()
+        shutil.copytree(repo_root / "voxvera" / "src", res_root / "src")
+        shutil.copytree(repo_root / "voxvera" / "locales", res_root / "locales")
+        shutil.copytree(repo_root / "voxvera" / "templates", res_root / "templates")
 
-        monkeypatch.setattr(cli, "ROOT", tmp_path)
-        monkeypatch.setattr(cli, "_src_res", lambda *p: tmp_path / "src" / Path(*p))
-        monkeypatch.setattr(cli, "_locale_res", lambda *p: tmp_path / "locales" / Path(*p))
+        monkeypatch.setattr(cli, "ROOT", res_root)
+        monkeypatch.setattr(cli, "DATA_DIR", tmp_path)
+        monkeypatch.setattr(cli, "_src_res", lambda *p: res_root / "src" / Path(*p))
+        monkeypatch.setattr(cli, "_locale_res", lambda *p: res_root / "locales" / Path(*p))
+        monkeypatch.setattr(cli, "_template_res", lambda *p: res_root / "templates" / Path(*p))
 
         config = {
             "name": "Reachability Test",
@@ -333,12 +343,17 @@ class TestSiteFiles:
 
         # Setup
         repo_root = Path(__file__).resolve().parent.parent
-        shutil.copytree(repo_root / "voxvera" / "src", tmp_path / "src")
-        shutil.copytree(repo_root / "voxvera" / "locales", tmp_path / "locales")
+        res_root = tmp_path / "voxvera"
+        res_root.mkdir()
+        shutil.copytree(repo_root / "voxvera" / "src", res_root / "src")
+        shutil.copytree(repo_root / "voxvera" / "locales", res_root / "locales")
+        shutil.copytree(repo_root / "voxvera" / "templates", res_root / "templates")
 
-        monkeypatch.setattr(cli, "ROOT", tmp_path)
-        monkeypatch.setattr(cli, "_src_res", lambda *p: tmp_path / "src" / Path(*p))
-        monkeypatch.setattr(cli, "_locale_res", lambda *p: tmp_path / "locales" / Path(*p))
+        monkeypatch.setattr(cli, "ROOT", res_root)
+        monkeypatch.setattr(cli, "DATA_DIR", tmp_path)
+        monkeypatch.setattr(cli, "_src_res", lambda *p: res_root / "src" / Path(*p))
+        monkeypatch.setattr(cli, "_locale_res", lambda *p: res_root / "locales" / Path(*p))
+        monkeypatch.setattr(cli, "_template_res", lambda *p: res_root / "templates" / Path(*p))
 
         config = {
             "name": "Test",
@@ -407,10 +422,12 @@ class TestErrorHandling:
 class TestTorIntegration:
     """Tests for Tor integration."""
 
-    def test_tor_auto_detection_falls_back_to_defaults(self, monkeypatch):
+    def test_tor_auto_detection_falls_back_to_defaults(self, monkeypatch, tmp_path):
         """Test that Tor port detection falls back to defaults when Tor isn't running."""
         sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
         from voxvera import cli
+
+        monkeypatch.setattr(cli, "DATA_DIR", tmp_path)
 
         # Clear environment variables
         monkeypatch.delenv("TOR_SOCKS_PORT", raising=False)
@@ -440,10 +457,12 @@ class TestTorIntegration:
         assert socks == "9050"
         assert ctl == "9051"
 
-    def test_tor_env_vars_override_detection(self, monkeypatch):
+    def test_tor_env_vars_override_detection(self, monkeypatch, tmp_path):
         """Test that environment variables override auto-detection."""
         sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
         from voxvera import cli
+
+        monkeypatch.setattr(cli, "DATA_DIR", tmp_path)
 
         monkeypatch.setenv("TOR_SOCKS_PORT", "9999")
         monkeypatch.setenv("TOR_CONTROL_PORT", "8888")
