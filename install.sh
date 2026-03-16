@@ -220,10 +220,10 @@ cleanup_stale_binary() {
 }
 
 # ============================================================
-# Strategy 1: Pre-built binary (fastest)
+# Strategy 5: Pre-built binary (fallback — can lag behind main)
 # ============================================================
 install_binary() {
-  msg "Strategy 1/5: Attempting to download pre-built binary..."
+  msg "Strategy 5/5: Attempting to download pre-built binary..."
 
   local latest
   latest=$(get_latest_tag)
@@ -262,10 +262,10 @@ install_binary() {
 }
 
 # ============================================================
-# Strategy 2: GitHub tarball — no git needed, most network-resilient
+# Strategy 1: GitHub tarball — no git needed, always current with main
 # ============================================================
 install_tarball() {
-  msg "Strategy 2/5: Downloading source tarball (no git required)..."
+  msg "Strategy 1/5: Downloading source tarball (no git required)..."
   local tmp_tar tmp_dir
   tmp_tar=$(mktemp /tmp/voxvera-XXXXXX.tar.gz)
   tmp_dir=$(mktemp -d /tmp/voxvera-src-XXXXXX)
@@ -290,10 +290,10 @@ install_tarball() {
 }
 
 # ============================================================
-# Strategy 3: Shallow git clone + local pip install
+# Strategy 2: Shallow git clone + local pip install
 # ============================================================
 install_shallow() {
-  msg "Strategy 3/5: Attempting shallow git clone (--depth 1)..."
+  msg "Strategy 2/5: Attempting shallow git clone (--depth 1)..."
   local tmp_dir
   tmp_dir=$(mktemp -d /tmp/voxvera-clone-XXXXXX)
 
@@ -314,11 +314,11 @@ install_shallow() {
 }
 
 # ============================================================
-# Strategy 4: pipx from git (isolated venv)
+# Strategy 3: pipx from git (isolated venv)
 # ============================================================
 install_pipx() {
   command_exists pipx || return 1
-  msg "Strategy 4/5: Attempting pipx installation..."
+  msg "Strategy 3/5: Attempting pipx installation..."
   if timeout 180 pipx install --force "voxvera@git+${REPO_URL}.git@${BRANCH}"; then
     pipx inject voxvera setuptools 2>/dev/null || true
     pipx ensurepath --force
@@ -332,10 +332,10 @@ install_pipx() {
 }
 
 # ============================================================
-# Strategy 5: pip from git (last resort)
+# Strategy 4: pip from git
 # ============================================================
 install_pip_git() {
-  msg "Strategy 5/5: Attempting pip install from git..."
+  msg "Strategy 4/5: Attempting pip install from git..."
   local flags
   flags=$(pip_flags)
   if timeout 180 pip install $flags "voxvera@git+${REPO_URL}.git@${BRANCH}"; then
@@ -351,12 +351,12 @@ install_pip_git() {
 # Run strategies in order — first success wins
 # ============================================================
 # Order rationale:
-#   1. Binary — fastest, single download
-#   2. Tarball — no git needed, single download, most resilient on flaky TLS
-#   3. Shallow clone — small git transfer
-#   4. pipx — git clone internally, but isolated venv
-#   5. pip git — git clone internally, last resort
-for strategy in install_binary install_tarball install_shallow install_pipx install_pip_git; do
+#   1. Tarball — always up-to-date with main, no git needed, single download
+#   2. Shallow clone — small git transfer, also always current
+#   3. pipx — git clone internally, but isolated venv
+#   4. pip git — git clone internally, last resort
+#   5. Binary — pre-built release; only fallback since it can lag behind main
+for strategy in install_tarball install_shallow install_pipx install_pip_git install_binary; do
   if $strategy; then
     # Ensure ~/.local/bin is on PATH
     if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
