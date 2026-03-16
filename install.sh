@@ -156,6 +156,9 @@ fi
 if command_exists pipx; then
   msg "Falling back to pipx installation (this may take a few minutes)..."
   if pipx install --force 'voxvera@git+https://github.com/PR0M3TH3AN/VoxVera.git@main'; then
+    # Ensure setuptools (pkg_resources) is available in the venv — pipx can
+    # sometimes skip it if the resolver thinks the build-system copy suffices.
+    pipx inject voxvera setuptools 2>/dev/null || true
     pipx ensurepath --force
     msg "\nVoxVera installed/updated successfully via pipx."
     msg "IMPORTANT: Please restart your terminal or run 'source ~/.bashrc' (or your shell config) to use 'voxvera'."
