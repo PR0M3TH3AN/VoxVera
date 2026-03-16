@@ -134,7 +134,7 @@ class TestFullWorkflow:
             "binary_message": "0101010",
         }
 
-        config_path = tmp_path / "src" / "config.json"
+        config_path = tmp_path / "config.json"
         with open(config_path, "w") as f:
             json.dump(config, f)
 
@@ -233,7 +233,7 @@ class TestFullWorkflow:
             "binary_message": "101010",
         }
 
-        config_path = tmp_path / "src" / "config.json"
+        config_path = tmp_path / "config.json"
         with open(config_path, "w") as f:
             json.dump(config, f)
 
@@ -368,7 +368,7 @@ class TestSiteFiles:
             "binary_message": "",
         }
 
-        config_path = tmp_path / "src" / "config.json"
+        config_path = tmp_path / "config.json"
         with open(config_path, "w") as f:
             json.dump(config, f)
 
@@ -398,8 +398,8 @@ class TestErrorHandling:
         monkeypatch.setattr(cli, "ROOT", tmp_path)
 
         # Try to serve without building first
-        config_path = tmp_path / "src" / "config.json"
-        config_path.parent.mkdir(parents=True)
+        config_path = tmp_path / "config.json"
+        config_path.parent.mkdir(parents=True, exist_ok=True)
         config_path.write_text(
             json.dumps(
                 {

@@ -560,7 +560,6 @@ def build_assets(
 
         # 1. Refresh QR codes directly in destination
         # generate_qr only creates them if URLs are present in config
-        from voxvera.build import generate_qr
         
         # We generate to a temp dir first to ensure we ONLY get what's in current config
         import tempfile
@@ -680,7 +679,6 @@ def _internal_onionshare():
         print(f"Error: onionshare-cli not bundled or installed correctly: {e}", file=sys.stderr)
         print(f"DEBUG: sys.path = {sys.path}", file=sys.stderr)
         sys.exit(1)
-
 
 
 def serve(config_path: str) -> str | None:
