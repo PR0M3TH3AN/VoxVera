@@ -97,26 +97,17 @@ else
 fi
 
 # Clean up stale user-local packages from prior pip --user installs of voxvera.
-# These can shadow system packages (e.g. Werkzeug) and break onionshare-cli.
+# These shadow system packages (e.g. Werkzeug) and break onionshare-cli.
 msg "Cleaning up stale user-local packages that may conflict with system onionshare-cli..."
-PIP_CLEANUP_OPTS=""
-if [ -f /etc/debian_version ]; then
-  DEB_VER=$(cat /etc/debian_version | cut -d. -f1)
-  if [[ "$DEB_VER" =~ ^[0-9]+$ ]] && [ "$DEB_VER" -ge 12 ]; then
-    PIP_CLEANUP_OPTS="--break-system-packages"
-  fi
-fi
-for pkg in werkzeug flask flask-socketio onionshare-cli; do
-  if pip3 show --quiet "$pkg" 2>/dev/null && \
-     pip3 show "$pkg" 2>/dev/null | grep -q "Location.*\.local"; then
-    pip3 uninstall -y $PIP_CLEANUP_OPTS "$pkg" 2>/dev/null || true
-  fi
+for pydir in "$HOME"/.local/lib/python3.*/site-packages; do
+  [ -d "$pydir" ] || continue
+  for pkg in werkzeug flask flask_socketio onionshare_cli voxvera; do
+    if [ -d "$pydir/$pkg" ]; then
+      warn "Removing stale $pkg from $pydir"
+      rm -rf "$pydir/$pkg" "$pydir/${pkg}-"*.dist-info 2>/dev/null || true
+    fi
+  done
 done
-# Also uninstall any previous pip --user install of voxvera itself
-if pip3 show --quiet voxvera 2>/dev/null && \
-   pip3 show voxvera 2>/dev/null | grep -q "Location.*\.local"; then
-  pip3 uninstall -y $PIP_CLEANUP_OPTS voxvera 2>/dev/null || true
-fi
 
 download_binary() {
   local url=$1

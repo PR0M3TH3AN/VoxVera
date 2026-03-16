@@ -676,6 +676,9 @@ def _internal_onionshare():
     # Always prefer the system onionshare-cli binary.  This avoids
     # pkg_resources / setuptools isolation issues in both PyInstaller
     # builds and pipx venvs.
+    # Prevent user-local pip packages from shadowing system packages
+    os.environ["PYTHONNOUSERSITE"] = "1"
+
     onionshare_bin = shutil.which("onionshare-cli") or shutil.which("onionshare")
     if onionshare_bin:
         os.execvp(onionshare_bin, [onionshare_bin] + onionshare_args)
@@ -706,6 +709,10 @@ def serve(config_path: str) -> str | None:
     env = os.environ.copy()
     env["TOR_SOCKS_PORT"] = socks
     env["TOR_CONTROL_PORT"] = ctl
+    # Prevent user-local pip packages (~/.local) from shadowing system packages.
+    # onionshare-cli depends on specific Flask/Werkzeug versions from the system;
+    # stale user-local copies break it.
+    env["PYTHONNOUSERSITE"] = "1"
 
     onionshare_args = [
         "--website",
