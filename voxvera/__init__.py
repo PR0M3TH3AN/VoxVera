@@ -1,16 +1,12 @@
 import sys
 from pathlib import Path
 
-__version__ = "0.2.13"
+__version__ = "0.2.15"
 
-# Add the vendor directory to sys.path. We prepend it to ensure our bundled
-# dependencies take priority over potentially incompatible system packages
-# (e.g. Flask/Werkzeug version mismatches on Debian).
+# Add the vendor directory to sys.path ONLY for PyInstaller (frozen) builds.
+# For pip/pipx installs the system/venv packages are correct and the vendored
+# copies are incomplete (missing data files), so we must not shadow them.
 if getattr(sys, 'frozen', False):
     vendor_dir = Path(sys._MEIPASS).joinpath("voxvera", "vendor")
-else:
-    vendor_dir = Path(__file__).parent / "vendor"
-
-if vendor_dir.exists():
-    if str(vendor_dir) not in sys.path:
+    if vendor_dir.exists() and str(vendor_dir) not in sys.path:
         sys.path.insert(0, str(vendor_dir))
