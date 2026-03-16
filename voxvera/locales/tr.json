@@ -76,7 +76,8 @@
     "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
     "manage_action_edit": "Edit",
     "manage_templates": "--- Şablondan Oluştur ---",
-    "template_select": "Bir şablon seçin:"
+    "template_select": "Bir şablon seçin:",
+    "body_over_limit_warning": "Uyarı: Gövde metni 1000 karakteri aşıyor. El ilanında kesilebilir."
   },
   "web": {
     "tear_off_tor_browser": "Tor Tarayıcı Kullanın",

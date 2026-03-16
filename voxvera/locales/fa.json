@@ -76,7 +76,8 @@
     "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
     "manage_action_edit": "Edit",
     "manage_templates": "--- ایجاد از قالب ---",
-    "template_select": "یک قالب انتخاب کنید:"
+    "template_select": "یک قالب انتخاب کنید:",
+    "body_over_limit_warning": "هشدار: متن بدنه از 1000 کاراکتر بیشتر است. ممکن است در بروشور بریده شود."
   },
   "web": {
     "tear_off_tor_browser": "از مرورگر Tor استفاده کنید",

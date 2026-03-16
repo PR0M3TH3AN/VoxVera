@@ -76,7 +76,8 @@
     "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
     "manage_action_edit": "Edit",
     "manage_templates": "--- Créer à partir d'un modèle ---",
-    "template_select": "Sélectionnez un modèle :"
+    "template_select": "Sélectionnez un modèle :",
+    "body_over_limit_warning": "Avertissement : Le texte dépasse 1000 caractères. Il pourrait être coupé sur le tract."
   },
   "web": {
     "tear_off_tor_browser": "Utilisez le navigateur Tor",

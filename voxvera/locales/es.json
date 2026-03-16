@@ -75,7 +75,8 @@
     "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
     "manage_action_edit": "Edit",
     "manage_templates": "--- Crear Desde Plantilla ---",
-    "template_select": "Seleccione una plantilla:"
+    "template_select": "Seleccione una plantilla:",
+    "body_over_limit_warning": "Advertencia: El texto del cuerpo supera los 1000 caracteres. Puede cortarse en el volante."
   },
   "web": {
     "tear_off_tor_browser": "Use el Navegador Tor",

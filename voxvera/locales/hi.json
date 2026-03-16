@@ -76,7 +76,8 @@
     "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
     "manage_action_edit": "Edit",
     "manage_templates": "--- टेम्पलेट से बनाएं ---",
-    "template_select": "एक टेम्पलेट चुनें:"
+    "template_select": "एक टेम्पलेट चुनें:",
+    "body_over_limit_warning": "चेतावनी: मुख्य पाठ 1000 अक्षरों से अधिक है। यह पर्चे पर कटा हुआ दिख सकता है।"
   },
   "web": {
     "tear_off_tor_browser": "Tor Browser का उपयोग करें",

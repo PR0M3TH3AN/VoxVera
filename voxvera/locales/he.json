@@ -76,7 +76,8 @@
     "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
     "manage_action_edit": "Edit",
     "manage_templates": "--- יצירה מתבנית ---",
-    "template_select": "בחר תבנית:"
+    "template_select": "בחר תבנית:",
+    "body_over_limit_warning": "אזהרה: טקסט הגוף חורג מ-1000 תווים. הוא עלול להיחתך בעלון."
   },
   "web": {
     "tear_off_tor_browser": "השתמש בדפדפן Tor",

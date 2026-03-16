@@ -76,7 +76,8 @@
     "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
     "manage_action_edit": "Edit",
     "manage_templates": "--- 从模板创建 ---",
-    "template_select": "选择一个模板："
+    "template_select": "选择一个模板：",
+    "body_over_limit_warning": "警告：正文超过1000个字符。传单上可能会被截断。"
   },
   "web": {
     "tear_off_tor_browser": "使用 Tor 浏览器",

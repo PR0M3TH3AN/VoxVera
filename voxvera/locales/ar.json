@@ -76,7 +76,8 @@
     "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
     "manage_action_edit": "Edit",
     "manage_templates": "--- إنشاء من قالب ---",
-    "template_select": "اختر قالباً:"
+    "template_select": "اختر قالباً:",
+    "body_over_limit_warning": "تحذير: نص المحتوى يتجاوز 1000 حرف. قد يتم قطعه في المنشور."
   },
   "web": {
     "tear_off_tor_browser": "استخدم متصفح Tor",

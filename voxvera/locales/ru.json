@@ -76,7 +76,8 @@
     "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
     "manage_action_edit": "Edit",
     "manage_templates": "--- Создать из шаблона ---",
-    "template_select": "Выберите шаблон:"
+    "template_select": "Выберите шаблон:",
+    "body_over_limit_warning": "Предупреждение: Текст превышает 1000 символов. Он может быть обрезан на листовке."
   },
   "web": {
     "tear_off_tor_browser": "Используйте Tor Browser",

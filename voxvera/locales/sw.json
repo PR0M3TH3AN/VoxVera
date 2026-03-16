@@ -76,7 +76,8 @@
     "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
     "manage_action_edit": "Edit",
     "manage_templates": "--- Tengeneza Kutoka Kiolezo ---",
-    "template_select": "Chagua kiolezo:"
+    "template_select": "Chagua kiolezo:",
+    "body_over_limit_warning": "Onyo: Maandishi ya mwili yanazidi herufi 1000. Yanaweza kukatwa kwenye kipeperushi."
   },
   "web": {
     "tear_off_tor_browser": "Tumia Kivinjari cha Tor",

@@ -76,7 +76,8 @@
     "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
     "manage_action_edit": "Edit",
     "manage_templates": "--- Criar a partir de Modelo ---",
-    "template_select": "Selecione um modelo:"
+    "template_select": "Selecione um modelo:",
+    "body_over_limit_warning": "Aviso: O texto do corpo excede 1000 caracteres. Pode ser cortado no panfleto."
   },
   "web": {
     "tear_off_tor_browser": "Use o Tor Browser",

@@ -76,7 +76,8 @@
     "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
     "manage_action_edit": "Edit",
     "manage_templates": "--- テンプレートから作成 ---",
-    "template_select": "テンプレートを選択してください："
+    "template_select": "テンプレートを選択してください：",
+    "body_over_limit_warning": "警告：本文が1000文字を超えています。チラシ上で途切れる可能性があります。"
   },
   "web": {
     "tear_off_tor_browser": "Tor Browserを使用してください",

@@ -398,15 +398,15 @@ def interactive_update(config_path: str):
     data.update(prompt(meta_qs))
 
     console.rule(t("cli.init_body"))
+    # Start with existing/default content; preserve user edits across retries
+    body = _br_to_newlines(get_default("content"))
     while True:
-        # Use existing content if present, else fallback to localized landing default
-        initial_content = _br_to_newlines(get_default("content"))
-
-        body = open_editor(initial_content)
+        body = open_editor(body)
         length = len(body)
         if length > 1000:
             console.print(f"{t('cli.body_length')}: {length}/1000 {t('cli.body_limit_exceeded')}", style="red")
             if not inquirer.confirm(message=t("cli.edit_again"), default=True).execute():
+                console.print(t("cli.body_over_limit_warning"), style="yellow")
                 break
         else:
             console.print(f"{t('cli.body_length')}: {length}/1000", style="green")
