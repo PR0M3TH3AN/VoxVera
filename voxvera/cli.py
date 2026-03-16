@@ -803,9 +803,9 @@ def get_export_dir() -> Path:
 
 def export_site(folder_name: str, output_path: str = None):
     """Export a site folder and its keys into a zip archive."""
-    source_dir = ROOT / "host" / folder_name
+    source_dir = DATA_DIR / "host" / folder_name
     if not source_dir.exists():
-        print(f"Error: Site folder '{folder_name}' not found in {ROOT / 'host'}")
+        print(f"Error: Site folder '{folder_name}' not found in {DATA_DIR / 'host'}")
         return
 
     if not output_path:
@@ -861,7 +861,7 @@ def import_site(zip_path: str):
             print("Error: Invalid config.json. Missing 'folder_name'.")
             return
 
-        dest_dir = ROOT / "host" / folder_name
+        dest_dir = DATA_DIR / "host" / folder_name
         if dest_dir.exists():
             confirm = inquirer.confirm(message=f"Site '{folder_name}' already exists. Overwrite?").execute()
             if not confirm:

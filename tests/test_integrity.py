@@ -51,6 +51,7 @@ def test_export_import_roundtrip(tmp_path, monkeypatch):
     shutil.copytree(REPO_ROOT / "voxvera" / "src", tmp_path / "src")
     shutil.copytree(REPO_ROOT / "voxvera" / "locales", tmp_path / "locales")
     monkeypatch.setattr(cli, "ROOT", tmp_path)
+    monkeypatch.setattr(cli, "DATA_DIR", tmp_path)
     monkeypatch.setattr(cli, "_src_res", lambda *p: tmp_path / "src" / Path(*p))
     monkeypatch.setattr(cli, "_locale_res", lambda *p: tmp_path / "locales" / Path(*p))
     
