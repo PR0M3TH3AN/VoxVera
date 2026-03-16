@@ -153,7 +153,7 @@ class TestFullWorkflow:
         onion_url = "http://test123abc.onion"
 
         class MockPopen:
-            def __init__(self, cmd, stdout=None, stderr=None, env=None):
+            def __init__(self, cmd, stdout=None, stderr=None, env=None, **kwargs):
                 self.cmd = cmd
                 self.stdout = stdout
                 self.stderr = stderr

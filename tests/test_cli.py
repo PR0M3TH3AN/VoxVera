@@ -194,7 +194,7 @@ def test_serve_updates_url(tmp_path, monkeypatch):
     onion_url = "http://test123.onion"
 
     class FakePopen:
-        def __init__(self, cmd, stdout=None, stderr=None, env=None):
+        def __init__(self, cmd, stdout=None, stderr=None, env=None, **kwargs):
             self.cmd = cmd
             self.stdout = stdout
             self.stderr = stderr
@@ -244,7 +244,7 @@ def test_quickstart_noninteractive(tmp_path, monkeypatch):
     onion_url = "http://quick.onion"
 
     class FakePopen:
-        def __init__(self, cmd, stdout=None, stderr=None, env=None):
+        def __init__(self, cmd, stdout=None, stderr=None, env=None, **kwargs):
             self.cmd = cmd
             self.stdout = stdout
             self.stderr = stderr
@@ -401,7 +401,7 @@ def test_serve_passes_tor_ports_to_env(monkeypatch, tmp_path):
     captured_env = {}
 
     class FakePopen:
-        def __init__(self, cmd, stdout=None, stderr=None, env=None):
+        def __init__(self, cmd, stdout=None, stderr=None, env=None, **kwargs):
             self.cmd = cmd
             self.stdout = stdout
             self.stderr = stderr

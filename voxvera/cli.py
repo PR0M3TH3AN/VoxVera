@@ -738,7 +738,16 @@ def serve(config_path: str) -> str | None:
             cmd = [sys.executable] + cmd
 
     log_fh = open(logfile, "w")
-    proc = subprocess.Popen(cmd, stdout=log_fh, stderr=subprocess.STDOUT, env=env)
+    # Detach the child so it survives when the parent terminal closes.
+    # Unix: start_new_session prevents SIGHUP propagation.
+    # Windows: CREATE_NEW_PROCESS_GROUP detaches from the console.
+    import platform as _platform
+    popen_kwargs = dict(stdout=log_fh, stderr=subprocess.STDOUT, env=env)
+    if _platform.system() == "Windows":
+        popen_kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
+    else:
+        popen_kwargs["start_new_session"] = True
+    proc = subprocess.Popen(cmd, **popen_kwargs)
 
     pid_file = dir_path / "server.pid"
     with open(pid_file, "w") as f:
@@ -1230,6 +1239,152 @@ def delete_server(folder_name: str):
         print(f"Deleted server {folder_name}")
 
 
+def start_all_servers():
+    """Non-interactive: start every configured site that isn't already running."""
+    _seed_bundled_sites()
+    servers = get_servers()
+    if not servers:
+        print("No sites configured.")
+        return
+    for s in servers:
+        if is_server_running(s):
+            print(f"[SKIP] {s} already running")
+            continue
+        config_path = DATA_DIR / "host" / s / "config.json"
+        try:
+            url = serve(str(config_path))
+            if url:
+                print(f"[OK]   {s}: {url}")
+            else:
+                print(f"[FAIL] {s}: could not obtain onion URL")
+        except Exception as e:
+            print(f"[FAIL] {s}: {e}")
+
+
+def stop_all_servers():
+    """Non-interactive: stop every running site."""
+    servers = get_servers()
+    stopped = False
+    for s in servers:
+        if is_server_running(s):
+            stop_server(s)
+            stopped = True
+    if not stopped:
+        print("No running sites.")
+
+
+def install_autostart():
+    """Install a platform-appropriate mechanism to start sites on boot."""
+    import platform
+    system = platform.system()
+
+    if system == "Linux":
+        _install_systemd_autostart()
+    elif system == "Darwin":
+        _install_launchd_autostart()
+    elif system == "Windows":
+        _install_windows_autostart()
+    else:
+        print(f"Autostart not supported on {system}. "
+              "Run 'voxvera start-all' manually or add it to your init system.")
+
+
+def _find_voxvera_bin() -> str:
+    """Return the absolute path to the voxvera binary/script."""
+    voxvera_bin = shutil.which("voxvera")
+    if voxvera_bin:
+        return str(Path(voxvera_bin).resolve())
+    # Fallback: current executable
+    return str(Path(sys.argv[0]).resolve())
+
+
+def _install_systemd_autostart():
+    """Install a systemd user service for Linux."""
+    service_dir = Path.home() / ".config" / "systemd" / "user"
+    service_dir.mkdir(parents=True, exist_ok=True)
+    service_file = service_dir / "voxvera.service"
+    voxvera_bin = _find_voxvera_bin()
+
+    unit = f"""\
+[Unit]
+Description=VoxVera Onion Sites
+After=network-online.target tor.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart={voxvera_bin} start-all
+ExecStop={voxvera_bin} stop-all
+
+[Install]
+WantedBy=default.target
+"""
+    service_file.write_text(unit)
+    os.system("systemctl --user daemon-reload")
+    os.system("systemctl --user enable voxvera.service")
+    os.system("systemctl --user start voxvera.service")
+    # loginctl enable-linger ensures user services start at boot even without login
+    os.system(f"loginctl enable-linger {os.environ.get('USER', '')}")
+    print(f"Systemd user service installed: {service_file}")
+    print("Sites will start automatically on boot.")
+    print("  Manage with: systemctl --user [start|stop|status|disable] voxvera")
+
+
+def _install_launchd_autostart():
+    """Install a launchd plist for macOS."""
+    agents_dir = Path.home() / "Library" / "LaunchAgents"
+    agents_dir.mkdir(parents=True, exist_ok=True)
+    plist_file = agents_dir / "org.voxvera.start-all.plist"
+    voxvera_bin = _find_voxvera_bin()
+
+    plist = f"""\
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>org.voxvera.start-all</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>{voxvera_bin}</string>
+        <string>start-all</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>{Path.home()}/host/voxvera-autostart.log</string>
+    <key>StandardErrorPath</key>
+    <string>{Path.home()}/host/voxvera-autostart.log</string>
+</dict>
+</plist>
+"""
+    plist_file.write_text(plist)
+    os.system(f"launchctl load -w {plist_file}")
+    print(f"LaunchAgent installed: {plist_file}")
+    print("Sites will start automatically on login.")
+    print(f"  Disable with: launchctl unload {plist_file}")
+
+
+def _install_windows_autostart():
+    """Add a startup shortcut or scheduled task on Windows."""
+    voxvera_bin = _find_voxvera_bin()
+    # Use Task Scheduler for a reliable boot-time trigger
+    task_name = "VoxVera Start All"
+    cmd = (
+        f'schtasks /Create /F /SC ONLOGON /TN "{task_name}" '
+        f'/TR "\"{voxvera_bin}\" start-all" /RL HIGHEST'
+    )
+    ret = os.system(cmd)
+    if ret == 0:
+        print(f"Windows scheduled task '{task_name}' created.")
+        print("Sites will start automatically on login.")
+        print(f'  Remove with: schtasks /Delete /TN "{task_name}" /F')
+    else:
+        print("Failed to create scheduled task. Try running as Administrator.")
+
+
 def manage_servers():
     from InquirerPy import inquirer
     from InquirerPy.base.control import Choice
@@ -1465,6 +1620,9 @@ def main(argv=None):
     sub.add_parser("build-docs", help="Generate localized documentation from templates")
     sub.add_parser("build-site", help="Refresh the main site/ directory assets and bundle")
     sub.add_parser("manage", help="Manage VoxVera servers interactively")
+    sub.add_parser("start-all", help="Start all configured sites (non-interactive)")
+    sub.add_parser("stop-all", help="Stop all running sites (non-interactive)")
+    sub.add_parser("autostart", help="Install/remove a systemd user service to start sites on boot")
     sub.add_parser("_internal_onionshare", help=argparse.SUPPRESS)
 
     args, unknown_args = parser.parse_known_args(argv)
@@ -1486,7 +1644,7 @@ def main(argv=None):
         except Exception:
             pass
 
-    if not current_lang and args.command in ["init", "quickstart", "manage"]:
+    if not current_lang and args.command in ("init", "quickstart", "manage"):
         current_lang = choose_language()
         # Save choice to config if possible
         if config_path.exists():
@@ -1539,6 +1697,12 @@ def main(argv=None):
         batch_import_configs()
     elif args.command == "manage":
         manage_servers()
+    elif args.command == "start-all":
+        start_all_servers()
+    elif args.command == "stop-all":
+        stop_all_servers()
+    elif args.command == "autostart":
+        install_autostart()
     elif args.command == "quickstart":
         if not args.non_interactive:
             if not sys.stdin.isatty():
