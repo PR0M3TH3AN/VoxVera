@@ -242,6 +242,17 @@ install_binary() {
   return 1
 }
 
+# --- Helper: remove stale standalone binary so it doesn't shadow pipx/pip entrypoints ---
+cleanup_stale_binary() {
+  local bin="$HOME/.local/bin/voxvera"
+  [ -f "$bin" ] || return 0
+  # If the file is a real binary (not a pipx/pip script), remove it
+  if file "$bin" 2>/dev/null | grep -qiE 'ELF|executable|Mach-O'; then
+    warn "Removing stale standalone binary at $bin (would shadow pipx/pip entrypoint)"
+    rm -f "$bin"
+  fi
+}
+
 # ============================================================
 # Strategy 2: pipx from git (isolated venv)
 # ============================================================
@@ -251,6 +262,7 @@ install_pipx() {
   if pipx install --force "voxvera@git+${REPO_URL}.git@${BRANCH}"; then
     pipx inject voxvera setuptools 2>/dev/null || true
     pipx ensurepath --force
+    cleanup_stale_binary
     msg "\nVoxVera installed/updated successfully via pipx."
     msg "IMPORTANT: Please restart your terminal or run 'source ~/.bashrc' (or your shell config) to use 'voxvera'."
     return 0
@@ -267,6 +279,7 @@ install_pip_git() {
   local flags
   flags=$(pip_flags)
   if pip install $flags "voxvera@git+${REPO_URL}.git@${BRANCH}"; then
+    cleanup_stale_binary
     msg "VoxVera installed via pip."
     return 0
   fi
@@ -278,7 +291,7 @@ install_pip_git() {
 # Strategy 4: GitHub tarball (no git clone needed — most resilient)
 # ============================================================
 install_tarball() {
-  install_from_tarball && return 0
+  if install_from_tarball; then cleanup_stale_binary; return 0; fi
   warn "Tarball install failed. Trying next method..."
   return 1
 }
@@ -287,7 +300,7 @@ install_tarball() {
 # Strategy 5: Shallow clone + local pip install
 # ============================================================
 install_shallow() {
-  install_from_shallow_clone && return 0
+  if install_from_shallow_clone; then cleanup_stale_binary; return 0; fi
   warn "Shallow clone install failed."
   return 1
 }
