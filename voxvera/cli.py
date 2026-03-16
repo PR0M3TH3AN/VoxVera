@@ -530,7 +530,7 @@ def build_assets(
         for field in landing_fields:
             # Use data from config if available, otherwise use localized default
             value = data.get(field, landing_defaults.get(field, ""))
-            
+
             # If the value from config is just the master default,
             # and we are NOT in English, use the localized default instead.
             if data.get("lang", "en") != "en":
@@ -539,6 +539,8 @@ def build_assets(
 
             # Support Markdown-style redaction ~~text~~
             val_str = re.sub(r"~~(.*?)~~", r'<span class="redacted">\1</span>', str(value))
+            # Convert newlines to <br> so line breaks render in static HTML (no JS on Tor)
+            val_str = val_str.replace("\\n", "\n").replace("\n", "<br>")
             html = html.replace(f"{{{{t_landing_{field}}}}}", val_str)
 
         # 2. Statically replace config placeholders {{key}}
@@ -546,6 +548,8 @@ def build_assets(
             val_str = str(value)
             # Support Markdown-style redaction ~~text~~ for user fields too
             val_str = re.sub(r"~~(.*?)~~", r'<span class="redacted">\1</span>', val_str)
+            # Convert newlines to <br> so line breaks render in static HTML (no JS on Tor)
+            val_str = val_str.replace("\\n", "\n").replace("\n", "<br>")
             html = html.replace(f"{{{{{key}}}}}", val_str)
 
         # Handle optional file attachment logic
@@ -1067,7 +1071,7 @@ def build_site():
     for field in landing_fields:
         # Use data from config if available, otherwise use localized default
         value = data.get(field, landing_defaults.get(field, ""))
-        
+
         # If the value from config is just the master default,
         # and we are NOT in English, use the localized default instead.
         if current_lang != "en":
@@ -1076,6 +1080,8 @@ def build_site():
 
         # Support Markdown-style redaction ~~text~~
         val_str = re.sub(r"~~(.*?)~~", r'<span class="redacted">\1</span>', str(value))
+        # Convert newlines to <br> so line breaks render in static HTML (no JS on Tor)
+        val_str = val_str.replace("\\n", "\n").replace("\n", "<br>")
         html = html.replace(f"{{{{t_landing_{field}}}}}", val_str)
 
     # 3. Update relative path for download
@@ -1083,7 +1089,9 @@ def build_site():
 
     # 4. Inject site-specific config data (handles any remaining {{key}} placeholders)
     for key, value in data.items():
-        html = html.replace(f"{{{{{key}}}}}", str(value))
+        val_str = str(value)
+        val_str = val_str.replace("\\n", "\n").replace("\n", "<br>")
+        html = html.replace(f"{{{{{key}}}}}", val_str)
 
     os.makedirs(dest_site, exist_ok=True)
     with open(dest_site / "index.html", "w") as fh:
