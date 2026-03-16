@@ -180,7 +180,7 @@ def _open_editor_terminal(initial: str) -> str:
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as fh:
             fh.write(initial or "")
-        subprocess.call([editor, path])
+        subprocess.run([editor, path], stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr)
         with open(path, "r", encoding="utf-8") as fh:
             return fh.read()
     except Exception as e:
@@ -377,9 +377,16 @@ def interactive_update(config_path: str):
     link_qs = [
         {
             "type": "input",
+            "message": t("cli.attachment_path_label"),
+            "name": "attachment_path",
+            "default": data.get("attachment_path", ""),
+        },
+        {
+            "type": "input",
             "message": t("cli.url_label"),
             "name": "url",
-            "default": data.get("url", "https://voxvera.org/"),
+            "default": data.get("url", "https://voxvera.org/") if not data.get("url", "").startswith("download/") else "",
+            "when": lambda result: not result.get("attachment_path", "").strip(),
             "transformer": _len_transform(200),
             "validate": _len_validator(200),
         },
@@ -390,21 +397,6 @@ def interactive_update(config_path: str):
             "default": get_default("url_message"),
             "transformer": _len_transform(120),
             "validate": _len_validator(120),
-        },
-
-        {
-            "type": "input",
-            "message": t("cli.binary_message_label"),
-            "name": "binary_message",
-            "default": data.get("binary_message", ""),
-            "transformer": _len_transform(120),
-            "validate": _len_validator(120),
-        },
-        {
-            "type": "input",
-            "message": t("cli.attachment_path_label"),
-            "name": "attachment_path",
-            "default": data.get("attachment_path", ""),
         },
     ]
     data.update(prompt(link_qs))
@@ -542,18 +534,19 @@ def build_assets(
             val_str = re.sub(r"~~(.*?)~~", r'<span class="redacted">\1</span>', val_str)
             html = html.replace(f"{{{{{key}}}}}", val_str)
 
-        # Handle optional file attachment
+        # Handle optional file attachment logic
         attachment_path = data.get("attachment_path")
-        attachment_url = ""
-        attachment_display = "none"
         if attachment_path and os.path.isfile(attachment_path):
             att_filename = os.path.basename(attachment_path)
-            attachment_url = f"download/{att_filename}"
-            attachment_display = "inline-block"
-
-        html = html.replace("{{attachment_url}}", attachment_url)
-        html = html.replace("{{attachment_display}}", attachment_display)
-
+            # We don't replace the URL here if it's already an onion link (e.g. during serve rebuild)
+            if not data.get("url", "").startswith("http://") or ".onion" not in data.get("url", ""):
+                data["url"] = f"download/{att_filename}"
+                # Must write back to config so generate_qr uses the new URL
+                save_config(data, config_path)
+                
+                # Also update the HTML we just replaced if we changed it
+                html = html.replace("{{url}}", data["url"])
+                
         folder_name = data["folder_name"]
         dest = DATA_DIR / "host" / folder_name
         os.makedirs(dest, exist_ok=True)

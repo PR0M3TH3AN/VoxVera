@@ -49,6 +49,8 @@ jobs:
         run: |
           if [ "$RUNNER_OS" == "Windows" ]; then SEP=";"; else SEP=":"; fi
           pyinstaller --onefile \
+            --hidden-import pkg_resources \
+            --hidden-import setuptools \
             --collect-all onionshare_cli \
             --collect-all flask_socketio \
             --collect-all engineio \
