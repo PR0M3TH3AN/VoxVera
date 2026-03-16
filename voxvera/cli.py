@@ -65,6 +65,11 @@ def _newlines_to_br(text: str) -> str:
     return s
 
 
+def _br_to_newlines(text: str) -> str:
+    """Convert <br> tags back to real newlines for editor display."""
+    return text.replace("<br>", "\n")
+
+
 def _template_res(*parts) -> Traversable:
     """Return a Traversable for files under the packaged ``templates`` folder."""
     if getattr(sys, 'frozen', False):
@@ -395,7 +400,7 @@ def interactive_update(config_path: str):
     console.rule(t("cli.init_body"))
     while True:
         # Use existing content if present, else fallback to localized landing default
-        initial_content = get_default("content")
+        initial_content = _br_to_newlines(get_default("content"))
 
         body = open_editor(initial_content)
         length = len(body)
@@ -528,7 +533,7 @@ def build_assets(
                     if field in data and data[field]:
                         # Only override if the value is different from the master default
                         if data[field] != master_defaults.get(field):
-                            all_locales[code]["landing"][field] = data[field]
+                            all_locales[code]["landing"][field] = _newlines_to_br(data[field])
 
         html = html.replace("{{locales}}", json.dumps(all_locales))
 
