@@ -44,6 +44,27 @@ DATA_DIR = Path(os.environ.get("VOXVERA_DIR", Path.home()))
 CURRENT_LOCALE = {}
 
 
+def _newlines_to_br(text: str) -> str:
+    """Convert all forms of newline encoding to <br> for static HTML output.
+
+    Handles: real newlines, literal backslash-n (\\n), and any mix.
+    Idempotent — already-converted <br> tags are left alone.
+    """
+    # 1. Literal two-character sequences: backslash + n  →  real newline
+    s = text.replace("\\n", "\n")
+    # 2. Real newlines  →  <br>
+    s = s.replace("\n", "<br>")
+    # 3. Collapse any triple+ <br> runs from trailing newlines
+    while "<br><br><br>" in s:
+        s = s.replace("<br><br><br>", "<br><br>")
+    # 4. Strip leading/trailing <br>
+    while s.startswith("<br>"):
+        s = s[4:]
+    while s.endswith("<br>"):
+        s = s[:-4]
+    return s
+
+
 def _template_res(*parts) -> Traversable:
     """Return a Traversable for files under the packaged ``templates`` folder."""
     if getattr(sys, 'frozen', False):
@@ -539,8 +560,7 @@ def build_assets(
 
             # Support Markdown-style redaction ~~text~~
             val_str = re.sub(r"~~(.*?)~~", r'<span class="redacted">\1</span>', str(value))
-            # Convert newlines to <br> so line breaks render in static HTML (no JS on Tor)
-            val_str = val_str.replace("\\n", "\n").replace("\n", "<br>")
+            val_str = _newlines_to_br(val_str)
             html = html.replace(f"{{{{t_landing_{field}}}}}", val_str)
 
         # 2. Statically replace config placeholders {{key}}
@@ -548,8 +568,7 @@ def build_assets(
             val_str = str(value)
             # Support Markdown-style redaction ~~text~~ for user fields too
             val_str = re.sub(r"~~(.*?)~~", r'<span class="redacted">\1</span>', val_str)
-            # Convert newlines to <br> so line breaks render in static HTML (no JS on Tor)
-            val_str = val_str.replace("\\n", "\n").replace("\n", "<br>")
+            val_str = _newlines_to_br(val_str)
             html = html.replace(f"{{{{{key}}}}}", val_str)
 
         # Handle optional file attachment logic
@@ -1080,8 +1099,7 @@ def build_site():
 
         # Support Markdown-style redaction ~~text~~
         val_str = re.sub(r"~~(.*?)~~", r'<span class="redacted">\1</span>', str(value))
-        # Convert newlines to <br> so line breaks render in static HTML (no JS on Tor)
-        val_str = val_str.replace("\\n", "\n").replace("\n", "<br>")
+        val_str = _newlines_to_br(val_str)
         html = html.replace(f"{{{{t_landing_{field}}}}}", val_str)
 
     # 3. Update relative path for download
@@ -1089,8 +1107,7 @@ def build_site():
 
     # 4. Inject site-specific config data (handles any remaining {{key}} placeholders)
     for key, value in data.items():
-        val_str = str(value)
-        val_str = val_str.replace("\\n", "\n").replace("\n", "<br>")
+        val_str = _newlines_to_br(str(value))
         html = html.replace(f"{{{{{key}}}}}", val_str)
 
     os.makedirs(dest_site, exist_ok=True)
