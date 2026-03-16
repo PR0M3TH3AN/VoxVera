@@ -673,15 +673,15 @@ def _internal_onionshare():
 
     onionshare_args = sys.argv[2:]  # strip 'voxvera _internal_onionshare'
 
-    # For non-frozen installs (pip/pipx), prefer the system onionshare-cli
-    # binary to avoid dependency-isolation issues with pkg_resources etc.
-    if not getattr(sys, 'frozen', False):
-        onionshare_bin = shutil.which("onionshare-cli") or shutil.which("onionshare")
-        if onionshare_bin:
-            os.execvp(onionshare_bin, [onionshare_bin] + onionshare_args)
-            # execvp replaces the process; if we reach here something went wrong
-        # Fall through to Python import as last resort
+    # Always prefer the system onionshare-cli binary.  This avoids
+    # pkg_resources / setuptools isolation issues in both PyInstaller
+    # builds and pipx venvs.
+    onionshare_bin = shutil.which("onionshare-cli") or shutil.which("onionshare")
+    if onionshare_bin:
+        os.execvp(onionshare_bin, [onionshare_bin] + onionshare_args)
+        # execvp replaces the process; unreachable unless execvp itself fails
 
+    # Last resort: try to import onionshare_cli as a Python module
     try:
         from onionshare_cli import main
         sys.argv = ["onionshare-cli"] + onionshare_args
@@ -719,19 +719,16 @@ def serve(config_path: str) -> str | None:
         str(dir_path),
     ]
 
-    if getattr(sys, 'frozen', False):
-        # PyInstaller build: route through our hidden subcommand
-        cmd = [sys.argv[0], "_internal_onionshare"] + onionshare_args
+    # Always prefer the system onionshare-cli binary to avoid pkg_resources
+    # and dependency-isolation issues inside both PyInstaller and pipx.
+    onionshare_bin = shutil.which("onionshare-cli") or shutil.which("onionshare")
+    if onionshare_bin:
+        cmd = [onionshare_bin] + onionshare_args
     else:
-        # pip/pipx install: call the system onionshare-cli binary directly
-        onionshare_bin = shutil.which("onionshare-cli") or shutil.which("onionshare")
-        if onionshare_bin:
-            cmd = [onionshare_bin] + onionshare_args
-        else:
-            # Last resort: route through our subcommand (will try Python import)
-            cmd = [sys.argv[0], "_internal_onionshare"] + onionshare_args
-            if sys.argv[0].endswith('.py'):
-                cmd = [sys.executable] + cmd
+        # Fallback: route through our hidden subcommand
+        cmd = [sys.argv[0], "_internal_onionshare"] + onionshare_args
+        if not getattr(sys, 'frozen', False) and sys.argv[0].endswith('.py'):
+            cmd = [sys.executable] + cmd
 
     log_fh = open(logfile, "w")
     proc = subprocess.Popen(cmd, stdout=log_fh, stderr=subprocess.STDOUT, env=env)
