@@ -38,7 +38,7 @@ else:
     ROOT = Path(__file__).resolve().parent
 
 # Persistent data directory (where host/ and projects live)
-DATA_DIR = Path(os.environ.get("VOXVERA_DIR", Path.cwd()))
+DATA_DIR = Path(os.environ.get("VOXVERA_DIR", Path.home()))
 
 # Global locale state
 CURRENT_LOCALE = {}
@@ -552,13 +552,11 @@ def build_assets(
         attachment_path = data.get("attachment_path")
         if attachment_path and os.path.isfile(attachment_path):
             att_filename = os.path.basename(attachment_path)
-            # We don't replace the URL here if it's already an onion link (e.g. during serve rebuild)
-            if not data.get("url", "").startswith("http://") or ".onion" not in data.get("url", ""):
+            # Only default to the local attachment path if no onion URL is set
+            current_url = data.get("url", "")
+            if not (current_url.startswith("http") and ".onion" in current_url):
                 data["url"] = f"download/{att_filename}"
-                # Must write back to config so generate_qr uses the new URL
                 save_config(data, config_path)
-                
-                # Also update the HTML we just replaced if we changed it
                 html = html.replace("{{url}}", data["url"])
                 
         folder_name = data["folder_name"]
@@ -671,20 +669,26 @@ def _internal_onionshare():
     bundled_tor = tor_dir / ("tor.exe" if "windows" in system else "tor")
     if bundled_tor.exists() and bundled_tor.stat().st_size > 100:
         os.environ["PATH"] = str(tor_dir) + os.pathsep + os.environ.get("PATH", "")
-        # Robustness: explicitly tell OnionShare where Tor is
         os.environ["TOR_BINARY"] = str(bundled_tor)
+
+    onionshare_args = sys.argv[2:]  # strip 'voxvera _internal_onionshare'
+
+    # For non-frozen installs (pip/pipx), prefer the system onionshare-cli
+    # binary to avoid dependency-isolation issues with pkg_resources etc.
+    if not getattr(sys, 'frozen', False):
+        onionshare_bin = shutil.which("onionshare-cli") or shutil.which("onionshare")
+        if onionshare_bin:
+            os.execvp(onionshare_bin, [onionshare_bin] + onionshare_args)
+            # execvp replaces the process; if we reach here something went wrong
+        # Fall through to Python import as last resort
 
     try:
         from onionshare_cli import main
-        # sys.argv is ['voxvera', '_internal_onionshare', '--website', ... ]
-        # We need to make it look like ['onionshare-cli', '--website', ... ]
-        sys.argv = ["onionshare-cli"] + sys.argv[2:]
+        sys.argv = ["onionshare-cli"] + onionshare_args
         sys.exit(main())
-    except ImportError as e:
-        import traceback
-        traceback.print_exc()
-        print(f"Error: onionshare-cli not bundled or installed correctly: {e}", file=sys.stderr)
-        print(f"DEBUG: sys.path = {sys.path}", file=sys.stderr)
+    except Exception as e:
+        print(f"Error: onionshare-cli not available: {e}", file=sys.stderr)
+        print("Install onionshare-cli via your system package manager.", file=sys.stderr)
         sys.exit(1)
 
 
@@ -703,11 +707,7 @@ def serve(config_path: str) -> str | None:
     env["TOR_SOCKS_PORT"] = socks
     env["TOR_CONTROL_PORT"] = ctl
 
-    # Run the bundled onionshare-cli via our hidden command
-    # sys.argv[0] is the current executable (python script or PyInstaller binary)
-    cmd = [
-        sys.argv[0],
-        "_internal_onionshare",
+    onionshare_args = [
         "--website",
         "--public",
         "--persistent",
@@ -719,10 +719,19 @@ def serve(config_path: str) -> str | None:
         str(dir_path),
     ]
 
-    # If running via 'python -m voxvera.cli', sys.argv[0] might be the script path,
-    # so we should ensure it's executed correctly if not a PyInstaller binary.
-    if not getattr(sys, 'frozen', False) and sys.argv[0].endswith('.py'):
-        cmd = [sys.executable, sys.argv[0]] + cmd[1:]
+    if getattr(sys, 'frozen', False):
+        # PyInstaller build: route through our hidden subcommand
+        cmd = [sys.argv[0], "_internal_onionshare"] + onionshare_args
+    else:
+        # pip/pipx install: call the system onionshare-cli binary directly
+        onionshare_bin = shutil.which("onionshare-cli") or shutil.which("onionshare")
+        if onionshare_bin:
+            cmd = [onionshare_bin] + onionshare_args
+        else:
+            # Last resort: route through our subcommand (will try Python import)
+            cmd = [sys.argv[0], "_internal_onionshare"] + onionshare_args
+            if sys.argv[0].endswith('.py'):
+                cmd = [sys.executable] + cmd
 
     log_fh = open(logfile, "w")
     proc = subprocess.Popen(cmd, stdout=log_fh, stderr=subprocess.STDOUT, env=env)
@@ -1123,20 +1132,30 @@ def batch_import_configs():
         dest_config.unlink(missing_ok=True)
 
 
+def _seed_bundled_sites():
+    """Copy bundled example sites from ROOT/host/ to DATA_DIR/host/ if they
+    don't already exist there.  This runs once — after that, only DATA_DIR is
+    the source of truth so deletes actually stick."""
+    bundled_host = ROOT / "host"
+    if not bundled_host.exists() or ROOT == DATA_DIR:
+        return
+    dest_host = DATA_DIR / "host"
+    for src in bundled_host.iterdir():
+        if src.is_dir() and (src / "config.json").exists():
+            dest = dest_host / src.name
+            if not dest.exists():
+                shutil.copytree(src, dest)
+
+
 def get_servers() -> list[str]:
-    # Check both bundled ROOT/host and local DATA_DIR/host
-    search_paths = []
-    if ROOT != DATA_DIR:
-        search_paths.append(ROOT / "host")
-    search_paths.append(DATA_DIR / "host")
-    
-    servers = set()
-    for host_dir in search_paths:
-        if host_dir.exists():
-            for d in host_dir.iterdir():
-                if d.is_dir() and (d / "config.json").exists():
-                    servers.add(d.name)
-    return sorted(list(servers))
+    """Return server names found in DATA_DIR/host only."""
+    host_dir = DATA_DIR / "host"
+    servers = []
+    if host_dir.exists():
+        for d in host_dir.iterdir():
+            if d.is_dir() and (d / "config.json").exists():
+                servers.append(d.name)
+    return sorted(servers)
 
 
 def is_server_running(folder_name: str) -> bool:
@@ -1211,6 +1230,9 @@ def manage_servers():
     from InquirerPy import inquirer
     from InquirerPy.base.control import Choice
     console = Console()
+
+    # On first run, copy any bundled example sites so they're user-editable.
+    _seed_bundled_sites()
 
     while True:
         servers = get_servers()

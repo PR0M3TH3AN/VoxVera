@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-__version__ = "0.2.15"
+__version__ = "0.2.16"
 
 # Add the vendor directory to sys.path ONLY for PyInstaller (frozen) builds.
 # For pip/pipx installs the system/venv packages are correct and the vendored
