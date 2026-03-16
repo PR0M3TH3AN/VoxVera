@@ -10,6 +10,17 @@ import time
 from pathlib import Path
 from importlib import resources
 from importlib.resources.abc import Traversable
+
+# Force PyInstaller to bundle these critical dependencies for onionshare-cli
+try:
+    import pkg_resources
+    import setuptools
+    import jaraco
+    import platformdirs
+    import packaging
+except ImportError:
+    pass
+
 from InquirerPy import prompt, inquirer
 from rich.console import Console
 from voxvera import __version__

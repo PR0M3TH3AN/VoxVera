@@ -34,6 +34,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          pip install --upgrade setuptools pkg_resources || pip install --upgrade setuptools
           pip install -r requirements.txt
           pip install .
           pip install pyinstaller pyinstaller-hooks-contrib
@@ -49,6 +50,8 @@ jobs:
         run: |
           if [ "$RUNNER_OS" == "Windows" ]; then SEP=";"; else SEP=":"; fi
           pyinstaller --onefile \
+            --collect-all pkg_resources \
+            --collect-all setuptools \
             --hidden-import pkg_resources \
             --hidden-import setuptools \
             --hidden-import jaraco.text \
