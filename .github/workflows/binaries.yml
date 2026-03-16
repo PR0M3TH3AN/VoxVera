@@ -51,6 +51,12 @@ jobs:
           pyinstaller --onefile \
             --hidden-import pkg_resources \
             --hidden-import setuptools \
+            --hidden-import jaraco.text \
+            --hidden-import jaraco.functools \
+            --hidden-import jaraco.context \
+            --hidden-import more_itertools \
+            --hidden-import packaging \
+            --hidden-import platformdirs \
             --collect-all onionshare_cli \
             --collect-all flask_socketio \
             --collect-all engineio \
