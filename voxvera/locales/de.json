@@ -73,7 +73,9 @@
     "no_urls_qr_skip": "Noch keine URLs konfiguriert. QR-Codes werden nach 'voxvera serve' generiert",
     "input_file_not_found": "Eingabedatei {path} existiert nicht.",
     "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
-    "manage_action_edit": "Edit"
+    "manage_action_edit": "Edit",
+    "manage_templates": "--- Aus Vorlage erstellen ---",
+    "template_select": "Wählen Sie eine Vorlage:"
   },
   "web": {
     "tear_off_tor_browser": "Tor-Browser verwenden",
@@ -91,5 +93,55 @@
     "content": "Befreien Sie sich von Zensur mit VoxVera. Ein anonymes Guerilla-Marketing- und Nachrichtenverbreitungs-Tool. Ob online oder in der physischen Welt, es befähigt Sie, Ihre Ideen mutig zu verbreiten, geschützt durch vollständige Anonymität (wenn Sie über Tor hosten). Laden Sie den Code herunter, entwerfen Sie eine Flyer-Website, hosten Sie diese online und verstärken Sie Ihre Botschaft.<br><br>Nutzen Sie memetische Kraft, um Ihre Ideen in Ihrer Schule, an Ihrem Arbeitsplatz, in Online-Communities oder sogar weltweit zu teilen. VoxVera stellt sicher, dass Ihre Botschaft weit und breit Resonanz findet, mit Abreißabschnitten, die über einzigartige URLs und QR-Codes für einen einfachen Nachdruck verfügen.<br><br>Privatsphäre kann gewahrt bleiben. Flyer können über das Tor-Network geteilt werden, was Hoster und Nutzer vor Zensur schützt.<br><br>Schließen Sie sich uns in einer Revolution an, die Wahrheit und Transparenz schätzt. Gemeinsam können wir ein Netzwerk informierter Bürger aufbauen, die keine Angst haben, ihre Meinung zu sagen.",
     "url_message": "Holen Sie sich VoxVera und beginnen Sie, Ihre Nachricht zu verbreiten.",
     "name": "Vox Vera Druckflyer"
+  },
+  "templates": {
+    "aosp": {
+      "name": "AOS-Projekt",
+      "title": "ANDROID ENTFESSELT",
+      "subtitle": "OHNE GRENZEN",
+      "headline": "OPEN-SOURCE-FREIHEIT",
+      "content": "Das Android Open Source Project (AOSP) verkörpert das, wofür Android ursprünglich gedacht war: eine offene, transparente und anpassungsfähige Plattform. Es entfernt die Schichten proprietärer Software und unternehmerischer Kontrolle, die zum Synonym für gängige Android-Distributionen geworden sind. Mit AOSP erhalten Sie Zugang zu einer rohen, ungefilterten Version von Android, die es Ihnen ermöglicht, Ihr Gerät wirklich zu Ihrem eigenen zu machen.<br><br>Für Entwickler bietet AOSP einen Spielplatz der Möglichkeiten, wo die einzigen Grenzen Ihre Fähigkeiten und Vorstellungskraft sind. Es dient als Grundlage für unzählige Custom ROMs, die jeweils auf spezifische Bedürfnisse zugeschnitten sind, sei es für verbesserte Leistung, Privatsphäre oder einzigartige Funktionen, die Mainstream-Versionen fehlen. Datenschutz-Enthusiasten werden das Fehlen vorinstallierter Bloatware und Tracking-Dienste schätzen, die oft mit Standard-Android geliefert werden.<br><br>AOSP ist nicht nur für Entwickler oder Technik-Enthusiasten; es ist für jeden, der digitale Freiheit schätzt. Es ermöglicht Ihnen, die Kontrolle über Ihr Gerät zurückzugewinnen und es ohne die Einschränkungen von Anbietern oder Herstellern an Ihre Bedürfnisse anzupassen. Entdecken Sie, wie AOSP Ihre mobile Erfahrung transformieren kann. Beginnen Sie noch heute Ihre Reise in eine offenere, anpassbare Zukunft.",
+      "url_message": "Besuchen Sie den untenstehenden Link, um mehr zu erfahren."
+    },
+    "bitcoin": {
+      "name": "Bitcoin-Revolutions-Flyer",
+      "title": "REGELN OHNE HERRSCHER",
+      "subtitle": "NICHT IGNORIEREN",
+      "headline": "SCHLIESSEN SIE SICH DER BITCOIN-REVOLUTION AN",
+      "content": "Was ist Bitcoin? Es ist mehr als nur digitales Geld; es ist eine revolutionäre Technologie, die entwickelt wurde, um einige der drängendsten Probleme der Welt zu lösen. Bitcoin operiert auf einem dezentralen Netzwerk, frei von der Kontrolle jeder Regierung oder Zentralbehörde. Dies stellt sicher, dass niemand sein Angebot oder seinen Wert manipulieren kann, was es zu einer soliden Geldform macht, die Ihr Vermögen vor Inflation schützt.<br><br>Unser aktuelles Finanzsystem basiert auf fehlerhaften Anreizen—es fördert Verschuldung, Abhängigkeit und Zentralisierung der Macht. Bitcoin ändert das, indem es ein System schafft, in dem Ehrlichkeit, Transparenz und individuelle Verantwortung belohnt werden. Im Bitcoin-Netzwerk gibt es keinen Raum für Korruption oder Manipulation, weil die Regeln von Mathematik durchgesetzt werden, nicht von Menschen.<br><br>Bitcoin richtet Anreize so aus, dass langfristiges Denken, Sparen und Innovation gefördert werden. Es befähigt Einzelpersonen, die Kontrolle über ihre finanzielle Zukunft zu übernehmen, und fördert eine globale Gemeinschaft, in der Werte frei und sicher ohne Vermittler übertragen werden können. Deshalb brauchen wir Bitcoin—weil es eine Welt schafft, in der Anreize richtig ausgerichtet sind und zu einer gerechteren und wohlhabenderen Gesellschaft für alle führen.<br><br>Machen Sie den Schritt, mehr über Bitcoin zu erfahren und wie es nicht nur Ihr finanzielles Leben, sondern die Welt verändern kann. Reißen Sie einen Link links ab und erkunden Sie diese bahnbrechende Technologie. Schließen Sie sich der Bewegung für eine bessere Zukunft an.",
+      "url_message": "Folgen Sie diesem Link, um mehr zu erfahren."
+    },
+    "jesus": {
+      "name": "Lebensverändernde Botschaft",
+      "title": "GUTE NACHRICHT",
+      "subtitle": "NICHT IGNORIEREN",
+      "headline": "ENTDECKE WAHRE HOFFNUNG",
+      "content": "Wer ist Jesus? Er ist mehr als nur eine historische Figur; Er ist der Sohn Gottes, der Retter der Welt. Jesus selbst sagte: 'Ich bin der Weg und die Wahrheit und das Leben. Niemand kommt zum Vater außer durch mich' (Johannes 14,6). Er kam, um die Kluft zwischen Gott und der Menschheit zu überbrücken und uns einen Weg zur Vergebung, zum Frieden und zum ewigen Leben zu bieten.<br><br>Wir alle stehen vor Brüchen in unserem Leben—sei es in unseren Beziehungen, unseren Herzen oder unserer Welt. Jesus kam, um diese Brüche zu heilen. Er lebte ein vollkommenes Leben, starb am Kreuz für unsere Sünden und ist auferstanden, hat den Tod besiegt und uns die Hoffnung auf ewiges Leben mit Gott geschenkt.<br><br>Ohne Jesus sind wir in unserer Sünde verloren, von Gott getrennt. Aber durch Ihn können wir vergeben und wiederhergestellt werden. Er bietet uns nicht nur ein besseres Leben jetzt, sondern das Versprechen eines ewigen Lebens mit Ihm. Deshalb brauchen wir Ihn—denn nur in Jesus können wir wahren Frieden, Sinn und die Gewissheit des ewigen Lebens finden.<br><br>Machen Sie den Schritt, mehr über Jesus und den lebensverändernden Einfluss zu erfahren, den Er auf Ihr Leben haben kann. Reißen Sie einen Link links ab und erkunden Sie Seine Lehren. Finden Sie die Hoffnung, nach der Sie gesucht haben.",
+      "url_message": "Folgen Sie diesem Link, um mehr zu erfahren."
+    },
+    "meshtastic": {
+      "name": "Meshtastic-Netzwerk-Flyer",
+      "title": "SICHERE KOMMUNIKATION",
+      "subtitle": "NICHT IGNORIEREN",
+      "headline": "BAUEN SIE IHR NOTFALLNETZWERK AUF",
+      "content": "Warum Meshtastic? In Krisenzeiten können traditionelle Kommunikationsnetzwerke versagen und uns isoliert und verwundbar zurücklassen. Meshtastic bietet eine leistungsstarke Lösung—ein alternatives lokales Kommunikationsnetzwerk, das unabhängig von zentralisierten Systemen arbeitet. Es ist für Notfallsituationen konzipiert und ermöglicht es Ihnen, verbunden zu bleiben, wenn es am wichtigsten ist.<br><br>Meshtastic-Geräte erstellen ein Mesh-Netzwerk, das Nachrichten über große Entfernungen weiterleiten kann, auch ohne Internet- oder Mobilfunkabdeckung. Dieser dezentrale Ansatz stellt sicher, dass Ihre Kommunikation unter allen Umständen belastbar und zuverlässig ist. Aber es geht nicht nur darum, verbunden zu bleiben—Meshtastic bietet auch Verschlüsselung, sodass Ihre Nachrichten sicher und privat bleiben.<br><br>In einer Welt, in der die Privatsphäre zunehmend gefährdet ist, ermöglicht Ihnen Meshtastic, die Kontrolle über Ihre Kommunikation zu übernehmen. Ob Sie eine lokale Gemeinschaftsreaktion koordinieren, während einer Katastrophe mit Ihren Lieben in Kontakt bleiben oder sich einfach auf das Unerwartete vorbereiten—Meshtastic bietet die Werkzeuge, die Sie für eine sichere und effektive Kommunikation benötigen.<br><br>Machen Sie den Schritt, mehr über Meshtastic zu erfahren und wie Sie Ihr eigenes Notfall-Kommunikationsnetzwerk aufbauen können. Reißen Sie einen Link links ab und erkunden Sie diese innovative Technologie. Stellen Sie sicher, dass Sie auf alles vorbereitet sind.",
+      "url_message": "Folgen Sie diesem Link, um mehr zu erfahren."
+    },
+    "nostr": {
+      "name": "Nostr-Protokoll-Flyer",
+      "title": "SOZIALE FREIHEIT",
+      "subtitle": "NICHT IGNORIEREN",
+      "headline": "TRETEN SIE DEM ZENSURRESISTENTEN NETZWERK BEI",
+      "content": "Was ist Nostr? Anders als herkömmliche Social-Media-Plattformen ist Nostr ein Protokoll—ein dezentrales System, das Benutzern ermöglicht, sich zu verbinden und zu teilen, ohne die Einschränkungen einer zentralen Autorität. Nostr ist zensurresistent, was bedeutet, dass Ihre Stimme nicht von Unternehmen oder Regierungen zum Schweigen gebracht werden kann. Es wurde entwickelt, um Ihnen die Kontrolle über Ihre Online-Präsenz zu geben, frei vom Einfluss von Algorithmen oder Werbung, die Engagement über bedeutsame Verbindungen stellen.<br><br>Auf Nostr gibt es keine verborgenen Agenden, die Sie zum endlosen Scrollen verleiten. Sie interagieren mit Inhalten zu Ihren Bedingungen, nicht basierend auf dem, was ein Algorithmus glaubt, Sie am längsten online zu halten. Nostr ermöglicht es Ihnen, echte Verbindungen aufzubauen und an Gesprächen teilzunehmen, die wichtig sind, und dabei Ihre Privatsphäre und Autonomie zu wahren.<br><br>In einer Welt, in der die Online-Meinungsfreiheit zunehmend kontrolliert und manipuliert wird, bietet Nostr eine erfrischende Alternative. Es ist nicht nur eine Plattform; es ist eine Bewegung hin zu wahrer digitaler Freiheit, bei der Ihre Interaktionen von Ihren Interessen und Werten bestimmt werden, nicht von dem, was die meisten Werbeeinnahmen generiert.<br><br>Machen Sie den Schritt, mehr über Nostr zu erfahren und wie es die Art und Weise, wie Sie sich online verbinden, verändern kann. Reißen Sie einen Link links ab und erkunden Sie dieses bahnbrechende Protokoll. Schließen Sie sich einer Gemeinschaft an, die Freiheit und authentische Interaktion schätzt.",
+      "url_message": "Folgen Sie diesem Link, um mehr zu erfahren."
+    },
+    "voxvera": {
+      "name": "Vox Vera Druckflyer",
+      "title": "STRENG GEHEIM",
+      "subtitle": "~~NICHT~~ VERBREITEN",
+      "headline": "OPERATION VOX VERA",
+      "content": "Befreien Sie sich von Zensur mit VoxVera. Ein anonymes Guerilla-Marketing- und Nachrichtenverbreitungs-Tool. Ob online oder in der physischen Welt, es befähigt Sie, Ihre Ideen mutig zu verbreiten, geschützt durch vollständige Anonymität (wenn Sie über Tor hosten). Laden Sie den Code herunter, entwerfen Sie eine Flyer-Website, hosten Sie diese online und verstärken Sie Ihre Botschaft.<br><br>Nutzen Sie memetische Kraft, um Ihre Ideen in Ihrer Schule, an Ihrem Arbeitsplatz, in Online-Communities oder sogar weltweit zu teilen. VoxVera stellt sicher, dass Ihre Botschaft weit und breit Resonanz findet, mit Abreißabschnitten, die über einzigartige URLs und QR-Codes für einen einfachen Nachdruck verfügen.<br><br>Privatsphäre kann gewahrt bleiben. Flyer können über das Tor-Netzwerk geteilt werden, was Hoster und Nutzer vor Zensur schützt.<br><br>Schließen Sie sich uns in einer Revolution an, die Wahrheit und Transparenz schätzt. Gemeinsam können wir ein Netzwerk informierter Bürger aufbauen, die keine Angst haben, ihre Meinung zu sagen.",
+      "url_message": "Holen Sie sich VoxVera und beginnen Sie, Ihre Nachricht zu verbreiten."
+    }
   }
 }

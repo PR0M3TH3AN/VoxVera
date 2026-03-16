@@ -73,7 +73,9 @@
     "no_urls_qr_skip": "No hay URLs configuradas todavía. Los códigos QR se generarán después de 'voxvera serve'",
     "input_file_not_found": "El archivo de entrada {path} no existe.",
     "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
-    "manage_action_edit": "Edit"
+    "manage_action_edit": "Edit",
+    "manage_templates": "--- Crear Desde Plantilla ---",
+    "template_select": "Seleccione una plantilla:"
   },
   "web": {
     "tear_off_tor_browser": "Use el Navegador Tor",
@@ -91,5 +93,55 @@
     "content": "Libérese de la censura con VoxVera. Una herramienta anónima de marketing de guerrilla y difusión de mensajes. Ya sea en línea o en el mundo físico, puede empoderarlo para difundir sus ideas con audacia, protegido por un anonimato completo (si hospeda a través de Tor). Descargue el código, diseñe un sitio de volantes, hospédelo en línea y amplifique su mensaje.<br><br>Use el poder memético para compartir sus ideas en su escuela, lugar de trabajo, comunidades en línea o incluso globalmente. VoxVera asegura que su mensaje resuene a lo largo und ancho, con secciones desprendibles que cuentan con URLs y códigos QR únicos para una fácil reimpresión.<br><br>La privacidad puede mantenerse. Los volantes se pueden compartir a través de la red Tor, protegiendo al anfitrión y a los usuarios de la censura.<br><br>Únase a nosotros en una revolución que valora la verdad y la transparencia. Juntos, podemos construir una red de ciudadanos informados que no temen hablar.",
     "url_message": "Obtenga VoxVera y comience a difundir su mensaje.",
     "name": "Volantes Imprimibles Vox Vera"
+  },
+  "templates": {
+    "aosp": {
+      "name": "Proyecto AOS",
+      "title": "ANDROID LIBERADO",
+      "subtitle": "SIN LÍMITES",
+      "headline": "LIBERTAD DE CÓDIGO ABIERTO",
+      "content": "El Proyecto de Código Abierto de Android (AOSP) representa la esencia de lo que Android fue originalmente concebido: una plataforma abierta, transparente y adaptable. Elimina las capas de software propietario y supervisión corporativa que se han vuelto sinónimos de las distribuciones convencionales de Android. Con AOSP, obtiene acceso a una versión sin filtros de Android, permitiéndole hacer verdaderamente suyo su dispositivo.<br><br>Para los desarrolladores, AOSP ofrece un campo de posibilidades, donde los únicos límites son sus habilidades e imaginación. Sirve como base para innumerables ROMs personalizadas, cada una adaptada a necesidades específicas, ya sea para un rendimiento mejorado, privacidad o características únicas que las versiones convencionales carecen. Los entusiastas de la privacidad apreciarán la ausencia de bloatware preinstalado y servicios de rastreo que a menudo vienen con Android de fábrica.<br><br>AOSP no es solo para desarrolladores o entusiastas de la tecnología; es para cualquiera que valore la libertad digital. Le permite recuperar el control de su dispositivo, adaptándolo a sus necesidades sin las restricciones de operadores o fabricantes. Descubra cómo AOSP puede transformar su experiencia móvil. Comience su viaje hacia un futuro más abierto y personalizable hoy.",
+      "url_message": "Visite el enlace a continuación para obtener más información."
+    },
+    "bitcoin": {
+      "name": "Volantes de la Revolución Bitcoin",
+      "title": "REGLAS SIN GOBERNANTES",
+      "subtitle": "NO IGNORAR",
+      "headline": "ÚNETE A LA REVOLUCIÓN BITCOIN",
+      "content": "¿Qué es Bitcoin? Es más que dinero digital; es una tecnología revolucionaria diseñada para solucionar algunos de los problemas más urgentes del mundo. Bitcoin opera en una red descentralizada, libre del control de cualquier gobierno o autoridad central. Esto asegura que nadie pueda manipular su oferta o valor, convirtiéndolo en una forma sólida de dinero que protege su riqueza de la inflación.<br><br>Nuestro sistema financiero actual está construido sobre incentivos defectuosos—fomentando la deuda, la dependencia y la centralización del poder. Bitcoin cambia eso creando un sistema donde la honestidad, la transparencia y la responsabilidad individual son recompensadas. En la red Bitcoin, no hay espacio para la corrupción o manipulación porque las reglas son aplicadas por las matemáticas, no por las personas.<br><br>Bitcoin alinea incentivos de una manera que promueve el pensamiento a largo plazo, el ahorro y la innovación. Empodera a los individuos para tomar control de su futuro financiero, fomentando una comunidad global donde el valor puede transferirse libre y seguramente sin intermediarios. Por eso necesitamos Bitcoin—porque crea un mundo donde los incentivos están correctamente alineados, conduciendo a una sociedad más justa y próspera para todos.<br><br>Da el paso para aprender más sobre Bitcoin y cómo puede transformar no solo tu vida financiera, sino el mundo. Arranca un enlace a la izquierda y explora esta tecnología revolucionaria. Únete al movimiento hacia un futuro mejor.",
+      "url_message": "Sigue este enlace para obtener más información."
+    },
+    "jesus": {
+      "name": "Mensaje que Cambia Vidas",
+      "title": "BUENAS NOTICIAS",
+      "subtitle": "NO IGNORAR",
+      "headline": "DESCUBRE LA VERDADERA ESPERANZA",
+      "content": "¿Quién es Jesús? Es más que una figura histórica; Él es el Hijo de Dios, el Salvador del mundo. Jesús mismo dijo: 'Yo soy el camino, la verdad y la vida. Nadie viene al Padre sino por mí' (Juan 14:6). Vino para cerrar la brecha entre Dios y la humanidad, ofreciéndonos un camino hacia el perdón, la paz y la vida eterna.<br><br>Todos enfrentamos quebrantamiento en nuestras vidas—ya sea en nuestras relaciones, nuestros corazones o nuestro mundo. Jesús vino para sanar ese quebrantamiento. Vivió una vida perfecta, murió en la cruz por nuestros pecados y resucitó, venciendo a la muerte y ofreciéndonos la esperanza de la vida eterna con Dios.<br><br>Sin Jesús, estamos perdidos en nuestro pecado, separados de Dios. Pero a través de Él, podemos ser perdonados y restaurados. Nos ofrece no solo una vida mejor ahora, sino la promesa de una vida eterna con Él. Por eso lo necesitamos—porque solo en Jesús podemos encontrar verdadera paz, propósito y la seguridad de la vida eterna.<br><br>Da el paso para aprender más sobre Jesús y el impacto transformador que puede tener en tu vida. Arranca un enlace a la izquierda y explora Sus enseñanzas. Encuentra la esperanza que has estado buscando.",
+      "url_message": "Sigue este enlace para obtener más información."
+    },
+    "meshtastic": {
+      "name": "Volantes de Red Meshtastic",
+      "title": "COMUNICACIONES SEGURAS",
+      "subtitle": "NO IGNORAR",
+      "headline": "CONSTRUYE TU RED DE EMERGENCIA",
+      "content": "¿Por qué Meshtastic? En tiempos de crisis, las redes de comunicación tradicionales pueden fallar, dejándonos aislados y vulnerables. Meshtastic proporciona una solución poderosa—una red de comunicación local alternativa que opera independientemente de los sistemas centralizados. Está diseñada para situaciones de emergencia, permitiéndote mantenerte conectado cuando más importa.<br><br>Los dispositivos Meshtastic crean una red en malla que puede retransmitir mensajes a largas distancias, incluso sin cobertura de internet o celular. Este enfoque descentralizado asegura que tus comunicaciones sean resilientes y confiables, sin importar las circunstancias. Pero no se trata solo de mantenerse conectado—Meshtastic también ofrece cifrado, para que tus mensajes permanezcan seguros y privados.<br><br>En un mundo donde la privacidad está cada vez más comprometida, Meshtastic te empodera para tomar control de tu comunicación. Ya sea coordinando una respuesta comunitaria local, manteniéndote en contacto con seres queridos durante un desastre, o simplemente preparándote para lo inesperado, Meshtastic proporciona las herramientas que necesitas para comunicarte de forma segura y efectiva.<br><br>Da el paso para aprender más sobre Meshtastic y cómo puedes construir tu propia red de comunicación de emergencia. Arranca un enlace a la izquierda y explora esta tecnología innovadora. Asegúrate de estar preparado para lo que venga.",
+      "url_message": "Sigue este enlace para obtener más información."
+    },
+    "nostr": {
+      "name": "Volantes del Protocolo Nostr",
+      "title": "LIBERTAD SOCIAL",
+      "subtitle": "NO IGNORAR",
+      "headline": "ÚNETE A LA RED RESISTENTE A LA CENSURA",
+      "content": "¿Qué es Nostr? A diferencia de las plataformas de redes sociales tradicionales, Nostr es un protocolo—un sistema descentralizado que empodera a los usuarios para conectarse y compartir sin las restricciones de una autoridad central. Nostr es resistente a la censura, lo que significa que tu voz no puede ser silenciada por corporaciones o gobiernos. Está diseñado para darte control sobre tu presencia en línea, libre de la influencia de algoritmos o anuncios que priorizan el engagement sobre las conexiones significativas.<br><br>En Nostr, no hay agendas ocultas para mantenerte enganchado. Te involucras con el contenido en tus términos, no basado en lo que un algoritmo piensa que te mantendrá en línea más tiempo. Nostr te permite construir conexiones genuinas y participar en conversaciones que importan, todo mientras mantienes tu privacidad y autonomía.<br><br>En un mundo donde el discurso en línea está cada vez más controlado y manipulado, Nostr ofrece una alternativa refrescante. No es solo una plataforma; es un movimiento hacia la verdadera libertad digital, donde tus interacciones son impulsadas por tus intereses y valores, no por lo que genera más ingresos publicitarios.<br><br>Da el paso para aprender más sobre Nostr y cómo puede transformar la forma en que te conectas en línea. Arranca un enlace a la izquierda y explora este protocolo revolucionario. Únete a una comunidad que valora la libertad y la interacción auténtica.",
+      "url_message": "Sigue este enlace para obtener más información."
+    },
+    "voxvera": {
+      "name": "Volantes Imprimibles Vox Vera",
+      "title": "ALTO SECRETO",
+      "subtitle": "~~NO~~ DISTRIBUIR",
+      "headline": "OPERACIÓN VOX VERA",
+      "content": "Libérese de la censura con VoxVera. Una herramienta anónima de marketing de guerrilla y difusión de mensajes. Ya sea en línea o en el mundo físico, puede empoderarlo para difundir sus ideas con audacia, protegido por un anonimato completo (si hospeda a través de Tor). Descargue el código, diseñe un sitio de volantes, hospédelo en línea y amplifique su mensaje.<br><br>Use el poder memético para compartir sus ideas en su escuela, lugar de trabajo, comunidades en línea o incluso globalmente. VoxVera asegura que su mensaje resuene a lo largo und ancho, con secciones desprendibles que cuentan con URLs y códigos QR únicos para una fácil reimpresión.<br><br>La privacidad puede mantenerse. Los volantes se pueden compartir a través de la red Tor, protegiendo al anfitrión y a los usuarios de la censura.<br><br>Únase a nosotros en una revolución que valora la verdad y la transparencia. Juntos, podemos construir una red de ciudadanos informados que no temen hablar.",
+      "url_message": "Obtenga VoxVera y comience a difundir su mensaje."
+    }
   }
 }

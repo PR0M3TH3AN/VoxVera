@@ -74,7 +74,9 @@
     "no_urls_qr_skip": "Henüz URL yapılandırılmadı. QR kodları 'voxvera serve' komutundan sonra oluşturulacak",
     "input_file_not_found": "{path} giriş dosyası mevcut değil.",
     "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
-    "manage_action_edit": "Edit"
+    "manage_action_edit": "Edit",
+    "manage_templates": "--- Şablondan Oluştur ---",
+    "template_select": "Bir şablon seçin:"
   },
   "web": {
     "tear_off_tor_browser": "Tor Tarayıcı Kullanın",
@@ -92,5 +94,55 @@
     "content": "VoxVera ile sansürden kurtulun. Anonim bir gerilla pazarlama ve mesaj yayma aracı. İster çevrimiçi ister fiziksel dünyada olsun, Tor üzerinden barındırma yaparak tam anonimlik koruması altında fikirlerinizi cesurca yaymanızı sağlar. Kodu indirin, bir ilan sitesi tasarlayın, çevrimiçi barındırın ve mesajınızı güçlendirin.<br><br>Fikirlerinizi okulunuzda, iş yerinizde, çevrimiçi topluluklarda ve hatta küresel çapta paylaşmak için memetik gücü kullanın. VoxVera, benzersiz URL'ler ve kolayca yeniden yazdırma için QR kodları içeren yırtılabilir bölümleriyle mesajınızın geniş kitlelere ulaşmasını sağlar.<br><br>Gizlilik korunabilir. İlanlar Tor ağı üzerinden paylaşılabilir, böylece hem barındıran hem de kullanıcılar sansürden korunur.<br><br>Gerçeğe ve şeffaflığa değer veren bir devrime katılın. Birlikte, sesini yükseltmekten korkmayan bilinçli vatandaşlardan oluşan bir ağ kurabiliriz.",
     "url_message": "VoxVera'yı edinin ve mesajınızı yaymaya başlayın.",
     "name": "Vox Vera Yazdırılabilir El İlanları"
+  },
+  "templates": {
+    "aosp": {
+      "name": "AOS Projesi",
+      "title": "ANDROID SERBEST",
+      "subtitle": "SINIR YOK",
+      "headline": "AÇIK KAYNAK ÖZGÜRLÜĞÜ",
+      "content": "Android Açık Kaynak Projesi (AOSP), Android'in başlangıçta ne olması gerektiğinin özünü temsil eder: açık, şeffaf ve uyarlanabilir bir platform. Ana akım Android dağıtımlarıyla eş anlamlı hale gelen tescilli yazılım ve kurumsal gözetim katmanlarını ortadan kaldırır. AOSP ile Android'in filtresiz bir sürümüne erişim elde ederek cihazınızı gerçekten kendinize ait yapabilirsiniz.<br><br>Geliştiriciler için AOSP, tek sınırın becerileriniz ve hayal gücünüz olduğu bir olasılıklar alanı sunar. Gelişmiş performans, gizlilik veya ana akım sürümlerin sahip olmadığı benzersiz özellikler gibi belirli ihtiyaçlara göre uyarlanmış sayısız özel ROM'un temelini oluşturur. Gizlilik meraklıları, stok Android ile birlikte gelen önceden yüklenmiş gereksiz yazılımların ve izleme hizmetlerinin yokluğunu takdir edecektir.<br><br>AOSP sadece geliştiriciler veya teknoloji meraklıları için değil; dijital özgürlüğe değer veren herkes içindir. Operatörlerin veya üreticilerin kısıtlamaları olmadan cihazınızı ihtiyaçlarınıza göre uyarlayarak kontrolü yeniden elinize almanızı sağlar. AOSP'nin mobil deneyiminizi nasıl dönüştürebileceğini keşfedin. Daha açık, özelleştirilebilir bir geleceğe doğru yolculuğunuza bugün başlayın.",
+      "url_message": "Daha fazla bilgi için aşağıdaki bağlantıyı ziyaret edin."
+    },
+    "bitcoin": {
+      "name": "Bitcoin Devrimi El İlanları",
+      "title": "YÖNETİCİSİZ KURALLAR",
+      "subtitle": "GÖZ ARDI ETMEYİN",
+      "headline": "BITCOIN DEVRİMİNE KATILIN",
+      "content": "Bitcoin nedir? Dijital paradan çok daha fazlası; dünyanın en acil sorunlarından bazılarını çözmek için tasarlanmış devrimci bir teknolojidir. Bitcoin, herhangi bir hükümet veya merkezi otoritenin kontrolünden bağımsız, merkezi olmayan bir ağda çalışır. Bu, kimsenin arzını veya değerini manipüle edemeyeceğini garanti eder ve onu servetinizi enflasyondan koruyan sağlam bir para biçimi yapar.<br><br>Mevcut finansal sistemimiz kusurlu teşvikler üzerine inşa edilmiştir—borcu, bağımlılığı ve gücün merkezileşmesini teşvik eder. Bitcoin, dürüstlüğün, şeffaflığın ve bireysel sorumluluğun ödüllendirildiği bir sistem oluşturarak bunu değiştirir. Bitcoin ağında yolsuzluk veya manipülasyona yer yoktur çünkü kurallar insanlar tarafından değil, matematik tarafından uygulanır.<br><br>Bitcoin, uzun vadeli düşünmeyi, tasarrufu ve yeniliği teşvik eden bir şekilde teşvikleri hizalar. Bireyleri finansal geleceklerinin kontrolünü ele almaya teşvik eder ve değerin aracılar olmadan özgürce ve güvenli bir şekilde aktarılabildiği küresel bir topluluk oluşturur. Bitcoin'e ihtiyacımız var—çünkü teşviklerin doğru hizalandığı, herkes için daha adil ve müreffeh bir topluma yol açan bir dünya yaratır.<br><br>Bitcoin hakkında daha fazla bilgi edinmek ve sadece finansal hayatınızı değil, dünyayı nasıl dönüştürebileceğini keşfetmek için adım atın. Soldaki bir bağlantıyı koparın ve bu çığır açan teknolojiyi keşfedin. Daha iyi bir geleceğe doğru harekete katılın.",
+      "url_message": "Daha fazla bilgi için bu bağlantıyı takip edin."
+    },
+    "jesus": {
+      "name": "Hayat Değiştiren Mesaj",
+      "title": "İYİ HABER",
+      "subtitle": "GÖZ ARDI ETMEYİN",
+      "headline": "GERÇEK UMUDI KEŞFEDİN",
+      "content": "İsa kimdir? O sadece tarihi bir figürden fazlasıdır; O Tanrı'nın Oğlu, dünyanın Kurtarıcısıdır. İsa'nın kendisi şöyle dedi: 'Yol, gerçek ve yaşam Ben'im. Benim aracılığım olmadan Baba'ya kimse gelemez' (Yuhanna 14:6). Tanrı ile insanlık arasındaki uçurumu kapatmak, bize bağışlanma, barış ve sonsuz yaşama giden bir yol sunmak için geldi.<br><br>Hepimiz hayatımızda kırılmışlıkla yüzleşiriz—ister ilişkilerimizde, kalbimizde veya dünyamızda olsun. İsa bu kırılmışlığı iyileştirmek için geldi. Mükemmel bir hayat yaşadı, günahlarımız için çarmıhta öldü ve yeniden dirildi, ölümü yenerek bize Tanrı ile sonsuz yaşam umudunu sundu.<br><br>İsa olmadan, günahımızda kaybolmuşuz, Tanrı'dan ayrılmışız. Ama O'nun aracılığıyla bağışlanabilir ve geri kazanılabiliriz. Bize sadece şimdi daha iyi bir hayat değil, O'nunla sonsuz bir hayat vaadi sunar. O'na ihtiyacımız var—çünkü gerçek huzuru, amacı ve sonsuz yaşam güvencesini sadece İsa'da bulabiliriz.<br><br>İsa hakkında ve hayatınızda yapabileceği değişiklik hakkında daha fazla bilgi edinmek için adım atın. Soldaki bir bağlantıyı koparın ve Öğretilerini keşfedin. Aradığınız umudu bulun.",
+      "url_message": "Daha fazla bilgi için bu bağlantıyı takip edin."
+    },
+    "meshtastic": {
+      "name": "Meshtastic Ağ El İlanları",
+      "title": "GÜVENLİ İLETİŞİM",
+      "subtitle": "GÖZ ARDI ETMEYİN",
+      "headline": "ACİL DURUM AĞINIZI KURUN",
+      "content": "Neden Meshtastic? Kriz zamanlarında geleneksel iletişim ağları başarısız olabilir ve bizi izole ve savunmasız bırakabilir. Meshtastic güçlü bir çözüm sunar—merkezi sistemlerden bağımsız çalışan alternatif bir yerel iletişim ağı. Acil durumlar için tasarlanmıştır ve en çok önemli olduğunda bağlı kalmanızı sağlar.<br><br>Meshtastic cihazları, internet veya hücresel kapsama olmadan bile uzun mesafelere mesaj iletebilen bir ağ ağı oluşturur. Bu merkezi olmayan yaklaşım, koşullar ne olursa olsun iletişimlerinizin dayanıklı ve güvenilir olmasını sağlar. Ama sadece bağlı kalmakla ilgili değil—Meshtastic ayrıca şifreleme sunar, böylece mesajlarınız güvenli ve özel kalır.<br><br>Gizliliğin giderek daha fazla tehlikeye girdiği bir dünyada, Meshtastic iletişiminizin kontrolünü ele almanızı sağlar. İster yerel bir topluluk müdahalesini koordine ediyor, ister bir felaket sırasında sevdiklerinizle iletişimde kalıyor veya beklenmedik durumlara hazırlanıyor olun, Meshtastic güvenli ve etkili iletişim için ihtiyacınız olan araçları sağlar.<br><br>Meshtastic hakkında ve kendi acil durum iletişim ağınızı nasıl kurabileceğiniz hakkında daha fazla bilgi edinmek için adım atın. Soldaki bir bağlantıyı koparın ve bu yenilikçi teknolojiyi keşfedin. Ne gelirse gelsin hazırlıklı olduğunuzdan emin olun.",
+      "url_message": "Daha fazla bilgi için bu bağlantıyı takip edin."
+    },
+    "nostr": {
+      "name": "Nostr Protokolü El İlanları",
+      "title": "SOSYAL ÖZGÜRLÜK",
+      "subtitle": "GÖZ ARDI ETMEYİN",
+      "headline": "SANSÜRE DAYANIKLI AĞA KATILIN",
+      "content": "Nostr nedir? Geleneksel sosyal medya platformlarından farklı olarak, Nostr bir protokoldür—kullanıcıları merkezi bir otoritenin kısıtlamaları olmadan bağlanmaya ve paylaşmaya yetkilendiren merkezi olmayan bir sistem. Nostr sansüre dayanıklıdır, yani sesiniz şirketler veya hükümetler tarafından susturulamaz. Çevrimiçi varlığınız üzerinde kontrol sağlamak için tasarlanmıştır, anlamlı bağlantılar yerine etkileşimi önceliklendiren algoritmaların veya reklamların etkisinden bağımsız.<br><br>Nostr'da sizi kaydırmaya devam ettirmek için gizli gündemler yoktur. İçerikle kendi şartlarınızda etkileşim kurarsınız, bir algoritmanın sizi en uzun süre çevrimiçi tutacağını düşündüğü şeye göre değil. Nostr, gizliliğinizi ve özerkliğinizi korurken gerçek bağlantılar kurmanıza ve önemli konuşmalara katılmanıza olanak tanır.<br><br>Çevrimiçi ifadenin giderek daha fazla kontrol edildiği ve manipüle edildiği bir dünyada, Nostr ferahlatıcı bir alternatif sunar. Sadece bir platform değil; etkileşimlerinizin en çok reklam geliri üreten şey tarafından değil, ilgi alanlarınız ve değerleriniz tarafından yönlendirildiği gerçek dijital özgürlüğe doğru bir harekettir.<br><br>Nostr hakkında ve çevrimiçi bağlanma şeklinizi nasıl dönüştürebileceği hakkında daha fazla bilgi edinmek için adım atın. Soldaki bir bağlantıyı koparın ve bu çığır açan protokolü keşfedin. Özgürlüğe ve otantik etkileşime değer veren bir topluluğa katılın.",
+      "url_message": "Daha fazla bilgi için bu bağlantıyı takip edin."
+    },
+    "voxvera": {
+      "name": "Vox Vera Yazdırılabilir El İlanları",
+      "title": "ÇOK GİZLİ",
+      "subtitle": "~~DAĞITMAYIN~~",
+      "headline": "VOX VERA OPERASYONU",
+      "content": "VoxVera ile sansürden kurtulun. Anonim bir gerilla pazarlama ve mesaj yayma aracı. İster çevrimiçi ister fiziksel dünyada olsun, fikirlerinizi cesurca yaymak için sizi güçlendirebilir, tam anonimlik ile korunursunuz (Tor üzerinden barındırırsanız). Kodu indirin, bir el ilanı sitesi tasarlayın, çevrimiçi barındırın ve mesajınızı güçlendirin.<br><br>Okulunuzda, işyerinizde, çevrimiçi topluluklarda veya hatta küresel olarak fikirlerinizi paylaşmak için memetik gücü kullanın. VoxVera, kolay yeniden yazdırma için benzersiz URL'ler ve QR kodları içeren koparma bölümleriyle mesajınızın geniş çapta yankı bulmasını sağlar.<br><br>Gizlilik korunabilir. El ilanları, barındırıcıyı ve kullanıcıları sansürden koruyarak Tor ağı üzerinden paylaşılabilir.<br><br>Gerçeği ve şeffaflığı değer veren bir devrime katılın. Birlikte, konuşmaktan korkmayan bilgili vatandaşlardan oluşan bir ağ kurabiliriz.",
+      "url_message": "VoxVera'yı edinin ve mesajınızı yaymaya başlayın."
+    }
   }
 }

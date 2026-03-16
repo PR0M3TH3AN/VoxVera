@@ -1175,6 +1175,75 @@ def batch_import_configs():
         dest_config.unlink(missing_ok=True)
 
 
+def _get_preset_dir() -> Path:
+    """Return a usable Path to the bundled presets directory."""
+    if getattr(sys, 'frozen', False):
+        return Path(sys._MEIPASS).joinpath("voxvera", "templates", "presets")
+    return Path(resources.files(__package__).joinpath("templates", "presets"))
+
+
+def list_presets() -> list[dict]:
+    """Return metadata for all bundled preset templates."""
+    preset_dir = _get_preset_dir()
+    presets = []
+    if not preset_dir.exists():
+        return presets
+    for f in sorted(preset_dir.glob("*.json")):
+        if f.stem in ("blank", "example"):
+            continue
+        try:
+            data = json.loads(f.read_text(encoding="utf-8"))
+            presets.append({"id": f.stem, "file": str(f), "name": data.get("name", f.stem)})
+        except Exception:
+            pass
+    return presets
+
+
+def create_from_template(console):
+    """Show template picker, pre-fill config, then hand off to interactive_update."""
+    from InquirerPy.base.control import Choice
+
+    presets = list_presets()
+    if not presets:
+        console.print("[yellow]No templates found.[/yellow]")
+        return
+
+    # Build choices with localized names where available
+    choices = []
+    for p in presets:
+        localized_name = t(f"templates.{p['id']}.name")
+        display = localized_name if localized_name != f"templates.{p['id']}.name" else p["name"]
+        choices.append(Choice(p, display))
+    choices.append(Choice(None, t("cli.manage_action_back")))
+
+    selected = inquirer.select(
+        message=t("cli.template_select"),
+        choices=choices
+    ).execute()
+
+    if selected is None:
+        return
+
+    # Load the preset JSON
+    preset_data = json.loads(Path(selected["file"]).read_text(encoding="utf-8"))
+    template_id = selected["id"]
+
+    # Override content fields with locale translations if available
+    for field in ["name", "title", "subtitle", "headline", "content", "url_message"]:
+        localized = t(f"templates.{template_id}.{field}")
+        if localized != f"templates.{template_id}.{field}":
+            preset_data[field] = localized
+
+    # Write to temp config
+    config_path = DATA_DIR / "config.json"
+    save_config(preset_data, str(config_path))
+
+    # Let user customize, build, and serve
+    interactive_update(str(config_path))
+    build_assets(str(config_path))
+    serve(str(config_path))
+
+
 def _seed_bundled_sites():
     """Copy bundled example sites from ROOT/host/ to DATA_DIR/host/ if they
     don't already exist there.  This runs once — after that, only DATA_DIR is
@@ -1443,6 +1512,7 @@ def manage_servers():
             choices.append(Choice(s, label))
 
         choices.insert(0, Choice("create_new", t("cli.manage_create_new")))
+        choices.insert(1, Choice("from_template", t("cli.manage_templates")))
         if servers:
             choices.append(Choice("start_all", t("cli.manage_start_all")))
             choices.append(Choice("stop_all", t("cli.manage_stop_all")))
@@ -1477,6 +1547,16 @@ def manage_servers():
                     console.print(f"[red]Error creating site: {e}[/red]")
                 else:
                     console.print("\n[yellow]Site creation cancelled.[/yellow]")
+            continue
+
+        if selected == "from_template":
+            try:
+                create_from_template(console)
+            except (KeyboardInterrupt, Exception) as e:
+                if not isinstance(e, KeyboardInterrupt):
+                    console.print(f"[red]Error creating site from template: {e}[/red]")
+                else:
+                    console.print("\n[yellow]Template creation cancelled.[/yellow]")
             continue
 
         if selected == "start_all":

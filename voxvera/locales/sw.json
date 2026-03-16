@@ -74,7 +74,9 @@
     "no_urls_qr_skip": "Hakuna URL zilizowekwa bado. QR codes zitaundwa baada ya 'voxvera serve'",
     "input_file_not_found": "Faili ya kuingiza {path} haipo.",
     "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
-    "manage_action_edit": "Edit"
+    "manage_action_edit": "Edit",
+    "manage_templates": "--- Tengeneza Kutoka Kiolezo ---",
+    "template_select": "Chagua kiolezo:"
   },
   "web": {
     "tear_off_tor_browser": "Tumia Kivinjari cha Tor",
@@ -92,5 +94,55 @@
     "content": "Jikomboe kutoka kwa udhibiti ukitumia VoxVera. Zana isiyojulikana ya uuzaji wa mshituko na kueneza ujumbe. Iwe mtandaoni au katika ulimwengu wa kimwili, inaweza kukuwezesha kueneza mawazo yako kwa ujasiri, ukilindwa na kutokujulikana kabisa (ikiwa unahifadhi kupitia Tor). Pakua nambari ya siri, tengeneza tovuti ya kipeperushi, ihifadhi mtandaoni na uimarishe ujumbe wako.<br><br>Tumia nguvu ya meme kushiriki mawazo yako katika shule yako, mahali pa kazi, jumuiya za mtandaoni, au hata duniani kote. VoxVera inahakikisha ujumbe wako unavuma mbali na kote, kukiwa na sehemu zinazoweza kutolewa zenye URL za kipekee na QR codes kwa uchapishaji rahisi.<br><br>Faragha inaweza kudumishwa. Vipengele vinaweza kushirikiwa kupitia mtandao wa Tor, kumlinda mhudumu na watumiaji dhidi ya udhibiti.<br><br>Jiunge nasi katika mapinduzi yanayothamini ukweli na uwazi. Kwa pamoja, tunaweza kujenga mtandao wa raia wenye ufahamu ambao hawaogopi kuzungumza.",
     "url_message": "Pata VoxVera na uanze kueneza ujumbe wako.",
     "name": "Vipeperushi vya Vox Vera vya Kuchapisha"
+  },
+  "templates": {
+    "aosp": {
+      "name": "Mradi wa AOS",
+      "title": "ANDROID IMEACHILIWA",
+      "subtitle": "BILA MIPAKA",
+      "headline": "UHURU WA CHANZO HURIA",
+      "content": "Mradi wa Android wa Chanzo Huria (AOSP) unawakilisha kiini cha Android ilivyokusudiwa awali: jukwaa lililo wazi, la uwazi, na linaloweza kubadilishwa. Inaondoa tabaka za programu za umiliki na usimamizi wa makampuni ambayo yamekuwa sawa na usambazaji wa kawaida wa Android. Na AOSP, unapata ufikiaji wa toleo safi la Android, kukuruhusu kufanya kifaa chako kuwa chako kweli kweli.<br><br>Kwa watengenezaji, AOSP inatoa uwanja wa fursa, ambapo vikwazo pekee ni ujuzi na mawazo yako. Inatumika kama msingi wa ROM nyingi za kawaida, kila moja imeundwa kwa mahitaji mahususi, iwe ni kwa utendaji ulioboreshwa, faragha, au vipengele vya kipekee ambavyo matoleo ya kawaida havina. Wapenda faragha watathamini kutokuwepo kwa programu zilizowekwa awali na huduma za ufuatiliaji ambazo mara nyingi huja na Android ya kawaida.<br><br>AOSP si kwa watengenezaji au wapenda teknolojia peke yao; ni kwa mtu yeyote anayethamini uhuru wa kidijitali. Inakuruhusu kudhibiti kifaa chako, kukibadilisha kulingana na mahitaji yako bila vikwazo vya watoa huduma au watengenezaji. Gundua jinsi AOSP inavyoweza kubadilisha uzoefu wako wa simu. Anza safari yako kuelekea siku zijazo zilizo wazi na zinazoweza kubadilishwa leo.",
+      "url_message": "Tembelea kiungo hapa chini kujifunza zaidi."
+    },
+    "bitcoin": {
+      "name": "Vipeperushi vya Mapinduzi ya Bitcoin",
+      "title": "SHERIA BILA WATAWALA",
+      "subtitle": "USIPUUZE",
+      "headline": "JIUNGE NA MAPINDUZI YA BITCOIN",
+      "content": "Bitcoin ni nini? Ni zaidi ya pesa za kidijitali; ni teknolojia ya mapinduzi iliyoundwa kutatua baadhi ya matatizo makubwa zaidi ya ulimwengu. Bitcoin inafanya kazi kwenye mtandao usio na kati, huru kutoka kwa udhibiti wa serikali yoyote au mamlaka kuu. Hii inahakikisha kwamba hakuna mtu anayeweza kudanganya usambazaji au thamani yake, na kuifanya kuwa aina imara ya pesa inayolinda utajiri wako dhidi ya mfumuko wa bei.<br><br>Mfumo wetu wa sasa wa kifedha umejengwa juu ya motisha zenye kasoro—kuhimiza deni, utegemezi, na ujumuishaji wa mamlaka. Bitcoin inabadilisha hilo kwa kuunda mfumo ambapo uaminifu, uwazi, na uwajibikaji wa mtu binafsi unatuzwa. Katika mtandao wa Bitcoin, hakuna nafasi ya rushwa au udanganyifu kwa sababu sheria zinatekelezwa na hisabati, si na watu.<br><br>Bitcoin inalinganisha motisha kwa njia inayokidhi mawazo ya muda mrefu, akiba, na uvumbuzi. Inawawezesha watu binafsi kudhibiti mustakabali wao wa kifedha, kukuza jamii ya kimataifa ambapo thamani inaweza kuhamishwa kwa uhuru na kwa usalama bila wasuluhishi. Hii ndiyo sababu tunahitaji Bitcoin—kwa sababu inaunda ulimwengu ambapo motisha zimelingana vizuri, na kusababisha jamii yenye haki na ustawi kwa wote.<br><br>Chukua hatua ya kujifunza zaidi kuhusu Bitcoin na jinsi inavyoweza kubadilisha si tu maisha yako ya kifedha, bali ulimwengu. Rarua kiungo upande wa kushoto na uchunguze teknolojia hii ya msingi. Jiunge na harakati kuelekea siku zijazo bora.",
+      "url_message": "Fuata kiungo hiki kujifunza zaidi."
+    },
+    "jesus": {
+      "name": "Ujumbe Unaobadilisha Maisha",
+      "title": "HABARI NJEMA",
+      "subtitle": "USIPUUZE",
+      "headline": "GUNDUA TUMAINI LA KWELI",
+      "content": "Yesu ni nani? Yeye ni zaidi ya mtu wa kihistoria; Yeye ni Mwana wa Mungu, Mwokozi wa ulimwengu. Yesu mwenyewe alisema, 'Mimi ndimi njia, na kweli, na uzima. Mtu haji kwa Baba ila kwa njia yangu' (Yohana 14:6). Alikuja kuunganisha pengo kati ya Mungu na wanadamu, kutupa njia ya msamaha, amani, na uzima wa milele.<br><br>Sisi sote tunakabili uharibifu katika maisha yetu—iwe ni katika mahusiano yetu, mioyo yetu, au ulimwengu wetu. Yesu alikuja kuponya uharibifu huo. Aliishi maisha kamili, akafa msalabani kwa dhambi zetu, na akafufuka, akishinda kifo na kutupa tumaini la uzima wa milele na Mungu.<br><br>Bila Yesu, tumepotea katika dhambi zetu, tumetengwa na Mungu. Lakini kupitia Yeye, tunaweza kusamehewa na kurudishwa. Anatupa si maisha bora tu sasa, bali ahadi ya uzima wa milele pamoja Naye. Hii ndiyo sababu tunamhitaji—kwa sababu ni katika Yesu tu tunaweza kupata amani ya kweli, kusudi, na uhakika wa uzima wa milele.<br><br>Chukua hatua ya kujifunza zaidi kuhusu Yesu na athari ya kubadilisha maisha anayoweza kuwa nayo katika maisha yako. Rarua kiungo upande wa kushoto na uchunguze mafundisho Yake. Pata tumaini ambalo umekuwa ukilitafuta.",
+      "url_message": "Fuata kiungo hiki kujifunza zaidi."
+    },
+    "meshtastic": {
+      "name": "Vipeperushi vya Mtandao wa Meshtastic",
+      "title": "MAWASILIANO SALAMA",
+      "subtitle": "USIPUUZE",
+      "headline": "JENGA MTANDAO WAKO WA DHARURA",
+      "content": "Kwa nini Meshtastic? Wakati wa mgogoro, mitandao ya mawasiliano ya kawaida inaweza kushindwa, kutuacha peke yetu na hatarini. Meshtastic inatoa suluhisho lenye nguvu—mtandao mbadala wa mawasiliano wa ndani unaofanya kazi kwa kujitegemea na mifumo ya kati. Imeundwa kwa hali za dharura, kukuruhusu kubaki umeunganishwa wakati inapohusika zaidi.<br><br>Vifaa vya Meshtastic vinaunda mtandao wa mesh unaoweza kusambaza ujumbe kwa umbali mrefu, hata bila mtandao au huduma ya simu. Mbinu hii isiyo na kati inahakikisha mawasiliano yako ni imara na ya kuaminika, bila kujali hali. Lakini si kuhusu kubaki umeunganishwa tu—Meshtastic pia inatoa usimbuaji, ili ujumbe wako ubaki salama na wa faragha.<br><br>Katika ulimwengu ambapo faragha inazidi kuathiriwa, Meshtastic inakuwezesha kudhibiti mawasiliano yako. Iwe unaratibu jibu la jamii ya ndani, kubaki ukiwasiliana na wapendwa wakati wa janga, au kujiandaa tu kwa yasiyotarajiwa, Meshtastic inatoa zana unazohitaji kuwasiliana kwa usalama na ufanisi.<br><br>Chukua hatua ya kujifunza zaidi kuhusu Meshtastic na jinsi unavyoweza kujenga mtandao wako wa mawasiliano ya dharura. Rarua kiungo upande wa kushoto na uchunguze teknolojia hii ya ubunifu. Hakikisha umejiandaa kwa chochote kinachokuja.",
+      "url_message": "Fuata kiungo hiki kujifunza zaidi."
+    },
+    "nostr": {
+      "name": "Vipeperushi vya Itifaki ya Nostr",
+      "title": "UHURU WA KIJAMII",
+      "subtitle": "USIPUUZE",
+      "headline": "JIUNGE NA MTANDAO UNAOPINGA UDHIBITI",
+      "content": "Nostr ni nini? Tofauti na majukwaa ya kawaida ya mitandao ya kijamii, Nostr ni itifaki—mfumo usio na kati unaowapa watumiaji uwezo wa kuunganisha na kushiriki bila vikwazo vya mamlaka kuu. Nostr inapinga udhibiti, ikimaanisha sauti yako haiwezi kunyamazishwa na makampuni au serikali. Imeundwa kukupa udhibiti wa uwepo wako mtandaoni, huru kutoka kwa ushawishi wa algorithmu au matangazo yanayopendelea ushiriki kuliko muunganisho wenye maana.<br><br>Katika Nostr, hakuna ajenda zilizofichwa kukuweka ukiendelea kutumia. Unashiriki na maudhui kwa masharti yako, si kulingana na kile algorithmu inachofikiria kitakachokuweka mtandaoni kwa muda mrefu zaidi. Nostr inakuruhusu kujenga muunganisho wa kweli na kushiriki katika mazungumzo yanayohusika, yote huku ukidumisha faragha na uhuru wako.<br><br>Katika ulimwengu ambapo hotuba mtandaoni inadhibitiwa na kudanganywa zaidi na zaidi, Nostr inatoa mbadala wa kuburudisha. Si jukwaa tu; ni harakati kuelekea uhuru wa kweli wa kidijitali, ambapo maingiliano yako yanaendeshwa na masilahi na maadili yako, si kwa kile kinachozalisha mapato zaidi ya matangazo.<br><br>Chukua hatua ya kujifunza zaidi kuhusu Nostr na jinsi inavyoweza kubadilisha njia unayounganishwa mtandaoni. Rarua kiungo upande wa kushoto na uchunguze itifaki hii ya msingi. Jiunge na jamii inayothamini uhuru na maingiliano ya kweli.",
+      "url_message": "Fuata kiungo hiki kujifunza zaidi."
+    },
+    "voxvera": {
+      "name": "Vipeperushi vya Vox Vera vya Kuchapisha",
+      "title": "SIRI KUBWA",
+      "subtitle": "~~USISAMBAZE~~",
+      "headline": "OPARESHENI VOX VERA",
+      "content": "Jiachilie kutoka kwa udhibiti na VoxVera. Chombo cha masoko ya msituni kisichojulikana na kusambaza ujumbe. Iwe mtandaoni au katika ulimwengu halisi, inaweza kukuwezesha kusambaza mawazo yako kwa ujasiri, ukilindwa na kutokujulikana kabisa (ikiwa unakaribisha kupitia Tor). Pakua msimbo, tengeneza tovuti ya vipeperushi, karibisha mtandaoni na kuimarisha ujumbe wako.<br><br>Tumia nguvu ya meme kushiriki mawazo yako shuleni kwako, mahali pa kazi, jamii za mtandaoni, au hata ulimwenguni kote. VoxVera inahakikisha ujumbe wako unasikika mbali na karibu, na sehemu za kurarua zenye URL na misimbo ya QR ya kipekee kwa uchapishaji rahisi.<br><br>Faragha inaweza kudumishwa. Vipeperushi vinaweza kushirikiwa kupitia mtandao wa Tor, kulinda mwenyeji na watumiaji dhidi ya udhibiti.<br><br>Jiunge nasi katika mapinduzi yanayothamini ukweli na uwazi. Pamoja, tunaweza kujenga mtandao wa raia wenye habari ambao hawogopi kusema.",
+      "url_message": "Pata VoxVera na uanze kueneza ujumbe wako."
+    }
   }
 }

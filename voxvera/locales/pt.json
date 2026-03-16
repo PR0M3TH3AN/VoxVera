@@ -74,7 +74,9 @@
     "no_urls_qr_skip": "Nenhuma URL configurada ainda. Os códigos QR serão gerados após 'voxvera serve'",
     "input_file_not_found": "Arquivo de entrada {path} não existe.",
     "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
-    "manage_action_edit": "Edit"
+    "manage_action_edit": "Edit",
+    "manage_templates": "--- Criar a partir de Modelo ---",
+    "template_select": "Selecione um modelo:"
   },
   "web": {
     "tear_off_tor_browser": "Use o Tor Browser",
@@ -92,5 +94,55 @@
     "content": "Liberte-se da censura com o VoxVera. Uma ferramenta anônima de marketing de guerrilha e propagação de mensagens. Seja online ou no mundo físico, ela pode capacitá-lo a espalhar suas ideias com audácia, protegido por anonimato completo (se você hospedar via Tor). Baixe o código, projete um site de panfleto, hospede-o online e amplifique sua mensagem.<br><br>Use o poder memético para compartilhar suas ideias em sua escola, local de trabalho, comunidades online ou até mesmo globalmente. O VoxVera garante que sua mensagem ressoe longe e amplamente, com seções destacáveis apresentando URLs e códigos QR exclusivos para fácil reimpressão.<br><br>A privacidade pode ser mantida. Panfletos podem ser compartilhados via rede Tor, protegendo quem hospeda e quem usa contra censura.<br><br>Junte-se a nós em uma revolução que valoriza a verdade e a transparência. Juntos, podemos construir uma rede de cidadãos informados que não têm medo de falar.",
     "url_message": "Obtenha o VoxVera e comece a espalhar sua mensagem.",
     "name": "Panfletos Imprimíveis Vox Vera"
+  },
+  "templates": {
+    "aosp": {
+      "name": "Projeto AOS",
+      "title": "ANDROID LIBERTADO",
+      "subtitle": "SEM FRONTEIRAS",
+      "headline": "LIBERDADE DE CÓDIGO ABERTO",
+      "content": "O Android Open Source Project (AOSP) representa a essência do que o Android foi originalmente projetado para ser: uma plataforma aberta, transparente e adaptável. Ele remove as camadas de software proprietário e supervisão corporativa que se tornaram sinônimo das distribuições Android tradicionais. Com o AOSP, você obtém acesso a uma versão crua e não filtrada do Android, permitindo que você realmente faça do seu dispositivo o seu próprio.<br><br>Para desenvolvedores, o AOSP oferece um playground de possibilidades, onde os únicos limites são suas habilidades e imaginação. Ele serve como base para inúmeras ROMs personalizadas, cada uma adaptada a necessidades específicas, seja para desempenho aprimorado, privacidade ou recursos exclusivos que as versões tradicionais não possuem. Os entusiastas da privacidade apreciarão a ausência de bloatware pré-instalado e serviços de rastreamento que frequentemente acompanham o Android de fábrica.<br><br>O AOSP não é apenas para desenvolvedores ou entusiastas de tecnologia; é para qualquer pessoa que valorize a liberdade digital. Ele permite que você recupere o controle do seu dispositivo, adaptando-o às suas necessidades sem as restrições de operadoras ou fabricantes. Descubra como o AOSP pode transformar sua experiência móvel. Comece sua jornada rumo a um futuro mais aberto e personalizável hoje.",
+      "url_message": "Visite o link abaixo para saber mais."
+    },
+    "bitcoin": {
+      "name": "Panfletos da Revolução Bitcoin",
+      "title": "REGRAS SEM GOVERNANTES",
+      "subtitle": "NÃO IGNORE",
+      "headline": "JUNTE-SE À REVOLUÇÃO BITCOIN",
+      "content": "O que é Bitcoin? É mais do que apenas dinheiro digital; é uma tecnologia revolucionária projetada para resolver alguns dos problemas mais urgentes do mundo. O Bitcoin opera em uma rede descentralizada, livre do controle de qualquer governo ou autoridade central. Isso garante que ninguém possa manipular sua oferta ou valor, tornando-o uma forma sólida de dinheiro que protege sua riqueza da inflação.<br><br>Nosso sistema financeiro atual é construído sobre incentivos falhos—encorajando dívida, dependência e centralização de poder. O Bitcoin muda isso criando um sistema onde honestidade, transparência e responsabilidade individual são recompensadas. Na rede Bitcoin, não há espaço para corrupção ou manipulação porque as regras são aplicadas pela matemática, não por pessoas.<br><br>O Bitcoin alinha incentivos de forma a promover pensamento de longo prazo, poupança e inovação. Ele capacita indivíduos a assumir o controle de seu futuro financeiro, fomentando uma comunidade global onde valor pode ser transferido livre e seguramente sem intermediários. É por isso que precisamos do Bitcoin—porque ele cria um mundo onde os incentivos estão corretamente alinhados, levando a uma sociedade mais justa e próspera para todos.<br><br>Dê o passo para aprender mais sobre Bitcoin e como ele pode transformar não apenas sua vida financeira, mas o mundo. Destaque um link à esquerda e explore esta tecnologia revolucionária. Junte-se ao movimento por um futuro melhor.",
+      "url_message": "Siga este link para saber mais."
+    },
+    "jesus": {
+      "name": "Mensagem que Muda Vidas",
+      "title": "BOAS NOVAS",
+      "subtitle": "NÃO IGNORE",
+      "headline": "DESCUBRA A VERDADEIRA ESPERANÇA",
+      "content": "Quem é Jesus? Ele é mais do que apenas uma figura histórica; Ele é o Filho de Deus, o Salvador do mundo. O próprio Jesus disse: 'Eu sou o caminho, a verdade e a vida. Ninguém vem ao Pai senão por mim' (João 14:6). Ele veio para preencher a lacuna entre Deus e a humanidade, oferecendo-nos um caminho para o perdão, a paz e a vida eterna.<br><br>Todos nós enfrentamos quebrantamento em nossas vidas—seja em nossos relacionamentos, nossos corações ou nosso mundo. Jesus veio para curar esse quebrantamento. Ele viveu uma vida perfeita, morreu na cruz pelos nossos pecados e ressuscitou, vencendo a morte e oferecendo-nos a esperança da vida eterna com Deus.<br><br>Sem Jesus, estamos perdidos em nosso pecado, separados de Deus. Mas através Dele, podemos ser perdoados e restaurados. Ele nos oferece não apenas uma vida melhor agora, mas a promessa de uma vida eterna com Ele. É por isso que precisamos Dele—porque somente em Jesus podemos encontrar verdadeira paz, propósito e a garantia da vida eterna.<br><br>Dê o passo para aprender mais sobre Jesus e o impacto transformador que Ele pode ter em sua vida. Destaque um link à esquerda e explore Seus ensinamentos. Encontre a esperança que você tem buscado.",
+      "url_message": "Siga este link para saber mais."
+    },
+    "meshtastic": {
+      "name": "Panfletos da Rede Meshtastic",
+      "title": "COMUNICAÇÕES SEGURAS",
+      "subtitle": "NÃO IGNORE",
+      "headline": "CONSTRUA SUA REDE DE EMERGÊNCIA",
+      "content": "Por que Meshtastic? Em tempos de crise, as redes de comunicação tradicionais podem falhar, deixando-nos isolados e vulneráveis. O Meshtastic oferece uma solução poderosa—uma rede de comunicação local alternativa que opera independentemente de sistemas centralizados. Ele é projetado para situações de emergência, permitindo que você permaneça conectado quando mais importa.<br><br>Os dispositivos Meshtastic criam uma rede mesh que pode retransmitir mensagens por longas distâncias, mesmo sem cobertura de internet ou celular. Essa abordagem descentralizada garante que suas comunicações sejam resilientes e confiáveis, independentemente das circunstâncias. Mas não se trata apenas de permanecer conectado—o Meshtastic também oferece criptografia, para que suas mensagens permaneçam seguras e privadas.<br><br>Em um mundo onde a privacidade está cada vez mais comprometida, o Meshtastic capacita você a assumir o controle de sua comunicação. Seja coordenando uma resposta comunitária local, mantendo contato com entes queridos durante um desastre ou simplesmente se preparando para o inesperado, o Meshtastic fornece as ferramentas necessárias para se comunicar de forma segura e eficaz.<br><br>Dê o passo para aprender mais sobre Meshtastic e como você pode construir sua própria rede de comunicação de emergência. Destaque um link à esquerda e explore esta tecnologia inovadora. Garanta que você esteja preparado para o que vier.",
+      "url_message": "Siga este link para saber mais."
+    },
+    "nostr": {
+      "name": "Panfletos do Protocolo Nostr",
+      "title": "LIBERDADE SOCIAL",
+      "subtitle": "NÃO IGNORE",
+      "headline": "JUNTE-SE À REDE RESISTENTE À CENSURA",
+      "content": "O que é Nostr? Ao contrário das plataformas de mídia social tradicionais, Nostr é um protocolo—um sistema descentralizado que capacita os usuários a se conectar e compartilhar sem as restrições de uma autoridade central. Nostr é resistente à censura, o que significa que sua voz não pode ser silenciada por corporações ou governos. Ele é projetado para dar a você controle sobre sua presença online, livre da influência de algoritmos ou anúncios que priorizam engajamento sobre conexões significativas.<br><br>No Nostr, não há agendas ocultas para mantê-lo rolando infinitamente. Você interage com o conteúdo em seus próprios termos, não com base no que um algoritmo pensa que vai mantê-lo online por mais tempo. O Nostr permite que você construa conexões genuínas e participe de conversas que importam, tudo enquanto mantém sua privacidade e autonomia.<br><br>Em um mundo onde o discurso online é cada vez mais controlado e manipulado, o Nostr oferece uma alternativa refrescante. Não é apenas uma plataforma; é um movimento em direção à verdadeira liberdade digital, onde suas interações são guiadas por seus interesses e valores, não pelo que gera mais receita publicitária.<br><br>Dê o passo para aprender mais sobre Nostr e como ele pode transformar a maneira como você se conecta online. Destaque um link à esquerda e explore este protocolo revolucionário. Junte-se a uma comunidade que valoriza liberdade e interação autêntica.",
+      "url_message": "Siga este link para saber mais."
+    },
+    "voxvera": {
+      "name": "Panfletos Imprimíveis Vox Vera",
+      "title": "ALTO SECRETO",
+      "subtitle": "~~NÃO~~ DISTRIBUIR",
+      "headline": "OPERAÇÃO VOX VERA",
+      "content": "Liberte-se da censura com o VoxVera. Uma ferramenta anônima de marketing de guerrilha e propagação de mensagens. Seja online ou no mundo físico, ela pode capacitá-lo a espalhar suas ideias com audácia, protegido por anonimato completo (se você hospedar via Tor). Baixe o código, projete um site de panfleto, hospede-o online e amplifique sua mensagem.<br><br>Use o poder memético para compartilhar suas ideias em sua escola, local de trabalho, comunidades online ou até mesmo globalmente. O VoxVera garante que sua mensagem ressoe longe e amplamente, com seções destacáveis apresentando URLs e códigos QR exclusivos para fácil reimpressão.<br><br>A privacidade pode ser mantida. Panfletos podem ser compartilhados via rede Tor, protegendo quem hospeda e quem usa contra censura.<br><br>Junte-se a nós em uma revolução que valoriza a verdade e a transparência. Juntos, podemos construir uma rede de cidadãos informados que não têm medo de falar.",
+      "url_message": "Obtenha o VoxVera e comece a espalhar sua mensagem."
+    }
   }
 }
