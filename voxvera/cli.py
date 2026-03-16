@@ -1073,7 +1073,7 @@ def build_site():
                 if field in data and data[field]:
                     # Only override if the value is different from the master default
                     if data[field] != master_defaults.get(field):
-                        all_locales[code]["landing"][field] = data[field]
+                        all_locales[code]["landing"][field] = _newlines_to_br(data[field])
 
     html = html.replace("{{locales}}", json.dumps(all_locales))
 
