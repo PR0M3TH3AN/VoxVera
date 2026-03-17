@@ -15,9 +15,12 @@ echo "Starting E2E verification at $(date)"
 if [ -n "${VOXVERA_BIN:-}" ] && [ -f "$VOXVERA_BIN" ]; then
   voxvera_cmd="$VOXVERA_BIN"
   echo "Using provided VoxVera binary: $voxvera_cmd" >&2
+elif command -v voxvera >/dev/null 2>&1; then
+  voxvera_cmd="$(command -v voxvera)"
+  echo "Using existing VoxVera on PATH: $voxvera_cmd" >&2
 else
   echo "Installing VoxVera in editable mode..."
-  python3 -m pip install --break-system-packages -e ".[e2e]"
+  python3 -m pip install --break-system-packages --no-build-isolation -e ".[e2e]"
   voxvera_cmd="$(command -v voxvera || echo "$HOME/.local/bin/voxvera")"
 fi
 
@@ -30,16 +33,22 @@ DemoUser
 voxvera
 EOI
 
+config_path="$HOME/host/voxvera/config.json"
+if [ ! -f "$config_path" ]; then
+  echo "CRITICAL: Expected config file not found after init: $config_path" >&2
+  exit 1
+fi
+
 echo "Building demo flyer..."
-"$voxvera_cmd" --lang en build
+"$voxvera_cmd" --lang en --config "$config_path" build
 
 # Verify build output exists in host/
 folder_name="voxvera"
-host_dir="voxvera/host/$folder_name"
+host_dir="$HOME/host/$folder_name"
 
 if [ ! -d "$host_dir" ]; then
   echo "CRITICAL: Host directory $host_dir not found!" >&2
-  ls -R voxvera/host/ || true
+  ls -R "$HOME/host/" || true
   exit 1
 fi
 

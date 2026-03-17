@@ -3,14 +3,16 @@ const path = require('path');
 const fs = require('fs');
 const which = require('which');
 const getPort = (...args) => import('get-port').then(m => m.default(...args));
+const { platformDirName } = require('./runtime-utils');
 
 async function launchTor() {
   const socks = await getPort();
   const control = await getPort();
   const torBase = path.join(__dirname, '..', '..', 'voxvera', 'resources', 'tor');
-  let exe = path.join(torBase, process.platform,
+  const platformDir = platformDirName(process.platform);
+  let exe = path.join(torBase, platformDir,
                       process.platform === 'win32' ? 'tor.exe' : 'tor');
-  let obfs4 = path.join(torBase, process.platform,
+  let obfs4 = path.join(torBase, platformDir,
                         process.platform === 'win32' ? 'obfs4proxy.exe' : 'obfs4proxy');
 
   const missing = p => {

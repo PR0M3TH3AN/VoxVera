@@ -37,6 +37,7 @@ Run the following commands to verify your changes:
 - **Dependencies**: if you add a new Python library to `requirements.txt`, you MUST run `voxvera vendorize` to include it in the portable distribution.
 - **Layout Integrity**: VoxVera uses visual width validation. If you add new UI elements, ensure they respect the physical boundaries of an 8.5"x11" flyer.
 - **Tests**: Ensure all tests pass: `pytest tests/`. Run the integrity suite specifically when modifying locales: `pytest tests/test_integrity.py`.
+- **Recommended local check**: Run `bash scripts/check.sh` before opening a PR. It mirrors the main lint/test/build checks in one command.
 - **Style**: Follow the existing coding style (PEP 8 for Python).
 - **Documentation**: If adding a new feature, update the master templates in `docs/templates/` and run `voxvera build-docs`.
 

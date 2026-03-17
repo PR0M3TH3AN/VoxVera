@@ -4,6 +4,7 @@ const path = require('path');
 const which = require('which');
 const fs = require('fs');
 const { launchTor } = require('./tor.js');
+const { extractOnionUrl } = require('./runtime-utils');
 
 let mainWindow;
 let onionProc;
@@ -74,8 +75,12 @@ async function runServe (retry = false) {
 
   onionProc.stdout.on('data', buf => {
     const line = buf.toString();
-    const m = line.match(/OnionShare is hosting at (http.*\.onion)/);
-    if (m) { gotURL = true; clearTimeout(softTimeout); }
+    const onionUrl = extractOnionUrl(line);
+    if (onionUrl) {
+      gotURL = true;
+      clearTimeout(softTimeout);
+      mainWindow.webContents.send('onion-url', onionUrl);
+    }
     mainWindow.webContents.send('log', { text: line });
   });
 
@@ -134,9 +139,9 @@ ipcMain.handle('run-quickstart', async (_, config) => {
       if (mainWindow) {
         mainWindow.webContents.send('log', { text: line, isError: false });
       }
-      const m = line.match(/Onion URL:\s*(https?:\/\/[a-z0-9.-]+\.onion)/i);
-      if (m && mainWindow) {
-        mainWindow.webContents.send('onion-url', m[1]);
+      const onionUrl = extractOnionUrl(line);
+      if (onionUrl && mainWindow) {
+        mainWindow.webContents.send('onion-url', onionUrl);
       }
     });
     proc.stderr.on('data', data => {

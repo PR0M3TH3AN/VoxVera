@@ -126,6 +126,21 @@ def test_import_preserves_session(tmp_path, monkeypatch):
     assert (host_dir / "index.html").exists()
 
 
+def test_import_rejects_zip_path_traversal(tmp_path, monkeypatch, capsys):
+    _setup_tmp(monkeypatch, tmp_path)
+    malicious_zip = tmp_path / "malicious.zip"
+    with zipfile.ZipFile(malicious_zip, "w") as zf:
+        zf.writestr("../escape.txt", "owned")
+        zf.writestr("config.json", json.dumps({"folder_name": "evil"}))
+
+    cli.import_site(str(malicious_zip))
+
+    captured = capsys.readouterr()
+    assert "Refusing to extract path outside destination" in captured.out
+    assert not (tmp_path / "escape.txt").exists()
+    assert not ((tmp_path / "data" / "host" / "evil").exists())
+
+
 def test_check_all_present(capsys, monkeypatch):
     monkeypatch.setattr(shutil, "which", lambda cmd: "/usr/bin/" + cmd)
     cli.main(["check"])

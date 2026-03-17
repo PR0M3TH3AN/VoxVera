@@ -30,6 +30,13 @@ pip install .
 voxvera vendorize  # Optional: pull dependencies locally for offline use
 ```
 
+### 5. Local Validation
+Run the full local validation sweep with:
+```bash
+bash scripts/check.sh
+```
+This runs linting, Python tests, Electron smoke tests, dependency checks, and the docs/site rebuild steps used during development.
+
 ---
 
 ## Key Features

@@ -28,6 +28,8 @@ from InquirerPy import prompt, inquirer
 from rich.console import Console
 from voxvera import __version__
 
+GITHUB_RECOMMENDED_BINARY_LIMIT = 95 * 1024 * 1024
+
 # package root (contains bundled templates and src/)
 if getattr(sys, 'frozen', False):
     ROOT = Path(sys._MEIPASS).joinpath("voxvera")
@@ -858,6 +860,19 @@ import zipfile
 import tempfile
 
 
+def _safe_extract_zip(zipf: zipfile.ZipFile, dest_dir: Path) -> None:
+    """Extract a ZIP archive without allowing path traversal."""
+    dest_dir = dest_dir.resolve()
+    for member in zipf.infolist():
+        member_path = Path(member.filename)
+        if member_path.is_absolute():
+            raise ValueError(f"Refusing to extract absolute path from archive: {member.filename}")
+        target_path = (dest_dir / member_path).resolve()
+        if not str(target_path).startswith(str(dest_dir) + os.sep) and target_path != dest_dir:
+            raise ValueError(f"Refusing to extract path outside destination: {member.filename}")
+    zipf.extractall(dest_dir)
+
+
 def get_export_dir() -> Path:
     """Get the default export directory (~/voxvera-exports)."""
     export_dir = Path.home() / "voxvera-exports"
@@ -911,7 +926,11 @@ def import_site(zip_path: str):
 
     with tempfile.TemporaryDirectory() as tmpdir:
         with zipfile.ZipFile(zip_path, 'r') as zipf:
-            zipf.extractall(tmpdir)
+            try:
+                _safe_extract_zip(zipf, Path(tmpdir))
+            except ValueError as e:
+                print(f"Error: Invalid export file. {e}")
+                return
 
         tmp_path = Path(tmpdir)
         config_file = tmp_path / "config.json"
@@ -1185,11 +1204,15 @@ def build_site():
     # Bundle source version
     bundle_source(download_dir / "voxvera-source.zip")
 
-    # Copy standalone binaries if they exist
+    # Copy standalone binaries if they exist, but avoid writing oversized
+    # artifacts into the tracked site tree where GitHub rejects >100 MB files.
     bin_dir = ROOT / "resources" / "bin"
     if bin_dir.exists():
         for bin_file in bin_dir.iterdir():
             if bin_file.is_file():
+                if bin_file.stat().st_size > GITHUB_RECOMMENDED_BINARY_LIMIT:
+                    print(f"Skipping oversized site download artifact: {bin_file.name}")
+                    continue
                 shutil.copy(bin_file, download_dir / bin_file.name)
 
     print("site/ directory successfully synchronized.")

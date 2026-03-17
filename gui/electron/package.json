@@ -4,7 +4,8 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "lint": "echo 'lint pass'"
+    "lint": "echo 'lint pass'",
+    "test": "node --test runtime-utils.test.js"
   },
   "devDependencies": {
     "electron": "^29.0.0",
