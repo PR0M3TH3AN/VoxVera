@@ -731,6 +731,12 @@ def serve(config_path: str) -> str | None:
     if not dir_path.is_dir():
         print(f"Directory {dir_path} not found", file=sys.stderr)
         sys.exit(1)
+
+    # Auto-rebuild if index.html is missing (e.g. after install cleanup)
+    if not (dir_path / "index.html").exists():
+        print(f"Rebuilding {folder_name} from current template...")
+        build_assets(config_path)
+
     logfile = dir_path / "onionshare.log"
 
     # Set environment variables for OnionShare to use the detected Tor ports
