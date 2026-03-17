@@ -6,13 +6,20 @@ cd "$(dirname "$0")/.."
 
 ARCH=$(uname -m)
 BINARY=${1:-"voxvera/resources/bin/voxvera-linux-$ARCH"}
+OUTPUT="voxvera/resources/bin/VoxVera-$ARCH.AppImage"
 
 if [ ! -f "$BINARY" ]; then
-  echo "Binary not found: $BINARY. Run scripts/build_binaries.sh first." >&2
+  echo "Binary not found: $BINARY. Building it first..."
+  bash scripts/build_binaries.sh
+fi
+
+if [ ! -f "$BINARY" ]; then
+  echo "Binary still not found after build: $BINARY." >&2
   exit 1
 fi
 
 APPDIR=build/AppDir
+rm -rf "$APPDIR"
 mkdir -p "$APPDIR/usr/bin"
 cp "$BINARY" "$APPDIR/usr/bin/voxvera"
 chmod +x "$APPDIR/usr/bin/voxvera"
@@ -46,7 +53,8 @@ chmod +x appimagetool
 echo "Running appimagetool..."
 export ARCH
 mkdir -p voxvera/resources/bin
-./appimagetool --appimage-extract-and-run "$APPDIR" voxvera/resources/bin/VoxVera-x86_64.AppImage
+rm -f "$OUTPUT"
+./appimagetool --appimage-extract-and-run "$APPDIR" "$OUTPUT"
 rm appimagetool
 
-echo "AppImage created at voxvera/resources/bin/VoxVera-x86_64.AppImage"
+echo "AppImage created at $OUTPUT"

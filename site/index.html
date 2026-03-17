@@ -40,12 +40,13 @@
 
         [dir="rtl"] .qr-code-body {
             flex-direction: row-reverse;
+            justify-content: flex-start;
         }
 
         [dir="rtl"] .qr-code-url {
             text-align: right;
-            margin-right: 0;
-            margin-left: 10px;
+            padding-right: 4px;
+            padding-left: 0;
         }
 
         [dir="rtl"] .message {
@@ -94,6 +95,7 @@
 
         .print-button, .download-button, .lang-select {
             padding: 10px 20px;
+            min-height: 42px;
             font-size: 14px;
             cursor: pointer;
             background-color: #000;
@@ -101,6 +103,12 @@
             border: none;
             border-radius: 0px;
             font-family: 'Courier New', Courier, monospace;
+            line-height: 1.2;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            white-space: nowrap;
         }
 
         .lang-select {
@@ -127,6 +135,7 @@
         .tear-off {
             display: flex;
             height: 1in; /* Fixed height for consistency */
+            gap: 12px;
             padding: 5px;
             border: 1px dashed #000;
             font-size: 10px;
@@ -139,9 +148,11 @@
         .tear-off-text {
             flex: 1;
             min-width: 0;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            word-break: break-all;
+            padding-top: 1px;
+            word-wrap: normal;
+            overflow-wrap: anywhere;
+            word-break: normal;
+            hyphens: none;
         }
 
         .tear-off a {
@@ -157,7 +168,6 @@
             width: 80px;
             height: 80px;
             border: 0px solid #000;
-            margin-left: 10px;
             flex-shrink: 0;
         }
 
@@ -240,8 +250,9 @@
             width: 100%;
             height: auto;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
+            gap: 10px;
             margin-top: 10px;
             padding: 0;
             box-sizing: border-box;
@@ -257,12 +268,14 @@
         .qr-code-url {
             font-size: 12px;
             text-align: left;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            hyphens: auto;
-            flex-grow: 1;
-            margin-right: 10px;
-            max-width: 60%;
+            word-wrap: normal;
+            overflow-wrap: anywhere;
+            word-break: normal;
+            hyphens: none;
+            flex: 1 1 auto;
+            min-width: 0;
+            max-width: none;
+            padding-left: 4px;
         }
 
         hr {
@@ -338,8 +351,18 @@
 
         .button-bar {
             display: flex;
+            align-items: stretch;
             gap: 10px;
             padding: 20px 0 30px;
+        }
+
+        #download-link {
+            display: inline-flex;
+            text-decoration: none;
+        }
+
+        #download-link .download-button {
+            height: 100%;
         }
 
         /* Dropdown styles */
@@ -429,9 +452,15 @@
                 const path = el.getAttribute('data-i18n-href');
                 const href = t(path, lang);
                 if (href) {
-                    el.setAttribute('href', href);
+                    el.href = href;
                 }
             });
+            const torBrowserHref = t('web.tor_browser_download_url', lang);
+            if (torBrowserHref && torBrowserHref !== 'web.tor_browser_download_url') {
+                document.querySelectorAll('.tor-browser-link').forEach(el => {
+                    el.href = torBrowserHref;
+                });
+            }
             document.getElementById('lang-selector').value = lang;
             document.documentElement.lang = lang;
         }

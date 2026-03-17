@@ -53,6 +53,7 @@ Generates an architecture-specific binary (e.g., `voxvera-linux-x86_64`) in `vox
 ```bash
 ./scripts/build_binaries.sh
 ```
+This directory is local build output only. Do not treat old files in `voxvera/resources/bin/` as canonical release history; the GitHub Release artifacts are the publish surface.
 
 ### AppImage (Linux)
 Wraps the standard binary into a self-contained AppImage.

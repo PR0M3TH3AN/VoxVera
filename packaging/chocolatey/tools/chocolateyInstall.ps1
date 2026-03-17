@@ -1,5 +1,5 @@
 $toolsDir   = Split-Path -Parent $MyInvocation.MyCommand.Definition
-$url        = 'https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera.exe'
+$url        = 'https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera-windows.exe'
 
 $packageArgs = @{
   packageName    = 'voxvera'

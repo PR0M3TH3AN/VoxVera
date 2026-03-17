@@ -13,9 +13,19 @@ if ! command -v pyinstaller &> /dev/null; then
     pip install pyinstaller --break-system-packages
 fi
 
+ARTIFACT_DIR="voxvera/resources/bin"
+BUILD_BINARY_NAME="voxvera-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m)"
+
 # Clean previous builds
-rm -rf build/ dist_bin/
-mkdir -p voxvera/resources/bin
+python3 - <<'PY'
+import shutil
+from pathlib import Path
+
+for path in (Path("build"), Path("dist_bin")):
+    if path.exists():
+        shutil.rmtree(path, ignore_errors=True)
+PY
+mkdir -p "$ARTIFACT_DIR"
 
 echo "Building VoxVera binary for $(uname)..."
 
@@ -34,11 +44,11 @@ $PY_CMD --onefile \
     --add-data "voxvera/locales:voxvera/locales" \
     --add-data "voxvera/src:voxvera/src" \
     --add-data "voxvera/templates:voxvera/templates" \
-    --add-data "voxvera/resources:voxvera/resources" \
+    --add-data "voxvera/resources/tor:voxvera/resources/tor" \
     --add-data "requirements.txt:." \
     --name "$BINARY_NAME" \
-    --distpath voxvera/resources/bin \
+    --distpath "$ARTIFACT_DIR" \
     voxvera/cli.py
 
-echo "Binary build complete. Located in voxvera/resources/bin/"
-ls -lh voxvera/resources/bin/
+echo "Binary build complete. Located in $ARTIFACT_DIR/"
+ls -lh "$ARTIFACT_DIR"/

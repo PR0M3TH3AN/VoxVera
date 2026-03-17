@@ -16,13 +16,19 @@ fi
 BINARY=${1:-"voxvera/resources/bin/voxvera-linux-$ARCH"}
 
 if [ ! -f "$BINARY" ]; then
-  echo "Binary not found: $BINARY." >&2
+  echo "Binary not found: $BINARY. Building it first..."
+  bash scripts/build_binaries.sh
+fi
+
+if [ ! -f "$BINARY" ]; then
+  echo "Binary still not found after build: $BINARY." >&2
   exit 1
 fi
 
 
 VERSION=$(grep "__version__" voxvera/__init__.py | cut -d '"' -f 2)
 PKG_DIR="build/voxvera_${VERSION}_${DEB_ARCH}"
+OUTPUT="voxvera/resources/bin/voxvera_${VERSION}_${DEB_ARCH}.deb"
 
 echo "Building .deb package for version $VERSION ($DEB_ARCH)..."
 
@@ -40,6 +46,7 @@ sed -i "s/^Architecture: .*/Architecture: $DEB_ARCH/" "$PKG_DIR/DEBIAN/control"
 
 # Build the package
 mkdir -p voxvera/resources/bin
-dpkg-deb --build "$PKG_DIR" "voxvera/resources/bin/voxvera_${VERSION}_${DEB_ARCH}.deb"
+rm -f "$OUTPUT"
+dpkg-deb --build "$PKG_DIR" "$OUTPUT"
 
-echo "Debian package created at voxvera/resources/bin/voxvera_${VERSION}_${DEB_ARCH}.deb"
+echo "Debian package created at $OUTPUT"
