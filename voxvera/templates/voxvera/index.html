@@ -7,7 +7,7 @@
     <title id="site-title">{{name}}</title>
     <style>
         body {
-            font-family: 'Courier New', Courier, monospace;
+            font-family: 'Courier New', Courier, 'Nimbus Mono L', 'Liberation Mono', 'Noto Sans Arabic', 'Noto Sans Hebrew', 'Noto Sans Devanagari', 'Noto Sans JP', 'Noto Sans SC', 'Noto Sans Arabic UI', monospace;
             margin: 0;
             padding: 20px 0;
             display: flex;
@@ -18,6 +18,45 @@
             box-sizing: border-box;
             background-color: #ffffff;
         }
+
+        /* RTL Layout Overrides */
+        [dir="rtl"] .container {
+            flex-direction: row-reverse;
+        }
+
+        [dir="rtl"] .left-tear-offs {
+            border-right: none;
+            border-left: 1px dashed #000;
+        }
+
+        [dir="rtl"] .tear-off {
+            flex-direction: row-reverse;
+        }
+
+        [dir="rtl"] .qr-code {
+            margin-left: 0;
+            margin-right: 10px;
+        }
+
+        [dir="rtl"] .qr-code-body {
+            flex-direction: row-reverse;
+        }
+
+        [dir="rtl"] .qr-code-url {
+            text-align: right;
+            margin-right: 0;
+            margin-left: 10px;
+        }
+
+        [dir="rtl"] .message {
+            text-align: right;
+        }
+
+        [dir="rtl"] .text-container {
+            text-align: right;
+        }
+        
+        /* ... existing styles ... */
 
         a {
             color: #b80000;
@@ -87,12 +126,14 @@
 
         .tear-off {
             display: flex;
+            height: 1in; /* Fixed height for consistency */
             padding: 5px;
             border: 1px dashed #000;
             font-size: 10px;
             box-sizing: border-box;
             page-break-inside: avoid;
             align-items: flex-start;
+            overflow: hidden;
         }
 
         .tear-off-text {
@@ -128,26 +169,38 @@
 
         .content {
             width: calc(8.5in - 3.75in);
-            padding: 20px;
+            padding: 15px 20px;
             text-align: center;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: flex-start;
             page-break-inside: avoid;
             overflow-wrap: break-word;
         }
 
         h1 {
             margin: 0;
-            margin-bottom: 10px;
+            padding: 0;
             font-size: 24px;
+            line-height: 1.2;
             letter-spacing: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
         }
 
         .distribute {
             font-size: 18px;
+            line-height: 1.2;
             letter-spacing: 6px;
+            margin: 2px 0;
+            padding: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
         }
 
         .redacted {
@@ -156,14 +209,14 @@
 
         .message {
             flex: 1;
-            margin-top: 10px;
+            margin-top: 4px;
             font-size: 14px;
             line-height: 1.4;
             text-align: left;
-            overflow-wrap: break-word;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            justify-content: flex-end;
+            justify-content: flex-start;
             white-space: pre-wrap;
             box-sizing: border-box;
             position: relative;
@@ -216,7 +269,7 @@
             border: none;
             border-top: 1px solid #000;
             width: 100%;
-            margin: 10px 0;
+            margin: 4px 0;
         }
 
         .footer {
@@ -281,6 +334,51 @@
             padding: 20px 0 30px;
         }
 
+        /* Dropdown styles */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            background-color: #f9f9f9;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            border: 1px solid #000;
+            margin-bottom: 5px;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .dropdown-content a:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #eee;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown:hover .download-button {
+            background-color: #333;
+            color: #fff;
+        }
+
     </style>
     <script>
         // VoxVera Multi-Language Engine
@@ -299,9 +397,25 @@
         function setLanguage(lang) {
             if (!locales[lang]) lang = 'en';
             localStorage.setItem('voxvera_lang', lang);
+            
+            // Set text direction
+            const direction = locales[lang].meta.direction || 'ltr';
+            document.documentElement.dir = direction;
+            document.documentElement.lang = lang;
+
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const path = el.getAttribute('data-i18n');
-                el.innerText = t(path, lang);
+                let translation = t(path, lang);
+                if (translation) {
+                    // Support Markdown-style redaction ~~text~~ -> <span class="redacted">text</span>
+                    translation = translation.replace(/~~(.*?)~~/g, '<span class="redacted">$1</span>');
+                    
+                    if (path.startsWith('landing.') || path.includes('subtitle') || path.includes('content')) {
+                        el.innerHTML = translation;
+                    } else {
+                        el.innerText = translation;
+                    }
+                }
             });
             document.getElementById('lang-selector').value = lang;
             document.documentElement.lang = lang;
@@ -449,6 +563,7 @@
             <div class="message">
                 <div class="text-container" id="main-content" contenteditable="false" data-i18n="landing.content">{{t_landing_content}}</div>
                 <div class="qr-code-body">
+
                     <div class="qr-code-url">
 <span class="url-message" data-i18n="landing.url_message">{{t_landing_url_message}}</span><br><br>
 <a id="qr-link-2" href="{{url}}" target="_blank">{{url}}</a>
@@ -465,7 +580,9 @@
     </div>
     <div class="button-bar">
         <button class="print-button" onclick="window.print()" data-i18n="web.print_button">{{t_web_print_button}}</button>
-        <a class="download-button" href="download/download.zip" download data-i18n="web.download_button">{{t_web_download_button}}</a>
+        <a id="download-link" href="download/voxvera-source.zip" download>
+            <button class="download-button" data-i18n="web.download_button">{{t_web_download_button}}</button>
+        </a>
         <select class="lang-select" id="lang-selector" onchange="setLanguage(this.value)"></select>
     </div>
 </body>
