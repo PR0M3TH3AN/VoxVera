@@ -77,7 +77,19 @@
     "manage_action_edit": "Edit",
     "manage_templates": "--- Şablondan Oluştur ---",
     "template_select": "Bir şablon seçin:",
-    "body_over_limit_warning": "Uyarı: Gövde metni 1000 karakteri aşıyor. El ilanında kesilebilir."
+    "body_over_limit_warning": "Uyarı: Gövde metni 1000 karakteri aşıyor. El ilanında kesilebilir.",
+    "manage_action_export_keys": "Anahtarları Dışa Aktar",
+    "manage_action_import_keys": "Anahtarları İçe Aktar",
+    "keys_not_found": "'{name}' için oturum anahtarı bulunamadı. Anahtarları oluşturmak için önce siteyi başlatın.",
+    "keys_export_header": "'{name}' için oturum anahtarı:",
+    "keys_export_hint": "Bu anahtarı kopyalayın ve güvenli bir şekilde saklayın. Geri yüklemek için başka bir örnekte 'Anahtarları İçe Aktar' kullanın.",
+    "keys_site_not_found": "Site '{name}' bulunamadı.",
+    "keys_overwrite_confirm": "Site '{name}' zaten bir anahtara sahip. Üzerine yazılsın mı?",
+    "keys_import_cancelled": "İçe aktarma iptal edildi.",
+    "keys_import_prompt": "Base64 oturum anahtarını aşağıya yapıştırın:",
+    "keys_import_empty": "Anahtar sağlanmadı.",
+    "keys_import_invalid": "Geçersiz anahtar biçimi. Geçerli bir base64 dizesi olmalıdır.",
+    "keys_import_success": "'{name}' için oturum anahtarı içe aktarıldı. Yeni anahtarı kullanmak için siteyi yeniden başlatın."
   },
   "web": {
     "tear_off_tor_browser": "Tor Tarayıcı Kullanın",

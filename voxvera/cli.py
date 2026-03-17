@@ -847,6 +847,7 @@ def _clear_host_dir(dir_path: Path):
         session.write_bytes(saved)
 
 
+import base64
 import zipfile
 import tempfile
 
@@ -952,6 +953,56 @@ def import_multiple_sites(source_dir: str = None):
         print(f"\nImporting {Path(zip_path).name}...")
         import_site(zip_path)
     print("\nImport multiple complete.")
+
+
+def export_keys(folder_name: str):
+    """Export the onion service session key as base64 for easy copy/paste."""
+    session_file = DATA_DIR / "host" / folder_name / ".onionshare-session"
+    if not session_file.exists():
+        console.print(f"[red]{t('cli.keys_not_found', name=folder_name)}[/red]")
+        return
+    raw = session_file.read_bytes()
+    encoded = base64.b64encode(raw).decode("ascii")
+    console.print(f"\n[bold]{t('cli.keys_export_header', name=folder_name)}[/bold]")
+    console.print("[yellow]" + "─" * 60 + "[/yellow]")
+    console.print(encoded)
+    console.print("[yellow]" + "─" * 60 + "[/yellow]")
+    console.print(f"[dim]{t('cli.keys_export_hint')}[/dim]\n")
+
+
+def import_keys(folder_name: str):
+    """Import an onion service session key from base64 pasted by the user."""
+    site_dir = DATA_DIR / "host" / folder_name
+    if not site_dir.exists():
+        console.print(f"[red]{t('cli.keys_site_not_found', name=folder_name)}[/red]")
+        return
+
+    session_file = site_dir / ".onionshare-session"
+    if session_file.exists():
+        overwrite = inquirer.confirm(message=t("cli.keys_overwrite_confirm", name=folder_name), default=False).execute()
+        if not overwrite:
+            console.print(f"[yellow]{t('cli.keys_import_cancelled')}[/yellow]")
+            return
+
+    console.print(f"\n[bold]{t('cli.keys_import_prompt')}[/bold]")
+    try:
+        raw_input = input("> ").strip()
+    except (KeyboardInterrupt, EOFError):
+        console.print(f"\n[yellow]{t('cli.keys_import_cancelled')}[/yellow]")
+        return
+
+    if not raw_input:
+        console.print(f"[red]{t('cli.keys_import_empty')}[/red]")
+        return
+
+    try:
+        decoded = base64.b64decode(raw_input)
+    except Exception:
+        console.print(f"[red]{t('cli.keys_import_invalid')}[/red]")
+        return
+
+    session_file.write_bytes(decoded)
+    console.print(f"[green]{t('cli.keys_import_success', name=folder_name)}[/green]")
 
 
 def build_docs():
@@ -1597,6 +1648,8 @@ def manage_servers():
             Choice("toggle", t("cli.manage_action_toggle_stop") if running else t("cli.manage_action_toggle_start")),
             Choice("edit", t("cli.manage_action_edit")),
             Choice("export", t("cli.manage_action_export")),
+            Choice("export_keys", t("cli.manage_action_export_keys")),
+            Choice("import_keys", t("cli.manage_action_import_keys")),
             Choice("delete", t("cli.manage_action_delete")),
             Choice(None, t("cli.manage_action_back"))
         ]
@@ -1629,6 +1682,10 @@ def manage_servers():
                     console.print("\n[yellow]Update cancelled.[/yellow]")
         elif action == "export":
             export_site(selected)
+        elif action == "export_keys":
+            export_keys(selected)
+        elif action == "import_keys":
+            import_keys(selected)
         elif action == "delete":
             confirm = inquirer.confirm(message=t("cli.manage_delete_confirm", name=selected)).execute()
             if confirm:

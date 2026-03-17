@@ -77,7 +77,19 @@
     "manage_action_edit": "Edit",
     "manage_templates": "--- Créer à partir d'un modèle ---",
     "template_select": "Sélectionnez un modèle :",
-    "body_over_limit_warning": "Avertissement : Le texte dépasse 1000 caractères. Il pourrait être coupé sur le tract."
+    "body_over_limit_warning": "Avertissement : Le texte dépasse 1000 caractères. Il pourrait être coupé sur le tract.",
+    "manage_action_export_keys": "Exporter les clés",
+    "manage_action_import_keys": "Importer les clés",
+    "keys_not_found": "Aucune clé de session trouvée pour '{name}'. Démarrez le site d'abord pour générer les clés.",
+    "keys_export_header": "Clé de session pour '{name}' :",
+    "keys_export_hint": "Copiez cette clé et conservez-la en sécurité. Utilisez 'Importer les clés' sur une autre instance pour restaurer.",
+    "keys_site_not_found": "Site '{name}' introuvable.",
+    "keys_overwrite_confirm": "Le site '{name}' a déjà une clé. Écraser ?",
+    "keys_import_cancelled": "Importation annulée.",
+    "keys_import_prompt": "Collez la clé de session base64 ci-dessous :",
+    "keys_import_empty": "Aucune clé fournie.",
+    "keys_import_invalid": "Format de clé invalide. Doit être une chaîne base64 valide.",
+    "keys_import_success": "Clé de session importée pour '{name}'. Redémarrez le site pour utiliser la nouvelle clé."
   },
   "web": {
     "tear_off_tor_browser": "Utilisez le navigateur Tor",

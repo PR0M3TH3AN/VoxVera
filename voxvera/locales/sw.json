@@ -77,7 +77,19 @@
     "manage_action_edit": "Edit",
     "manage_templates": "--- Tengeneza Kutoka Kiolezo ---",
     "template_select": "Chagua kiolezo:",
-    "body_over_limit_warning": "Onyo: Maandishi ya mwili yanazidi herufi 1000. Yanaweza kukatwa kwenye kipeperushi."
+    "body_over_limit_warning": "Onyo: Maandishi ya mwili yanazidi herufi 1000. Yanaweza kukatwa kwenye kipeperushi.",
+    "manage_action_export_keys": "Hamisha Funguo",
+    "manage_action_import_keys": "Ingiza Funguo",
+    "keys_not_found": "Hakuna funguo ya kipindi iliyopatikana kwa '{name}'. Anzisha tovuti kwanza ili kuzalisha funguo.",
+    "keys_export_header": "Funguo ya kipindi kwa '{name}':",
+    "keys_export_hint": "Nakili funguo hii na uihifadhi kwa usalama. Tumia 'Ingiza Funguo' kwenye mfano mwingine kurejesha.",
+    "keys_site_not_found": "Tovuti '{name}' haijapatikana.",
+    "keys_overwrite_confirm": "Tovuti '{name}' tayari ina funguo. Andika juu yake?",
+    "keys_import_cancelled": "Uingizaji umeghairiwa.",
+    "keys_import_prompt": "Bandika funguo ya kipindi ya base64 hapa chini:",
+    "keys_import_empty": "Hakuna funguo iliyotolewa.",
+    "keys_import_invalid": "Muundo wa funguo si sahihi. Lazima iwe mfuatano halali wa base64.",
+    "keys_import_success": "Funguo ya kipindi imeingizwa kwa '{name}'. Anzisha upya tovuti ili kutumia funguo mpya."
   },
   "web": {
     "tear_off_tor_browser": "Tumia Kivinjari cha Tor",

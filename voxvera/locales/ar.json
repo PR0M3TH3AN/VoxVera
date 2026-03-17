@@ -77,7 +77,19 @@
     "manage_action_edit": "Edit",
     "manage_templates": "--- إنشاء من قالب ---",
     "template_select": "اختر قالباً:",
-    "body_over_limit_warning": "تحذير: نص المحتوى يتجاوز 1000 حرف. قد يتم قطعه في المنشور."
+    "body_over_limit_warning": "تحذير: نص المحتوى يتجاوز 1000 حرف. قد يتم قطعه في المنشور.",
+    "manage_action_export_keys": "تصدير المفاتيح",
+    "manage_action_import_keys": "استيراد المفاتيح",
+    "keys_not_found": "لم يتم العثور على مفتاح جلسة لـ '{name}'. قم بتشغيل الموقع أولاً لتوليد المفاتيح.",
+    "keys_export_header": "مفتاح الجلسة لـ '{name}':",
+    "keys_export_hint": "انسخ هذا المفتاح واحفظه بأمان. استخدم 'استيراد المفاتيح' في نسخة أخرى للاستعادة.",
+    "keys_site_not_found": "الموقع '{name}' غير موجود.",
+    "keys_overwrite_confirm": "الموقع '{name}' لديه مفتاح بالفعل. هل تريد الكتابة فوقه؟",
+    "keys_import_cancelled": "تم إلغاء الاستيراد.",
+    "keys_import_prompt": "الصق مفتاح الجلسة base64 أدناه:",
+    "keys_import_empty": "لم يتم تقديم مفتاح.",
+    "keys_import_invalid": "تنسيق المفتاح غير صالح. يجب أن يكون سلسلة base64 صالحة.",
+    "keys_import_success": "تم استيراد مفتاح الجلسة لـ '{name}'. أعد تشغيل الموقع لاستخدام المفتاح الجديد."
   },
   "web": {
     "tear_off_tor_browser": "استخدم متصفح Tor",

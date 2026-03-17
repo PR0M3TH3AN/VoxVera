@@ -76,7 +76,19 @@
     "manage_action_edit": "Edit",
     "manage_templates": "--- Aus Vorlage erstellen ---",
     "template_select": "Wählen Sie eine Vorlage:",
-    "body_over_limit_warning": "Warnung: Der Textkörper überschreitet 1000 Zeichen. Er könnte auf dem Flyer abgeschnitten werden."
+    "body_over_limit_warning": "Warnung: Der Textkörper überschreitet 1000 Zeichen. Er könnte auf dem Flyer abgeschnitten werden.",
+    "manage_action_export_keys": "Schlüssel exportieren",
+    "manage_action_import_keys": "Schlüssel importieren",
+    "keys_not_found": "Kein Sitzungsschlüssel für '{name}' gefunden. Starten Sie die Seite zuerst, um Schlüssel zu generieren.",
+    "keys_export_header": "Sitzungsschlüssel für '{name}':",
+    "keys_export_hint": "Kopieren Sie diesen Schlüssel und bewahren Sie ihn sicher auf. Verwenden Sie 'Schlüssel importieren' auf einer anderen Instanz zur Wiederherstellung.",
+    "keys_site_not_found": "Seite '{name}' nicht gefunden.",
+    "keys_overwrite_confirm": "Seite '{name}' hat bereits einen Schlüssel. Überschreiben?",
+    "keys_import_cancelled": "Import abgebrochen.",
+    "keys_import_prompt": "Fügen Sie den base64-Sitzungsschlüssel unten ein:",
+    "keys_import_empty": "Kein Schlüssel angegeben.",
+    "keys_import_invalid": "Ungültiges Schlüsselformat. Muss eine gültige base64-Zeichenkette sein.",
+    "keys_import_success": "Sitzungsschlüssel für '{name}' importiert. Starten Sie die Seite neu, um den neuen Schlüssel zu verwenden."
   },
   "web": {
     "tear_off_tor_browser": "Tor-Browser verwenden",

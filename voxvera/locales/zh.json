@@ -77,7 +77,19 @@
     "manage_action_edit": "Edit",
     "manage_templates": "--- 从模板创建 ---",
     "template_select": "选择一个模板：",
-    "body_over_limit_warning": "警告：正文超过1000个字符。传单上可能会被截断。"
+    "body_over_limit_warning": "警告：正文超过1000个字符。传单上可能会被截断。",
+    "manage_action_export_keys": "导出密钥",
+    "manage_action_import_keys": "导入密钥",
+    "keys_not_found": "未找到 '{name}' 的会话密钥。请先启动站点以生成密钥。",
+    "keys_export_header": "'{name}' 的会话密钥：",
+    "keys_export_hint": "复制此密钥并安全保存。在另一个实例上使用\u201c导入密钥\u201d来恢复。",
+    "keys_site_not_found": "未找到站点 '{name}'。",
+    "keys_overwrite_confirm": "站点 '{name}' 已有密钥。是否覆盖？",
+    "keys_import_cancelled": "导入已取消。",
+    "keys_import_prompt": "请在下方粘贴 base64 会话密钥：",
+    "keys_import_empty": "未提供密钥。",
+    "keys_import_invalid": "密钥格式无效。必须是有效的 base64 字符串。",
+    "keys_import_success": "已导入 '{name}' 的会话密钥。请重启站点以使用新密钥。"
   },
   "web": {
     "tear_off_tor_browser": "使用 Tor 浏览器",

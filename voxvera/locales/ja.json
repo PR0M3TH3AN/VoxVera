@@ -77,7 +77,19 @@
     "manage_action_edit": "Edit",
     "manage_templates": "--- テンプレートから作成 ---",
     "template_select": "テンプレートを選択してください：",
-    "body_over_limit_warning": "警告：本文が1000文字を超えています。チラシ上で途切れる可能性があります。"
+    "body_over_limit_warning": "警告：本文が1000文字を超えています。チラシ上で途切れる可能性があります。",
+    "manage_action_export_keys": "鍵をエクスポート",
+    "manage_action_import_keys": "鍵をインポート",
+    "keys_not_found": "'{name}' のセッションキーが見つかりません。まずサイトを起動してキーを生成してください。",
+    "keys_export_header": "'{name}' のセッションキー:",
+    "keys_export_hint": "このキーをコピーして安全に保管してください。別のインスタンスで「鍵をインポート」を使用して復元できます。",
+    "keys_site_not_found": "サイト '{name}' が見つかりません。",
+    "keys_overwrite_confirm": "サイト '{name}' にはすでにキーがあります。上書きしますか？",
+    "keys_import_cancelled": "インポートがキャンセルされました。",
+    "keys_import_prompt": "base64セッションキーを以下に貼り付けてください:",
+    "keys_import_empty": "キーが提供されていません。",
+    "keys_import_invalid": "無効なキー形式です。有効なbase64文字列である必要があります。",
+    "keys_import_success": "'{name}' のセッションキーがインポートされました。新しいキーを使用するにはサイトを再起動してください。"
   },
   "web": {
     "tear_off_tor_browser": "Tor Browserを使用してください",

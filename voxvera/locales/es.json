@@ -76,7 +76,19 @@
     "manage_action_edit": "Edit",
     "manage_templates": "--- Crear Desde Plantilla ---",
     "template_select": "Seleccione una plantilla:",
-    "body_over_limit_warning": "Advertencia: El texto del cuerpo supera los 1000 caracteres. Puede cortarse en el volante."
+    "body_over_limit_warning": "Advertencia: El texto del cuerpo supera los 1000 caracteres. Puede cortarse en el volante.",
+    "manage_action_export_keys": "Exportar Claves",
+    "manage_action_import_keys": "Importar Claves",
+    "keys_not_found": "No se encontró clave de sesión para '{name}'. Inicie el sitio primero para generar claves.",
+    "keys_export_header": "Clave de sesión para '{name}':",
+    "keys_export_hint": "Copie esta clave y guárdela de forma segura. Use 'Importar Claves' en otra instancia para restaurar.",
+    "keys_site_not_found": "Sitio '{name}' no encontrado.",
+    "keys_overwrite_confirm": "El sitio '{name}' ya tiene una clave. ¿Sobrescribir?",
+    "keys_import_cancelled": "Importación cancelada.",
+    "keys_import_prompt": "Pegue la clave de sesión base64 a continuación:",
+    "keys_import_empty": "No se proporcionó clave.",
+    "keys_import_invalid": "Formato de clave no válido. Debe ser una cadena base64 válida.",
+    "keys_import_success": "Clave de sesión importada para '{name}'. Reinicie el sitio para usar la nueva clave."
   },
   "web": {
     "tear_off_tor_browser": "Use el Navegador Tor",

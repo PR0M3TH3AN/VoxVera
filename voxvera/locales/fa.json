@@ -77,7 +77,19 @@
     "manage_action_edit": "Edit",
     "manage_templates": "--- ایجاد از قالب ---",
     "template_select": "یک قالب انتخاب کنید:",
-    "body_over_limit_warning": "هشدار: متن بدنه از 1000 کاراکتر بیشتر است. ممکن است در بروشور بریده شود."
+    "body_over_limit_warning": "هشدار: متن بدنه از 1000 کاراکتر بیشتر است. ممکن است در بروشور بریده شود.",
+    "manage_action_export_keys": "صادرات کلیدها",
+    "manage_action_import_keys": "واردات کلیدها",
+    "keys_not_found": "کلید جلسه برای '{name}' یافت نشد. ابتدا سایت را اجرا کنید تا کلیدها تولید شوند.",
+    "keys_export_header": "کلید جلسه برای '{name}':",
+    "keys_export_hint": "این کلید را کپی کرده و به صورت امن ذخیره کنید. از 'واردات کلیدها' در نمونه دیگر برای بازیابی استفاده کنید.",
+    "keys_site_not_found": "سایت '{name}' یافت نشد.",
+    "keys_overwrite_confirm": "سایت '{name}' از قبل کلید دارد. رونویسی شود؟",
+    "keys_import_cancelled": "واردات لغو شد.",
+    "keys_import_prompt": "کلید جلسه base64 را در زیر جایگذاری کنید:",
+    "keys_import_empty": "کلیدی ارائه نشد.",
+    "keys_import_invalid": "فرمت کلید نامعتبر است. باید یک رشته base64 معتبر باشد.",
+    "keys_import_success": "کلید جلسه برای '{name}' وارد شد. سایت را مجدداً راه‌اندازی کنید تا از کلید جدید استفاده شود."
   },
   "web": {
     "tear_off_tor_browser": "از مرورگر Tor استفاده کنید",

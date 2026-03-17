@@ -76,7 +76,19 @@
     "input_file_not_found": "Input file {path} does not exist.",
     "manage_templates": "--- Create From Template ---",
     "template_select": "Select a template:",
-    "body_over_limit_warning": "Warning: Body text exceeds 1000 characters. It may be cut off on the flyer."
+    "body_over_limit_warning": "Warning: Body text exceeds 1000 characters. It may be cut off on the flyer.",
+    "manage_action_export_keys": "Export Keys",
+    "manage_action_import_keys": "Import Keys",
+    "keys_not_found": "No session key found for '{name}'. Start the site first to generate keys.",
+    "keys_export_header": "Session key for '{name}':",
+    "keys_export_hint": "Copy this key and save it securely. Use 'Import Keys' on another instance to restore.",
+    "keys_site_not_found": "Site '{name}' not found.",
+    "keys_overwrite_confirm": "Site '{name}' already has a key. Overwrite?",
+    "keys_import_cancelled": "Import cancelled.",
+    "keys_import_prompt": "Paste the base64 session key below:",
+    "keys_import_empty": "No key provided.",
+    "keys_import_invalid": "Invalid key format. Must be a valid base64 string.",
+    "keys_import_success": "Session key imported for '{name}'. Restart the site to use the new key."
   },
   "web": {
     "tear_off_tor_browser": "Use Tor Browser",

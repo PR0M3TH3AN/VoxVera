@@ -77,7 +77,19 @@
     "manage_action_edit": "Edit",
     "manage_templates": "--- Criar a partir de Modelo ---",
     "template_select": "Selecione um modelo:",
-    "body_over_limit_warning": "Aviso: O texto do corpo excede 1000 caracteres. Pode ser cortado no panfleto."
+    "body_over_limit_warning": "Aviso: O texto do corpo excede 1000 caracteres. Pode ser cortado no panfleto.",
+    "manage_action_export_keys": "Exportar Chaves",
+    "manage_action_import_keys": "Importar Chaves",
+    "keys_not_found": "Nenhuma chave de sessão encontrada para '{name}'. Inicie o site primeiro para gerar as chaves.",
+    "keys_export_header": "Chave de sessão para '{name}':",
+    "keys_export_hint": "Copie esta chave e guarde-a com segurança. Use 'Importar Chaves' em outra instância para restaurar.",
+    "keys_site_not_found": "Site '{name}' não encontrado.",
+    "keys_overwrite_confirm": "O site '{name}' já possui uma chave. Sobrescrever?",
+    "keys_import_cancelled": "Importação cancelada.",
+    "keys_import_prompt": "Cole a chave de sessão base64 abaixo:",
+    "keys_import_empty": "Nenhuma chave fornecida.",
+    "keys_import_invalid": "Formato de chave inválido. Deve ser uma string base64 válida.",
+    "keys_import_success": "Chave de sessão importada para '{name}'. Reinicie o site para usar a nova chave."
   },
   "web": {
     "tear_off_tor_browser": "Use o Tor Browser",

@@ -77,7 +77,19 @@
     "manage_action_edit": "Edit",
     "manage_templates": "--- टेम्पलेट से बनाएं ---",
     "template_select": "एक टेम्पलेट चुनें:",
-    "body_over_limit_warning": "चेतावनी: मुख्य पाठ 1000 अक्षरों से अधिक है। यह पर्चे पर कटा हुआ दिख सकता है।"
+    "body_over_limit_warning": "चेतावनी: मुख्य पाठ 1000 अक्षरों से अधिक है। यह पर्चे पर कटा हुआ दिख सकता है।",
+    "manage_action_export_keys": "कुंजियाँ निर्यात करें",
+    "manage_action_import_keys": "कुंजियाँ आयात करें",
+    "keys_not_found": "'{name}' के लिए सत्र कुंजी नहीं मिली। कुंजियाँ उत्पन्न करने के लिए पहले साइट शुरू करें।",
+    "keys_export_header": "'{name}' के लिए सत्र कुंजी:",
+    "keys_export_hint": "इस कुंजी को कॉपी करें और सुरक्षित रूप से सहेजें। पुनर्स्थापित करने के लिए किसी अन्य इंस्टेंस पर 'कुंजियाँ आयात करें' का उपयोग करें।",
+    "keys_site_not_found": "साइट '{name}' नहीं मिली।",
+    "keys_overwrite_confirm": "साइट '{name}' में पहले से कुंजी है। अधिलेखित करें?",
+    "keys_import_cancelled": "आयात रद्द किया गया।",
+    "keys_import_prompt": "नीचे base64 सत्र कुंजी चिपकाएँ:",
+    "keys_import_empty": "कोई कुंजी प्रदान नहीं की गई।",
+    "keys_import_invalid": "अमान्य कुंजी प्रारूप। एक वैध base64 स्ट्रिंग होनी चाहिए।",
+    "keys_import_success": "'{name}' के लिए सत्र कुंजी आयात की गई। नई कुंजी का उपयोग करने के लिए साइट को पुनः प्रारंभ करें।"
   },
   "web": {
     "tear_off_tor_browser": "Tor Browser का उपयोग करें",

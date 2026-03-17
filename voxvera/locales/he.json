@@ -77,7 +77,19 @@
     "manage_action_edit": "Edit",
     "manage_templates": "--- יצירה מתבנית ---",
     "template_select": "בחר תבנית:",
-    "body_over_limit_warning": "אזהרה: טקסט הגוף חורג מ-1000 תווים. הוא עלול להיחתך בעלון."
+    "body_over_limit_warning": "אזהרה: טקסט הגוף חורג מ-1000 תווים. הוא עלול להיחתך בעלון.",
+    "manage_action_export_keys": "ייצוא מפתחות",
+    "manage_action_import_keys": "ייבוא מפתחות",
+    "keys_not_found": "לא נמצא מפתח הפעלה עבור '{name}'. הפעל את האתר תחילה ליצירת מפתחות.",
+    "keys_export_header": "מפתח הפעלה עבור '{name}':",
+    "keys_export_hint": "העתק מפתח זה ושמור אותו בבטחה. השתמש ב'ייבוא מפתחות' במופע אחר לשחזור.",
+    "keys_site_not_found": "האתר '{name}' לא נמצא.",
+    "keys_overwrite_confirm": "לאתר '{name}' כבר יש מפתח. לדרוס?",
+    "keys_import_cancelled": "הייבוא בוטל.",
+    "keys_import_prompt": "הדבק את מפתח ההפעלה base64 למטה:",
+    "keys_import_empty": "לא סופק מפתח.",
+    "keys_import_invalid": "פורמט מפתח לא חוקי. חייב להיות מחרוזת base64 חוקית.",
+    "keys_import_success": "מפתח הפעלה יובא עבור '{name}'. הפעל מחדש את האתר כדי להשתמש במפתח החדש."
   },
   "web": {
     "tear_off_tor_browser": "השתמש בדפדפן Tor",
