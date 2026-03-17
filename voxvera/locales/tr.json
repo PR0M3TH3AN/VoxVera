@@ -22,7 +22,7 @@
     "body_limit_exceeded": "sınırı aşıyor",
     "url_label": "URL (içerik bağlantısı - harici kaynak)",
     "url_message_label": "URL mesajı",
-    "binary_message_label": "İkili (Binary) mesaj",
+    "footer_message_label": "Alt bilgi mesajı",
     "template_not_found": "Şablon {name} bulunamadı",
     "template_copied": "Şablon {dest} konumuna kopyalandı",
     "flyer_created": "İlan dosyaları {dest} altında oluşturuldu",
@@ -30,7 +30,7 @@
     "onionshare_error": "{folder_name} için OnionShare beklenmedik bir şekilde kapandı.",
     "onionshare_causes": "Yaygın nedenler: Ağ engellenmiş, sistem saati yanlış veya OnionShare zaten çalışıyor olabilir.",
     "onionshare_logs_tip": "Tam günlükler için {logfile} dosyasına bakın.",
-    "onion_url_msg": "[{folder_name}] Onion URL: {onion_url}",
+    "onion_url_msg": "[{folder_name}] Onion URL'si: {onion_url}",
     "onionshare_running_pid": "[{folder_name}] OnionShare çalışıyor (PID {pid}).",
     "export_not_found": "Hata: '{folder_name}' site klasörü {host_root} içinde bulunamadı",
     "export_success": "'{folder_name}' şuraya dışa aktarıldı: {output_path}",
@@ -73,8 +73,8 @@
     "bootstrapping_progress": "[{name}] Tor Başlatılıyor: %{progress} ...",
     "no_urls_qr_skip": "Henüz URL yapılandırılmadı. QR kodları 'voxvera serve' komutundan sonra oluşturulacak",
     "input_file_not_found": "{path} giriş dosyası mevcut değil.",
-    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
-    "manage_action_edit": "Edit",
+    "attachment_path_label": "Ek dosyası yolu (isteğe bağlı - Tor sitesinden sunulacaktır)",
+    "manage_action_edit": "Düzenle",
     "manage_templates": "--- Şablondan Oluştur ---",
     "template_select": "Bir şablon seçin:",
     "body_over_limit_warning": "Uyarı: Gövde metni 1000 karakteri aşıyor. El ilanında kesilebilir.",
@@ -98,7 +98,7 @@
     "built_with": "ile yapıldı",
     "print_button": "İlanı Yazdır",
     "download_button": "Aracı ve Kaynak Kodunu İndir",
-    "download_attachment": "Download Attachment"
+    "download_attachment": "Eki indir"
   },
   "landing": {
     "title": "ÇOK GİZLİ",

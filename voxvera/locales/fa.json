@@ -22,7 +22,7 @@
     "body_limit_exceeded": "بیش از حد مجاز",
     "url_label": "URL (پیوند محتوا - منبع خارجی)",
     "url_message_label": "پیام URL",
-    "binary_message_label": "پیام دودویی (Binary)",
+    "footer_message_label": "پیام پابرگ",
     "template_not_found": "قالب {name} یافت نشد",
     "template_copied": "قالب به {dest} کپی شد",
     "flyer_created": "فایل‌های اعلامیه در {dest} ایجاد شدند",
@@ -73,8 +73,8 @@
     "bootstrapping_progress": "[{name}] راه‌اندازی Tor: {progress}% ...",
     "no_urls_qr_skip": "هنوز آدرسی پیکربندی نشده است. کدهای QR پس از 'voxvera serve' ایجاد می‌شوند",
     "input_file_not_found": "فایل ورودی {path} وجود ندارد.",
-    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
-    "manage_action_edit": "Edit",
+    "attachment_path_label": "مسیر فایل پیوست (اختیاری - از طریق سایت Tor ارائه می‌شود)",
+    "manage_action_edit": "ویرایش",
     "manage_templates": "--- ایجاد از قالب ---",
     "template_select": "یک قالب انتخاب کنید:",
     "body_over_limit_warning": "هشدار: متن بدنه از 1000 کاراکتر بیشتر است. ممکن است در بروشور بریده شود.",
@@ -98,7 +98,7 @@
     "built_with": "ساخته شده با",
     "print_button": "چاپ اعلامیه",
     "download_button": "دانلود ابزار و کد منبع",
-    "download_attachment": "Download Attachment"
+    "download_attachment": "دانلود پیوست"
   },
   "landing": {
     "title": "به‌کلی محرمانه",

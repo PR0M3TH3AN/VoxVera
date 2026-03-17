@@ -22,7 +22,7 @@
     "body_limit_exceeded": "dépasse la limite",
     "url_label": "URL (lien de contenu - ressource externe)",
     "url_message_label": "Message de l'URL",
-    "binary_message_label": "Message binaire",
+    "footer_message_label": "Message de pied de page",
     "template_not_found": "Modèle {name} non trouvé",
     "template_copied": "Modèle copié vers {dest}",
     "flyer_created": "Fichiers du flyer créés sous {dest}",
@@ -73,8 +73,8 @@
     "bootstrapping_progress": "[{name}] Amorçage de Tor : {progress}% ...",
     "no_urls_qr_skip": "Aucune URL configurée pour le moment. Les codes QR seront générés après 'voxvera serve'",
     "input_file_not_found": "Le fichier d'entrée {path} n'existe pas.",
-    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
-    "manage_action_edit": "Edit",
+    "attachment_path_label": "Chemin du fichier joint (optionnel - sera servi depuis le site Tor)",
+    "manage_action_edit": "Modifier",
     "manage_templates": "--- Créer à partir d'un modèle ---",
     "template_select": "Sélectionnez un modèle :",
     "body_over_limit_warning": "Avertissement : Le texte dépasse 1000 caractères. Il pourrait être coupé sur le tract.",
@@ -98,7 +98,7 @@
     "built_with": "créé avec",
     "print_button": "Imprimer le flyer",
     "download_button": "Télécharger l'outil et le code",
-    "download_attachment": "Download Attachment"
+    "download_attachment": "Télécharger la pièce jointe"
   },
   "landing": {
     "title": "TOP SECRET",

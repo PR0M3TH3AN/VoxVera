@@ -22,7 +22,7 @@
     "body_limit_exceeded": "सीमा से अधिक है",
     "url_label": "URL (सामग्री लिंक - बाहरी संसाधन)",
     "url_message_label": "URL संदेश",
-    "binary_message_label": "बाइनरी संदेश",
+    "footer_message_label": "फ़ुटर संदेश",
     "template_not_found": "टेम्पलेट {name} नहीं मिला",
     "template_copied": "टेम्पलेट {dest} पर कॉपी किया गया",
     "flyer_created": "फ्लायर फाइलें {dest} के अंतर्गत बनाई गई हैं",
@@ -30,7 +30,7 @@
     "onionshare_error": "{folder_name} के लिए OnionShare अप्रत्याशित रूप से बंद हो गया।",
     "onionshare_causes": "सामान्य कारण: नेटवर्क अवरुद्ध, गलत सिस्टम घड़ी, या OnionShare पहले से ही चल रहा है।",
     "onionshare_logs_tip": "पूरे लॉग के लिए {logfile} देखें।",
-    "onion_url_msg": "[{folder_name}] Onion URL: {onion_url}",
+    "onion_url_msg": "[{folder_name}] ओनियन URL: {onion_url}",
     "onionshare_running_pid": "[{folder_name}] OnionShare चल रहा है (PID {pid})।",
     "export_not_found": "त्रुटि: {host_root} में साइट फ़ोल्डर '{folder_name}' नहीं मिला",
     "export_success": "'{folder_name}' को {output_path} पर निर्यात किया गया",
@@ -73,8 +73,8 @@
     "bootstrapping_progress": "[{name}] Tor बूटस्ट्रैपिंग: {progress}% ...",
     "no_urls_qr_skip": "अभी तक कोई URL कॉन्फ़िगर नहीं किया गया है। QR कोड 'voxvera serve' के बाद जेनरेट किए जाएंगे",
     "input_file_not_found": "इनपुट फ़ाइल {path} मौजूद नहीं है।",
-    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
-    "manage_action_edit": "Edit",
+    "attachment_path_label": "अटैचमेंट फ़ाइल पथ (वैकल्पिक - Tor साइट से परोसा जाएगा)",
+    "manage_action_edit": "संपादित करें",
     "manage_templates": "--- टेम्पलेट से बनाएं ---",
     "template_select": "एक टेम्पलेट चुनें:",
     "body_over_limit_warning": "चेतावनी: मुख्य पाठ 1000 अक्षरों से अधिक है। यह पर्चे पर कटा हुआ दिख सकता है।",
@@ -98,7 +98,7 @@
     "built_with": "बनाया गया",
     "print_button": "फ्लायर प्रिंट करें",
     "download_button": "टूल और कोड डाउनलोड करें",
-    "download_attachment": "Download Attachment"
+    "download_attachment": "अटैचमेंट डाउनलोड करें"
   },
   "landing": {
     "title": "अति गोपनीय",

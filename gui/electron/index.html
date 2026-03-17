@@ -26,7 +26,7 @@
     <div><label>URL Message <input type="text" id="url_message"></label></div>
     <div><label>URL <input type="text" id="url"></label></div>
     <div><label>Tear-off link <input type="text" id="tear_off_link"></label></div>
-    <div><label>Binary message <input type="text" id="binary_message"></label></div>
+    <div><label>Footer message <input type="text" id="footer_message"></label></div>
     <button type="button" id="quickstart">Generate &amp; Serve</button>
   </form>
   <p id="onion-address"></p>
@@ -42,7 +42,7 @@
     document.addEventListener('DOMContentLoaded', load);
 
     document.getElementById('quickstart').addEventListener('click', async () => {
-      const ids = ['name','folder_name','title','subtitle','headline','content','url_message','url','tear_off_link','binary_message'];
+      const ids = ['name','folder_name','title','subtitle','headline','content','url_message','url','tear_off_link','footer_message'];
       const cfg = {};
       ids.forEach(id => {
         const el = document.getElementById(id);

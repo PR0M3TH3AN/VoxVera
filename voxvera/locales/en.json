@@ -21,7 +21,7 @@
     "body_limit_exceeded": "exceeds limit",
     "url_label": "URL (content link - external resource)",
     "url_message_label": "URL message",
-    "binary_message_label": "Binary message",
+    "footer_message_label": "Footer message",
     "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
     "template_not_found": "Template {name} not found",
     "template_copied": "Template copied to {dest}",
@@ -154,7 +154,7 @@
       "subtitle": "DO ~~NOT~~ DISTRIBUTE",
       "headline": "OPERATION VOX VERA",
       "content": "Break free from censorship with VoxVera. An anonymous guerrilla marketing and message-spreading tool. Whether online or in the physical world, it can empower you to spread your ideas boldly, shielded by complete anonymity (if you host over Tor). Download the code, design a flyer site, host it online and amplify your message.<br><br>Use memetic power to share your ideas in your school, workplace, online communities, or even globally. VoxVera ensures your message resonates far and wide, with tear-off sections featuring unique URLs and QR codes for easy reprinting.<br><br>Privacy can be maintained. Flyers can be shared via the Tor network, protecting hoster and users from censorship.<br><br>Join us in a revolution that values truth and transparency. Together, we can build a network of informed citizens who are unafraid to speak out.",
-      "url_message": "Follow this link to learn more. Use Tor Browser."
+      "url_message": "Follow this link to learn more."
     }
   }
 }

@@ -22,7 +22,7 @@
     "body_limit_exceeded": "imezidi kikomo",
     "url_label": "URL (kiungo cha maudhui - rasilimali ya nje)",
     "url_message_label": "Ujumbe wa URL",
-    "binary_message_label": "Ujumbe wa mfumo wa binary",
+    "footer_message_label": "Ujumbe wa chini ya ukurasa",
     "template_not_found": "Kiolezo {name} hakijapatikana",
     "template_copied": "Kiolezo kimeandaliwa kwenda {dest}",
     "flyer_created": "Faili za kipeperushi zimeundwa chini ya {dest}",
@@ -73,8 +73,8 @@
     "bootstrapping_progress": "[{name}] Tor Inapakia: {progress}% ...",
     "no_urls_qr_skip": "Hakuna URL zilizowekwa bado. QR codes zitaundwa baada ya 'voxvera serve'",
     "input_file_not_found": "Faili ya kuingiza {path} haipo.",
-    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
-    "manage_action_edit": "Edit",
+    "attachment_path_label": "Njia ya faili ya kiambatisho (si lazima - itatolewa kutoka tovuti ya Tor)",
+    "manage_action_edit": "Hariri",
     "manage_templates": "--- Tengeneza Kutoka Kiolezo ---",
     "template_select": "Chagua kiolezo:",
     "body_over_limit_warning": "Onyo: Maandishi ya mwili yanazidi herufi 1000. Yanaweza kukatwa kwenye kipeperushi.",
@@ -98,7 +98,7 @@
     "built_with": "imejengwa na",
     "print_button": "Chapa Kipeperushi",
     "download_button": "Pakua Zana na Chanzo",
-    "download_attachment": "Download Attachment"
+    "download_attachment": "Pakua kiambatisho"
   },
   "landing": {
     "title": "SIRI KUBWA",

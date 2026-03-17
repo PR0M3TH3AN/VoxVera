@@ -13,7 +13,7 @@ The `voxvera build` command processes these source files:
 
 1. **QR code generation** -- Reads URLs from `config.json` and generates PNG QR codes using the `qrcode` and `Pillow` Python libraries.
 2. **HTML minification** -- Minifies embedded JavaScript with `jsmin` and the overall HTML with `htmlmin2`. Produces `index.html` and `nostr.html` from the master templates.
-3. **Binary message injection** -- Writes the configured binary message into the built HTML.
+3. **Footer message injection** -- Writes the configured footer message into the built HTML.
 4. **Asset packaging** -- Copies all built files into `host/<folder_name>/`.
 
 No external tools (Node.js, ImageMagick, qrencode, etc.) are required. The entire build pipeline uses pure Python packages.

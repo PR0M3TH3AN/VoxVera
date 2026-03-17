@@ -22,7 +22,7 @@
     "body_limit_exceeded": "превышает лимит",
     "url_label": "URL (ссылка на контент - внешний ресурс)",
     "url_message_label": "Сообщение URL",
-    "binary_message_label": "Бинарное сообщение",
+    "footer_message_label": "Сообщение внизу страницы",
     "template_not_found": "Шаблон {name} не найден",
     "template_copied": "Шаблон скопирован в {dest}",
     "flyer_created": "Файлы листовки созданы в {dest}",
@@ -30,7 +30,7 @@
     "onionshare_error": "OnionShare для {folder_name} неожиданно завершил работу.",
     "onionshare_causes": "Общие причины: заблокирована сеть, неточное системное время или OnionShare уже запущен.",
     "onionshare_logs_tip": "Полные логи см. в {logfile}.",
-    "onion_url_msg": "[{folder_name}] Onion URL: {onion_url}",
+    "onion_url_msg": "[{folder_name}] Onion-URL: {onion_url}",
     "onionshare_running_pid": "[{folder_name}] OnionShare запущен (PID {pid}).",
     "export_not_found": "Ошибка: папка сайта '{folder_name}' не найдена в {host_root}",
     "export_success": "Экспортировано '{folder_name}' в {output_path}",
@@ -73,8 +73,8 @@
     "bootstrapping_progress": "[{name}] Загрузка Tor: {progress}% ...",
     "no_urls_qr_skip": "URL еще не настроены. QR-коды будут созданы после 'voxvera serve'",
     "input_file_not_found": "Входной файл {path} не существует.",
-    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
-    "manage_action_edit": "Edit",
+    "attachment_path_label": "Путь к файлу вложения (необязательно - будет доступен с сайта Tor)",
+    "manage_action_edit": "Редактировать",
     "manage_templates": "--- Создать из шаблона ---",
     "template_select": "Выберите шаблон:",
     "body_over_limit_warning": "Предупреждение: Текст превышает 1000 символов. Он может быть обрезан на листовке.",
@@ -98,7 +98,7 @@
     "built_with": "создано с помощью",
     "print_button": "Печать листовки",
     "download_button": "Скачать инструмент и код",
-    "download_attachment": "Download Attachment"
+    "download_attachment": "Скачать вложение"
   },
   "landing": {
     "title": "СОВЕРШЕННО СЕКРЕТНО",

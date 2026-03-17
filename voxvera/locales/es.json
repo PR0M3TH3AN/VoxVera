@@ -21,7 +21,7 @@
     "body_limit_exceeded": "excede el límite",
     "url_label": "URL (enlace de contenido - recurso externo)",
     "url_message_label": "Mensaje de la URL",
-    "binary_message_label": "Mensaje binario",
+    "footer_message_label": "Mensaje de pie de página",
     "template_not_found": "Plantilla {name} no encontrada",
     "template_copied": "Plantilla copiada a {dest}",
     "flyer_created": "Archivos del volante creados en {dest}",
@@ -72,8 +72,8 @@
     "bootstrapping_progress": "[{name}] Arranque de Tor: {progress}% ...",
     "no_urls_qr_skip": "No hay URLs configuradas todavía. Los códigos QR se generarán después de 'voxvera serve'",
     "input_file_not_found": "El archivo de entrada {path} no existe.",
-    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
-    "manage_action_edit": "Edit",
+    "attachment_path_label": "Ruta del archivo adjunto (opcional - se servirá desde el sitio Tor)",
+    "manage_action_edit": "Editar",
     "manage_templates": "--- Crear Desde Plantilla ---",
     "template_select": "Seleccione una plantilla:",
     "body_over_limit_warning": "Advertencia: El texto del cuerpo supera los 1000 caracteres. Puede cortarse en el volante.",
@@ -97,7 +97,7 @@
     "built_with": "construido con",
     "print_button": "Imprimir volante",
     "download_button": "Descargar Herramienta y Código",
-    "download_attachment": "Download Attachment"
+    "download_attachment": "Descargar archivo adjunto"
   },
   "landing": {
     "title": "ALTO SECRETO",

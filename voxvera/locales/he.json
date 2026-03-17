@@ -22,7 +22,7 @@
     "body_limit_exceeded": "חורג מהמגבלה",
     "url_label": "URL (קישור לתוכן - משאב חיצוני)",
     "url_message_label": "הודעת URL",
-    "binary_message_label": "הודעה בינארית",
+    "footer_message_label": "הודעת כותרת תחתונה",
     "template_not_found": "התבנית {name} לא נמצאה",
     "template_copied": "התבנית הועתקה אל {dest}",
     "flyer_created": "קובצי הפלייר נוצרו תחת {dest}",
@@ -73,8 +73,8 @@
     "bootstrapping_progress": "[{name}] איתחול Tor: {progress}% ...",
     "no_urls_qr_skip": "עדיין לא הוגדרו כתובות URL. קודי QR ייווצרו לאחר 'voxvera serve'",
     "input_file_not_found": "קובץ הקלט {path} אינו קיים.",
-    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
-    "manage_action_edit": "Edit",
+    "attachment_path_label": "נתיב קובץ מצורף (אופציונלי - יוגש מאתר ה-Tor)",
+    "manage_action_edit": "עריכה",
     "manage_templates": "--- יצירה מתבנית ---",
     "template_select": "בחר תבנית:",
     "body_over_limit_warning": "אזהרה: טקסט הגוף חורג מ-1000 תווים. הוא עלול להיחתך בעלון.",
@@ -98,7 +98,7 @@
     "built_with": "נבנה עם",
     "print_button": "הדפס פלייר",
     "download_button": "הורד כלי וקוד מקור",
-    "download_attachment": "Download Attachment"
+    "download_attachment": "הורד קובץ מצורף"
   },
   "landing": {
     "title": "סודי ביותר",

@@ -22,7 +22,7 @@
     "body_limit_exceeded": "制限を超えています",
     "url_label": "URL (コンテンツリンク - 外部リソース)",
     "url_message_label": "URLメッセージ",
-    "binary_message_label": "バイナリメッセージ",
+    "footer_message_label": "フッターメッセージ",
     "template_not_found": "テンプレート {name} が見つかりません",
     "template_copied": "テンプレートを {dest} にコピーしました",
     "flyer_created": "フライヤーファイルが {dest} に作成されました",
@@ -30,7 +30,7 @@
     "onionshare_error": "{folder_name} の OnionShare が予期せず終了しました。",
     "onionshare_causes": "主な原因: ネットワークの遮断、システム時刻の不一致、または OnionShare が既に実行されている可能性があります。",
     "onionshare_logs_tip": "詳細は {logfile} のログを確認してください。",
-    "onion_url_msg": "[{folder_name}] Onion URL: {onion_url}",
+    "onion_url_msg": "[{folder_name}] オニオンURL: {onion_url}",
     "onionshare_running_pid": "[{folder_name}] OnionShare 実行中 (PID {pid})",
     "export_not_found": "エラー: サイトフォルダ '{folder_name}' が {host_root} 内に見つかりません",
     "export_success": "'{folder_name}' を {output_path} にエクスポートしました",
@@ -73,8 +73,8 @@
     "bootstrapping_progress": "[{name}] Tor 起動中: {progress}% ...",
     "no_urls_qr_skip": "URLがまだ設定されていません。QRコードは 'voxvera serve' の後に生成されます",
     "input_file_not_found": "入力ファイル {path} が存在しません。",
-    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
-    "manage_action_edit": "Edit",
+    "attachment_path_label": "添付ファイルのパス（任意 - Torサイトから配信されます）",
+    "manage_action_edit": "編集",
     "manage_templates": "--- テンプレートから作成 ---",
     "template_select": "テンプレートを選択してください：",
     "body_over_limit_warning": "警告：本文が1000文字を超えています。チラシ上で途切れる可能性があります。",
@@ -98,7 +98,7 @@
     "built_with": "built with",
     "print_button": "フライヤーを印刷",
     "download_button": "ツールとソースをダウンロード",
-    "download_attachment": "Download Attachment"
+    "download_attachment": "添付ファイルをダウンロード"
   },
   "landing": {
     "title": "極秘事項",

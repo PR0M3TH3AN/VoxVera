@@ -22,7 +22,7 @@
     "body_limit_exceeded": "يتجاوز الحد",
     "url_label": "URL (رابط المحتوى - مورد خارجي)",
     "url_message_label": "رسالة الـ URL",
-    "binary_message_label": "رسالة ثنائية",
+    "footer_message_label": "رسالة التذييل",
     "template_not_found": "القالب {name} غير موجود",
     "template_copied": "تم نسخ القالب إلى {dest}",
     "flyer_created": "تم إنشاء ملفات المنشور تحت {dest}",
@@ -73,8 +73,8 @@
     "bootstrapping_progress": "[{name}] تمهيد Tor: {progress}% ...",
     "no_urls_qr_skip": "لم يتم تكوين أي روابط بعد. سيتم إنشاء أكواد QR بعد 'voxvera serve'",
     "input_file_not_found": "ملف الإدخال {path} غير موجود.",
-    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
-    "manage_action_edit": "Edit",
+    "attachment_path_label": "مسار ملف المرفق (اختياري - سيتم تقديمه من موقع Tor)",
+    "manage_action_edit": "تحرير",
     "manage_templates": "--- إنشاء من قالب ---",
     "template_select": "اختر قالباً:",
     "body_over_limit_warning": "تحذير: نص المحتوى يتجاوز 1000 حرف. قد يتم قطعه في المنشور.",
@@ -98,7 +98,7 @@
     "built_with": "بني بواسطة",
     "print_button": "اطبع المنشور",
     "download_button": "تحميل الأداة والكود",
-    "download_attachment": "Download Attachment"
+    "download_attachment": "تنزيل المرفق"
   },
   "landing": {
     "title": "سري للغاية",

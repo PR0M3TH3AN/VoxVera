@@ -22,7 +22,7 @@
     "body_limit_exceeded": "excede o limite",
     "url_label": "URL (link de conteúdo - recurso externo)",
     "url_message_label": "Mensagem da URL",
-    "binary_message_label": "Mensagem binária",
+    "footer_message_label": "Mensagem de rodapé",
     "template_not_found": "Modelo {name} não encontrado",
     "template_copied": "Modelo copiado para {dest}",
     "flyer_created": "Arquivos do panfleto criados em {dest}",
@@ -73,8 +73,8 @@
     "bootstrapping_progress": "[{name}] Inicialização do Tor: {progress}% ...",
     "no_urls_qr_skip": "Nenhuma URL configurada ainda. Os códigos QR serão gerados após 'voxvera serve'",
     "input_file_not_found": "Arquivo de entrada {path} não existe.",
-    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
-    "manage_action_edit": "Edit",
+    "attachment_path_label": "Caminho do arquivo anexo (opcional - será servido pelo site Tor)",
+    "manage_action_edit": "Editar",
     "manage_templates": "--- Criar a partir de Modelo ---",
     "template_select": "Selecione um modelo:",
     "body_over_limit_warning": "Aviso: O texto do corpo excede 1000 caracteres. Pode ser cortado no panfleto.",
@@ -98,7 +98,7 @@
     "built_with": "construído com",
     "print_button": "Imprimir Panfleto",
     "download_button": "Baixar Ferramenta e Código",
-    "download_attachment": "Download Attachment"
+    "download_attachment": "Baixar anexo"
   },
   "landing": {
     "title": "ALTO SECRETO",

@@ -141,6 +141,16 @@ def test_import_rejects_zip_path_traversal(tmp_path, monkeypatch, capsys):
     assert not ((tmp_path / "data" / "host" / "evil").exists())
 
 
+def test_load_config_migrates_binary_message_to_footer_message(tmp_path):
+    config_path = tmp_path / "legacy-config.json"
+    config_path.write_text(json.dumps({"binary_message": "0101", "folder_name": "legacy"}), encoding="utf-8")
+
+    loaded = cli.load_config(str(config_path))
+
+    assert loaded["footer_message"] == "0101"
+    assert "binary_message" not in loaded
+
+
 def test_check_all_present(capsys, monkeypatch):
     monkeypatch.setattr(shutil, "which", lambda cmd: "/usr/bin/" + cmd)
     cli.main(["check"])
@@ -351,9 +361,29 @@ def test_build_without_url_skips_qr(tmp_path, monkeypatch, capsys):
     assert dest.is_dir()
     assert (dest / "config.json").exists()
     assert (dest / "index.html").exists()
+    html = (dest / "index.html").read_text(encoding="utf-8")
+    assert 'class="container no-tear-offs"' in html
     # QR codes should not exist since no URLs were provided
     assert not (dest / "qrcode-content.png").exists()
     assert not (dest / "qrcode-tear-offs.png").exists()
+
+
+def test_build_injects_localized_tor_browser_download_links(tmp_path, monkeypatch):
+    """Test that the localized Tor Browser CTA gets the expected localized URL."""
+    _setup_tmp(monkeypatch, tmp_path)
+
+    res_root = tmp_path / "data" / "voxvera"
+    test_data_dir = tmp_path / "data"
+    config = json.load(open(res_root / "src" / "config.json"))
+    config["lang"] = "de"
+    with open(test_data_dir / "config.json", "w") as f:
+        json.dump(config, f)
+
+    cli.main(["--config", str(test_data_dir / "config.json"), "build"])
+
+    html = (test_data_dir / "host" / config["folder_name"] / "index.html").read_text(encoding="utf-8")
+    assert 'href="https://www.torproject.org/de/download/"' in html
+    assert "Tor-Browser verwenden" in html
 
 
 def test_build_with_only_url(tmp_path, monkeypatch):
@@ -403,6 +433,8 @@ def test_build_with_only_tear_off_link(tmp_path, monkeypatch):
 
     test_data_dir = tmp_path / "data"
     dest = test_data_dir / "host" / config["folder_name"]
+    html = (dest / "index.html").read_text(encoding="utf-8")
+    assert 'class="container no-tear-offs"' not in html
     # Only tear-off QR should exist (will be updated by serve)
     assert not (dest / "qrcode-content.png").exists()
     assert (dest / "qrcode-tear-offs.png").exists()

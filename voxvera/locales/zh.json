@@ -22,7 +22,7 @@
     "body_limit_exceeded": "超过限制",
     "url_label": "URL (内容链接 - 外部资源)",
     "url_message_label": "URL 消息",
-    "binary_message_label": "二进制消息",
+    "footer_message_label": "页脚消息",
     "template_not_found": "模板 {name} 未找到",
     "template_copied": "模板已复制到 {dest}",
     "flyer_created": "传单文件已创建在 {dest}",
@@ -30,7 +30,7 @@
     "onionshare_error": "{folder_name} 的 OnionShare 意外退出。",
     "onionshare_causes": "常见原因：网络受阻、系统时间不准，或 OnionShare 已在运行。",
     "onionshare_logs_tip": "查看 {logfile} 获取完整日志。",
-    "onion_url_msg": "[{folder_name}] Onion URL: {onion_url}",
+    "onion_url_msg": "[{folder_name}] Onion 地址: {onion_url}",
     "onionshare_running_pid": "[{folder_name}] OnionShare 正在运行 (PID {pid})。",
     "export_not_found": "错误：在 {host_root} 中未找到站点文件夹 '{folder_name}'",
     "export_success": "已将 '{folder_name}' 导出到 {output_path}",
@@ -73,8 +73,8 @@
     "bootstrapping_progress": "[{name}] Tor 引导中: {progress}% ...",
     "no_urls_qr_skip": "尚未配置 URL。QR 码将在 'voxvera serve' 后生成",
     "input_file_not_found": "输入文件 {path} 不存在。",
-    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
-    "manage_action_edit": "Edit",
+    "attachment_path_label": "附件文件路径（可选 - 将由 Tor 站点提供）",
+    "manage_action_edit": "编辑",
     "manage_templates": "--- 从模板创建 ---",
     "template_select": "选择一个模板：",
     "body_over_limit_warning": "警告：正文超过1000个字符。传单上可能会被截断。",
@@ -98,7 +98,7 @@
     "built_with": "构建自",
     "print_button": "打印传单",
     "download_button": "下载工具与源码",
-    "download_attachment": "Download Attachment"
+    "download_attachment": "下载附件"
   },
   "landing": {
     "title": "绝密",

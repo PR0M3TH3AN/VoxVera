@@ -16,11 +16,11 @@ from importlib.resources.abc import Traversable
 # avoid pulling in vendored copies that may be incomplete.
 if getattr(sys, 'frozen', False):
     try:
-        import pkg_resources
-        import setuptools
-        import jaraco
-        import platformdirs
-        import packaging
+        import pkg_resources  # noqa: F401
+        import setuptools  # noqa: F401
+        import jaraco  # noqa: F401
+        import platformdirs  # noqa: F401
+        import packaging  # noqa: F401
     except Exception:
         pass
 
@@ -29,6 +29,23 @@ from rich.console import Console
 from voxvera import __version__
 
 GITHUB_RECOMMENDED_BINARY_LIMIT = 95 * 1024 * 1024
+LEGACY_CONFIG_KEYS = {
+    "binary_message": "footer_message",
+}
+TOR_BROWSER_DOWNLOAD_URLS = {
+    "ar": "https://www.torproject.org/ar/download/",
+    "de": "https://www.torproject.org/de/download/",
+    "en": "https://www.torproject.org/download/",
+    "es": "https://www.torproject.org/es/download/",
+    "fa": "https://www.torproject.org/fa/download/",
+    "fr": "https://www.torproject.org/fr/download/",
+    "he": "https://www.torproject.org/he/download/",
+    "ja": "https://www.torproject.org/ja/download/",
+    "pt": "https://www.torproject.org/pt-BR/download/",
+    "ru": "https://www.torproject.org/ru/download/",
+    "tr": "https://www.torproject.org/tr/download/",
+    "zh": "https://www.torproject.org/zh-CN/download/",
+}
 
 # package root (contains bundled templates and src/)
 if getattr(sys, 'frozen', False):
@@ -44,6 +61,30 @@ DATA_DIR = Path(os.environ.get("VOXVERA_DIR", Path.home()))
 
 # Global locale state
 CURRENT_LOCALE = {}
+
+
+def tor_browser_download_url(lang_code: str) -> str:
+    """Return the best Tor Browser download URL for a supported locale."""
+    return TOR_BROWSER_DOWNLOAD_URLS.get(lang_code, TOR_BROWSER_DOWNLOAD_URLS["en"])
+
+
+def normalize_config(data: dict) -> dict:
+    """Normalize config keys while preserving compatibility with older exports."""
+    normalized = dict(data)
+    for old_key, new_key in LEGACY_CONFIG_KEYS.items():
+        if new_key not in normalized and old_key in normalized:
+            normalized[new_key] = normalized[old_key]
+    for old_key in LEGACY_CONFIG_KEYS:
+        normalized.pop(old_key, None)
+    normalized.setdefault("footer_message", "")
+    return normalized
+
+
+def build_render_context(data: dict) -> dict:
+    """Add derived template values without mutating persisted config shape."""
+    render_data = dict(data)
+    render_data["tear_off_state_class"] = "" if render_data.get("tear_off_link", "").strip() else "no-tear-offs"
+    return render_data
 
 
 def _newlines_to_br(text: str) -> str:
@@ -194,12 +235,12 @@ def check_deps():
 
 def load_config(path: str) -> dict:
     with open(path, "r") as fh:
-        return json.load(fh)
+        return normalize_config(json.load(fh))
 
 
 def save_config(data: dict, path: str):
     with open(path, "w") as fh:
-        json.dump(data, fh, indent=2)
+        json.dump(normalize_config(data), fh, indent=2)
 
 
 def _open_editor_terminal(initial: str) -> str:
@@ -440,6 +481,14 @@ def interactive_update(config_path: str):
             "transformer": _len_transform(120),
             "validate": _len_validator(120),
         },
+        {
+            "type": "input",
+            "message": t("cli.footer_message_label"),
+            "name": "footer_message",
+            "default": data.get("footer_message", ""),
+            "transformer": _len_transform(120),
+            "validate": _len_validator(120),
+        },
     ]
     data.update(prompt(link_qs))
 
@@ -506,13 +555,14 @@ def build_assets(
         config_path = Path(config_path)
 
         data = load_config(config_path)
+        render_data = build_render_context(data)
         with open(src_dir / "index-master.html", "r") as fh:
             html = fh.read()
 
         # Bundle locales for the web engine
         all_locales = {}
         locale_files = sorted(glob.glob(str(ROOT / "locales" / "*.json")))
-        
+
         # Load master defaults from src/config.json
         src_config_path = ROOT / "src" / "config.json"
         master_defaults = {}
@@ -529,6 +579,7 @@ def build_assets(
                     "web": l_data.get("web", {}),
                     "landing": l_data.get("landing", {})
                 }
+                all_locales[code]["web"]["tor_browser_download_url"] = tor_browser_download_url(code)
 
                 # Override landing data with user custom config data if it differs from master defaults
                 for field in ["title", "subtitle", "headline", "content", "url_message"]:
@@ -571,7 +622,7 @@ def build_assets(
             html = html.replace(f"{{{{t_landing_{field}}}}}", val_str)
 
         # 2. Statically replace config placeholders {{key}}
-        for key, value in data.items():
+        for key, value in render_data.items():
             val_str = str(value)
             # Support Markdown-style redaction ~~text~~ for user fields too
             val_str = re.sub(r"~~(.*?)~~", r'<span class="redacted">\1</span>', val_str)
@@ -588,20 +639,20 @@ def build_assets(
                 data["url"] = f"download/{att_filename}"
                 save_config(data, config_path)
                 html = html.replace("{{url}}", data["url"])
-                
+
         folder_name = data["folder_name"]
         dest = DATA_DIR / "host" / folder_name
         os.makedirs(dest, exist_ok=True)
 
         # 1. Refresh QR codes directly in destination
         # generate_qr only creates them if URLs are present in config
-        
+
         # We generate to a temp dir first to ensure we ONLY get what's in current config
         import tempfile
         with tempfile.TemporaryDirectory() as qr_tmp:
             qr_tmp_path = Path(qr_tmp)
             generate_qr(config_path, qr_tmp_path)
-            
+
             # Clear old QR codes from destination and copy new ones
             for qr_file in ["qrcode-content.png", "qrcode-tear-offs.png"]:
                 qr_dest = dest / qr_file
@@ -1115,6 +1166,7 @@ def build_site():
 
     # 2. Build the HTML from master template
     data = load_config(config_path)
+    render_data = build_render_context(data)
     res = _src_res("index-master.html")
     if getattr(sys, 'frozen', False):
         template_path = res
@@ -1128,7 +1180,7 @@ def build_site():
     # Bundle locales (Include landing tokens for the main site)
     all_locales = {}
     locale_files = sorted(glob.glob(str(ROOT / "locales" / "*.json")))
-    
+
     # Load master defaults from src/config.json
     src_config_path = ROOT / "src" / "config.json"
     master_defaults = {}
@@ -1145,6 +1197,7 @@ def build_site():
                 "web": l_data.get("web", {}),
                 "landing": l_data.get("landing", {})
             }
+            all_locales[code]["web"]["tor_browser_download_url"] = tor_browser_download_url(code)
 
             # Override landing data with user custom config data if it differs from master defaults
             for field in ["title", "subtitle", "headline", "content", "url_message"]:
@@ -1189,7 +1242,7 @@ def build_site():
     html = html.replace("download/download.zip", "download/voxvera-source.zip")
 
     # 4. Inject site-specific config data (handles any remaining {{key}} placeholders)
-    for key, value in data.items():
+    for key, value in render_data.items():
         val_str = _newlines_to_br(str(value))
         html = html.replace(f"{{{{{key}}}}}", val_str)
 

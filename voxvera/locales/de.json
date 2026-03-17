@@ -21,7 +21,7 @@
     "body_limit_exceeded": "überschreitet das Limit",
     "url_label": "URL (Inhaltslink - externe Ressource)",
     "url_message_label": "URL-Nachricht",
-    "binary_message_label": "Binäre Nachricht",
+    "footer_message_label": "Fußzeilen-Nachricht",
     "template_not_found": "Vorlage {name} nicht gefunden",
     "template_copied": "Vorlage nach {dest} kopiert",
     "flyer_created": "Flyer-Dateien erstellt unter {dest}",
@@ -72,8 +72,8 @@
     "bootstrapping_progress": "[{name}] Tor-Bootstrapping: {progress}% ...",
     "no_urls_qr_skip": "Noch keine URLs konfiguriert. QR-Codes werden nach 'voxvera serve' generiert",
     "input_file_not_found": "Eingabedatei {path} existiert nicht.",
-    "attachment_path_label": "Attachment file path (optional - will be served from Tor site)",
-    "manage_action_edit": "Edit",
+    "attachment_path_label": "Pfad zur Anhangsdatei (optional - wird über die Tor-Seite bereitgestellt)",
+    "manage_action_edit": "Bearbeiten",
     "manage_templates": "--- Aus Vorlage erstellen ---",
     "template_select": "Wählen Sie eine Vorlage:",
     "body_over_limit_warning": "Warnung: Der Textkörper überschreitet 1000 Zeichen. Er könnte auf dem Flyer abgeschnitten werden.",
@@ -97,7 +97,7 @@
     "built_with": "erstellt mit",
     "print_button": "Flyer drucken",
     "download_button": "Tool & Quellcode herunterladen",
-    "download_attachment": "Download Attachment"
+    "download_attachment": "Anhang herunterladen"
   },
   "landing": {
     "title": "STRENG GEHEIM",

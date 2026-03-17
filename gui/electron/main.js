@@ -110,7 +110,12 @@ function getConfigPath() {
 ipcMain.handle('load-config', async () => {
   const p = getConfigPath();
   const raw = fs.readFileSync(p, 'utf8');
-  return JSON.parse(raw);
+  const config = JSON.parse(raw);
+  if (config.footer_message === undefined && config.binary_message !== undefined) {
+    config.footer_message = config.binary_message;
+  }
+  delete config.binary_message;
+  return config;
 });
 
 ipcMain.handle('run-quickstart', async (_, config) => {

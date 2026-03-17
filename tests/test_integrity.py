@@ -45,6 +45,24 @@ def test_locale_completeness():
     assert not missing_info, "\n".join(missing_info)
 
 
+def test_critical_locale_labels_are_not_left_in_english():
+    """Verify key translated labels are not left as raw English in non-English locales."""
+    locales_dir = REPO_ROOT / "voxvera" / "locales"
+    en_data = json.loads((locales_dir / "en.json").read_text(encoding="utf-8"))
+    critical_paths = [
+        ("cli", "attachment_path_label"),
+        ("cli", "manage_action_edit"),
+        ("web", "download_attachment"),
+    ]
+
+    for lp in locales_dir.glob("*.json"):
+        if lp.name == "en.json":
+            continue
+        data = json.loads(lp.read_text(encoding="utf-8"))
+        for section, key in critical_paths:
+            assert data[section][key] != en_data[section][key], f"{lp.name} leaves {section}.{key} in English"
+
+
 def test_export_import_roundtrip(tmp_path, monkeypatch):
     """Verify that export -> import preserves the Tor identity key perfectly."""
     # Setup tmp environment

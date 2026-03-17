@@ -131,7 +131,7 @@ class TestFullWorkflow:
             "url": "https://example.com/external",
             "tear_off_link": "",  # Will be set by serve
             "url_message": "Visit our site",
-            "binary_message": "0101010",
+            "footer_message": "0101010",
         }
 
         config_path = tmp_path / "config.json"
@@ -230,7 +230,7 @@ class TestFullWorkflow:
             "url": "https://example.com",
             "tear_off_link": "",
             "url_message": "Test message",
-            "binary_message": "101010",
+            "footer_message": "101010",
         }
 
         config_path = tmp_path / "config.json"
@@ -365,7 +365,7 @@ class TestSiteFiles:
             "url": "https://example.com",
             "tear_off_link": "",
             "url_message": "",
-            "binary_message": "",
+            "footer_message": "",
         }
 
         config_path = tmp_path / "config.json"

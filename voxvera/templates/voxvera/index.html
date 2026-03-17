@@ -298,6 +298,14 @@
             margin-top: 5px;
         }
 
+        .container.no-tear-offs .left-tear-offs {
+            display: none;
+        }
+
+        .container.no-tear-offs .content {
+            width: 100%;
+        }
+
         @media print {
             body, html {
                 width: 8.5in;
@@ -417,6 +425,13 @@
                     }
                 }
             });
+            document.querySelectorAll('[data-i18n-href]').forEach(el => {
+                const path = el.getAttribute('data-i18n-href');
+                const href = t(path, lang);
+                if (href) {
+                    el.setAttribute('href', href);
+                }
+            });
             document.getElementById('lang-selector').value = lang;
             document.documentElement.lang = lang;
         }
@@ -441,11 +456,11 @@
 </head> 
 
 <body>
-    <div class="container">
+    <div class="container {{tear_off_state_class}}">
         <div class="left-tear-offs">
             <div class="tear-off">
                 <div class="tear-off-text">
-                    <span data-i18n="web.tear_off_tor_browser">{{t_web_tear_off_tor_browser}}</span><br><br>
+                    <a class="tor-browser-link" data-i18n="web.tear_off_tor_browser" data-i18n-href="web.tor_browser_download_url" href="{{t_web_tor_browser_download_url}}" target="_blank" rel="noopener noreferrer">{{t_web_tear_off_tor_browser}}</a><br><br>
                     <span data-i18n="web.tear_off_desc">{{t_web_tear_off_desc}}</span><br>
                     <a class="tear-off-link" href="{{tear_off_link}}" target="_blank">{{tear_off_link}}</a><br>
                     <span data-i18n="web.tear_off_footer">{{t_web_tear_off_footer}}</span>
@@ -457,7 +472,7 @@
             <!-- Repeat for other tear-offs -->
             <div class="tear-off">
                 <div class="tear-off-text">
-                    <span data-i18n="web.tear_off_tor_browser">{{t_web_tear_off_tor_browser}}</span><br><br>
+                    <a class="tor-browser-link" data-i18n="web.tear_off_tor_browser" data-i18n-href="web.tor_browser_download_url" href="{{t_web_tor_browser_download_url}}" target="_blank" rel="noopener noreferrer">{{t_web_tear_off_tor_browser}}</a><br><br>
                     <span data-i18n="web.tear_off_desc">{{t_web_tear_off_desc}}</span><br>
                     <a class="tear-off-link" href="{{tear_off_link}}" target="_blank">{{tear_off_link}}</a><br>
                     <span data-i18n="web.tear_off_footer">{{t_web_tear_off_footer}}</span>
@@ -468,7 +483,7 @@
             </div> 
             <div class="tear-off">
                 <div class="tear-off-text">
-                    <span data-i18n="web.tear_off_tor_browser">{{t_web_tear_off_tor_browser}}</span><br><br>
+                    <a class="tor-browser-link" data-i18n="web.tear_off_tor_browser" data-i18n-href="web.tor_browser_download_url" href="{{t_web_tor_browser_download_url}}" target="_blank" rel="noopener noreferrer">{{t_web_tear_off_tor_browser}}</a><br><br>
                     <span data-i18n="web.tear_off_desc">{{t_web_tear_off_desc}}</span><br>
                     <a class="tear-off-link" href="{{tear_off_link}}" target="_blank">{{tear_off_link}}</a><br>
                     <span data-i18n="web.tear_off_footer">{{t_web_tear_off_footer}}</span>
@@ -479,7 +494,7 @@
             </div> 
             <div class="tear-off">
                 <div class="tear-off-text">
-                    <span data-i18n="web.tear_off_tor_browser">{{t_web_tear_off_tor_browser}}</span><br><br>
+                    <a class="tor-browser-link" data-i18n="web.tear_off_tor_browser" data-i18n-href="web.tor_browser_download_url" href="{{t_web_tor_browser_download_url}}" target="_blank" rel="noopener noreferrer">{{t_web_tear_off_tor_browser}}</a><br><br>
                     <span data-i18n="web.tear_off_desc">{{t_web_tear_off_desc}}</span><br>
                     <a class="tear-off-link" href="{{tear_off_link}}" target="_blank">{{tear_off_link}}</a><br>
                     <span data-i18n="web.tear_off_footer">{{t_web_tear_off_footer}}</span>
@@ -490,7 +505,7 @@
             </div> 
             <div class="tear-off">
                 <div class="tear-off-text">
-                    <span data-i18n="web.tear_off_tor_browser">{{t_web_tear_off_tor_browser}}</span><br><br>
+                    <a class="tor-browser-link" data-i18n="web.tear_off_tor_browser" data-i18n-href="web.tor_browser_download_url" href="{{t_web_tor_browser_download_url}}" target="_blank" rel="noopener noreferrer">{{t_web_tear_off_tor_browser}}</a><br><br>
                     <span data-i18n="web.tear_off_desc">{{t_web_tear_off_desc}}</span><br>
                     <a class="tear-off-link" href="{{tear_off_link}}" target="_blank">{{tear_off_link}}</a><br>
                     <span data-i18n="web.tear_off_footer">{{t_web_tear_off_footer}}</span>
@@ -501,7 +516,7 @@
             </div> 
             <div class="tear-off">
                 <div class="tear-off-text">
-                    <span data-i18n="web.tear_off_tor_browser">{{t_web_tear_off_tor_browser}}</span><br><br>
+                    <a class="tor-browser-link" data-i18n="web.tear_off_tor_browser" data-i18n-href="web.tor_browser_download_url" href="{{t_web_tor_browser_download_url}}" target="_blank" rel="noopener noreferrer">{{t_web_tear_off_tor_browser}}</a><br><br>
                     <span data-i18n="web.tear_off_desc">{{t_web_tear_off_desc}}</span><br>
                     <a class="tear-off-link" href="{{tear_off_link}}" target="_blank">{{tear_off_link}}</a><br>
                     <span data-i18n="web.tear_off_footer">{{t_web_tear_off_footer}}</span>
@@ -512,7 +527,7 @@
             </div> 
             <div class="tear-off">
                 <div class="tear-off-text">
-                    <span data-i18n="web.tear_off_tor_browser">{{t_web_tear_off_tor_browser}}</span><br><br>
+                    <a class="tor-browser-link" data-i18n="web.tear_off_tor_browser" data-i18n-href="web.tor_browser_download_url" href="{{t_web_tor_browser_download_url}}" target="_blank" rel="noopener noreferrer">{{t_web_tear_off_tor_browser}}</a><br><br>
                     <span data-i18n="web.tear_off_desc">{{t_web_tear_off_desc}}</span><br>
                     <a class="tear-off-link" href="{{tear_off_link}}" target="_blank">{{tear_off_link}}</a><br>
                     <span data-i18n="web.tear_off_footer">{{t_web_tear_off_footer}}</span>
@@ -523,7 +538,7 @@
             </div> 
             <div class="tear-off">
                 <div class="tear-off-text">
-                    <span data-i18n="web.tear_off_tor_browser">{{t_web_tear_off_tor_browser}}</span><br><br>
+                    <a class="tor-browser-link" data-i18n="web.tear_off_tor_browser" data-i18n-href="web.tor_browser_download_url" href="{{t_web_tor_browser_download_url}}" target="_blank" rel="noopener noreferrer">{{t_web_tear_off_tor_browser}}</a><br><br>
                     <span data-i18n="web.tear_off_desc">{{t_web_tear_off_desc}}</span><br>
                     <a class="tear-off-link" href="{{tear_off_link}}" target="_blank">{{tear_off_link}}</a><br>
                     <span data-i18n="web.tear_off_footer">{{t_web_tear_off_footer}}</span>
@@ -534,7 +549,7 @@
             </div> 
             <div class="tear-off">
                 <div class="tear-off-text">
-                    <span data-i18n="web.tear_off_tor_browser">{{t_web_tear_off_tor_browser}}</span><br><br>
+                    <a class="tor-browser-link" data-i18n="web.tear_off_tor_browser" data-i18n-href="web.tor_browser_download_url" href="{{t_web_tor_browser_download_url}}" target="_blank" rel="noopener noreferrer">{{t_web_tear_off_tor_browser}}</a><br><br>
                     <span data-i18n="web.tear_off_desc">{{t_web_tear_off_desc}}</span><br>
                     <a class="tear-off-link" href="{{tear_off_link}}" target="_blank">{{tear_off_link}}</a><br>
                     <span data-i18n="web.tear_off_footer">{{t_web_tear_off_footer}}</span>
@@ -545,7 +560,7 @@
             </div> 
             <div class="tear-off">
                 <div class="tear-off-text">
-                    <span data-i18n="web.tear_off_tor_browser">{{t_web_tear_off_tor_browser}}</span><br><br>
+                    <a class="tor-browser-link" data-i18n="web.tear_off_tor_browser" data-i18n-href="web.tor_browser_download_url" href="{{t_web_tor_browser_download_url}}" target="_blank" rel="noopener noreferrer">{{t_web_tear_off_tor_browser}}</a><br><br>
                     <span data-i18n="web.tear_off_desc">{{t_web_tear_off_desc}}</span><br>
                     <a class="tear-off-link" href="{{tear_off_link}}" target="_blank">{{tear_off_link}}</a><br>
                     <span data-i18n="web.tear_off_footer">{{t_web_tear_off_footer}}</span>
@@ -566,6 +581,7 @@
 
                     <div class="qr-code-url">
 <span class="url-message" data-i18n="landing.url_message">{{t_landing_url_message}}</span><br><br>
+<a class="tor-browser-link" data-i18n="web.tear_off_tor_browser" data-i18n-href="web.tor_browser_download_url" href="{{t_web_tor_browser_download_url}}" target="_blank" rel="noopener noreferrer">{{t_web_tear_off_tor_browser}}</a><br><br>
 <a id="qr-link-2" href="{{url}}" target="_blank">{{url}}</a>
                     </div>
                     <img src="qrcode-content.png" alt="QR Code">
@@ -574,7 +590,7 @@
             <hr>
             <div class="footer">
                 <p class="credit"><span data-i18n="web.built_with">{{t_web_built_with}}</span> <a href="https://github.com/PR0M3TH3AN/VoxVera">voxvera</a></p>
-                <p class="binary" id="binary-message">{{binary_message}}</p>
+                <p class="binary" id="footer-message">{{footer_message}}</p>
             </div>
         </div>
     </div>
