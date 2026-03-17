@@ -957,6 +957,7 @@ def import_multiple_sites(source_dir: str = None):
 
 def export_keys(folder_name: str):
     """Export the onion service session key as base64 for easy copy/paste."""
+    console = Console()
     session_file = DATA_DIR / "host" / folder_name / ".onionshare-session"
     if not session_file.exists():
         console.print(f"[red]{t('cli.keys_not_found', name=folder_name)}[/red]")
@@ -972,6 +973,7 @@ def export_keys(folder_name: str):
 
 def import_keys(folder_name: str):
     """Import an onion service session key from base64 pasted by the user."""
+    console = Console()
     site_dir = DATA_DIR / "host" / folder_name
     if not site_dir.exists():
         console.print(f"[red]{t('cli.keys_site_not_found', name=folder_name)}[/red]")
