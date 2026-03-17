@@ -364,6 +364,13 @@ for strategy in install_tarball install_shallow install_pipx install_pip_git ins
     fi
     # Clear bash's cached command path so the new binary is found immediately
     hash -r 2>/dev/null || true
+
+    # Rebuild all existing sites so they pick up template/CSS changes
+    if command_exists voxvera; then
+      msg "Rebuilding existing sites with updated template..."
+      voxvera rebuild-all 2>/dev/null || true
+    fi
+
     msg "\nVoxVera installed/updated successfully. Run 'voxvera check' to verify."
     # Detect if the parent shell will still have a stale hash
     msg "If 'voxvera' is not found, run:  hash -r  (or open a new terminal)"

@@ -1312,6 +1312,27 @@ def _seed_bundled_sites():
                 shutil.copytree(src, dest)
 
 
+def rebuild_all_sites():
+    """Rebuild index.html for all existing sites from the current master template.
+
+    Preserves config.json, .onionshare-session keys, and download/ content.
+    Only regenerates the HTML and QR codes.
+    """
+    servers = get_servers()
+    if not servers:
+        print("No sites found to rebuild.")
+        return
+    print(f"Rebuilding {len(servers)} site(s) from current template...")
+    for name in servers:
+        config_path = DATA_DIR / "host" / name / "config.json"
+        try:
+            build_assets(str(config_path))
+            print(f"  Rebuilt: {name}")
+        except Exception as e:
+            print(f"  Failed to rebuild {name}: {e}")
+    print("Rebuild complete.")
+
+
 def get_servers() -> list[str]:
     """Return server names found in DATA_DIR/host only."""
     host_dir = DATA_DIR / "host"
@@ -1792,6 +1813,7 @@ def main(argv=None):
     sub.add_parser("start-all", help="Start all configured sites (non-interactive)")
     sub.add_parser("stop-all", help="Stop all running sites (non-interactive)")
     sub.add_parser("autostart", help="Install/remove a systemd user service to start sites on boot")
+    sub.add_parser("rebuild-all", help="Rebuild all existing sites from the current template (preserves keys and config)")
     sub.add_parser("_internal_onionshare", help=argparse.SUPPRESS)
 
     args, unknown_args = parser.parse_known_args(argv)
@@ -1891,6 +1913,8 @@ def main(argv=None):
         build_docs()
     elif args.command == "build-site":
         build_site()
+    elif args.command == "rebuild-all":
+        rebuild_all_sites()
     else:
         parser.print_help()
 
