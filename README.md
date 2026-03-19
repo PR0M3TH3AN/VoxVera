@@ -14,6 +14,7 @@ Linux with systemd is the supported persistent-host deployment target.
 Windows, macOS, Docker, Flatpak, AppImage, Homebrew, and Chocolatey remain experimental until their background Tor hosting and auto-recovery paths are validated end-to-end.
 
 See [docs/platform-support-matrix.md](docs/platform-support-matrix.md) for the canonical platform status table and [docs/roadmap-platform-parity.md](docs/roadmap-platform-parity.md) for the parity plan.
+For the supported Linux hosting path, use [docs/linux-hosting-validation.md](docs/linux-hosting-validation.md) as the operational validation runbook.
 
 ### 1. Standalone Binaries (Recommended)
 Download the executable for your OS:

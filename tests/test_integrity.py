@@ -45,6 +45,17 @@ def test_platform_smoke_is_wired_into_validation_surfaces():
     for target in ("linux-cli", "macos-cli", "windows-cli", "docker-cli"):
         assert target in smoke_text
 
+
+def test_linux_validation_runbook_and_helper_are_linked():
+    runbook = REPO_ROOT / "docs" / "linux-hosting-validation.md"
+    helper = REPO_ROOT / "scripts" / "linux-recovery-check.sh"
+    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+
+    assert runbook.exists()
+    assert helper.exists()
+    assert "docs/linux-hosting-validation.md" in readme
+    assert "scripts/linux-recovery-check.sh" in runbook.read_text(encoding="utf-8")
+
 def test_locale_completeness():
     """Verify that all non-English locales have the same keys as English."""
     locales_dir = REPO_ROOT / "voxvera" / "locales"

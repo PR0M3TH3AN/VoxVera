@@ -442,6 +442,9 @@ for strategy in install_tarball install_shallow install_pipx install_pip_git ins
     msg "\nVoxVera installed/updated successfully. Run 'voxvera check' to verify."
     if [[ "$OS_NAME" == linux* ]]; then
       msg "Linux systemd user autostart should now retry hidden-service startup every few minutes."
+      msg "Inspect with: voxvera autostart status"
+      msg "Remove with:  voxvera autostart uninstall"
+      msg "Validate with: bash scripts/linux-recovery-check.sh"
     fi
     # Detect if the parent shell will still have a stale hash
     msg "If 'voxvera' is not found, run:  hash -r  (or open a new terminal)"
