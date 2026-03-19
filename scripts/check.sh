@@ -18,6 +18,11 @@ echo "==> electron smoke tests"
 echo "==> dependency check"
 python3 -m voxvera.cli --lang en check
 
+if [[ "$(uname -s)" == "Linux" ]]; then
+  echo "==> platform smoke"
+  bash scripts/platform-smoke.sh linux-cli
+fi
+
 echo "==> build docs"
 python3 -m voxvera.cli build-docs
 

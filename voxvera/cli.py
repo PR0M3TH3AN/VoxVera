@@ -27,6 +27,7 @@ if getattr(sys, 'frozen', False):
 from InquirerPy import prompt, inquirer
 from rich.console import Console
 from voxvera import __version__
+from voxvera.platforms import get_platform_adapter
 
 GITHUB_RECOMMENDED_BINARY_LIMIT = 95 * 1024 * 1024
 LEGACY_CONFIG_KEYS = {
@@ -61,6 +62,7 @@ DATA_DIR = Path(os.environ.get("VOXVERA_DIR", Path.home()))
 
 # Global locale state
 CURRENT_LOCALE = {}
+CURRENT_LANG_CODE = "en"
 
 
 def tor_browser_download_url(lang_code: str) -> str:
@@ -80,10 +82,17 @@ def normalize_config(data: dict) -> dict:
     return normalized
 
 
+def get_effective_tear_off_link(data: dict) -> str:
+    """Use the explicit tear-off link when present, otherwise fall back to the main URL."""
+    return (data.get("tear_off_link") or "").strip() or (data.get("url") or "").strip()
+
+
 def build_render_context(data: dict) -> dict:
     """Add derived template values without mutating persisted config shape."""
     render_data = dict(data)
-    render_data["tear_off_state_class"] = "" if render_data.get("tear_off_link", "").strip() else "no-tear-offs"
+    effective_tear_off_link = get_effective_tear_off_link(render_data)
+    render_data["tear_off_link"] = effective_tear_off_link
+    render_data["tear_off_state_class"] = "" if effective_tear_off_link else "no-tear-offs"
     return render_data
 
 
@@ -137,7 +146,7 @@ def _locale_res(*parts) -> Traversable:
 
 def load_locale(lang_code: str = "en"):
     """Load the specified locale JSON file."""
-    global CURRENT_LOCALE
+    global CURRENT_LOCALE, CURRENT_LANG_CODE
     try:
         res = _locale_res(f"{lang_code}.json")
         if getattr(sys, 'frozen', False):
@@ -147,6 +156,7 @@ def load_locale(lang_code: str = "en"):
                 lang_code = "en"
                 locale_file = _locale_res("en.json")
             CURRENT_LOCALE = json.loads(locale_file.read_text(encoding="utf-8"))
+            CURRENT_LANG_CODE = lang_code
         else:
             with resources.as_file(res) as locale_file:
                 if not locale_file.exists():
@@ -155,10 +165,12 @@ def load_locale(lang_code: str = "en"):
                         CURRENT_LOCALE = json.loads(fallback_file.read_text(encoding="utf-8"))
                 else:
                     CURRENT_LOCALE = json.loads(locale_file.read_text(encoding="utf-8"))
+                CURRENT_LANG_CODE = lang_code
     except Exception as e:
         print(f"Error loading locale {lang_code}: {e}")
         # Final safety fallback to empty dict to avoid KeyErrors
         CURRENT_LOCALE = {"cli": {}, "web": {}, "meta": {}}
+        CURRENT_LANG_CODE = "en"
 
 
 def t(path: str, **kwargs) -> str:
@@ -170,6 +182,14 @@ def t(path: str, **kwargs) -> str:
     if not isinstance(val, str):
         return path  # Return the token path if not found
     return val.format(**kwargs)
+
+
+def t_fallback(path: str, default: str, **kwargs) -> str:
+    """Retrieve a localized string, but fall back to a provided default."""
+    value = t(path, **kwargs)
+    if value == path:
+        return default.format(**kwargs)
+    return value
 
 
 def require_cmd(cmd: str):
@@ -231,6 +251,77 @@ def check_deps():
         console.print(f"[green]{t('cli.all_deps_installed')}[/green]")
     else:
         console.print(f"[red]{t('cli.all_deps_installed')}[/red]")
+
+
+def print_doctor_report():
+    print_report("doctor")
+
+
+def print_platform_status():
+    print_report("platform-status")
+
+
+def print_report(report_type: str, json_output: bool = False):
+    adapter = get_platform_adapter(cli_module=sys.modules[__name__])
+    report = adapter.doctor_report() if report_type == "doctor" else adapter.platform_status()
+    if json_output:
+        print(json.dumps(report, indent=2))
+        return
+
+    console = Console()
+    if report_type == "doctor":
+        console.rule(f"VoxVera Doctor: {report['label']}")
+        console.print(f"Tier: {report['tier']}")
+        if report["hosting_model"]:
+            console.print(f"Hosting model: {report['hosting_model']}")
+        for check in report["checks"]:
+            style = "green" if check["ok"] else "red"
+            state = "OK" if check["ok"] else "FAIL"
+            console.print(f"[{style}]{state}[/{style}] {check['name']}: {check['detail']}")
+        return
+
+    console.rule(f"Platform Status: {report['label']}")
+    console.print(f"Tier: {report['tier']}")
+    if report["tier_description"]:
+        console.print(report["tier_description"])
+    if report["hosting_model"]:
+        console.print(f"Hosting model: {report['hosting_model']}")
+    if report["distribution_surfaces"]:
+        console.print("Distribution surfaces:")
+        for surface in report["distribution_surfaces"]:
+            console.print(f"  - {surface}")
+    if report["required_capabilities"]:
+        console.print("Required capabilities:")
+        for capability in report["required_capabilities"]:
+            console.print(f"  - {capability}")
+    if report["current_notes"]:
+        console.print("Current notes:")
+        for note in report["current_notes"]:
+            console.print(f"  - {note}")
+    if report["next_gaps"]:
+        console.print("Next gaps:")
+        for gap in report["next_gaps"]:
+            console.print(f"  - {gap}")
+
+
+def print_autostart_status(json_output: bool = False):
+    adapter = get_platform_adapter(cli_module=sys.modules[__name__])
+    status = adapter.autostart_status()
+    if json_output:
+        print(json.dumps(status, indent=2))
+        return
+    console = Console()
+    console.rule(f"Autostart Status: {status['label']}")
+    console.print(f"Tier: {status['tier']}")
+    console.print(status["message"])
+    if status["artifacts"]:
+        console.print("Artifacts:")
+        for artifact in status["artifacts"]:
+            console.print(f"  - {artifact}")
+    for check in status["checks"]:
+        style = "green" if check["ok"] else "red"
+        state = "OK" if check["ok"] else "FAIL"
+        console.print(f"[{style}]{state}[/{style}] {check['name']}: {check['detail']}")
 
 
 def load_config(path: str) -> dict:
@@ -357,9 +448,78 @@ def _len_validator(limit: int):
 def _folder_name_validator(val: str):
     if len(val) > 63:
         return "Folder name must be at most 63 characters"
-    if not re.fullmatch(r"[a-z0-9-]+", val):
-        return "Use only lowercase letters, numbers and '-'"
+    if not re.fullmatch(r"[a-z0-9_-]+", val):
+        return "Use only lowercase letters, numbers, '-' and '_'"
     return True
+
+
+def _next_versioned_folder_name(folder_name: str) -> str:
+    """Return the next available versioned folder name like jesus_01."""
+    host_dir = DATA_DIR / "host"
+    for index in range(1, 100):
+        candidate = f"{folder_name}_{index:02d}"
+        if not (host_dir / candidate).exists():
+            return candidate
+    raise RuntimeError(f"Could not allocate a versioned folder name for '{folder_name}'")
+
+
+def resolve_new_site_folder(config_path: str, preserve_session_on_overwrite: bool = True) -> str | None:
+    """Resolve collisions for a newly created site before the first build."""
+    data = load_config(config_path)
+    folder_name = data["folder_name"]
+    dest_dir = DATA_DIR / "host" / folder_name
+    if not dest_dir.exists():
+        return folder_name
+
+    suggested_name = _next_versioned_folder_name(folder_name)
+    action = inquirer.select(
+        message=t_fallback(
+            "cli.site_exists_action",
+            "Site '{name}' already exists. What do you want to do?",
+            name=folder_name,
+        ),
+        choices=[
+            {
+                "name": t_fallback("cli.site_exists_overwrite", "Overwrite existing site"),
+                "value": "overwrite",
+            },
+            {
+                "name": t_fallback(
+                    "cli.site_exists_version",
+                    "Create new version ({suggested})",
+                    suggested=suggested_name,
+                ),
+                "value": "version",
+            },
+            {
+                "name": t_fallback("cli.site_exists_cancel", "Cancel"),
+                "value": "cancel",
+            },
+        ],
+        default="version",
+    ).execute()
+
+    if action in (None, "cancel"):
+        print(t_fallback("cli.site_exists_cancelled", "Site creation cancelled."))
+        return None
+
+    if action == "overwrite":
+        if preserve_session_on_overwrite:
+            _clear_host_dir(dest_dir)
+        else:
+            shutil.rmtree(dest_dir, ignore_errors=True)
+        return folder_name
+
+    data["folder_name"] = suggested_name
+    save_config(data, config_path)
+    print(
+        t_fallback(
+            "cli.site_exists_versioned",
+            "Using versioned folder name: {name}",
+            name=suggested_name,
+        )
+    )
+    return suggested_name
 
 
 def interactive_update(config_path: str):
@@ -1362,6 +1522,7 @@ def create_from_template(console):
     # Load the preset JSON
     preset_data = json.loads(Path(selected["file"]).read_text(encoding="utf-8"))
     template_id = selected["id"]
+    preset_data["lang"] = CURRENT_LANG_CODE or preset_data.get("lang", "en")
 
     # Override content fields with locale translations if available
     for field in ["name", "title", "subtitle", "headline", "content", "url_message"]:
@@ -1375,6 +1536,8 @@ def create_from_template(console):
 
     # Let user customize, build, and serve
     interactive_update(str(config_path))
+    if resolve_new_site_folder(str(config_path)) is None:
+        return
     build_assets(str(config_path))
     serve(str(config_path))
 
@@ -1530,17 +1693,11 @@ def stop_all_servers():
 
 def install_autostart():
     """Install a platform-appropriate mechanism to start sites on boot."""
-    import platform
-    system = platform.system()
-
-    if system == "Linux":
-        _install_systemd_autostart()
-    elif system == "Darwin":
-        _install_launchd_autostart()
-    elif system == "Windows":
-        _install_windows_autostart()
-    else:
-        print(f"Autostart not supported on {system}. "
+    adapter = get_platform_adapter(cli_module=sys.modules[__name__])
+    try:
+        adapter.install_autostart()
+    except NotImplementedError:
+        print(f"Autostart not supported on {adapter.label}. "
               "Run 'voxvera start-all' manually or add it to your init system.")
 
 
@@ -1554,90 +1711,21 @@ def _find_voxvera_bin() -> str:
 
 
 def _install_systemd_autostart():
-    """Install a systemd user service for Linux."""
-    service_dir = Path.home() / ".config" / "systemd" / "user"
-    service_dir.mkdir(parents=True, exist_ok=True)
-    service_file = service_dir / "voxvera.service"
-    voxvera_bin = _find_voxvera_bin()
-
-    unit = f"""\
-[Unit]
-Description=VoxVera Onion Sites
-After=network-online.target tor.service
-Wants=network-online.target
-
-[Service]
-Type=oneshot
-RemainAfterExit=yes
-ExecStart={voxvera_bin} start-all
-ExecStop={voxvera_bin} stop-all
-
-[Install]
-WantedBy=default.target
-"""
-    service_file.write_text(unit)
-    os.system("systemctl --user daemon-reload")
-    os.system("systemctl --user enable voxvera.service")
-    os.system("systemctl --user start voxvera.service")
-    # loginctl enable-linger ensures user services start at boot even without login
-    os.system(f"loginctl enable-linger {os.environ.get('USER', '')}")
-    print(f"Systemd user service installed: {service_file}")
-    print("Sites will start automatically on boot.")
-    print("  Manage with: systemctl --user [start|stop|status|disable] voxvera")
+    """Backward-compatible wrapper for Linux autostart installation."""
+    adapter = get_platform_adapter(cli_module=sys.modules[__name__])
+    adapter.install_autostart()
 
 
 def _install_launchd_autostart():
-    """Install a launchd plist for macOS."""
-    agents_dir = Path.home() / "Library" / "LaunchAgents"
-    agents_dir.mkdir(parents=True, exist_ok=True)
-    plist_file = agents_dir / "org.voxvera.start-all.plist"
-    voxvera_bin = _find_voxvera_bin()
-
-    plist = f"""\
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
-  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>Label</key>
-    <string>org.voxvera.start-all</string>
-    <key>ProgramArguments</key>
-    <array>
-        <string>{voxvera_bin}</string>
-        <string>start-all</string>
-    </array>
-    <key>RunAtLoad</key>
-    <true/>
-    <key>StandardOutPath</key>
-    <string>{Path.home()}/host/voxvera-autostart.log</string>
-    <key>StandardErrorPath</key>
-    <string>{Path.home()}/host/voxvera-autostart.log</string>
-</dict>
-</plist>
-"""
-    plist_file.write_text(plist)
-    os.system(f"launchctl load -w {plist_file}")
-    print(f"LaunchAgent installed: {plist_file}")
-    print("Sites will start automatically on login.")
-    print(f"  Disable with: launchctl unload {plist_file}")
+    """Backward-compatible wrapper for macOS autostart installation."""
+    adapter = get_platform_adapter(cli_module=sys.modules[__name__])
+    adapter.install_autostart()
 
 
 def _install_windows_autostart():
-    """Add a startup shortcut or scheduled task on Windows."""
-    voxvera_bin = _find_voxvera_bin()
-    # Use Task Scheduler for a reliable boot-time trigger
-    task_name = "VoxVera Start All"
-    cmd = (
-        f'schtasks /Create /F /SC ONLOGON /TN "{task_name}" '
-        f'/TR "\"{voxvera_bin}\" start-all" /RL HIGHEST'
-    )
-    ret = os.system(cmd)
-    if ret == 0:
-        print(f"Windows scheduled task '{task_name}' created.")
-        print("Sites will start automatically on login.")
-        print(f'  Remove with: schtasks /Delete /TN "{task_name}" /F')
-    else:
-        print("Failed to create scheduled task. Try running as Administrator.")
+    """Backward-compatible wrapper for Windows autostart installation."""
+    adapter = get_platform_adapter(cli_module=sys.modules[__name__])
+    adapter.install_autostart()
 
 
 def manage_servers():
@@ -1696,6 +1784,8 @@ def manage_servers():
 
             try:
                 interactive_update(str(config_path))
+                if resolve_new_site_folder(str(config_path)) is None:
+                    continue
                 build_assets(str(config_path))
                 serve(str(config_path))
             except (KeyboardInterrupt, Exception) as e:
@@ -1888,13 +1978,19 @@ def main(argv=None):
         help="Skip interactive prompts and use existing config",
     )
     sub.add_parser("check", help="Check for required external dependencies")
+    p_doctor = sub.add_parser("doctor", help="Run platform-aware runtime diagnostics")
+    p_doctor.add_argument("--json", action="store_true", help="Emit machine-readable JSON")
+    p_platform_status = sub.add_parser("platform-status", help="Show detected platform support tier and runtime posture")
+    p_platform_status.add_argument("--json", action="store_true", help="Emit machine-readable JSON")
     sub.add_parser("vendorize", help="Download all dependencies into voxvera/vendor/ for portability")
     sub.add_parser("build-docs", help="Generate localized documentation from templates")
     sub.add_parser("build-site", help="Refresh the main site/ directory assets and bundle")
     sub.add_parser("manage", help="Manage VoxVera servers interactively")
     sub.add_parser("start-all", help="Start all configured sites (non-interactive)")
     sub.add_parser("stop-all", help="Stop all running sites (non-interactive)")
-    sub.add_parser("autostart", help="Install/remove a systemd user service to start sites on boot")
+    p_autostart = sub.add_parser("autostart", help="Install or inspect platform autostart support")
+    p_autostart.add_argument("action", nargs="?", choices=["install", "status"], default="install")
+    p_autostart.add_argument("--json", action="store_true", help="Emit machine-readable JSON for status")
     sub.add_parser("rebuild-all", help="Rebuild all existing sites from the current template (preserves keys and config)")
     sub.add_parser("_internal_onionshare", help=argparse.SUPPRESS)
 
@@ -1975,7 +2071,10 @@ def main(argv=None):
     elif args.command == "stop-all":
         stop_all_servers()
     elif args.command == "autostart":
-        install_autostart()
+        if args.action == "status":
+            print_autostart_status(json_output=args.json)
+        else:
+            install_autostart()
     elif args.command == "quickstart":
         if not args.non_interactive:
             if not sys.stdin.isatty():
@@ -1987,8 +2086,13 @@ def main(argv=None):
                 sys.exit(1)
             interactive_update(config_path)
         build_assets(config_path)
+        serve(config_path)
     elif args.command == "check":
         check_deps()
+    elif args.command == "doctor":
+        print_report("doctor", json_output=args.json)
+    elif args.command == "platform-status":
+        print_report("platform-status", json_output=args.json)
     elif args.command == "vendorize":
         vendorize()
     elif args.command == "build-docs":

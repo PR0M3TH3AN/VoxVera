@@ -6,6 +6,10 @@ This page collects common issues encountered when hosting or accessing flyers.
 - Ensure Tor is allowed through your firewall. On systems using `ufw` you may need to run `sudo ufw allow tor`.
 - Some networks block Tor entirely. If you cannot reach onion services, try connecting over a different network or use a Tor bridge.
 
+## Supported deployment target
+- The supported persistent-host setup is Linux with `systemd --user`.
+- Windows, macOS, Docker, Flatpak, AppImage, Homebrew, and Chocolatey are currently experimental and may not recover hosting automatically after reboot or network interruptions.
+
 ## Tor port detection
 
 `voxvera serve` auto-detects Tor by probing common ports (9050/9150 for SOCKS, 9051/9151 for control). If detection fails -- for example when Tor runs on non-standard ports -- you can override with environment variables:
@@ -38,6 +42,17 @@ The onion URL is tied to the Ed25519 keypair stored in
 keypair (and URL) will be generated on the next `voxvera serve`. The
 `voxvera import` command preserves this file automatically, but manual
 deletion of the `host/` directory will destroy it.
+
+## Hosting does not return after reboot or network loss
+On Linux, install or verify the recovery timer:
+
+```bash
+voxvera autostart
+systemctl --user status voxvera-start.timer
+systemctl --user status voxvera-start.service
+```
+
+The supported recovery path is the recurring `systemd --user` timer, which reruns `voxvera start-all` every few minutes.
 
 ## QR codes not generated
 If `voxvera build` reports "No URLs configured yet", this is expected before the first `voxvera serve`. QR codes for tear-off links are generated automatically once the .onion address is known. QR codes for the content link are generated if you provided a URL during `voxvera init`.

@@ -46,7 +46,9 @@ python3 -m voxvera.cli build-site
 
 ## 3. Build Distribution Binaries
 
-Standardized binaries and AppImages must be generated for the current platform.
+Linux CLI delivery is the supported deployment target today. Other package formats should be treated as experimental release artifacts until their Tor/OnionShare background-hosting behavior is validated end-to-end.
+Capture platform evidence before promoting any support tier: run `bash scripts/platform-smoke.sh linux-cli` locally for the supported Linux path, and keep CI/workflow evidence aligned with the same command.
+As other runtime targets mature, use `bash scripts/platform-smoke.sh macos-cli`, `bash scripts/platform-smoke.sh windows-cli`, or `bash scripts/platform-smoke.sh docker-cli` on their native environments before changing their support labels.
 
 ### Standard Binary
 Generates an architecture-specific binary (e.g., `voxvera-linux-x86_64`) in `voxvera/resources/bin/`.
@@ -60,24 +62,28 @@ Wraps the standard binary into a self-contained AppImage.
 ```bash
 ./packaging/build_appimage.sh
 ```
+Experimental package surface.
 
 ### Flatpak (Linux)
 Generates a standalone `.flatpak` bundle. Requires `flatpak-builder`.
 ```bash
 ./packaging/build_flatpak.sh
 ```
+Experimental package surface.
 
 ### Debian Package (Linux)
 Generates a `.deb` package for Debian/Ubuntu systems.
 ```bash
 ./packaging/build_deb.sh
 ```
+Experimental package surface unless its runtime dependencies and recovery behavior are explicitly validated for the release.
 
 ### DMG (macOS)
 Generates a `.dmg` installer for macOS (must be run on macOS).
 ```bash
 ./packaging/build_dmg.sh
 ```
+Experimental package surface.
 
 ## 4. Release Execution
 

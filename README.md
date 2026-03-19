@@ -10,11 +10,16 @@ Generate printable flyers with QR codes linking to Tor (.onion) hidden services.
 
 VoxVera is designed for maximum portability and censorship resistance.
 
+Linux with systemd is the supported persistent-host deployment target.
+Windows, macOS, Docker, Flatpak, AppImage, Homebrew, and Chocolatey remain experimental until their background Tor hosting and auto-recovery paths are validated end-to-end.
+
+See [docs/platform-support-matrix.md](docs/platform-support-matrix.md) for the canonical platform status table and [docs/roadmap-platform-parity.md](docs/roadmap-platform-parity.md) for the parity plan.
+
 ### 1. Standalone Binaries (Recommended)
-Download the zero-dependency executable for your OS:
+Download the executable for your OS:
 - 🐧 [**Linux**](https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera-linux)
-- 🪟 [**Windows**](https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera-windows.exe)
-- 🍏 [**macOS**](https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera-macos)
+- 🪟 [**Windows (Experimental)**](https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera-windows.exe)
+- 🍏 [**macOS (Experimental)**](https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera-macos)
 
 ### 2. Universal Mirroring (The "Viral" Method)
 If you found a physical VoxVera flyer, scan it and click **"Download"**. You will receive a `voxvera-portable.zip` containing the full tool, all dependencies, and all 14 languages—ready to run offline.
@@ -23,6 +28,7 @@ If you found a physical VoxVera flyer, scan it and click **"Download"**. You wil
 ```bash
 curl -fsSL https://raw.githubusercontent.com/PR0M3TH3AN/VoxVera/main/install.sh | bash
 ```
+On Linux, this now installs the recurring `systemd --user` recovery timer used to retry hidden-service startup after boot or offline periods. On macOS, the installer path is still experimental.
 
 ### 4. Developer / Python Install
 ```bash

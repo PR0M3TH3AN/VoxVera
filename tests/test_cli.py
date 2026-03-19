@@ -5,9 +5,15 @@ import json
 import zipfile
 import time
 import socket
+import platform
 from pathlib import Path
 import pytest
 from voxvera import cli
+from voxvera.platforms import get_platform_adapter
+from voxvera.platforms import base as platform_base
+from voxvera.platforms import linux as platform_linux
+from voxvera.platforms import macos as platform_macos
+from voxvera.platforms import windows as platform_windows
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -25,6 +31,7 @@ def _setup_tmp(monkeypatch, tmp_path):
     shutil.copytree(repo_root / "voxvera" / "src", res_root / "src")
     shutil.copytree(repo_root / "voxvera" / "locales", res_root / "locales")
     shutil.copytree(repo_root / "voxvera" / "templates", res_root / "templates")
+    shutil.copy(repo_root / "support-matrix.json", test_data_dir / "support-matrix.json")
     
     monkeypatch.setattr(cli, "ROOT", res_root)
     monkeypatch.setattr(cli, "DATA_DIR", test_data_dir)
@@ -44,6 +51,24 @@ def test_help(capsys):
     assert "usage:" in captured.out
 
 
+def test_get_platform_adapter_linux(monkeypatch):
+    monkeypatch.setattr(platform, "system", lambda: "Linux")
+    adapter = get_platform_adapter(cli_module=cli)
+    assert adapter.platform_id == "linux_cli_systemd"
+
+
+def test_get_platform_adapter_macos(monkeypatch):
+    monkeypatch.setattr(platform, "system", lambda: "Darwin")
+    adapter = get_platform_adapter(cli_module=cli)
+    assert adapter.platform_id == "macos_cli"
+
+
+def test_get_platform_adapter_windows(monkeypatch):
+    monkeypatch.setattr(platform, "system", lambda: "Windows")
+    adapter = get_platform_adapter(cli_module=cli)
+    assert adapter.platform_id == "windows_cli"
+
+
 def test_init_template(tmp_path, monkeypatch):
     _setup_tmp(monkeypatch, tmp_path)
     test_data_dir = tmp_path / "data"
@@ -54,6 +79,50 @@ def test_init_template(tmp_path, monkeypatch):
     assert dest.is_dir()
     assert (dest / "config.json").exists()
     assert (dest / "index.html").exists()
+
+
+def test_create_from_template_persists_current_language(tmp_path, monkeypatch):
+    _setup_tmp(monkeypatch, tmp_path)
+    cli.load_locale("es")
+
+    class _Prompt:
+        def execute(self):
+            return cli.list_presets()[0]
+
+    monkeypatch.setattr(cli.inquirer, "select", lambda **kwargs: _Prompt())
+    monkeypatch.setattr(cli, "interactive_update", lambda path: None)
+    monkeypatch.setattr(cli, "resolve_new_site_folder", lambda path: cli.load_config(path)["folder_name"])
+    monkeypatch.setattr(cli, "build_assets", lambda path: None)
+    monkeypatch.setattr(cli, "serve", lambda path: None)
+
+    cli.create_from_template(None)
+
+    config = cli.load_config(tmp_path / "data" / "config.json")
+    assert config["lang"] == "es"
+
+
+def test_resolve_new_site_folder_versions_existing_folder(tmp_path, monkeypatch):
+    _setup_tmp(monkeypatch, tmp_path)
+    test_data_dir = tmp_path / "data"
+    host_dir = test_data_dir / "host"
+    existing_dir = host_dir / "jesus"
+    existing_dir.mkdir(parents=True)
+    (existing_dir / "config.json").write_text(json.dumps({"folder_name": "jesus"}), encoding="utf-8")
+
+    config_path = test_data_dir / "config.json"
+    config_path.write_text(json.dumps({"folder_name": "jesus"}), encoding="utf-8")
+
+    class _Prompt:
+        def execute(self):
+            return "version"
+
+    monkeypatch.setattr(cli.inquirer, "select", lambda **kwargs: _Prompt())
+
+    resolved = cli.resolve_new_site_folder(str(config_path))
+    updated = cli.load_config(config_path)
+
+    assert resolved == "jesus_01"
+    assert updated["folder_name"] == "jesus_01"
 
 
 def test_build(tmp_path, monkeypatch):
@@ -74,6 +143,26 @@ def test_build_with_download(tmp_path, monkeypatch):
     test_data_dir = tmp_path / "data"
     dest = test_data_dir / "host" / "voxvera" / "download" / "extra-content.zip"
     assert dest.is_file()
+
+
+def test_build_generates_tear_off_qr_from_url_when_onion_missing(tmp_path, monkeypatch):
+    _setup_tmp(monkeypatch, tmp_path)
+    test_data_dir = tmp_path / "data"
+    config_path = test_data_dir / "config.json"
+    config = cli.load_config(config_path)
+    config["url"] = "https://example.com/learn-more"
+    config["tear_off_link"] = ""
+    cli.save_config(config, config_path)
+
+    cli.build_assets(str(config_path))
+
+    dest = test_data_dir / "host" / config["folder_name"]
+    html = (dest / "index.html").read_text(encoding="utf-8")
+
+    assert (dest / "qrcode-content.png").exists()
+    assert (dest / "qrcode-tear-offs.png").exists()
+    assert 'class="container no-tear-offs"' not in html
+    assert "https://example.com/learn-more" in html
 
 
 def test_import(tmp_path, monkeypatch):
@@ -174,6 +263,155 @@ def test_check_missing(capsys, monkeypatch):
     assert "missing" in captured.out
 
 
+def test_doctor_command_outputs_platform_report(tmp_path, monkeypatch, capsys):
+    _setup_tmp(monkeypatch, tmp_path)
+    monkeypatch.setattr(platform, "system", lambda: "Linux")
+    monkeypatch.setattr(shutil, "which", lambda cmd: f"/usr/bin/{cmd}" if cmd in {"voxvera", "tor", "onionshare-cli", "systemctl"} else None)
+
+    class FakeSocket:
+        def settimeout(self, value):
+            return None
+
+        def connect_ex(self, addr):
+            return 0
+
+        def close(self):
+            return None
+
+    def fake_check_output(args, stderr=None):
+        if "is-enabled" in args:
+            return b"enabled"
+        if "is-active" in args:
+            return b"active"
+        raise AssertionError(args)
+
+    monkeypatch.setattr(platform_linux.socket, "socket", lambda *args, **kwargs: FakeSocket())
+    monkeypatch.setattr(platform_base.subprocess, "check_output", fake_check_output)
+    cli.main(["doctor"])
+    captured = capsys.readouterr()
+    assert "VoxVera Doctor" in captured.out
+    assert "linux_cli_systemd" in captured.out
+
+
+def test_doctor_json_output(tmp_path, monkeypatch, capsys):
+    _setup_tmp(monkeypatch, tmp_path)
+    monkeypatch.setattr(platform, "system", lambda: "Linux")
+    monkeypatch.setattr(shutil, "which", lambda cmd: f"/usr/bin/{cmd}" if cmd in {"voxvera", "tor", "onionshare-cli"} else None)
+
+    class FakeSocket:
+        def settimeout(self, value):
+            return None
+
+        def connect_ex(self, addr):
+            return 0
+
+        def close(self):
+            return None
+
+    monkeypatch.setattr(platform_linux.socket, "socket", lambda *args, **kwargs: FakeSocket())
+    monkeypatch.setattr(platform_base.subprocess, "check_output", lambda *args, **kwargs: b"disabled")
+
+    cli.main(["doctor", "--json"])
+    captured = capsys.readouterr()
+    report = json.loads(captured.out)
+    assert report["platform_id"] == "linux_cli_systemd"
+    assert "checks" in report
+
+
+def test_platform_status_json_output(tmp_path, monkeypatch, capsys):
+    _setup_tmp(monkeypatch, tmp_path)
+    monkeypatch.setattr(platform, "system", lambda: "Linux")
+
+    cli.main(["platform-status", "--json"])
+    captured = capsys.readouterr()
+    report = json.loads(captured.out)
+    assert report["platform_id"] == "linux_cli_systemd"
+    assert report["hosting_model"]
+    assert "checks" not in report
+
+
+def test_autostart_status_command_outputs_timer_state(tmp_path, monkeypatch, capsys):
+    _setup_tmp(monkeypatch, tmp_path)
+    fake_home = tmp_path / "home"
+    monkeypatch.setattr(platform, "system", lambda: "Linux")
+    monkeypatch.setattr(platform_base.Path, "home", lambda: fake_home)
+    systemd_dir = fake_home / ".config" / "systemd" / "user"
+    systemd_dir.mkdir(parents=True, exist_ok=True)
+    (systemd_dir / "voxvera-start.service").write_text("service", encoding="utf-8")
+    (systemd_dir / "voxvera-start.timer").write_text("timer", encoding="utf-8")
+
+    def fake_check_output(args, stderr=None):
+        if "is-enabled" in args:
+            return b"enabled"
+        if "is-active" in args:
+            return b"active"
+        raise AssertionError(args)
+
+    monkeypatch.setattr(shutil, "which", lambda cmd: f"/usr/bin/{cmd}" if cmd == "systemctl" else None)
+    monkeypatch.setattr(platform_base.subprocess, "check_output", fake_check_output)
+
+    cli.main(["autostart", "status"])
+    captured = capsys.readouterr()
+    assert "Autostart Status" in captured.out
+    assert "systemd_timer_enabled" in captured.out
+
+
+def test_autostart_status_json_output(tmp_path, monkeypatch, capsys):
+    _setup_tmp(monkeypatch, tmp_path)
+    fake_home = tmp_path / "home"
+    monkeypatch.setattr(platform, "system", lambda: "Linux")
+    monkeypatch.setattr(platform_base.Path, "home", lambda: fake_home)
+    systemd_dir = fake_home / ".config" / "systemd" / "user"
+    systemd_dir.mkdir(parents=True, exist_ok=True)
+    (systemd_dir / "voxvera-start.service").write_text("service", encoding="utf-8")
+    (systemd_dir / "voxvera-start.timer").write_text("timer", encoding="utf-8")
+    monkeypatch.setattr(shutil, "which", lambda cmd: f"/usr/bin/{cmd}" if cmd == "systemctl" else None)
+    monkeypatch.setattr(platform_base.subprocess, "check_output", lambda *args, **kwargs: b"enabled")
+
+    cli.main(["autostart", "status", "--json"])
+    captured = capsys.readouterr()
+    status = json.loads(captured.out)
+    assert status["platform_id"] == "linux_cli_systemd"
+    assert len(status["artifacts"]) == 2
+
+
+def test_macos_autostart_status_and_render(tmp_path, monkeypatch):
+    _setup_tmp(monkeypatch, tmp_path)
+    fake_home = tmp_path / "home"
+    monkeypatch.setattr(platform, "system", lambda: "Darwin")
+    monkeypatch.setattr(platform_base.Path, "home", lambda: fake_home)
+
+    adapter = get_platform_adapter(cli_module=cli)
+    assert adapter.platform_id == "macos_cli"
+
+    plist = adapter.render_launchd_plist("/tmp/voxvera")
+    assert "org.voxvera.start-all" in plist
+    assert "<string>/tmp/voxvera</string>" in plist
+    assert "start-all" in plist
+
+    status = adapter.autostart_status()
+    assert status["platform_id"] == "macos_cli"
+    assert status["artifacts"] == [str(fake_home / "Library" / "LaunchAgents" / "org.voxvera.start-all.plist")]
+    assert any(check["name"] == "launchd_loaded" for check in status["checks"])
+
+
+def test_windows_autostart_status_and_render(monkeypatch):
+    monkeypatch.setattr(platform, "system", lambda: "Windows")
+    monkeypatch.setattr(platform_base.subprocess, "check_output", lambda *args, **kwargs: b"TaskName: VoxVera Start All")
+
+    adapter = get_platform_adapter(cli_module=cli)
+    assert adapter.platform_id == "windows_cli"
+
+    command = adapter.render_schtasks_create_command("C:\\voxvera.exe")
+    assert command[:6] == ["schtasks", "/Create", "/F", "/SC", "ONLOGON", "/TN"]
+    assert "VoxVera Start All" in command
+    assert '"C:\\voxvera.exe" start-all' in command
+
+    status = adapter.autostart_status()
+    assert status["platform_id"] == "windows_cli"
+    assert any(check["name"] == "scheduled_task_present" for check in status["checks"])
+
+
 def test_build_download_zip(tmp_path, monkeypatch):
     _setup_tmp(monkeypatch, tmp_path)
     res_root = tmp_path / "data" / "voxvera"
@@ -246,7 +484,7 @@ def test_serve_updates_url(tmp_path, monkeypatch):
 
 
 def test_quickstart_noninteractive(tmp_path, monkeypatch):
-    """Test quickstart auto-generates onion URL for tear-off links."""
+    """Test quickstart builds and serves in one command."""
     _setup_tmp(monkeypatch, tmp_path)
     res_root = tmp_path / "data" / "voxvera"
     test_data_dir = tmp_path / "data"
@@ -287,8 +525,6 @@ def test_quickstart_noninteractive(tmp_path, monkeypatch):
     monkeypatch.setattr(cli, "choose_language", lambda *a: "en")
     config_path = test_data_dir / "config.json"
     cli.main(["quickstart", "--non-interactive"])
-    # quickstart no longer calls serve, so we call it manually to test URL update
-    cli.serve(str(config_path))
 
     dir_path = test_data_dir / "host" / folder_name
     assert (dir_path / "index.html").exists()
@@ -298,6 +534,30 @@ def test_quickstart_noninteractive(tmp_path, monkeypatch):
     # tear_off_link should be set to onion address (for tear-off tabs)
     assert updated["tear_off_link"] == onion_url
     # url should be preserved (user-configured content link)
+    assert updated["url"] == config["url"]
+
+
+def test_install_systemd_autostart_writes_recovery_timer(tmp_path, monkeypatch):
+    """Test Linux autostart installs a recurring recovery service and timer."""
+    commands = []
+
+    monkeypatch.setattr(platform, "system", lambda: "Linux")
+    monkeypatch.setattr(platform_linux.Path, "home", lambda: tmp_path)
+    monkeypatch.setattr(cli, "_find_voxvera_bin", lambda: "/tmp/voxvera")
+    monkeypatch.setattr(platform_linux.subprocess, "run", lambda args, **kwargs: commands.append(args))
+    monkeypatch.setenv("USER", "tester")
+
+    cli._install_systemd_autostart()
+
+    service_dir = tmp_path / ".config" / "systemd" / "user"
+    service_text = (service_dir / "voxvera-start.service").read_text(encoding="utf-8")
+    timer_text = (service_dir / "voxvera-start.timer").read_text(encoding="utf-8")
+
+    assert "ExecStart=/tmp/voxvera start-all" in service_text
+    assert "OnUnitActiveSec=5min" in timer_text
+    assert "Persistent=true" in timer_text
+    assert any(args[:4] == ["systemctl", "--user", "enable", "--now"] and args[4] == "voxvera-start.timer" for args in commands)
+    assert any(args[:4] == ["systemctl", "--user", "start", "voxvera-start.service"] for args in commands)
 
 
 def test_get_tor_ports_with_env_vars(monkeypatch):
@@ -387,7 +647,7 @@ def test_build_injects_localized_tor_browser_download_links(tmp_path, monkeypatc
 
 
 def test_build_with_only_url(tmp_path, monkeypatch):
-    """Test that QR codes work when only url (content link) is set."""
+    """Test that the main URL also populates tear-off rendering before onion setup."""
     _setup_tmp(monkeypatch, tmp_path)
 
     # Set only url (content link)
@@ -407,9 +667,11 @@ def test_build_with_only_url(tmp_path, monkeypatch):
 
     test_data_dir = tmp_path / "data"
     dest = test_data_dir / "host" / config["folder_name"]
-    # Only content QR should exist (tear-off will be set by serve)
+    html = (dest / "index.html").read_text(encoding="utf-8")
     assert (dest / "qrcode-content.png").exists()
-    assert not (dest / "qrcode-tear-offs.png").exists()
+    assert (dest / "qrcode-tear-offs.png").exists()
+    assert 'class="container no-tear-offs"' not in html
+    assert "https://example.com/external-resource" in html
 
 
 def test_build_with_only_tear_off_link(tmp_path, monkeypatch):

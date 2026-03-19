@@ -8,6 +8,43 @@ from voxvera import cli
 # Helper to find project root
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
+
+def test_support_matrix_exists_and_matches_docs():
+    support_matrix_path = REPO_ROOT / "support-matrix.json"
+    support_doc_path = REPO_ROOT / "docs" / "platform-support-matrix.md"
+
+    assert support_matrix_path.exists()
+    assert support_doc_path.exists()
+
+    support_data = json.loads(support_matrix_path.read_text(encoding="utf-8"))
+    assert support_data["default_supported_target"] == "linux_cli_systemd"
+    assert any(platform["tier"] == "supported" for platform in support_data["platforms"])
+    assert any(platform["id"] == "windows_cli" for platform in support_data["platforms"])
+
+    support_doc = support_doc_path.read_text(encoding="utf-8")
+    assert "Linux CLI with `systemd --user`" in support_doc
+    assert "Experimental" in support_doc
+
+
+def test_platform_smoke_is_wired_into_validation_surfaces():
+    smoke_script = REPO_ROOT / "scripts" / "platform-smoke.sh"
+    ci_workflow = (REPO_ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    e2e_script = (REPO_ROOT / "ci" / "test-e2e.sh").read_text(encoding="utf-8")
+    binaries_workflow = (REPO_ROOT / ".github" / "workflows" / "binaries.yml").read_text(encoding="utf-8")
+    smoke_text = smoke_script.read_text(encoding="utf-8")
+
+    assert smoke_script.exists()
+    assert "scripts/platform-smoke.sh linux-cli" in ci_workflow
+    assert "scripts/platform-smoke.sh linux-cli" in e2e_script
+    assert "platform-status --json" in ci_workflow
+    assert "doctor --json" in ci_workflow
+    assert "autostart status --json" in ci_workflow
+    assert "platform-status --json" in binaries_workflow
+    assert "doctor --json" in binaries_workflow
+    assert "autostart status --json" in binaries_workflow
+    for target in ("linux-cli", "macos-cli", "windows-cli", "docker-cli"):
+        assert target in smoke_text
+
 def test_locale_completeness():
     """Verify that all non-English locales have the same keys as English."""
     locales_dir = REPO_ROOT / "voxvera" / "locales"

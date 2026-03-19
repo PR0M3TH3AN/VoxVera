@@ -4,6 +4,7 @@ set -euo pipefail
 REPO="PR0M3TH3AN/VoxVera"
 REPO_URL="https://github.com/${REPO}"
 BRANCH="main"
+OS_NAME="$(uname -s | tr '[:upper:]' '[:lower:]')"
 
 # --- Network resilience settings ---
 # Kill git operations that stall below 1 KB/s for 30 seconds
@@ -48,6 +49,45 @@ fi
 msg() { echo -e "\e[32m$*\e[0m"; }
 warn() { echo -e "\e[33m$*\e[0m" >&2; }
 die() { echo -e "\e[31m$*\e[0m" >&2; exit 1; }
+
+report_cli_status() {
+  command_exists voxvera || return 0
+
+  local platform_json doctor_json autostart_json
+  platform_json="$(voxvera platform-status --json 2>/dev/null || true)"
+  doctor_json="$(voxvera doctor --json 2>/dev/null || true)"
+  autostart_json="$(voxvera autostart status --json 2>/dev/null || true)"
+
+  if [ -n "$platform_json" ]; then
+    PLATFORM_JSON="$platform_json" python3 - <<'PY'
+import json, os
+data = json.loads(os.environ["PLATFORM_JSON"])
+print(f"Platform tier: {data.get('tier', 'unknown')} ({data.get('label', 'unknown')})")
+if data.get("hosting_model"):
+    print(f"Hosting model: {data['hosting_model']}")
+PY
+  fi
+
+  if [ -n "$doctor_json" ]; then
+    DOCTOR_JSON="$doctor_json" python3 - <<'PY'
+import json, os
+data = json.loads(os.environ["DOCTOR_JSON"])
+failed = [check["name"] for check in data.get("checks", []) if not check.get("ok")]
+if failed:
+    print("Doctor checks needing attention: " + ", ".join(failed))
+else:
+    print("Doctor checks: all passed")
+PY
+  fi
+
+  if [ -n "$autostart_json" ]; then
+    AUTOSTART_JSON="$autostart_json" python3 - <<'PY'
+import json, os
+data = json.loads(os.environ["AUTOSTART_JSON"])
+print("Autostart: " + data.get("message", "unknown"))
+PY
+  fi
+}
 
 install_pkg() {
   case "$PM" in
@@ -108,6 +148,9 @@ get_latest_tag() {
 
 # Ensure core dependencies are present
 msg "Checking and updating system dependencies..."
+if [[ "$OS_NAME" != linux* ]]; then
+  warn "This installer is optimized for Linux. Non-Linux paths are experimental and are not validated for reliable background hidden-service hosting."
+fi
 if [ "$PM" = "apt" ]; then
   $SUDO apt-get update
   SYSTEM_PKGS=(tor curl wget git python3-pip python3-venv)
@@ -386,9 +429,20 @@ for strategy in install_tarball install_shallow install_pipx install_pip_git ins
     if command_exists voxvera; then
       msg "Rebuilding existing sites with updated template..."
       voxvera rebuild-all 2>/dev/null || true
+      if [[ "$OS_NAME" == linux* ]]; then
+        msg "Installing Linux autostart recovery timer..."
+        voxvera autostart 2>/dev/null || warn "Could not install the VoxVera autostart timer automatically. Run 'voxvera autostart' manually."
+      else
+        warn "Autostart was not configured automatically because this platform is experimental."
+      fi
+      msg "Inspecting installed runtime posture..."
+      report_cli_status
     fi
 
     msg "\nVoxVera installed/updated successfully. Run 'voxvera check' to verify."
+    if [[ "$OS_NAME" == linux* ]]; then
+      msg "Linux systemd user autostart should now retry hidden-service startup every few minutes."
+    fi
     # Detect if the parent shell will still have a stale hash
     msg "If 'voxvera' is not found, run:  hash -r  (or open a new terminal)"
     exit 0

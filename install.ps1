@@ -1,6 +1,8 @@
 $ErrorActionPreference = 'Stop'
 
-$packages = @('tor', 'onionshare', 'jq', 'qrencode', 'imagemagick')
+Write-Warning 'The Windows installer path is experimental. It is not yet validated for reliable background Tor hidden-service hosting or automatic recovery after connectivity changes.'
+
+$packages = @('tor', 'onionshare')
 
 function Install-Choco {
     param([string]$Name)
@@ -76,6 +78,41 @@ function Check-LocalBin {
     }
 }
 
+function Show-VoxVeraStatus {
+    if (-not (Get-Command voxvera -ErrorAction SilentlyContinue)) {
+        return
+    }
+
+    try {
+        $platform = voxvera platform-status --json | ConvertFrom-Json
+        Write-Host ("Platform tier: {0} ({1})" -f $platform.tier, $platform.label)
+        if ($platform.hosting_model) {
+            Write-Host ("Hosting model: {0}" -f $platform.hosting_model)
+        }
+    } catch {
+        Write-Warning "Could not read platform status from voxvera."
+    }
+
+    try {
+        $doctor = voxvera doctor --json | ConvertFrom-Json
+        $failed = @($doctor.checks | Where-Object { -not $_.ok } | ForEach-Object { $_.name })
+        if ($failed.Count -gt 0) {
+            Write-Host ("Doctor checks needing attention: {0}" -f ($failed -join ', '))
+        } else {
+            Write-Host 'Doctor checks: all passed'
+        }
+    } catch {
+        Write-Warning "Could not read doctor output from voxvera."
+    }
+
+    try {
+        $autostart = voxvera autostart status --json | ConvertFrom-Json
+        Write-Host ("Autostart: {0}" -f $autostart.message)
+    } catch {
+        Write-Warning "Could not read autostart status from voxvera."
+    }
+}
+
 if (Get-Command pipx -ErrorAction SilentlyContinue) {
     try {
         pipx install voxvera --force
@@ -84,7 +121,7 @@ if (Get-Command pipx -ErrorAction SilentlyContinue) {
         $home = [Environment]::GetFolderPath('UserProfile')
         $dest = Join-Path $home '.local\bin'
         New-Item -ItemType Directory -Path $dest -Force | Out-Null
-        $url = 'https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera.exe'
+        $url = 'https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera-windows.exe'
         $status = Download-Binary $url "$dest/voxvera.exe"
         if ($status -eq 200) {
             Check-LocalBin
@@ -100,7 +137,7 @@ if (Get-Command pipx -ErrorAction SilentlyContinue) {
     $home = [Environment]::GetFolderPath('UserProfile')
     $dest = Join-Path $home '.local\bin'
     New-Item -ItemType Directory -Path $dest -Force | Out-Null
-    $url = 'https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera.exe'
+    $url = 'https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera-windows.exe'
     $status = Download-Binary $url "$dest/voxvera.exe"
     if ($status -eq 200) {
         Check-LocalBin
@@ -114,3 +151,4 @@ if (Get-Command pipx -ErrorAction SilentlyContinue) {
 }
 
 Write-Host 'VoxVera installed successfully.'
+Show-VoxVeraStatus

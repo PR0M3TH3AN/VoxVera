@@ -26,6 +26,9 @@ fi
 
 echo "VoxVera command: $voxvera_cmd"
 
+echo "Checking platform contract before workflow..."
+bash scripts/platform-smoke.sh linux-cli
+
 # Generate demo flyer
 echo "Initializing demo flyer..."
 "$voxvera_cmd" --lang en init --template voxvera <<EOI
@@ -103,6 +106,9 @@ if [ "${VOXVERA_E2E_OFFLINE:-}" != "1" ]; then
     kill ${TOR_PID:-} || true
     exit 1
   fi
+
+  echo "Checking platform contract with live Tor..."
+  VOXVERA_REQUIRE_TOR=1 bash scripts/platform-smoke.sh linux-cli
 
   # Start OnionShare
   echo "Starting OnionShare..."

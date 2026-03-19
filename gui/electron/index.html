@@ -4,6 +4,36 @@
   <meta charset="UTF-8">
   <title>VoxVera GUI</title>
   <style>
+    body {
+      font-family: sans-serif;
+      margin: 1rem;
+    }
+    #status {
+      border: 1px solid #ccc;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      background: #fafafa;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 0.15rem 0.4rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    .status-supported {
+      background: #dff3e4;
+      color: #14532d;
+    }
+    .status-experimental {
+      background: #fff4d6;
+      color: #854d0e;
+    }
+    .status-error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
     #log {
       border: 1px solid #ccc;
       padding: 5px;
@@ -16,6 +46,13 @@
 </head>
 <body>
   <h1>VoxVera</h1>
+  <div id="status">
+    <strong>Runtime status</strong>
+    <div id="platform-tier"></div>
+    <div id="platform-model"></div>
+    <div id="autostart-state"></div>
+    <div id="doctor-summary"></div>
+  </div>
   <form id="config-form">
     <div><label>Name <input type="text" id="name"></label></div>
     <div><label>Subdomain <input type="text" id="folder_name"></label></div>
@@ -32,12 +69,49 @@
   <p id="onion-address"></p>
   <pre id="log"></pre>
   <script>
+    function setStatusBadge(targetId, label, tier) {
+      const el = document.getElementById(targetId);
+      const className = tier === 'supported' ? 'status-supported'
+        : tier === 'experimental' ? 'status-experimental'
+        : 'status-error';
+      el.innerHTML = `<span class="status-badge ${className}">${label}</span>`;
+    }
+
+    function summarizeDoctorChecks(checks) {
+      if (!Array.isArray(checks) || checks.length === 0) return 'No diagnostics available.';
+      const failed = checks.filter(check => !check.ok);
+      if (failed.length === 0) return 'All doctor checks passed.';
+      return `Doctor reports ${failed.length} failing check(s): ${failed.map(check => check.name).join(', ')}`;
+    }
+
+    async function loadRuntimeStatus() {
+      const runtime = await window.voxvera.loadRuntimeStatus();
+      if (!runtime.ok) {
+        setStatusBadge('platform-tier', 'error', 'error');
+        document.getElementById('platform-model').textContent = runtime.error;
+        document.getElementById('autostart-state').textContent = '';
+        document.getElementById('doctor-summary').textContent = '';
+        return;
+      }
+
+      const { platformStatus, autostart, doctor } = runtime;
+      setStatusBadge('platform-tier', platformStatus.tier, platformStatus.tier);
+      document.getElementById('platform-model').textContent = platformStatus.hosting_model || '';
+      if (autostart && !autostart.error) {
+        document.getElementById('autostart-state').textContent = `Autostart: ${autostart.message}`;
+      } else if (autostart && autostart.error) {
+        document.getElementById('autostart-state').textContent = `Autostart status unavailable: ${autostart.error}`;
+      }
+      document.getElementById('doctor-summary').textContent = summarizeDoctorChecks(doctor.checks);
+    }
+
     async function load() {
       const cfg = await window.voxvera.loadConfig();
       for (const [k, v] of Object.entries(cfg)) {
         const el = document.getElementById(k);
         if (el) el.value = v;
       }
+      await loadRuntimeStatus();
     }
     document.addEventListener('DOMContentLoaded', load);
 
@@ -49,6 +123,7 @@
         if (el) cfg[id] = el.value;
       });
       await window.voxvera.quickstart(cfg);
+      await loadRuntimeStatus();
     });
 
     window.voxvera.onOnionUrl(url => {

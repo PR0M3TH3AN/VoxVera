@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
+echo "Warning: DMG packaging is experimental and is not yet validated for reliable background hidden-service hosting."
+
 # Ensure we are in project root
 cd "$(dirname "$0")/.."
 

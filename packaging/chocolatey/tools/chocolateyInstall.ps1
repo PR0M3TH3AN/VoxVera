@@ -1,3 +1,4 @@
+# Experimental package surface: not yet validated for reliable background hidden-service hosting.
 $toolsDir   = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $url        = 'https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera-windows.exe'
 

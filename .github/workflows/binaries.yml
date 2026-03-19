@@ -74,6 +74,22 @@ jobs:
             --name "${{ matrix.artifact_name }}" \
             voxvera/cli.py
 
+      - name: Validate built binary contract surface (Linux/macOS)
+        if: matrix.os != 'windows-latest'
+        shell: bash
+        run: |
+          ./dist/${{ matrix.artifact_name }} platform-status --json
+          ./dist/${{ matrix.artifact_name }} doctor --json
+          ./dist/${{ matrix.artifact_name }} autostart status --json
+
+      - name: Validate built binary contract surface (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          & ".\dist\${{ matrix.artifact_name }}" platform-status --json
+          & ".\dist\${{ matrix.artifact_name }}" doctor --json
+          & ".\dist\${{ matrix.artifact_name }}" autostart status --json
+
       - name: Build .deb (Linux)
         if: matrix.os == 'ubuntu-22.04'
         run: |

@@ -1,5 +1,8 @@
 FROM python:3.11-slim
 
+# Experimental container path: Linux systemd remains the supported
+# persistent-host deployment target.
+
 # Install system dependencies (only runtime)
 RUN apt-get update && apt-get install -y \
     tor onionshare-cli \
@@ -13,10 +16,9 @@ WORKDIR /opt/voxvera
 RUN pip install .
 
 # Prepare flyers volume
-RUN mkdir /flyers && ln -s /flyers /opt/voxvera/host
+RUN mkdir /flyers
+ENV VOXVERA_DIR=/flyers
 VOLUME /flyers
 
-# VoxVera expects to run in /opt/voxvera for local assets
-WORKDIR /opt/voxvera
-
-CMD ["voxvera", "quickstart"]
+# Seed a default config when the volume is empty, then retry startup periodically.
+CMD ["sh", "-lc", "mkdir -p /flyers && if [ ! -f /flyers/config.json ]; then cp /opt/voxvera/voxvera/src/config.json /flyers/config.json; fi && voxvera quickstart --non-interactive && while true; do sleep 300; voxvera start-all || true; done"]

@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
+echo "Warning: Debian packaging is currently experimental until runtime dependencies and hidden-service recovery are validated end-to-end."
+
 # Ensure we are in project root
 cd "$(dirname "$0")/.."
 

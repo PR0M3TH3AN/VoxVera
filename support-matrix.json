@@ -1,0 +1,156 @@
+{
+  "generated_at": "2026-03-19",
+  "default_supported_target": "linux_cli_systemd",
+  "support_tiers": {
+    "supported": "Validated for persistent hidden-service hosting with documented recovery behavior.",
+    "beta": "Feature-complete enough for broader testing, but not yet validated for production-grade recovery claims.",
+    "experimental": "May install or run, but is not yet validated for reliable background hidden-service hosting.",
+    "unsupported": "Not currently a target for reliable hosting."
+  },
+  "platforms": [
+    {
+      "id": "linux_cli_systemd",
+      "label": "Linux CLI with systemd --user",
+      "tier": "supported",
+      "hosting_model": "System Tor or Tor Browser plus onionshare-cli, with VoxVera-managed recurring systemd user timer recovery.",
+      "distribution_surfaces": [
+        "install.sh",
+        "voxvera-install.sh",
+        "pip/pipx",
+        "linux binary"
+      ],
+      "required_capabilities": [
+        "manual_build_and_serve",
+        "persistent_onion_identity",
+        "background_recovery_after_boot",
+        "background_recovery_after_offline_periods",
+        "inspectable_logs"
+      ],
+      "current_notes": [
+        "Canonical deployment target.",
+        "Systemd user timer retries start-all every few minutes."
+      ],
+      "next_gaps": [
+        "Real-machine reboot and network-loss validation evidence should be captured in CI/docs."
+      ]
+    },
+    {
+      "id": "docker_cli",
+      "label": "Docker CLI container",
+      "tier": "experimental",
+      "hosting_model": "Containerized VoxVera runtime with state under /flyers and periodic start-all retries.",
+      "distribution_surfaces": [
+        "Dockerfile",
+        "ghcr image"
+      ],
+      "required_capabilities": [
+        "persistent_onion_identity",
+        "restart_policy_integration",
+        "validated_state_volume_layout"
+      ],
+      "current_notes": [
+        "State now routes through VOXVERA_DIR=/flyers.",
+        "Not yet validated as a production-grade hidden-service host."
+      ],
+      "next_gaps": [
+        "Decide whether the canonical model is single-container or compose-based.",
+        "Validate restart behavior with real container restart policies."
+      ]
+    },
+    {
+      "id": "macos_cli",
+      "label": "macOS CLI",
+      "tier": "experimental",
+      "hosting_model": "CLI runtime with launchd autostart path and external Tor/OnionShare dependencies.",
+      "distribution_surfaces": [
+        "install.sh",
+        "pip/pipx",
+        "macOS binary",
+        "DMG"
+      ],
+      "required_capabilities": [
+        "manual_build_and_serve",
+        "launchd_recovery",
+        "persistent_onion_identity"
+      ],
+      "current_notes": [
+        "Installer and autostart warnings are explicit.",
+        "No validated background recovery claim."
+      ],
+      "next_gaps": [
+        "Define the canonical Tor/OnionShare discovery model.",
+        "Validate launchd behavior after login, reboot, and offline periods."
+      ]
+    },
+    {
+      "id": "windows_cli",
+      "label": "Windows CLI",
+      "tier": "experimental",
+      "hosting_model": "CLI runtime with Task Scheduler autostart path and external Tor/OnionShare dependencies.",
+      "distribution_surfaces": [
+        "install.ps1",
+        "windows binary",
+        "Chocolatey"
+      ],
+      "required_capabilities": [
+        "manual_build_and_serve",
+        "task_scheduler_recovery",
+        "persistent_onion_identity",
+        "consistent_binary_naming"
+      ],
+      "current_notes": [
+        "Installer warnings are explicit.",
+        "Packaging surfaces are not yet trustworthy for hosting claims."
+      ],
+      "next_gaps": [
+        "Unify binary naming and installer expectations.",
+        "Define canonical Tor and OnionShare discovery on Windows.",
+        "Validate restart behavior after reboot and reconnect."
+      ]
+    },
+    {
+      "id": "electron_gui",
+      "label": "Electron GUI",
+      "tier": "experimental",
+      "hosting_model": "GUI frontend over the CLI runtime.",
+      "distribution_surfaces": [
+        "gui/electron"
+      ],
+      "required_capabilities": [
+        "shared_runtime_contract_with_cli",
+        "status_visibility",
+        "non-destructive_window_close_behavior"
+      ],
+      "current_notes": [
+        "GUI is documented as experimental."
+      ],
+      "next_gaps": [
+        "Remove duplicate runtime logic where possible.",
+        "Ensure GUI is a controller over supported runtime surfaces, not a separate hosting model."
+      ]
+    },
+    {
+      "id": "flatpak_appimage_homebrew_chocolatey",
+      "label": "Package-only surfaces",
+      "tier": "experimental",
+      "hosting_model": "Artifact distribution only until runtime parity exists.",
+      "distribution_surfaces": [
+        "Flatpak",
+        "AppImage",
+        "Homebrew",
+        "Chocolatey",
+        "Debian package"
+      ],
+      "required_capabilities": [
+        "runtime_dependency_model",
+        "support-tier-specific_release_checks"
+      ],
+      "current_notes": [
+        "All are now explicitly marked experimental."
+      ],
+      "next_gaps": [
+        "Do not promote any package surface until the underlying platform runtime is validated."
+      ]
+    }
+  ]
+}

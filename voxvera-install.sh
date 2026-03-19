@@ -4,6 +4,7 @@
 # Installs Tor + OnionShare and VoxVera itself.
 # --------------------------------------------------------------------
 set -euo pipefail
+OS_NAME="$(uname -s | tr '[:upper:]' '[:lower:]')"
 
 ## -------- helper functions -----------------------------------------
 command_exists() { command -v "$1" &>/dev/null; }
@@ -11,6 +12,45 @@ command_exists() { command -v "$1" &>/dev/null; }
 msg()   { printf "\e[32m%s\e[0m\n" "$*"; }
 warn()  { printf "\e[33m%s\e[0m\n" "$*" >&2; }
 die()   { printf "\e[31mERROR: %s\e[0m\n" "$*" >&2; exit 1; }
+
+report_cli_status() {
+  command_exists voxvera || return 0
+
+  local platform_json doctor_json autostart_json
+  platform_json="$(voxvera platform-status --json 2>/dev/null || true)"
+  doctor_json="$(voxvera doctor --json 2>/dev/null || true)"
+  autostart_json="$(voxvera autostart status --json 2>/dev/null || true)"
+
+  if [ -n "$platform_json" ]; then
+    PLATFORM_JSON="$platform_json" python3 - <<'PY'
+import json, os
+data = json.loads(os.environ["PLATFORM_JSON"])
+print(f"Platform tier: {data.get('tier', 'unknown')} ({data.get('label', 'unknown')})")
+if data.get("hosting_model"):
+    print(f"Hosting model: {data['hosting_model']}")
+PY
+  fi
+
+  if [ -n "$doctor_json" ]; then
+    DOCTOR_JSON="$doctor_json" python3 - <<'PY'
+import json, os
+data = json.loads(os.environ["DOCTOR_JSON"])
+failed = [check["name"] for check in data.get("checks", []) if not check.get("ok")]
+if failed:
+    print("Doctor checks needing attention: " + ", ".join(failed))
+else:
+    print("Doctor checks: all passed")
+PY
+  fi
+
+  if [ -n "$autostart_json" ]; then
+    AUTOSTART_JSON="$autostart_json" python3 - <<'PY'
+import json, os
+data = json.loads(os.environ["AUTOSTART_JSON"])
+print("Autostart: " + data.get("message", "unknown"))
+PY
+  fi
+}
 
 # Detect sudo/root
 if command_exists sudo; then
@@ -31,6 +71,9 @@ else die "Unsupported distro – can't find apt/yum/dnf/pacman/apk."
 fi
 
 msg ">> Detected package manager: $PM"
+if [[ "$OS_NAME" != linux* ]]; then
+  warn "This installer is experimental outside Linux and is not validated for reliable background hidden-service hosting."
+fi
 
 ## -------- install system packages ----------------------------------
 msg ">> Installing system dependencies..."
@@ -142,12 +185,25 @@ if command_exists systemctl; then
   $SUDO systemctl restart tor || true
 fi
 
+if command_exists voxvera && [[ "$OS_NAME" == linux* ]]; then
+  msg ">> Installing Linux autostart recovery timer..."
+  voxvera autostart 2>/dev/null || warn "Could not install the VoxVera autostart timer automatically. Run 'voxvera autostart' manually."
+fi
+
+if command_exists voxvera; then
+  msg ">> Inspecting installed runtime posture..."
+  report_cli_status
+fi
+
 msg "------------------------------------------------------------------"
 msg "   VoxVera install finished!"
 msg "   Tor rc file : $TOR_DIR/torrc"
 msg ""
 msg "   IMPORTANT: Please restart your terminal or run 'source ~/.bashrc'"
 msg "   (or your shell config) to use 'voxvera'."
+msg ""
+msg "   Linux is the supported persistent-host target."
+msg "   Other package/install paths remain experimental."
 msg ""
 msg "   Run 'voxvera check' to verify your setup after refreshing."
 msg "------------------------------------------------------------------"

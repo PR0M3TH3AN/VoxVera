@@ -24,7 +24,7 @@ def generate_qr(config_path: Path, output_dir: Path) -> None:
         config = json.load(f)
 
     url = config.get("url", "")
-    tear = config.get("tear_off_link", "")
+    tear = config.get("tear_off_link", "") or url
 
     # Skip QR generation if no URLs configured yet (will be generated after serve)
     if not url and not tear:

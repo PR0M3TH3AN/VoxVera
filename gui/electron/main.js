@@ -3,13 +3,10 @@ const { spawn } = require('child_process');
 const path = require('path');
 const which = require('which');
 const fs = require('fs');
-const { launchTor } = require('./tor.js');
 const { extractOnionUrl } = require('./runtime-utils');
 
 let mainWindow;
 let onionProc;
-// 🔧 merged conflicting changes from codex/start-onionshare-and-generate-static-site vs main
-let restarting = false;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -22,74 +19,42 @@ function createWindow() {
   mainWindow.loadFile('index.html');
 }
 
-// 🔧 merged conflicting changes from codex/start-onionshare-and-generate-static-site vs main
-function startOnionShare() {
-  const configPath = getConfigPath();
+function getVoxveraPath() {
   const voxveraPath = which.sync('voxvera', { nothrow: true });
   if (!voxveraPath) {
-    dialog.showErrorBox(
-      'voxvera not found',
-      'Install the voxvera CLI and ensure it is in your PATH.'
-    );
-    return;
+    throw new Error('Install the voxvera CLI and ensure it is in your PATH.');
   }
-  const build = spawn(voxveraPath, ['--config', configPath, 'build']);
-  build.on('error', err => {
-    dialog.showErrorBox('voxvera build error', err.message);
-  });
-  build.on('close', code => {
-    if (code !== 0) {
-      dialog.showErrorBox('voxvera build error', `build exited with code ${code}.`);
-      return;
-    }
-    runServe();
-  });
+  return voxveraPath;
 }
 
-async function runServe (retry = false) {
-  let torProc, socksPort, controlPort;
-  try {
-    ({ torProc, socksPort, controlPort } = await launchTor());
-  } catch (err) {
-    dialog.showErrorBox('Tor error', err.message);
-    return;
-  }
-
-  const env = { ...process.env,
-                TOR_SOCKS_PORT:   socksPort.toString(),
-                TOR_CONTROL_PORT: controlPort.toString() };
-
-  const configPath = getConfigPath();
-  const voxveraPath = which.sync('voxvera', { nothrow: true });
-  onionProc = spawn(voxveraPath, ['--config', configPath, 'serve'], { env });
-
-  let gotURL = false;
-  const softTimeout = setTimeout(() => {
-    if (!gotURL) {
-      mainWindow.webContents.send('log',
-        { text: 'Tor timed out, retrying…', isError: true });
-      onionProc.kill(); torProc.kill();
-      runServe(true);
-    }
-  }, 90_000);
-
-  onionProc.stdout.on('data', buf => {
-    const line = buf.toString();
-    const onionUrl = extractOnionUrl(line);
-    if (onionUrl) {
-      gotURL = true;
-      clearTimeout(softTimeout);
-      mainWindow.webContents.send('onion-url', onionUrl);
-    }
-    mainWindow.webContents.send('log', { text: line });
+function runJsonCommand(args) {
+  return new Promise((resolve, reject) => {
+    let stdout = '';
+    let stderr = '';
+    const proc = spawn(getVoxveraPath(), args);
+    proc.stdout.on('data', data => {
+      stdout += data.toString();
+    });
+    proc.stderr.on('data', data => {
+      stderr += data.toString();
+    });
+    proc.on('close', code => {
+      if (code !== 0) {
+        reject(new Error(stderr || `voxvera exited with code ${code}`));
+        return;
+      }
+      try {
+        resolve(JSON.parse(stdout));
+      } catch (err) {
+        reject(new Error(`Could not parse VoxVera JSON output: ${err.message}`));
+      }
+    });
+    proc.on('error', reject);
   });
-
-  onionProc.on('exit', () => torProc.kill());
 }
 
 app.whenReady().then(() => {
   createWindow();
-  startOnionShare();
 });
 
 function getConfigPath() {
@@ -118,17 +83,40 @@ ipcMain.handle('load-config', async () => {
   return config;
 });
 
+ipcMain.handle('load-runtime-status', async () => {
+  try {
+    const platformStatus = await runJsonCommand(['platform-status', '--json']);
+    const doctor = await runJsonCommand(['doctor', '--json']);
+    let autostart = null;
+    try {
+      autostart = await runJsonCommand(['autostart', 'status', '--json']);
+    } catch (err) {
+      autostart = { error: err.message };
+    }
+    return {
+      ok: true,
+      platformStatus,
+      doctor,
+      autostart
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err.message
+    };
+  }
+});
+
 ipcMain.handle('run-quickstart', async (_, config) => {
   const configPath = getConfigPath();
   if (config && typeof config === 'object') {
     fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
   }
-  const voxveraPath = which.sync('voxvera', { nothrow: true });
-  if (!voxveraPath) {
-    dialog.showErrorBox(
-      'voxvera not found',
-      'Install the voxvera CLI and ensure it is in your PATH.'
-    );
+  let voxveraPath;
+  try {
+    voxveraPath = getVoxveraPath();
+  } catch (err) {
+    dialog.showErrorBox('voxvera not found', err.message);
     return -1;
   }
   return new Promise((resolve) => {

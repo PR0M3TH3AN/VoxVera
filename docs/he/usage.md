@@ -6,18 +6,22 @@ This guide covers common CLI workflows. See `docs/docker.md` for Docker instruct
 
 VoxVera is designed to be highly portable. You can run it directly from the source code on any platform with Python installed.
 
+Linux with `systemd --user` is the supported persistent-host environment. Windows, macOS, Docker, Flatpak, AppImage, Homebrew, and Chocolatey are currently experimental and should not yet be treated as equally reliable hidden-service deployment targets.
+
 ### 1. Automated Install (Recommended)
-The easiest way to install VoxVera is using our cross-platform installer script:
+The easiest way to install VoxVera is using the Linux-first installer script:
 
 **Linux / macOS:**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/PR0M3TH3AN/VoxVera/main/install.sh | bash
 ```
+On Linux, this also installs the recurring recovery timer used to retry hidden-service startup after boot and after missed/offline periods.
 
 **Windows (PowerShell):**
 ```powershell
 irm https://raw.githubusercontent.com/PR0M3TH3AN/VoxVera/main/install.ps1 | iex
 ```
+The Windows installer is experimental and does not yet guarantee production-ready background hosting behavior.
 
 ### 2. Manual Source Install
 If you have downloaded the source code ZIP:
@@ -49,6 +53,16 @@ If you wish to remove VoxVera from your system, you can use the provided uninsta
    voxvera serve
    ```
    This automatically detects your Tor instance, starts OnionShare, and writes the generated .onion address into the flyer's tear-off links.
+
+### Persistent Hosting On Linux
+
+For a machine that should resume hosting automatically after boot or after being offline, install the autostart recovery timer:
+
+```bash
+voxvera autostart
+```
+
+This installs a `systemd --user` timer that reruns `voxvera start-all` every few minutes. The retry loop is the supported way to recover hidden-service hosting after suspend, reboot, or temporary network loss.
 
 ## Language Support
 
