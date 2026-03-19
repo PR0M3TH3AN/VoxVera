@@ -16,9 +16,12 @@ jobs:
           python-version: '3.12'
       - name: Install dependencies
         run: |
+          sudo apt-get update
+          sudo apt-get install -y tor
           python -m pip install --upgrade pip
           pip install flake8
           pip install -e ".[test]"
+          pip install git+https://github.com/onionshare/onionshare.git#subdirectory=cli
       - name: Lint
         run: flake8 voxvera tests --exclude=voxvera/vendor --ignore=E501,W503,W293,E402,E306,E704,E261,F841,E302,F401,E401,F541
       - name: Test
