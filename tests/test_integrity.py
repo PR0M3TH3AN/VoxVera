@@ -56,6 +56,14 @@ def test_linux_validation_runbook_and_helper_are_linked():
     assert "docs/linux-hosting-validation.md" in readme
     assert "scripts/linux-recovery-check.sh" in runbook.read_text(encoding="utf-8")
 
+
+def test_frozen_builds_bundle_support_matrix():
+    build_script = (REPO_ROOT / "scripts" / "build_binaries.sh").read_text(encoding="utf-8")
+    binaries_workflow = (REPO_ROOT / ".github" / "workflows" / "binaries.yml").read_text(encoding="utf-8")
+
+    assert '--add-data "support-matrix.json:."' in build_script
+    assert '--add-data "support-matrix.json${SEP}."' in binaries_workflow
+
 def test_locale_completeness():
     """Verify that all non-English locales have the same keys as English."""
     locales_dir = REPO_ROOT / "voxvera" / "locales"

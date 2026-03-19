@@ -81,6 +81,40 @@ def test_init_template(tmp_path, monkeypatch):
     assert (dest / "index.html").exists()
 
 
+def test_init_seeds_missing_default_config(tmp_path, monkeypatch):
+    _setup_tmp(monkeypatch, tmp_path)
+    test_data_dir = tmp_path / "data"
+    config_path = test_data_dir / "fresh-config.json"
+    answers = iter([
+        "Fresh Site",
+        "freshsite",
+        "Fresh Title",
+        "Fresh Subtitle",
+        "Fresh Headline",
+        "https://example.com",
+        "Read more",
+        "Footer bits",
+        "",
+    ])
+
+    monkeypatch.setattr(cli, "choose_language", lambda *a: "en")
+    monkeypatch.setattr(cli, "prompt", lambda questions: {question["name"]: next(answers) for question in questions})
+    monkeypatch.setattr(cli, "open_editor", lambda initial: "Fresh content")
+
+    class _Confirm:
+        def execute(self):
+            return False
+
+    monkeypatch.setattr(cli.inquirer, "confirm", lambda **kwargs: _Confirm())
+
+    cli.main(["--config", str(config_path), "init"])
+
+    assert config_path.exists()
+    saved = cli.load_config(config_path)
+    assert saved["folder_name"] == "freshsite"
+    assert saved["content"] == "Fresh content"
+
+
 def test_create_from_template_persists_current_language(tmp_path, monkeypatch):
     _setup_tmp(monkeypatch, tmp_path)
     cli.load_locale("es")

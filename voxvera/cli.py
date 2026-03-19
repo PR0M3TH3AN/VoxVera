@@ -341,6 +341,18 @@ def save_config(data: dict, path: str):
         json.dump(normalize_config(data), fh, indent=2)
 
 
+def ensure_config_exists(path: str | Path) -> Path:
+    """Seed a config file from the bundled defaults when missing."""
+    config_path = Path(path)
+    if config_path.exists():
+        return config_path
+
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    default_config = json.loads((_src_res("config.json")).read_text(encoding="utf-8"))
+    config_path.write_text(json.dumps(normalize_config(default_config), indent=2), encoding="utf-8")
+    return config_path
+
+
 def _open_editor_terminal(initial: str) -> str:
     """Fallback to opening the user's $EDITOR in the terminal."""
     import tempfile
@@ -530,6 +542,7 @@ def resolve_new_site_folder(config_path: str, preserve_session_on_overwrite: boo
 
 
 def interactive_update(config_path: str):
+    ensure_config_exists(config_path)
     data = load_config(config_path)
     console = Console()
 

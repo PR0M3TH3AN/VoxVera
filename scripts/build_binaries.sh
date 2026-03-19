@@ -45,6 +45,7 @@ $PY_CMD --onefile \
     --add-data "voxvera/src:voxvera/src" \
     --add-data "voxvera/templates:voxvera/templates" \
     --add-data "voxvera/resources/tor:voxvera/resources/tor" \
+    --add-data "support-matrix.json:." \
     --add-data "requirements.txt:." \
     --name "$BINARY_NAME" \
     --distpath "$ARTIFACT_DIR" \

@@ -70,6 +70,7 @@ jobs:
             --add-data "voxvera/src${SEP}voxvera/src" \
             --add-data "voxvera/templates${SEP}voxvera/templates" \
             --add-data "voxvera/resources/tor${SEP}voxvera/resources/tor" \
+            --add-data "support-matrix.json${SEP}." \
             --add-data "requirements.txt${SEP}." \
             --name "${{ matrix.artifact_name }}" \
             voxvera/cli.py
