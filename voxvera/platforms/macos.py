@@ -88,3 +88,8 @@ class MacOSPlatformAdapter(PlatformAdapter):
         print(f"LaunchAgent installed: {self.plist_path}")
         print("Sites will start automatically on login.")
         print(f"  Disable with: launchctl unload {self.plist_path}")
+
+    def uninstall_autostart(self) -> None:
+        self._run_capture(["launchctl", "unload", str(self.plist_path)])
+        self.plist_path.unlink(missing_ok=True)
+        print(f"Removed LaunchAgent: {self.plist_path}")

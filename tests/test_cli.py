@@ -315,6 +315,9 @@ def test_doctor_json_output(tmp_path, monkeypatch, capsys):
     captured = capsys.readouterr()
     report = json.loads(captured.out)
     assert report["platform_id"] == "linux_cli_systemd"
+    assert "summary" in report
+    assert "sections" in report
+    assert "dependencies" in report["sections"]
     assert "checks" in report
 
 
@@ -375,6 +378,29 @@ def test_autostart_status_json_output(tmp_path, monkeypatch, capsys):
     assert len(status["artifacts"]) == 2
 
 
+def test_linux_autostart_uninstall_removes_artifacts(tmp_path, monkeypatch, capsys):
+    _setup_tmp(monkeypatch, tmp_path)
+    fake_home = tmp_path / "home"
+    commands = []
+    monkeypatch.setattr(platform, "system", lambda: "Linux")
+    monkeypatch.setattr(platform_linux.Path, "home", lambda: fake_home)
+    monkeypatch.setattr(platform_linux.subprocess, "run", lambda args, **kwargs: commands.append(args))
+    systemd_dir = fake_home / ".config" / "systemd" / "user"
+    systemd_dir.mkdir(parents=True, exist_ok=True)
+    service = systemd_dir / "voxvera-start.service"
+    timer = systemd_dir / "voxvera-start.timer"
+    service.write_text("service", encoding="utf-8")
+    timer.write_text("timer", encoding="utf-8")
+
+    cli.main(["autostart", "uninstall"])
+    captured = capsys.readouterr()
+
+    assert "Removed systemd user service" in captured.out
+    assert not service.exists()
+    assert not timer.exists()
+    assert ["systemctl", "--user", "disable", "--now", "voxvera-start.timer"] in commands
+
+
 def test_macos_autostart_status_and_render(tmp_path, monkeypatch):
     _setup_tmp(monkeypatch, tmp_path)
     fake_home = tmp_path / "home"
@@ -395,6 +421,25 @@ def test_macos_autostart_status_and_render(tmp_path, monkeypatch):
     assert any(check["name"] == "launchd_loaded" for check in status["checks"])
 
 
+def test_macos_autostart_uninstall_removes_plist(tmp_path, monkeypatch, capsys):
+    _setup_tmp(monkeypatch, tmp_path)
+    fake_home = tmp_path / "home"
+    commands = []
+    monkeypatch.setattr(platform, "system", lambda: "Darwin")
+    monkeypatch.setattr(platform_base.Path, "home", lambda: fake_home)
+    monkeypatch.setattr(platform_base.subprocess, "check_output", lambda args, stderr=None: commands.append(args) or b"")
+    plist = fake_home / "Library" / "LaunchAgents" / "org.voxvera.start-all.plist"
+    plist.parent.mkdir(parents=True, exist_ok=True)
+    plist.write_text("plist", encoding="utf-8")
+
+    cli.main(["autostart", "uninstall"])
+    captured = capsys.readouterr()
+
+    assert "Removed LaunchAgent" in captured.out
+    assert not plist.exists()
+    assert ["launchctl", "unload", str(plist)] in commands
+
+
 def test_windows_autostart_status_and_render(monkeypatch):
     monkeypatch.setattr(platform, "system", lambda: "Windows")
     monkeypatch.setattr(platform_base.subprocess, "check_output", lambda *args, **kwargs: b"TaskName: VoxVera Start All")
@@ -410,6 +455,18 @@ def test_windows_autostart_status_and_render(monkeypatch):
     status = adapter.autostart_status()
     assert status["platform_id"] == "windows_cli"
     assert any(check["name"] == "scheduled_task_present" for check in status["checks"])
+
+
+def test_windows_autostart_uninstall_uses_schtasks(monkeypatch, capsys):
+    commands = []
+    monkeypatch.setattr(platform, "system", lambda: "Windows")
+    monkeypatch.setattr(platform_base.subprocess, "check_output", lambda args, stderr=None: commands.append(args) or b"SUCCESS")
+
+    cli.main(["autostart", "uninstall"])
+    captured = capsys.readouterr()
+
+    assert "removed" in captured.out.lower()
+    assert ["schtasks", "/Delete", "/TN", "VoxVera Start All", "/F"] in commands
 
 
 def test_build_download_zip(tmp_path, monkeypatch):

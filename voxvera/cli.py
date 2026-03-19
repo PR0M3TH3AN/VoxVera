@@ -274,6 +274,13 @@ def print_report(report_type: str, json_output: bool = False):
         console.print(f"Tier: {report['tier']}")
         if report["hosting_model"]:
             console.print(f"Hosting model: {report['hosting_model']}")
+        summary = report.get("summary", {})
+        if summary:
+            console.print(f"Overall: {'OK' if summary.get('ok') else 'WARN'}")
+        for section in report.get("sections", {}).values():
+            if not section.get("checks"):
+                continue
+            console.print(f"{section['title']}: {'OK' if section.get('ok') else 'WARN'}")
         for check in report["checks"]:
             style = "green" if check["ok"] else "red"
             state = "OK" if check["ok"] else "FAIL"
@@ -1701,6 +1708,15 @@ def install_autostart():
               "Run 'voxvera start-all' manually or add it to your init system.")
 
 
+def uninstall_autostart():
+    """Remove the platform-appropriate autostart mechanism."""
+    adapter = get_platform_adapter(cli_module=sys.modules[__name__])
+    try:
+        adapter.uninstall_autostart()
+    except NotImplementedError:
+        print(f"Autostart uninstall not supported on {adapter.label}.")
+
+
 def _find_voxvera_bin() -> str:
     """Return the absolute path to the voxvera binary/script."""
     voxvera_bin = shutil.which("voxvera")
@@ -1989,7 +2005,7 @@ def main(argv=None):
     sub.add_parser("start-all", help="Start all configured sites (non-interactive)")
     sub.add_parser("stop-all", help="Stop all running sites (non-interactive)")
     p_autostart = sub.add_parser("autostart", help="Install or inspect platform autostart support")
-    p_autostart.add_argument("action", nargs="?", choices=["install", "status"], default="install")
+    p_autostart.add_argument("action", nargs="?", choices=["install", "status", "uninstall"], default="install")
     p_autostart.add_argument("--json", action="store_true", help="Emit machine-readable JSON for status")
     sub.add_parser("rebuild-all", help="Rebuild all existing sites from the current template (preserves keys and config)")
     sub.add_parser("_internal_onionshare", help=argparse.SUPPRESS)
@@ -2073,6 +2089,8 @@ def main(argv=None):
     elif args.command == "autostart":
         if args.action == "status":
             print_autostart_status(json_output=args.json)
+        elif args.action == "uninstall":
+            uninstall_autostart()
         else:
             install_autostart()
     elif args.command == "quickstart":

@@ -138,6 +138,23 @@ Persistent=true
         print("  Manage with: systemctl --user [start|stop|status] voxvera-start.service")
         print("  Timer status: systemctl --user status voxvera-start.timer")
 
+    def uninstall_autostart(self) -> None:
+        commands = [
+            ["systemctl", "--user", "disable", "--now", "voxvera-start.timer"],
+            ["systemctl", "--user", "stop", "voxvera-start.service"],
+            ["systemctl", "--user", "daemon-reload"],
+        ]
+        for command in commands:
+            try:
+                subprocess.run(command, check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            except Exception:
+                pass
+
+        self.service_path.unlink(missing_ok=True)
+        self.timer_path.unlink(missing_ok=True)
+        print(f"Removed systemd user service: {self.service_path}")
+        print(f"Removed systemd user timer: {self.timer_path}")
+
     def doctor_report(self) -> dict:
         report = super().doctor_report()
         checks = report["checks"]
@@ -191,4 +208,15 @@ Persistent=true
                 "detail": str(host_root) if host_root.exists() else f"missing: {host_root}",
             }
         )
+        report["summary"] = {
+            "ok": all(check.get("ok") for check in checks),
+            "failing_checks": [check["name"] for check in checks if not check.get("ok")],
+        }
+        report["sections"] = {
+            "platform_contract": self._doctor_section("Platform contract", ["platform"], checks),
+            "dependencies": self._doctor_section("Dependencies", ["voxvera_cli", "onionshare_cli", "tor_binary"], checks),
+            "network": self._doctor_section("Network", ["tor_socks_reachable"], checks),
+            "autostart": self._doctor_section("Autostart", ["autostart_timer_enabled"], checks),
+            "content_state": self._doctor_section("Content state", ["host_root"], checks),
+        }
         return report

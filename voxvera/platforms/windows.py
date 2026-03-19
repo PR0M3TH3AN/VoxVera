@@ -52,3 +52,10 @@ class WindowsPlatformAdapter(PlatformAdapter):
             print(f'  Remove with: schtasks /Delete /TN "{self.task_name}" /F')
             return
         print("Failed to create scheduled task. Try running as Administrator.")
+
+    def uninstall_autostart(self) -> None:
+        ok, _output = self._run_capture(["schtasks", "/Delete", "/TN", self.task_name, "/F"])
+        if ok:
+            print(f"Windows scheduled task '{self.task_name}' removed.")
+            return
+        print(f"Windows scheduled task '{self.task_name}' could not be removed.")

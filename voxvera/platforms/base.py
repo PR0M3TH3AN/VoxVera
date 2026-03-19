@@ -77,6 +77,9 @@ class PlatformAdapter:
     def install_autostart(self) -> None:
         raise NotImplementedError("Autostart is not implemented for this platform.")
 
+    def uninstall_autostart(self) -> None:
+        raise NotImplementedError("Autostart uninstall is not implemented for this platform.")
+
     def platform_status(self) -> dict:
         entry = self.support_entry()
         matrix = self.load_support_matrix()
@@ -90,6 +93,23 @@ class PlatformAdapter:
             "required_capabilities": entry.get("required_capabilities", []),
             "current_notes": entry.get("current_notes", []),
             "next_gaps": entry.get("next_gaps", []),
+        }
+
+    def _doctor_section(self, title: str, check_names: list[str], checks: list[dict]) -> dict:
+        section_checks = [check for check in checks if check["name"] in check_names]
+        return {
+            "title": title,
+            "ok": all(check.get("ok") for check in section_checks) if section_checks else True,
+            "checks": section_checks,
+        }
+
+    def build_doctor_sections(self, checks: list[dict]) -> dict:
+        return {
+            "platform_contract": self._doctor_section("Platform contract", ["platform"], checks),
+            "dependencies": self._doctor_section("Dependencies", ["voxvera_cli", "onionshare_cli"], checks),
+            "network": self._doctor_section("Network", [], checks),
+            "autostart": self._doctor_section("Autostart", [], checks),
+            "content_state": self._doctor_section("Content state", [], checks),
         }
 
     def doctor_report(self) -> dict:
@@ -120,6 +140,7 @@ class PlatformAdapter:
             }
         )
 
+        sections = self.build_doctor_sections(checks)
         return {
             "platform_id": self.platform_id,
             "label": platform_status["label"],
@@ -130,6 +151,11 @@ class PlatformAdapter:
             "required_capabilities": platform_status["required_capabilities"],
             "current_notes": platform_status["current_notes"],
             "next_gaps": platform_status["next_gaps"],
+            "summary": {
+                "ok": all(check.get("ok") for check in checks),
+                "failing_checks": [check["name"] for check in checks if not check.get("ok")],
+            },
+            "sections": sections,
             "checks": checks,
         }
 
