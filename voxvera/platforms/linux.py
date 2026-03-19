@@ -124,13 +124,37 @@ Persistent=true
             ["systemctl", "--user", "disable", "--now", "voxvera.service"],
             ["systemctl", "--user", "enable", "--now", "voxvera-start.timer"],
             ["systemctl", "--user", "start", "voxvera-start.service"],
-            ["loginctl", "enable-linger", os.environ.get("USER", "")],
         ]
         for command in commands:
             try:
-                subprocess.run(command, check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                subprocess.run(
+                    command,
+                    check=False,
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    timeout=10,
+                )
             except Exception:
                 pass
+
+        linger_output = ""
+        try:
+            result = subprocess.run(
+                ["loginctl", "show-user", os.environ.get("USER", ""), "--property=Linger", "--value"],
+                check=False,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+                text=True,
+                timeout=5,
+            )
+            linger_output = (result.stdout or "").strip()
+            if linger_output == "no":
+                print("Note: user linger is not enabled. The recovery timer will run while you are logged in.")
+                print("  To enable boot-time user services, run: sudo loginctl enable-linger $USER")
+        except Exception:
+            pass
 
         print(f"Systemd user service installed: {self.service_path}")
         print(f"Systemd user timer installed: {self.timer_path}")
