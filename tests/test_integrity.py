@@ -97,6 +97,14 @@ def test_docker_runtime_assets_are_present():
     assert "scripts/docker-runtime-smoke.sh" in ci_workflow
     assert "starts an in-container Tor daemon" in docker_doc
 
+
+def test_support_matrix_path_has_runtime_fallbacks():
+    base_platform = (REPO_ROOT / "voxvera" / "platforms" / "base.py").read_text(encoding="utf-8")
+
+    assert "VOXVERA_SUPPORT_MATRIX_PATH" in base_platform
+    assert 'Path.cwd() / "support-matrix.json"' in base_platform
+    assert 'Path("/opt/voxvera/support-matrix.json")' in base_platform
+
 def test_locale_completeness():
     """Verify that all non-English locales have the same keys as English."""
     locales_dir = REPO_ROOT / "voxvera" / "locales"

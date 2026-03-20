@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import platform
 import shutil
 import subprocess
@@ -33,6 +34,20 @@ class PlatformAdapter:
 
     @property
     def support_matrix_path(self) -> Path:
+        candidates = []
+        env_path = os.environ.get("VOXVERA_SUPPORT_MATRIX_PATH")
+        if env_path:
+            candidates.append(Path(env_path))
+        candidates.extend(
+            [
+                self.repo_root / "support-matrix.json",
+                Path.cwd() / "support-matrix.json",
+                Path("/opt/voxvera/support-matrix.json"),
+            ]
+        )
+        for candidate in candidates:
+            if candidate.exists():
+                return candidate
         return self.repo_root / "support-matrix.json"
 
     def _run_capture(self, args: list[str]) -> tuple[bool, str]:

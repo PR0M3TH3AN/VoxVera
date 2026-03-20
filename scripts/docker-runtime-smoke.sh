@@ -18,7 +18,9 @@ cleanup() {
   docker logs "$CONTAINER_NAME" >/dev/null 2>&1 || true
   docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
   if [[ -z "${VOXVERA_DOCKER_SMOKE_TMPDIR:-}" ]]; then
-    rm -rf "$TMP_DIR"
+    chmod -R u+w "$TMP_DIR" 2>/dev/null || true
+    docker run --rm -v "$TMP_DIR:/cleanup" python:3.11-slim sh -lc 'rm -rf /cleanup/* /cleanup/.[!.]* /cleanup/..?* 2>/dev/null || true' >/dev/null 2>&1 || true
+    rm -rf "$TMP_DIR" 2>/dev/null || true
   fi
 }
 trap cleanup EXIT
