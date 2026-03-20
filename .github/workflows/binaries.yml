@@ -107,6 +107,13 @@ jobs:
           chmod +x packaging/build_appimage.sh
           ./packaging/build_appimage.sh dist/${{ matrix.artifact_name }}
 
+      - name: Validate Linux release artifacts
+        if: matrix.os == 'ubuntu-22.04'
+        shell: bash
+        run: |
+          chmod +x scripts/validate-release-artifacts.sh
+          ./scripts/validate-release-artifacts.sh
+
       - name: Build Flatpak (Linux)
         if: matrix.os == 'ubuntu-22.04'
         run: |

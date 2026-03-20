@@ -2076,7 +2076,8 @@ def main(argv=None):
         if args.template:
             copy_template(args.template)
             return
-        elif not args.non_interactive:
+        ensure_config_exists(config_path)
+        if not args.non_interactive:
             interactive_update(config_path)
         build_assets(config_path)
     elif args.command == "build":

@@ -64,6 +64,18 @@ def test_frozen_builds_bundle_support_matrix():
     assert '--add-data "support-matrix.json:."' in build_script
     assert '--add-data "support-matrix.json${SEP}."' in binaries_workflow
 
+
+def test_release_artifact_validation_is_wired_into_binaries_workflow():
+    validation_script = REPO_ROOT / "scripts" / "validate-release-artifacts.sh"
+    binaries_workflow = (REPO_ROOT / ".github" / "workflows" / "binaries.yml").read_text(encoding="utf-8")
+    script_text = validation_script.read_text(encoding="utf-8")
+
+    assert validation_script.exists()
+    assert "scripts/validate-release-artifacts.sh" in binaries_workflow
+    assert "dpkg-deb -x" in script_text
+    assert "platform-status --json" in script_text
+    assert "init --non-interactive" in script_text
+
 def test_locale_completeness():
     """Verify that all non-English locales have the same keys as English."""
     locales_dir = REPO_ROOT / "voxvera" / "locales"
