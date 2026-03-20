@@ -115,6 +115,23 @@ def test_init_seeds_missing_default_config(tmp_path, monkeypatch):
     assert saved["content"] == "Fresh content"
 
 
+def test_init_noninteractive_does_not_prompt_for_language(tmp_path, monkeypatch):
+    _setup_tmp(monkeypatch, tmp_path)
+    test_data_dir = tmp_path / "data"
+    config_path = test_data_dir / "fresh-config.json"
+
+    def _fail_choose_language(*args, **kwargs):
+        raise AssertionError("choose_language should not run for non-interactive init")
+
+    monkeypatch.setattr(cli, "choose_language", _fail_choose_language)
+
+    cli.main(["--config", str(config_path), "init", "--non-interactive"])
+
+    saved = cli.load_config(config_path)
+    assert saved["lang"] == "en"
+    assert (test_data_dir / "host" / saved["folder_name"] / "index.html").exists()
+
+
 def test_create_from_template_persists_current_language(tmp_path, monkeypatch):
     _setup_tmp(monkeypatch, tmp_path)
     cli.load_locale("es")

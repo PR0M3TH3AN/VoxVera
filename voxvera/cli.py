@@ -2043,7 +2043,10 @@ def main(argv=None):
             pass
 
     if not current_lang and args.command in ("init", "quickstart", "manage"):
-        current_lang = choose_language()
+        if getattr(args, "non_interactive", False):
+            current_lang = "en"
+        else:
+            current_lang = choose_language()
         # Save choice to config if possible
         if config_path.exists():
             config_data["lang"] = current_lang
@@ -2077,6 +2080,11 @@ def main(argv=None):
             copy_template(args.template)
             return
         ensure_config_exists(config_path)
+        if current_lang:
+            config_data = load_config(str(config_path))
+            if not config_data.get("lang"):
+                config_data["lang"] = current_lang
+                save_config(config_data, str(config_path))
         if not args.non_interactive:
             interactive_update(config_path)
         build_assets(config_path)
@@ -2108,6 +2116,12 @@ def main(argv=None):
         else:
             install_autostart()
     elif args.command == "quickstart":
+        ensure_config_exists(config_path)
+        if current_lang:
+            config_data = load_config(str(config_path))
+            if not config_data.get("lang"):
+                config_data["lang"] = current_lang
+                save_config(config_data, str(config_path))
         if not args.non_interactive:
             if not sys.stdin.isatty():
                 print(
