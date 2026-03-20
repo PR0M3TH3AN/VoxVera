@@ -62,3 +62,11 @@ jobs:
       - name: Validate autostart JSON
         shell: bash
         run: python -m voxvera.cli autostart status --json
+
+  docker-runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Docker runtime smoke
+        run: bash scripts/docker-runtime-smoke.sh
