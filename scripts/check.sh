@@ -21,6 +21,10 @@ python3 -m voxvera.cli --lang en check
 if [[ "$(uname -s)" == "Linux" ]]; then
   echo "==> platform smoke"
   bash scripts/platform-smoke.sh linux-cli
+  if command -v docker >/dev/null 2>&1; then
+    echo "==> docker runtime smoke"
+    bash scripts/docker-runtime-smoke.sh
+  fi
 fi
 
 echo "==> build docs"

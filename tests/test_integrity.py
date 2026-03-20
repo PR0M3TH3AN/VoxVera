@@ -76,6 +76,27 @@ def test_release_artifact_validation_is_wired_into_binaries_workflow():
     assert "platform-status --json" in script_text
     assert "init --non-interactive" in script_text
 
+
+def test_docker_runtime_assets_are_present():
+    dockerfile = (REPO_ROOT / "Dockerfile").read_text(encoding="utf-8")
+    dockerignore = REPO_ROOT / ".dockerignore"
+    entrypoint = REPO_ROOT / "scripts" / "docker-entrypoint.sh"
+    healthcheck = REPO_ROOT / "scripts" / "docker-healthcheck.sh"
+    runtime_smoke = REPO_ROOT / "scripts" / "docker-runtime-smoke.sh"
+    ci_workflow = (REPO_ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    docker_doc = (REPO_ROOT / "docs" / "templates" / "docker.md").read_text(encoding="utf-8")
+
+    assert dockerignore.exists()
+    assert entrypoint.exists()
+    assert healthcheck.exists()
+    assert runtime_smoke.exists()
+    assert "tini" in dockerfile
+    assert "docker-entrypoint.sh" in dockerfile
+    assert "docker-healthcheck.sh" in dockerfile
+    assert "HEALTHCHECK" in dockerfile
+    assert "scripts/docker-runtime-smoke.sh" in ci_workflow
+    assert "starts an in-container Tor daemon" in docker_doc
+
 def test_locale_completeness():
     """Verify that all non-English locales have the same keys as English."""
     locales_dir = REPO_ROOT / "voxvera" / "locales"

@@ -38,7 +38,7 @@
       "id": "docker_cli",
       "label": "Docker CLI container",
       "tier": "experimental",
-      "hosting_model": "Containerized VoxVera runtime with state under /flyers and periodic start-all retries.",
+      "hosting_model": "Single-container VoxVera runtime with state under /flyers, an in-container Tor daemon, healthchecks, and periodic start-all retries.",
       "distribution_surfaces": [
         "Dockerfile",
         "ghcr image"
@@ -49,11 +49,11 @@
         "validated_state_volume_layout"
       ],
       "current_notes": [
-        "State now routes through VOXVERA_DIR=/flyers.",
+        "State routes through VOXVERA_DIR=/flyers.",
+        "Container entrypoint now starts Tor internally and retries start-all on a fixed interval.",
         "Not yet validated as a production-grade hidden-service host."
       ],
       "next_gaps": [
-        "Decide whether the canonical model is single-container or compose-based.",
         "Validate restart behavior with real container restart policies."
       ]
     },

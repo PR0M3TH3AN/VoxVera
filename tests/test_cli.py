@@ -14,6 +14,7 @@ from voxvera.platforms import base as platform_base
 from voxvera.platforms import linux as platform_linux
 from voxvera.platforms import macos as platform_macos
 from voxvera.platforms import windows as platform_windows
+from voxvera.platforms import docker as platform_docker
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -53,8 +54,18 @@ def test_help(capsys):
 
 def test_get_platform_adapter_linux(monkeypatch):
     monkeypatch.setattr(platform, "system", lambda: "Linux")
+    monkeypatch.delenv("VOXVERA_RUNTIME", raising=False)
+    monkeypatch.setattr(platform_docker.DockerPlatformAdapter, "is_container_runtime", lambda self: False)
     adapter = get_platform_adapter(cli_module=cli)
     assert adapter.platform_id == "linux_cli_systemd"
+
+
+def test_get_platform_adapter_docker(monkeypatch):
+    monkeypatch.setattr(platform, "system", lambda: "Linux")
+    monkeypatch.setenv("VOXVERA_RUNTIME", "docker")
+    monkeypatch.setattr(platform_docker.DockerPlatformAdapter, "is_container_runtime", lambda self: True)
+    adapter = get_platform_adapter(cli_module=cli)
+    assert adapter.platform_id == "docker_cli"
 
 
 def test_get_platform_adapter_macos(monkeypatch):

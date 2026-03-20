@@ -258,6 +258,16 @@ These target names are contract-level validation entry points. Only `linux-cli` 
 
 1. Add `voxvera doctor`.
 2. Add `voxvera autostart status`.
+
+## Native Validation Assets
+
+The repo now includes concrete native-host validation docs for the two major experimental desktop targets:
+
+- `docs/macos-validation-checklist.md`
+- `docs/windows-validation-checklist.md`
+- `docs/native-tester-guide.md`
+
+These should be used for the first real macOS/Windows validation cycles so testers capture the runtime evidence needed for future tier promotion.
 3. Add the platform adapter scaffold.
 4. Capture Linux reboot/offline recovery validation steps in docs and CI notes.
 5. Pick Docker's canonical runtime model.

@@ -49,3 +49,11 @@ voxvera autostart
 ```
 
 That is the current reference deployment model the rest of the platform work should converge toward.
+
+## Native Validation
+
+When validating the experimental non-Linux paths on real machines, use:
+
+- [macOS checklist](/home/user/Documents/GitHub/VoxVera/docs/macos-validation-checklist.md)
+- [Windows checklist](/home/user/Documents/GitHub/VoxVera/docs/windows-validation-checklist.md)
+- [Native tester guide](/home/user/Documents/GitHub/VoxVera/docs/native-tester-guide.md)
