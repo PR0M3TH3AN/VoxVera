@@ -230,3 +230,28 @@ def test_portable_bundle_integrity(tmp_path, monkeypatch):
 
         # Verify root scripts
         assert "voxvera-run.sh" in names
+
+
+def test_portable_bundle_excludes_prebuilt_tor_binaries(tmp_path, monkeypatch):
+    project_root = tmp_path
+    voxvera_dir = project_root / "voxvera"
+    voxvera_dir.mkdir()
+
+    shutil.copytree(REPO_ROOT / "voxvera" / "src", voxvera_dir / "src")
+    shutil.copytree(REPO_ROOT / "voxvera" / "locales", voxvera_dir / "locales")
+    shutil.copytree(REPO_ROOT / "voxvera" / "resources", voxvera_dir / "resources")
+    os.makedirs(voxvera_dir / "vendor", exist_ok=True)
+    (voxvera_dir / "vendor" / "anchor.txt").write_text("anchor")
+
+    for script in ["voxvera-run.sh", "uninstall.sh", "uninstall.ps1", "install.sh", "install.ps1", "setup.sh"]:
+        if (REPO_ROOT / script).exists():
+            shutil.copy(REPO_ROOT / script, project_root / script)
+
+    monkeypatch.setattr(cli, "ROOT", voxvera_dir)
+
+    bundle_zip = project_root / "voxvera-portable.zip"
+    cli.bundle_portable(bundle_zip)
+
+    with zipfile.ZipFile(bundle_zip, "r") as zf:
+        names = zf.namelist()
+        assert not any(name.startswith("voxvera/resources/tor/") for name in names)

@@ -106,6 +106,10 @@ When you host a flyer, the **"הורד כלי וקוד מקור"** button on the
 - Installation and setup scripts for all platforms.
 - Complete documentation and templates.
 
+To keep the mirrored download practical for low-bandwidth redistribution, the
+source archive does not ship pre-downloaded Tor binaries. Normal installer and
+release builds still fetch or bundle those artifacts separately.
+
 This allows anyone who scans your flyer to become a new distributor of the VoxVera tool.
 
 ## Export & Backup
