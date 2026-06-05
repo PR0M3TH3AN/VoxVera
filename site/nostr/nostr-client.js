@@ -7,6 +7,9 @@
     "wss://relay.primal.net"
   ];
   const ANON_SECRET_STORAGE_KEY = "voxvera_nostr_anon_secret_hex";
+  const UI_LANG_STORAGE_KEY = "voxvera_nostr_lang";
+  const LOCALES = window.VoxVeraLocales || {};
+  const FALLBACK_LANG = "en";
   const EVENT_KIND = 30078;
   const FIELD_LIMITS = {
     folder_name: 64,
@@ -40,17 +43,162 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     attachment_path: "",
     attachment_filename: ""
   };
+  const UI_LABELS = {
+    "label-relays": "cli.init_links",
+    "label-flyer-name": "cli.init_folder",
+    "label-page-title": "cli.init_name",
+    "label-title": "cli.init_title",
+    "label-subtitle": "cli.init_subtitle",
+    "label-headline": "cli.init_headline",
+    "label-content": "cli.init_body",
+    "label-url-message": "cli.url_message_label",
+    "label-poster-url": "cli.url_label",
+    "label-footer-message": "cli.footer_message_label"
+  };
+  const BUTTON_LABELS = {
+    "preview-editor": "Preview",
+    "export-event": "Export event JSON",
+    "publish-event": "Sign and publish",
+    "copy-viewer-config": "Copy config JSON",
+    "print-preview": "Print preview",
+    "open-viewer-controls": "Load Event",
+    "viewer-print": "Print",
+    "viewer-editor": "Editor",
+    "close-viewer-controls": "Close",
+    "generate-anon-identity": "Generate anonymous npub",
+    "viewer-fetch-render": "Fetch and render"
+  };
+  const HEADING_LABELS = {
+    "editor-heading": "Editor",
+    "viewer-heading": "Viewer",
+    "published-event-heading": "Published Event",
+    "normalized-config-heading": "Normalized Config",
+    "preview-heading": "Preview"
+  };
 
   const el = (id) => document.getElementById(id);
 
-  function setDefaultText() {
+  function localeData(lang) {
+    return LOCALES[lang] || LOCALES[FALLBACK_LANG] || {};
+  }
+
+  function supportedLang(lang) {
+    return LOCALES[lang] ? lang : FALLBACK_LANG;
+  }
+
+  function translate(path, lang) {
+    const data = localeData(supportedLang(lang));
+    return path.split(".").reduce((value, key) => (value && value[key] !== undefined ? value[key] : undefined), data);
+  }
+
+  function localeDefaults(lang) {
+    const data = localeData(lang);
+    const landing = data.landing || {};
+    return {
+      ...CONFIG_DEFAULTS,
+      name: landing.name || CONFIG_DEFAULTS.name,
+      folder_name: slugify(landing.name || CONFIG_DEFAULTS.folder_name),
+      lang: supportedLang(lang),
+      title: landing.title || CONFIG_DEFAULTS.title,
+      subtitle: landing.subtitle || CONFIG_DEFAULTS.subtitle,
+      headline: landing.headline || CONFIG_DEFAULTS.headline,
+      content: landing.content || CONFIG_DEFAULTS.content,
+      url_message: landing.url_message || CONFIG_DEFAULTS.url_message,
+      url: CONFIG_DEFAULTS.url,
+      tear_off_link: "",
+      footer_message: CONFIG_DEFAULTS.footer_message,
+      attachment_path: "",
+      attachment_filename: ""
+    };
+  }
+
+  function setText(id, value) {
+    const node = el(id);
+    if (node) node.textContent = value;
+  }
+
+  function setButtonText(id, value) {
+    const node = el(id);
+    if (node) node.textContent = value;
+  }
+
+  function populateLanguageOptions() {
+    const select = el("field-lang");
+    if (!select) return;
+    const langEntries = Object.entries(LOCALES).sort((a, b) => {
+      const aName = (a[1] && a[1].meta && a[1].meta.language_name) || a[0];
+      const bName = (b[1] && b[1].meta && b[1].meta.language_name) || b[0];
+      return aName.localeCompare(bName);
+    });
+    select.innerHTML = "";
+    for (const [code, data] of langEntries) {
+      const option = document.createElement("option");
+      option.value = code;
+      const meta = data.meta || {};
+      option.textContent = `${meta.flag || ""} ${meta.language_name || code}`.trim();
+      select.appendChild(option);
+    }
+  }
+
+  function syncUiLanguage(lang) {
+    const selected = supportedLang(lang);
+    const data = localeData(selected);
+    const meta = data.meta || {};
+    document.documentElement.lang = selected;
+    document.documentElement.dir = meta.direction || "ltr";
+    try {
+      window.localStorage.setItem(UI_LANG_STORAGE_KEY, selected);
+    } catch (_) {}
+
+    Object.entries(UI_LABELS).forEach(([id, path]) => {
+      const translated = translate(path, selected);
+      if (translated) setText(id, translated);
+    });
+    Object.entries(HEADING_LABELS).forEach(([id, value]) => setText(id, value));
+    Object.entries(BUTTON_LABELS).forEach(([id, value]) => setButtonText(id, value));
+    setButtonText("print-preview", translate("web.print_button", selected) || BUTTON_LABELS["print-preview"]);
+    setButtonText("viewer-print", translate("web.print_button", selected) || BUTTON_LABELS["viewer-print"]);
+    setButtonText("viewer-editor", translate("cli.manage_action_edit", selected) || BUTTON_LABELS["viewer-editor"]);
+    setButtonText("close-viewer-controls", translate("cli.manage_action_back", selected) || BUTTON_LABELS["close-viewer-controls"]);
+
+    const select = el("field-lang");
+    if (select) select.value = selected;
+  }
+
+  function setDefaultText(lang) {
     const relayText = DEFAULT_RELAYS.join("\n");
     el("editor-relays").value = relayText;
     el("viewer-relays").value = relayText;
-    el("field-content").value = CONFIG_DEFAULTS.content;
-    renderPreview(CONFIG_DEFAULTS);
+    populateLanguageOptions();
+    const defaultLang = supportedLang(lang || getStoredUiLang() || navigator.language.split("-")[0]);
+    applyFlyerDefaults(defaultLang);
+    renderPreview(localeDefaults(defaultLang));
     refreshSignerState();
     refreshIdentityState();
+  }
+
+  function getStoredUiLang() {
+    try {
+      const stored = window.localStorage.getItem(UI_LANG_STORAGE_KEY);
+      return stored && LOCALES[stored] ? stored : "";
+    } catch (_) {
+      return "";
+    }
+  }
+
+  function applyFlyerDefaults(lang) {
+    const defaults = localeDefaults(lang);
+    el("field-lang").value = defaults.lang;
+    el("field-folder-name").value = defaults.folder_name;
+    el("field-name").value = defaults.name;
+    el("field-title").value = defaults.title;
+    el("field-subtitle").value = defaults.subtitle;
+    el("field-headline").value = defaults.headline;
+    el("field-content").value = defaults.content;
+    el("field-url-message").value = defaults.url_message;
+    el("field-url").value = defaults.url;
+    el("field-footer-message").value = defaults.footer_message;
+    syncUiLanguage(defaults.lang);
   }
 
   function refreshSignerState() {
@@ -168,11 +316,12 @@ Join us in a revolution that values truth and transparency. Together, we can bui
   }
 
   function buildPayloadFromForm() {
+    const lang = supportedLang(el("field-lang").value || FALLBACK_LANG);
     const payload = {
       type: "voxvera_flyer",
       version: 1,
       folder_name: slugify(el("field-folder-name").value),
-      lang: el("field-lang").value || "en",
+      lang,
       name: el("field-name").value.trim(),
       title: el("field-title").value.trim(),
       subtitle: el("field-subtitle").value.trim(),
@@ -212,11 +361,12 @@ Join us in a revolution that values truth and transparency. Together, we can bui
 
   function normalizePayload(payload) {
     validatePayload(payload);
+    const lang = supportedLang(payload.lang || FALLBACK_LANG);
     return {
       ...CONFIG_DEFAULTS,
       name: payload.name || CONFIG_DEFAULTS.name,
       folder_name: slugify(payload.folder_name),
-      lang: payload.lang || "en",
+      lang,
       title: payload.title || CONFIG_DEFAULTS.title,
       subtitle: payload.subtitle || CONFIG_DEFAULTS.subtitle,
       headline: payload.headline || CONFIG_DEFAULTS.headline,
@@ -517,6 +667,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
   }
 
   function renderPreview(config) {
+    const flyerLang = supportedLang(config.lang || FALLBACK_LANG);
+    const flyerLocale = localeData(flyerLang);
     const tearOff = config.tear_off_link || config.url || "";
     const contentQr = config.url || tearOff;
     const tearOffQrSvg = makeQrSvg(tearOff);
@@ -533,7 +685,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       </div>
     `).join("");
     el("flyer-preview").innerHTML = `
-      <div class="${sheetClass}">
+      <div class="${sheetClass}" lang="${escapeHtml(flyerLang)}" dir="${escapeHtml((flyerLocale.meta && flyerLocale.meta.direction) || "ltr")}">
         <div class="left-tear-offs">${tearOffHtml}</div>
         <div class="content">
           <h1>${redactionToHtml(config.title)}</h1>
@@ -568,6 +720,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     el("poster-url-output").textContent = poster.posterUrl;
     el("field-url").value = poster.posterUrl;
     refreshIdentityState();
+    syncUiLanguage(poster.payload.lang);
     renderPreview(normalizePayload(poster.payload));
   }
 
@@ -636,6 +789,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       : await fetchEvent(parsed.id, relays);
     const payload = payloadFromEvent(nostrEvent);
     const config = normalizePayload(payload);
+    syncUiLanguage(config.lang);
+    el("field-lang").value = config.lang;
     el("viewer-config-output").value = JSON.stringify(config, null, 2);
     renderPreview(config);
     statusElement.textContent = `Fetched ${parsed.type === "address" ? parsed.address.identifier : parsed.id}`;
@@ -643,7 +798,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
   }
 
   document.addEventListener("DOMContentLoaded", () => {
-    setDefaultText();
+    setDefaultText(getStoredUiLang() || navigator.language.split("-")[0]);
     const urlEvent = getUrlEventReference();
     setMode(window.location.hash === "#editor" && !urlEvent ? "editor" : "viewer");
     if (urlEvent) {
@@ -658,6 +813,12 @@ Join us in a revolution that values truth and transparency. Together, we can bui
 
     document.querySelectorAll(".tab").forEach((button) => {
       button.addEventListener("click", () => setMode(button.dataset.mode));
+    });
+
+    el("field-lang").addEventListener("change", () => {
+      const lang = supportedLang(el("field-lang").value || FALLBACK_LANG);
+      applyFlyerDefaults(lang);
+      renderPreview(buildPayloadFromForm());
     });
 
     el("open-viewer-controls").addEventListener("click", openViewerDrawer);
