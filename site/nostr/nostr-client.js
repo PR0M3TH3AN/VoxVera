@@ -31,11 +31,11 @@
     title: "TOP SECRET",
     subtitle: "DO ~~NOT~~ DISTRIBUTE",
     headline: "OPERATION VOX VERA",
-    content: `Break free from censorship with VoxVera. An anonymous guerrilla marketing and message-spreading tool. Whether online or in the physical world, it can empower you to spread your ideas boldly, shielded by complete anonymity (if you host over Tor). Download the code, design a flyer site, host it online and amplify your message.
+    content: `Break free from censorship with VoxVera. A Nostr-powered guerrilla marketing and message-spreading tool. Whether online or in the physical world, it helps you publish flyer content to decentralized relays and spread your ideas boldly without relying on a central server.
 
 Use memetic power to share your ideas in your school, workplace, online communities, or even globally. VoxVera ensures your message resonates far and wide, with tear-off sections featuring unique URLs and QR codes for easy reprinting.
 
-Privacy can be maintained. Flyers can be shared via the Tor network, protecting hoster and users from censorship.
+Resilience comes from Nostr. Flyer source events can be mirrored across relays, while any static or offline client can fetch, verify, and render the poster again.
 
 Join us in a revolution that values truth and transparency. Together, we can build a network of informed citizens who are unafraid to speak out.`,
     url_message: "Follow this link to learn more.",
