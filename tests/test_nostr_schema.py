@@ -29,7 +29,14 @@ def _event(payload=None, **overrides):
     event = {
         "kind": 30078,
         "content": json.dumps(payload or _payload()),
-        "tags": [["d", "voxvera:nostr-flyer"], ["t", "voxvera"], ["t", "flyer"]],
+        "tags": [
+            ["d", "voxvera:nostr-flyer"],
+            ["t", "voxvera"],
+            ["t", "flyer"],
+            ["language", "en"],
+            ["L", "ISO-639-1"],
+            ["l", "en", "ISO-639-1"],
+        ],
     }
     event.update(overrides)
     return event
@@ -41,6 +48,21 @@ def test_validate_accepts_direct_payload():
 
 def test_validate_accepts_nostr_event_payload():
     assert validate_event_source(_event())["content"] == "This flyer came from a Nostr event."
+
+
+def test_validate_uses_language_tag_when_payload_lang_is_missing():
+    payload = _payload()
+    payload.pop("lang")
+    event = _event(payload, tags=[
+        ["d", "voxvera:nostr-flyer"],
+        ["t", "voxvera"],
+        ["t", "flyer"],
+        ["language", "es"],
+        ["L", "ISO-639-1"],
+        ["l", "es", "ISO-639-1"],
+    ])
+
+    assert validate_event_source(event)["lang"] == "es"
 
 
 def test_normalize_maps_to_flyer_config_defaults():

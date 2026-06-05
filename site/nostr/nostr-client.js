@@ -751,6 +751,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
 
   function buildUnsignedEvent(payload) {
     const folderName = slugify(payload.folder_name);
+    const lang = supportedLang(payload.lang || FALLBACK_LANG);
     return {
       kind: EVENT_KIND,
       created_at: Math.floor(Date.now() / 1000),
@@ -759,7 +760,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
         ["t", "voxvera"],
         ["t", "flyer"],
         ["title", payload.headline || payload.title || folderName],
-        ["language", payload.lang || "en"]
+        ["language", lang],
+        ["L", "ISO-639-1"],
+        ["l", lang, "ISO-639-1"]
       ],
       content: JSON.stringify(payload)
     };
@@ -1011,8 +1014,19 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     const hasTag = (name, value) => Array.isArray(event.tags) && event.tags.some((tag) => tag[0] === name && tag[1] === value);
     if (!hasTag("t", "voxvera") || !hasTag("t", "flyer")) throw new Error("Event is missing VoxVera flyer tags.");
     const payload = JSON.parse(event.content);
+    const taggedLang = languageFromTags(event.tags);
+    if (!payload.lang && taggedLang) {
+      payload.lang = taggedLang;
+    }
     validatePayload(payload);
     return payload;
+  }
+
+  function languageFromTags(tags) {
+    if (!Array.isArray(tags)) return "";
+    const languageTag = tags.find((tag) => Array.isArray(tag) && tag[0] === "language" && tag[1]);
+    const labelTag = tags.find((tag) => Array.isArray(tag) && tag[0] === "l" && tag[1]);
+    return supportedLang((languageTag && languageTag[1]) || (labelTag && labelTag[1]) || "");
   }
 
   function makeQrSvg(value) {

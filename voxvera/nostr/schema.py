@@ -137,6 +137,10 @@ def _extract_payload(source: dict[str, Any]) -> dict[str, Any]:
         raise NostrValidationError(f"Nostr event content is not valid JSON: {exc.msg}") from exc
     if not isinstance(payload, dict):
         raise NostrValidationError("Nostr event content must decode to a JSON object.")
+    if not payload.get("lang"):
+        tagged_lang = _language_from_tags(source.get("tags", []))
+        if tagged_lang:
+            payload["lang"] = tagged_lang
     return payload
 
 
@@ -180,6 +184,16 @@ def _has_tag(source: dict[str, Any], name: str, value: str) -> bool:
     if not isinstance(tags, list):
         return False
     return any(isinstance(tag, list) and len(tag) >= 2 and tag[0] == name and tag[1] == value for tag in tags)
+
+
+def _language_from_tags(tags: Any) -> str:
+    if not isinstance(tags, list):
+        return ""
+    for tag_name in ("language", "l"):
+        for tag in tags:
+            if isinstance(tag, list) and len(tag) >= 2 and tag[0] == tag_name:
+                return _normalize_lang(str(tag[1]))
+    return ""
 
 
 def _normalize_lang(lang: str) -> str:

@@ -61,6 +61,14 @@ Required tags:
 - `["t", "voxvera"]`
 - `["t", "flyer"]`
 
+Recommended language tags:
+
+- `["language", "<lang>"]`
+- `["L", "ISO-639-1"]`
+- `["l", "<lang>", "ISO-639-1"]`
+
+The payload `lang` field is authoritative. The language tags exist for relay/search metadata and as a fallback for older events whose payload omitted `lang`.
+
 Payload:
 
 ```json
@@ -118,6 +126,9 @@ Nostr editor/viewer controls and Nostr-specific flyer labels come from `NOSTR_UI
 
 Language changes should:
 
+- publish the selected flyer language in payload `lang`
+- publish matching Nostr language tags
+- infer language from event tags if a fetched payload omits `lang`
 - update default flyer content while the flyer is still using default content
 - preserve user-authored or fetched event content
 - update editor/viewer tool labels
