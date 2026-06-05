@@ -562,24 +562,30 @@ body.mode-viewer .flyer-preview {
   justify-content: center;
   align-items: flex-start;
   min-height: 100vh;
-  padding: 20px 0;
+  padding: 58px 0 20px;
   overflow: auto;
 }
 
 body.mode-viewer .viewer-floating {
   position: fixed;
   top: 12px;
-  right: 12px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 20;
   display: flex;
   align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
   gap: 8px;
+  width: min(calc(100vw - 24px), 760px);
+  pointer-events: none;
 }
 
 body.mode-viewer .viewer-floating button {
   min-height: 34px;
   padding: 6px 10px;
   font-size: 12px;
+  pointer-events: auto;
 }
 
 body.mode-viewer .viewer-floating select {
@@ -589,6 +595,7 @@ body.mode-viewer .viewer-floating select {
   padding: 6px 8px;
   font-size: 12px;
   background: #fff;
+  pointer-events: auto;
 }
 
 body.mode-viewer #viewer-panel {
@@ -664,6 +671,7 @@ body.mode-viewer #viewer-panel.drawer-open .result-panel {
   body > header,
   body > .viewer-floating,
   .viewer-floating,
+  .viewer-floating *,
   #open-viewer-controls,
   #viewer-print,
   #viewer-editor,
