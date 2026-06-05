@@ -1,92 +1,54 @@
 # VoxVera
 
-**Anonymous Information Distribution Engine**
+VoxVera is now a static Nostr-powered flyer client.
 
-Generate printable flyers with QR codes linking to Tor (.onion) hidden services. VoxVera is built for activists, journalists, and anyone who needs to spread a message securely and anonymously.
+The active app lives at [`site/nostr/`](site/nostr/). It lets a user author flyer content, publish it as a public Nostr event, and render the flyer later from an event ID or Nostr address. The frontend is intentionally self-contained: relays store the content, and any static host can serve the client.
 
----
+The previous Tor/OnionShare CLI version is preserved on the `legacy-tor` branch.
 
-## Installation
+## What Is In `main`
 
-VoxVera is designed for maximum portability and censorship resistance.
+- `site/nostr/`: static editor/viewer client
+- `site/nostr/vendor/`: vendored browser dependencies for Nostr and QR generation
+- `site/CNAME`: custom-domain target
+- `voxvera/nostr/`: small Python schema/validation helpers
+- `docs/nostr-static-client-spec.md`: design notes and development plan
 
-Linux with systemd is the supported persistent-host deployment target.
-Windows, macOS, Docker, Flatpak, AppImage, Homebrew, and Chocolatey remain experimental until their background Tor hosting and auto-recovery paths are validated end-to-end.
+## Local Development
 
-See [docs/platform-support-matrix.md](docs/platform-support-matrix.md) for the canonical platform status table and [docs/roadmap-platform-parity.md](docs/roadmap-platform-parity.md) for the parity plan.
-For the supported Linux hosting path, use [docs/linux-hosting-validation.md](docs/linux-hosting-validation.md) as the operational validation runbook.
+Run the static site from the repo root:
 
-### 1. Standalone Binaries (Recommended)
-Download the executable for your OS:
-- 🐧 [**Linux**](https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera-linux)
-- 🪟 [**Windows (Experimental)**](https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera-windows.exe)
-- 🍏 [**macOS (Experimental)**](https://github.com/PR0M3TH3AN/VoxVera/releases/latest/download/voxvera-macos)
-
-### 2. Universal Mirroring (The "Viral" Method)
-If you found a physical VoxVera flyer, scan it and click **"Download"**. You will receive a `voxvera-portable.zip` containing the full tool, all dependencies, and all 14 languages—ready to run offline.
-
-### 3. One-Line Installer (Linux/macOS)
 ```bash
-curl -fsSL https://raw.githubusercontent.com/PR0M3TH3AN/VoxVera/main/install.sh | bash
-```
-On Linux, this now installs the recurring `systemd --user` recovery timer used to retry hidden-service startup after boot or offline periods. On macOS, the installer path is still experimental.
-
-### 4. Developer / Python Install
-```bash
-pip install .
-voxvera vendorize  # Optional: pull dependencies locally for offline use
+python3 -m http.server 8768 --directory site
 ```
 
-### 5. Local Validation
-Run the full local validation sweep with:
-```bash
-bash scripts/check.sh
+Then open:
+
+```text
+http://127.0.0.1:8768/nostr/
 ```
-This runs linting, Python tests, Electron smoke tests, dependency checks, and the docs/site rebuild steps used during development.
 
----
+No build command is required for the frontend.
 
-## Key Features
+## Vercel
 
-*   **Universal Mirroring**: Every flyer acts as a mirror for the tool itself. The "Download" button provides a portable version of VoxVera, creating a decentralized distribution network.
-*   **Standalone Binaries**: Zero-install executables for high-security environments.
-*   **Global Multi-Script Support**: Native support for 14 languages including **Arabic (RTL)**, **Hebrew (RTL)**, **Hindi (Devanagari)**, **Japanese/Chinese (CJK)**, and **Russian (Cyrillic)**.
-*   **Tor-Safe Architecture**: 100% static HTML flyers. Works perfectly in Tor "Safest" mode with **JavaScript completely disabled**.
-*   **Integrated Server Manager**: `voxvera manage` provides an interactive UI to handle multiple flyers, monitor Tor bootstrapping, and manage persistent .onion URLs.
-*   **Secure Migration**: Bulk export and import of flyers and their unique Tor identity keys via `~/voxvera-exports/`.
+Point Vercel at this repository on `main`.
 
----
+- Framework preset: Other
+- Root directory: repo root
+- Build command: leave empty
+- Output directory: `site`
 
-## Documentation
+The root `site/index.html` redirects to `/nostr/`, so the domain can serve the current client without preserving the legacy Tor page.
 
-VoxVera is available in multiple languages. Select your preferred language for the detailed usage guide:
+## Verification
 
-| Language | Documentation | Contributing | Agent Guide |
-| :--- | :--- | :--- | :--- |
-| 🇺🇸 **English** | [usage.md](docs/en/usage.md) | [CONTRIBUTING.md](docs/en/CONTRIBUTING.md) | [AGENTS.md](docs/en/AGENTS.md) |
-| 🇪🇸 **Español** | [usage.md](docs/es/usage.md) | [CONTRIBUTING.md](docs/es/CONTRIBUTING.md) | [AGENTS.md](docs/es/AGENTS.md) |
-| 🇩🇪 **Deutsch** | [usage.md](docs/de/usage.md) | [CONTRIBUTING.md](docs/de/CONTRIBUTING.md) | [AGENTS.md](docs/de/AGENTS.md) |
-| 🇫🇷 **Français** | [usage.md](docs/fr/usage.md) | [CONTRIBUTING.md](docs/fr/CONTRIBUTING.md) | [AGENTS.md](docs/fr/AGENTS.md) |
-| 🇷🇺 **Русский** | [usage.md](docs/ru/usage.md) | [CONTRIBUTING.md](docs/ru/CONTRIBUTING.md) | [AGENTS.md](docs/ru/AGENTS.md) |
-| 🇮🇱 **עברית** | [usage.md](docs/he/usage.md) | [CONTRIBUTING.md](docs/he/CONTRIBUTING.md) | [AGENTS.md](docs/he/AGENTS.md) |
-| 🇸🇦 **العربية** | [usage.md](docs/ar/usage.md) | [CONTRIBUTING.md](docs/ar/CONTRIBUTING.md) | [AGENTS.md](docs/ar/AGENTS.md) |
-| 🇯🇵 **日本語** | [usage.md](docs/ja/usage.md) | [CONTRIBUTING.md](docs/ja/CONTRIBUTING.md) | [AGENTS.md](docs/ja/AGENTS.md) |
-| 🇮🇳 **हिन्दी** | [usage.md](docs/hi/usage.md) | [CONTRIBUTING.md](docs/hi/CONTRIBUTING.md) | [AGENTS.md](docs/hi/AGENTS.md) |
-| 🇰🇪 **Kiswahili** | [usage.md](docs/sw/usage.md) | [CONTRIBUTING.md](docs/sw/CONTRIBUTING.md) | [AGENTS.md](docs/sw/AGENTS.md) |
+```bash
+node --check site/nostr/nostr-client.js
+pytest -q
+```
 
----
-
-## Roadmap (v0.2.0)
-
-We are actively working on:
-- **PGP Signing**: Cryptographic proof of tool integrity.
-- **Nostr Integration**: Automated social amplification.
-- **Template Gallery**: Visual styles for protests, alerts, and art.
-- **Self-Healing Network**: Automated decentralized updates.
-
-See [ROADMAP-v0.2.0.md](docs/roadmap-v0.2.0.md) for details.
-
----
+The Python tests only cover the Nostr source schema. The frontend is static and should be checked in-browser for layout and print behavior after UI changes.
 
 ## License
 

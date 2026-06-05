@@ -45,15 +45,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     attachment_filename: ""
   };
   const UI_LABELS = {
-    "label-relays": "cli.init_links",
-    "label-title": "cli.init_title",
-    "label-subtitle": "cli.init_subtitle",
-    "label-headline": "cli.init_headline",
-    "label-content": "cli.init_body",
-    "label-url-message": "cli.url_message_label",
-    "label-poster-url": "cli.url_label",
-    "label-footer-message": "cli.footer_message_label",
-    "label-viewer-relays": "cli.init_links"
+    "label-relays": "labels.relays",
+    "label-title": "labels.title",
+    "label-subtitle": "labels.subtitle",
+    "label-headline": "labels.headline",
+    "label-content": "labels.content",
+    "label-url-message": "labels.url_message",
+    "label-poster-url": "labels.poster_url",
+    "label-footer-message": "labels.footer_message",
+    "label-viewer-relays": "labels.relays"
   };
   const NOSTR_TEXT_LABELS = {
     "label-flyer-name": "flyer_name",
@@ -505,8 +505,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     Object.entries(BUTTON_LABELS).forEach(([id, key]) => setButtonText(id, nostrLabel(key, selected)));
     setButtonText("print-preview", translate("web.print_button", selected) || BUTTON_LABELS["print-preview"]);
     setButtonText("viewer-print", translate("web.print_button", selected) || BUTTON_LABELS["viewer-print"]);
-    setButtonText("viewer-editor", translate("cli.manage_action_edit", selected) || BUTTON_LABELS["viewer-editor"]);
-    setButtonText("close-viewer-controls", translate("cli.manage_action_back", selected) || BUTTON_LABELS["close-viewer-controls"]);
+    setButtonText("viewer-editor", nostrLabel("editor", selected));
+    setButtonText("close-viewer-controls", nostrLabel("back", selected));
 
     LANGUAGE_SELECT_IDS.forEach((selectId) => {
       const select = el(selectId);
