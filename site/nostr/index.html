@@ -12,10 +12,13 @@
       <h1>VoxVera Nostr Client</h1>
       <p>Static editor and viewer for decentralized flyer source events.</p>
     </div>
-    <nav class="mode-tabs" aria-label="Client mode">
-      <button id="editor-tab" class="tab active" type="button" data-mode="editor">Editor</button>
-      <button id="viewer-tab" class="tab" type="button" data-mode="viewer">Viewer</button>
-    </nav>
+    <div class="topbar-controls">
+      <nav class="mode-tabs" aria-label="Client mode">
+        <button id="editor-tab" class="tab active" type="button" data-mode="editor">Editor</button>
+        <button id="viewer-tab" class="tab" type="button" data-mode="viewer">Viewer</button>
+      </nav>
+      <select id="topbar-lang" aria-label="Language"></select>
+    </div>
   </header>
 
   <div class="viewer-floating" aria-label="Viewer controls">

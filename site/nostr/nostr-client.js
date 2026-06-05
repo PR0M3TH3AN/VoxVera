@@ -10,6 +10,7 @@
   const UI_LANG_STORAGE_KEY = "voxvera_nostr_lang";
   const LOCALES = window.VoxVeraLocales || {};
   const FALLBACK_LANG = "en";
+  const LANGUAGE_SELECT_IDS = ["topbar-lang", "field-lang", "viewer-lang"];
   const EVENT_KIND = 30078;
   const FIELD_LIMITS = {
     folder_name: 64,
@@ -45,36 +46,326 @@ Join us in a revolution that values truth and transparency. Together, we can bui
   };
   const UI_LABELS = {
     "label-relays": "cli.init_links",
-    "label-flyer-name": "cli.init_folder",
-    "label-page-title": "cli.init_name",
     "label-title": "cli.init_title",
     "label-subtitle": "cli.init_subtitle",
     "label-headline": "cli.init_headline",
     "label-content": "cli.init_body",
     "label-url-message": "cli.url_message_label",
     "label-poster-url": "cli.url_label",
-    "label-footer-message": "cli.footer_message_label"
+    "label-footer-message": "cli.footer_message_label",
+    "label-viewer-relays": "cli.init_links"
+  };
+  const NOSTR_TEXT_LABELS = {
+    "label-flyer-name": "flyer_name",
+    "label-language": "language",
+    "label-page-title": "page_title",
+    "label-event-id": "event_id"
   };
   const BUTTON_LABELS = {
-    "preview-editor": "Preview",
-    "export-event": "Export event JSON",
-    "publish-event": "Sign and publish",
-    "copy-viewer-config": "Copy config JSON",
-    "print-preview": "Print preview",
-    "open-viewer-controls": "Load Event",
-    "viewer-print": "Print",
-    "viewer-editor": "Editor",
-    "close-viewer-controls": "Close",
-    "generate-anon-identity": "Generate anonymous npub",
-    "viewer-fetch-render": "Fetch and render"
+    "preview-editor": "preview",
+    "export-event": "export_event",
+    "publish-event": "publish_event",
+    "copy-viewer-config": "copy_config",
+    "print-preview": "print_preview",
+    "open-viewer-controls": "load_event",
+    "viewer-print": "print",
+    "viewer-editor": "editor",
+    "close-viewer-controls": "back",
+    "generate-anon-identity": "generate_npub",
+    "viewer-fetch-render": "fetch_render",
+    "editor-tab": "editor",
+    "viewer-tab": "viewer"
   };
   const HEADING_LABELS = {
-    "editor-heading": "Editor",
-    "viewer-heading": "Viewer",
-    "published-event-heading": "Published Event",
-    "normalized-config-heading": "Normalized Config",
-    "preview-heading": "Preview"
+    "editor-heading": "editor",
+    "viewer-heading": "viewer",
+    "published-event-heading": "published_event",
+    "normalized-config-heading": "normalized_config",
+    "preview-heading": "preview"
   };
+  const NOSTR_UI = {
+    ar: {
+      back: "رجوع",
+      copy_config: "نسخ JSON للإعداد",
+      editor: "المحرر",
+      event_id: "معرّف الحدث",
+      export_event: "تصدير JSON الحدث",
+      fetch_render: "جلب وعرض",
+      flyer_name: "اسم المنشور",
+      generate_npub: "إنشاء npub مجهول",
+      language: "اللغة",
+      load_event: "تحميل الحدث",
+      normalized_config: "الإعداد الموحد",
+      page_title: "عنوان الصفحة",
+      preview: "معاينة",
+      print: "اطبع المنشور",
+      print_preview: "اطبع المعاينة",
+      publish_event: "توقيع ونشر",
+      published_event: "الحدث المنشور",
+      viewer: "العارض"
+    },
+    de: {
+      back: "Zurück",
+      copy_config: "Konfig-JSON kopieren",
+      editor: "Editor",
+      event_id: "Event-ID",
+      export_event: "Event-JSON exportieren",
+      fetch_render: "Abrufen und anzeigen",
+      flyer_name: "Flyername",
+      generate_npub: "Anonymes npub erzeugen",
+      language: "Sprache",
+      load_event: "Event laden",
+      normalized_config: "Normalisierte Konfiguration",
+      page_title: "Seitentitel",
+      preview: "Vorschau",
+      print: "Flyer drucken",
+      print_preview: "Vorschau drucken",
+      publish_event: "Signieren und veröffentlichen",
+      published_event: "Veröffentlichtes Event",
+      viewer: "Viewer"
+    },
+    en: {
+      back: "Back",
+      copy_config: "Copy config JSON",
+      editor: "Editor",
+      event_id: "Event ID",
+      export_event: "Export event JSON",
+      fetch_render: "Fetch and render",
+      flyer_name: "Flyer Name",
+      generate_npub: "Generate anonymous npub",
+      language: "Language",
+      load_event: "Load Event",
+      normalized_config: "Normalized Config",
+      page_title: "Page title",
+      preview: "Preview",
+      print: "Print this page",
+      print_preview: "Print preview",
+      publish_event: "Sign and publish",
+      published_event: "Published Event",
+      viewer: "Viewer"
+    },
+    es: {
+      back: "Volver",
+      copy_config: "Copiar JSON de config.",
+      editor: "Editor",
+      event_id: "ID del evento",
+      export_event: "Exportar JSON del evento",
+      fetch_render: "Buscar y renderizar",
+      flyer_name: "Nombre del volante",
+      generate_npub: "Generar npub anónimo",
+      language: "Idioma",
+      load_event: "Cargar evento",
+      normalized_config: "Configuración normalizada",
+      page_title: "Título de la página",
+      preview: "Vista previa",
+      print: "Imprimir volante",
+      print_preview: "Imprimir vista previa",
+      publish_event: "Firmar y publicar",
+      published_event: "Evento publicado",
+      viewer: "Visor"
+    },
+    fa: {
+      back: "بازگشت",
+      copy_config: "کپی JSON پیکربندی",
+      editor: "ویرایشگر",
+      event_id: "شناسه رویداد",
+      export_event: "خروجی JSON رویداد",
+      fetch_render: "دریافت و نمایش",
+      flyer_name: "نام اعلامیه",
+      generate_npub: "ساخت npub ناشناس",
+      language: "زبان",
+      load_event: "بارگذاری رویداد",
+      normalized_config: "پیکربندی عادی‌شده",
+      page_title: "عنوان صفحه",
+      preview: "پیش‌نمایش",
+      print: "چاپ اعلامیه",
+      print_preview: "چاپ پیش‌نمایش",
+      publish_event: "امضا و انتشار",
+      published_event: "رویداد منتشرشده",
+      viewer: "نمایشگر"
+    },
+    fr: {
+      back: "Retour",
+      copy_config: "Copier le JSON config",
+      editor: "Editeur",
+      event_id: "ID d'evenement",
+      export_event: "Exporter le JSON de l'evenement",
+      fetch_render: "Charger et afficher",
+      flyer_name: "Nom du flyer",
+      generate_npub: "Generer un npub anonyme",
+      language: "Langue",
+      load_event: "Charger l'evenement",
+      normalized_config: "Configuration normalisee",
+      page_title: "Titre de page",
+      preview: "Apercu",
+      print: "Imprimer le flyer",
+      print_preview: "Imprimer l'apercu",
+      publish_event: "Signer et publier",
+      published_event: "Evenement publie",
+      viewer: "Visionneuse"
+    },
+    he: {
+      back: "חזרה",
+      copy_config: "העתק JSON תצורה",
+      editor: "עורך",
+      event_id: "מזהה אירוע",
+      export_event: "ייצוא JSON אירוע",
+      fetch_render: "טען והצג",
+      flyer_name: "שם הפלייר",
+      generate_npub: "צור npub אנונימי",
+      language: "שפה",
+      load_event: "טען אירוע",
+      normalized_config: "תצורה מנורמלת",
+      page_title: "כותרת עמוד",
+      preview: "תצוגה מקדימה",
+      print: "הדפס פלייר",
+      print_preview: "הדפס תצוגה מקדימה",
+      publish_event: "חתום ופרסם",
+      published_event: "אירוע שפורסם",
+      viewer: "מציג"
+    },
+    hi: {
+      back: "पीछे",
+      copy_config: "कॉन्फिग JSON कॉपी करें",
+      editor: "संपादक",
+      event_id: "इवेंट ID",
+      export_event: "इवेंट JSON निर्यात करें",
+      fetch_render: "लाएं और दिखाएं",
+      flyer_name: "फ्लायर नाम",
+      generate_npub: "अनाम npub बनाएं",
+      language: "भाषा",
+      load_event: "इवेंट लोड करें",
+      normalized_config: "सामान्यीकृत कॉन्फिग",
+      page_title: "पृष्ठ शीर्षक",
+      preview: "पूर्वावलोकन",
+      print: "फ्लायर प्रिंट करें",
+      print_preview: "पूर्वावलोकन प्रिंट करें",
+      publish_event: "हस्ताक्षर कर प्रकाशित करें",
+      published_event: "प्रकाशित इवेंट",
+      viewer: "दर्शक"
+    },
+    ja: {
+      back: "戻る",
+      copy_config: "設定JSONをコピー",
+      editor: "エディター",
+      event_id: "イベントID",
+      export_event: "イベントJSONを書き出す",
+      fetch_render: "取得して表示",
+      flyer_name: "フライヤー名",
+      generate_npub: "匿名npubを生成",
+      language: "言語",
+      load_event: "イベントを読み込む",
+      normalized_config: "正規化設定",
+      page_title: "ページタイトル",
+      preview: "プレビュー",
+      print: "フライヤーを印刷",
+      print_preview: "プレビューを印刷",
+      publish_event: "署名して公開",
+      published_event: "公開済みイベント",
+      viewer: "ビューア"
+    },
+    pt: {
+      back: "Voltar",
+      copy_config: "Copiar JSON de config.",
+      editor: "Editor",
+      event_id: "ID do evento",
+      export_event: "Exportar JSON do evento",
+      fetch_render: "Buscar e renderizar",
+      flyer_name: "Nome do panfleto",
+      generate_npub: "Gerar npub anonimo",
+      language: "Idioma",
+      load_event: "Carregar evento",
+      normalized_config: "Configuracao normalizada",
+      page_title: "Titulo da pagina",
+      preview: "Previa",
+      print: "Imprimir Panfleto",
+      print_preview: "Imprimir previa",
+      publish_event: "Assinar e publicar",
+      published_event: "Evento publicado",
+      viewer: "Visualizador"
+    },
+    ru: {
+      back: "Назад",
+      copy_config: "Копировать JSON конфигурации",
+      editor: "Редактор",
+      event_id: "ID события",
+      export_event: "Экспорт JSON события",
+      fetch_render: "Загрузить и отобразить",
+      flyer_name: "Название листовки",
+      generate_npub: "Создать анонимный npub",
+      language: "Язык",
+      load_event: "Загрузить событие",
+      normalized_config: "Нормализованная конфигурация",
+      page_title: "Заголовок страницы",
+      preview: "Предпросмотр",
+      print: "Печать листовки",
+      print_preview: "Печать предпросмотра",
+      publish_event: "Подписать и опубликовать",
+      published_event: "Опубликованное событие",
+      viewer: "Просмотр"
+    },
+    sw: {
+      back: "Rudi",
+      copy_config: "Nakili JSON ya usanidi",
+      editor: "Kihariri",
+      event_id: "Kitambulisho cha tukio",
+      export_event: "Hamisha JSON ya tukio",
+      fetch_render: "Pakua na onyesha",
+      flyer_name: "Jina la kipeperushi",
+      generate_npub: "Tengeneza npub isiyojulikana",
+      language: "Lugha",
+      load_event: "Pakia tukio",
+      normalized_config: "Usanidi uliorekebishwa",
+      page_title: "Kichwa cha ukurasa",
+      preview: "Hakiki",
+      print: "Chapa Kipeperushi",
+      print_preview: "Chapa hakiki",
+      publish_event: "Saini na chapisha",
+      published_event: "Tukio lililochapishwa",
+      viewer: "Kitazamaji"
+    },
+    tr: {
+      back: "Geri",
+      copy_config: "Yapılandırma JSON'unu kopyala",
+      editor: "Düzenleyici",
+      event_id: "Olay ID",
+      export_event: "Olay JSON'unu dışa aktar",
+      fetch_render: "Getir ve göster",
+      flyer_name: "İlan adı",
+      generate_npub: "Anonim npub oluştur",
+      language: "Dil",
+      load_event: "Olay yükle",
+      normalized_config: "Normalleştirilmiş yapılandırma",
+      page_title: "Sayfa başlığı",
+      preview: "Önizleme",
+      print: "İlanı Yazdır",
+      print_preview: "Önizlemeyi yazdır",
+      publish_event: "İmzala ve yayınla",
+      published_event: "Yayınlanan olay",
+      viewer: "Görüntüleyici"
+    },
+    zh: {
+      back: "返回",
+      copy_config: "复制配置 JSON",
+      editor: "编辑器",
+      event_id: "事件 ID",
+      export_event: "导出事件 JSON",
+      fetch_render: "获取并渲染",
+      flyer_name: "传单名称",
+      generate_npub: "生成匿名 npub",
+      language: "语言",
+      load_event: "加载事件",
+      normalized_config: "标准化配置",
+      page_title: "页面标题",
+      preview: "预览",
+      print: "打印传单",
+      print_preview: "打印预览",
+      publish_event: "签名并发布",
+      published_event: "已发布事件",
+      viewer: "查看器"
+    }
+  };
+  let flyerSource = "default";
 
   const el = (id) => document.getElementById(id);
 
@@ -91,6 +382,17 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     return path.split(".").reduce((value, key) => (value && value[key] !== undefined ? value[key] : undefined), data);
   }
 
+  function htmlBreaksToNewlines(value) {
+    return String(value || "").replace(/<br\s*\/?>/gi, "\n");
+  }
+
+  function nostrLabel(key, lang) {
+    const selected = supportedLang(lang);
+    return (NOSTR_UI[selected] && NOSTR_UI[selected][key])
+      || (NOSTR_UI[FALLBACK_LANG] && NOSTR_UI[FALLBACK_LANG][key])
+      || key;
+  }
+
   function localeDefaults(lang) {
     const data = localeData(lang);
     const landing = data.landing || {};
@@ -102,7 +404,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       title: landing.title || CONFIG_DEFAULTS.title,
       subtitle: landing.subtitle || CONFIG_DEFAULTS.subtitle,
       headline: landing.headline || CONFIG_DEFAULTS.headline,
-      content: landing.content || CONFIG_DEFAULTS.content,
+      content: htmlBreaksToNewlines(landing.content || CONFIG_DEFAULTS.content),
       url_message: landing.url_message || CONFIG_DEFAULTS.url_message,
       url: CONFIG_DEFAULTS.url,
       tear_off_link: "",
@@ -128,7 +430,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       const bName = (b[1] && b[1].meta && b[1].meta.language_name) || b[0];
       return aName.localeCompare(bName);
     });
-    ["field-lang", "viewer-lang"].forEach((selectId) => {
+    LANGUAGE_SELECT_IDS.forEach((selectId) => {
       const select = el(selectId);
       if (!select) return;
       select.innerHTML = "";
@@ -156,14 +458,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       const translated = translate(path, selected);
       if (translated) setText(id, translated);
     });
-    Object.entries(HEADING_LABELS).forEach(([id, value]) => setText(id, value));
-    Object.entries(BUTTON_LABELS).forEach(([id, value]) => setButtonText(id, value));
+    Object.entries(NOSTR_TEXT_LABELS).forEach(([id, key]) => setText(id, nostrLabel(key, selected)));
+    Object.entries(HEADING_LABELS).forEach(([id, key]) => setText(id, nostrLabel(key, selected)));
+    Object.entries(BUTTON_LABELS).forEach(([id, key]) => setButtonText(id, nostrLabel(key, selected)));
     setButtonText("print-preview", translate("web.print_button", selected) || BUTTON_LABELS["print-preview"]);
     setButtonText("viewer-print", translate("web.print_button", selected) || BUTTON_LABELS["viewer-print"]);
     setButtonText("viewer-editor", translate("cli.manage_action_edit", selected) || BUTTON_LABELS["viewer-editor"]);
     setButtonText("close-viewer-controls", translate("cli.manage_action_back", selected) || BUTTON_LABELS["close-viewer-controls"]);
 
-    ["field-lang", "viewer-lang"].forEach((selectId) => {
+    LANGUAGE_SELECT_IDS.forEach((selectId) => {
       const select = el(selectId);
       if (select) select.value = selected;
     });
@@ -192,6 +495,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
 
   function applyFlyerDefaults(lang) {
     const defaults = localeDefaults(lang);
+    flyerSource = "default";
     el("field-lang").value = defaults.lang;
     el("field-folder-name").value = defaults.folder_name;
     el("field-name").value = defaults.name;
@@ -203,6 +507,19 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     el("field-url").value = defaults.url;
     el("field-footer-message").value = defaults.footer_message;
     syncUiLanguage(defaults.lang);
+  }
+
+  function applyLanguageChange(lang) {
+    const selected = supportedLang(lang);
+    if (flyerSource === "default") {
+      applyFlyerDefaults(selected);
+      renderPreview(buildPayloadFromForm());
+      return;
+    }
+
+    el("field-lang").value = selected;
+    syncUiLanguage(selected);
+    renderPreview(normalizePayload(buildPayloadFromForm()));
   }
 
   function refreshSignerState() {
@@ -316,7 +633,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
   }
 
   function redactionToHtml(value) {
-    return escapeHtml(value).replace(/~~(.*?)~~/g, '<span style="text-decoration: line-through;">$1</span>');
+    return escapeHtml(value)
+      .replace(/~~(.*?)~~/g, '<span style="text-decoration: line-through;">$1</span>')
+      .replace(/\r?\n/g, "<br>");
   }
 
   function buildPayloadFromForm() {
@@ -351,7 +670,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       }
     });
     Object.entries(payload).forEach(([key, value]) => {
-      if (typeof value === "string" && key !== "url" && /<\s*\/?\s*[a-z][^>]*>|on[a-z]+\s*=/i.test(value)) {
+      const htmlCheckValue = typeof value === "string" ? value.replace(/<br\s*\/?>/gi, "") : value;
+      if (typeof value === "string" && key !== "url" && /<\s*\/?\s*[a-z][^>]*>|on[a-z]+\s*=/i.test(htmlCheckValue)) {
         throw new Error(`${key} contains raw HTML.`);
       }
     });
@@ -374,7 +694,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       title: payload.title || CONFIG_DEFAULTS.title,
       subtitle: payload.subtitle || CONFIG_DEFAULTS.subtitle,
       headline: payload.headline || CONFIG_DEFAULTS.headline,
-      content: payload.content || CONFIG_DEFAULTS.content,
+      content: htmlBreaksToNewlines(payload.content || CONFIG_DEFAULTS.content),
       url_message: payload.url_message || CONFIG_DEFAULTS.url_message,
       url: payload.url || CONFIG_DEFAULTS.url,
       footer_message: payload.footer_message || CONFIG_DEFAULTS.footer_message,
@@ -793,6 +1113,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       : await fetchEvent(parsed.id, relays);
     const payload = payloadFromEvent(nostrEvent);
     const config = normalizePayload(payload);
+    flyerSource = "event";
     syncUiLanguage(config.lang);
     el("field-lang").value = config.lang;
     el("viewer-config-output").value = JSON.stringify(config, null, 2);
@@ -819,15 +1140,27 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       button.addEventListener("click", () => setMode(button.dataset.mode));
     });
 
-    el("field-lang").addEventListener("change", () => {
-      const lang = supportedLang(el("field-lang").value || FALLBACK_LANG);
-      applyFlyerDefaults(lang);
-      renderPreview(buildPayloadFromForm());
+    LANGUAGE_SELECT_IDS.forEach((selectId) => {
+      const select = el(selectId);
+      if (!select) return;
+      select.addEventListener("change", () => applyLanguageChange(select.value || FALLBACK_LANG));
     });
-    el("viewer-lang").addEventListener("change", () => {
-      const lang = supportedLang(el("viewer-lang").value || FALLBACK_LANG);
-      applyFlyerDefaults(lang);
-      renderPreview(buildPayloadFromForm());
+
+    [
+      "field-folder-name",
+      "field-name",
+      "field-title",
+      "field-subtitle",
+      "field-headline",
+      "field-content",
+      "field-url-message",
+      "field-footer-message"
+    ].forEach((fieldId) => {
+      const field = el(fieldId);
+      if (!field) return;
+      field.addEventListener("input", () => {
+        flyerSource = "custom";
+      });
     });
 
     el("open-viewer-controls").addEventListener("click", openViewerDrawer);
