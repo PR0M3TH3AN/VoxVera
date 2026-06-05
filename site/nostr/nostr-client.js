@@ -96,12 +96,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       language: "اللغة",
       load_event: "تحميل الحدث",
       normalized_config: "الإعداد الموحد",
+      open_poster: "افتح هذا الملصق:",
       page_title: "عنوان الصفحة",
       preview: "معاينة",
       print: "اطبع المنشور",
       print_preview: "اطبع المعاينة",
       publish_event: "توقيع ونشر",
       published_event: "الحدث المنشور",
+      share_reprint: "شارك وأعد الطباعة.",
+      built_with: "بني بواسطة",
       viewer: "العارض"
     },
     de: {
@@ -116,12 +119,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       language: "Sprache",
       load_event: "Event laden",
       normalized_config: "Normalisierte Konfiguration",
+      open_poster: "Dieses Plakat öffnen:",
       page_title: "Seitentitel",
       preview: "Vorschau",
       print: "Flyer drucken",
       print_preview: "Vorschau drucken",
       publish_event: "Signieren und veröffentlichen",
       published_event: "Veröffentlichtes Event",
+      share_reprint: "Teilen und neu drucken.",
+      built_with: "Erstellt mit",
       viewer: "Viewer"
     },
     en: {
@@ -136,12 +142,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       language: "Language",
       load_event: "Load Event",
       normalized_config: "Normalized Config",
+      open_poster: "Open this poster:",
       page_title: "Page title",
       preview: "Preview",
       print: "Print this page",
       print_preview: "Print preview",
       publish_event: "Sign and publish",
       published_event: "Published Event",
+      share_reprint: "Share and reprint.",
+      built_with: "Built with",
       viewer: "Viewer"
     },
     es: {
@@ -156,12 +165,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       language: "Idioma",
       load_event: "Cargar evento",
       normalized_config: "Configuración normalizada",
+      open_poster: "Abra este cartel:",
       page_title: "Título de la página",
       preview: "Vista previa",
       print: "Imprimir volante",
       print_preview: "Imprimir vista previa",
       publish_event: "Firmar y publicar",
       published_event: "Evento publicado",
+      share_reprint: "Comparta y reimprima.",
+      built_with: "Creado con",
       viewer: "Visor"
     },
     fa: {
@@ -176,12 +188,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       language: "زبان",
       load_event: "بارگذاری رویداد",
       normalized_config: "پیکربندی عادی‌شده",
+      open_poster: "این پوستر را باز کنید:",
       page_title: "عنوان صفحه",
       preview: "پیش‌نمایش",
       print: "چاپ اعلامیه",
       print_preview: "چاپ پیش‌نمایش",
       publish_event: "امضا و انتشار",
       published_event: "رویداد منتشرشده",
+      share_reprint: "به اشتراک بگذارید و دوباره چاپ کنید.",
+      built_with: "ساخته شده با",
       viewer: "نمایشگر"
     },
     fr: {
@@ -196,12 +211,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       language: "Langue",
       load_event: "Charger l'evenement",
       normalized_config: "Configuration normalisee",
+      open_poster: "Ouvrez cette affiche :",
       page_title: "Titre de page",
       preview: "Apercu",
       print: "Imprimer le flyer",
       print_preview: "Imprimer l'apercu",
       publish_event: "Signer et publier",
       published_event: "Evenement publie",
+      share_reprint: "Partagez et reimprimez.",
+      built_with: "Cree avec",
       viewer: "Visionneuse"
     },
     he: {
@@ -216,12 +234,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       language: "שפה",
       load_event: "טען אירוע",
       normalized_config: "תצורה מנורמלת",
+      open_poster: "פתח את הכרזה הזו:",
       page_title: "כותרת עמוד",
       preview: "תצוגה מקדימה",
       print: "הדפס פלייר",
       print_preview: "הדפס תצוגה מקדימה",
       publish_event: "חתום ופרסם",
       published_event: "אירוע שפורסם",
+      share_reprint: "שתף והדפס מחדש.",
+      built_with: "נבנה עם",
       viewer: "מציג"
     },
     hi: {
@@ -236,12 +257,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       language: "भाषा",
       load_event: "इवेंट लोड करें",
       normalized_config: "सामान्यीकृत कॉन्फिग",
+      open_poster: "यह पोस्टर खोलें:",
       page_title: "पृष्ठ शीर्षक",
       preview: "पूर्वावलोकन",
       print: "फ्लायर प्रिंट करें",
       print_preview: "पूर्वावलोकन प्रिंट करें",
       publish_event: "हस्ताक्षर कर प्रकाशित करें",
       published_event: "प्रकाशित इवेंट",
+      share_reprint: "साझा करें और फिर से प्रिंट करें।",
+      built_with: "इसके साथ बनाया गया",
       viewer: "दर्शक"
     },
     ja: {
@@ -256,12 +280,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       language: "言語",
       load_event: "イベントを読み込む",
       normalized_config: "正規化設定",
+      open_poster: "このポスターを開く:",
       page_title: "ページタイトル",
       preview: "プレビュー",
       print: "フライヤーを印刷",
       print_preview: "プレビューを印刷",
       publish_event: "署名して公開",
       published_event: "公開済みイベント",
+      share_reprint: "共有して再印刷。",
+      built_with: "作成:",
       viewer: "ビューア"
     },
     pt: {
@@ -276,12 +303,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       language: "Idioma",
       load_event: "Carregar evento",
       normalized_config: "Configuracao normalizada",
+      open_poster: "Abra este cartaz:",
       page_title: "Titulo da pagina",
       preview: "Previa",
       print: "Imprimir Panfleto",
       print_preview: "Imprimir previa",
       publish_event: "Assinar e publicar",
       published_event: "Evento publicado",
+      share_reprint: "Compartilhe e reimprima.",
+      built_with: "Criado com",
       viewer: "Visualizador"
     },
     ru: {
@@ -296,12 +326,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       language: "Язык",
       load_event: "Загрузить событие",
       normalized_config: "Нормализованная конфигурация",
+      open_poster: "Откройте этот плакат:",
       page_title: "Заголовок страницы",
       preview: "Предпросмотр",
       print: "Печать листовки",
       print_preview: "Печать предпросмотра",
       publish_event: "Подписать и опубликовать",
       published_event: "Опубликованное событие",
+      share_reprint: "Поделитесь и распечатайте снова.",
+      built_with: "Создано с помощью",
       viewer: "Просмотр"
     },
     sw: {
@@ -316,12 +349,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       language: "Lugha",
       load_event: "Pakia tukio",
       normalized_config: "Usanidi uliorekebishwa",
+      open_poster: "Fungua bango hili:",
       page_title: "Kichwa cha ukurasa",
       preview: "Hakiki",
       print: "Chapa Kipeperushi",
       print_preview: "Chapa hakiki",
       publish_event: "Saini na chapisha",
       published_event: "Tukio lililochapishwa",
+      share_reprint: "Shiriki na uchapishe tena.",
+      built_with: "Imejengwa na",
       viewer: "Kitazamaji"
     },
     tr: {
@@ -336,12 +372,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       language: "Dil",
       load_event: "Olay yükle",
       normalized_config: "Normalleştirilmiş yapılandırma",
+      open_poster: "Bu posteri açın:",
       page_title: "Sayfa başlığı",
       preview: "Önizleme",
       print: "İlanı Yazdır",
       print_preview: "Önizlemeyi yazdır",
       publish_event: "İmzala ve yayınla",
       published_event: "Yayınlanan olay",
+      share_reprint: "Paylaşın ve yeniden yazdırın.",
+      built_with: "İle yapıldı",
       viewer: "Görüntüleyici"
     },
     zh: {
@@ -356,12 +395,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       language: "语言",
       load_event: "加载事件",
       normalized_config: "标准化配置",
+      open_poster: "打开此海报：",
       page_title: "页面标题",
       preview: "预览",
       print: "打印传单",
       print_preview: "打印预览",
       publish_event: "签名并发布",
       published_event: "已发布事件",
+      share_reprint: "分享并重新打印。",
+      built_with: "构建自",
       viewer: "查看器"
     }
   };
@@ -998,12 +1040,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     const tearOffQrSvg = makeQrSvg(tearOff);
     const contentQrSvg = makeQrSvg(contentQr);
     const sheetClass = tearOff ? "container" : "container no-tear-offs";
+    const openPosterLabel = nostrLabel("open_poster", flyerLang);
+    const shareReprintLabel = nostrLabel("share_reprint", flyerLang);
+    const builtWithLabel = nostrLabel("built_with", flyerLang);
     const tearOffHtml = Array.from({ length: 10 }).map(() => `
       <div class="tear-off">
         <div class="tear-off-text">
-          Open this poster:<br>
+          ${escapeHtml(openPosterLabel)}<br>
           <a href="${escapeHtml(tearOff)}">${escapeHtml(tearOff)}</a><br>
-          Share and reprint.
+          ${escapeHtml(shareReprintLabel)}
         </div>
         <div class="qr-code" aria-label="QR code for ${escapeHtml(tearOff)}">${tearOffQrSvg}</div>
       </div>
@@ -1026,7 +1071,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
           </div>
           <hr>
           <div class="footer">
-            <p class="credit">Built with <a href="https://github.com/PR0M3TH3AN/VoxVera">voxvera</a></p>
+            <p class="credit">${escapeHtml(builtWithLabel)} <a href="https://github.com/PR0M3TH3AN/VoxVera">voxvera</a></p>
             <p class="binary">${redactionToHtml(config.footer_message)}</p>
           </div>
         </div>
