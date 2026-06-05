@@ -602,6 +602,51 @@ def test_serve_updates_url(tmp_path, monkeypatch):
     assert updated["tear_off_link"] == onion_url
 
 
+def test_serve_recovers_onion_url_from_session_file(tmp_path, monkeypatch):
+    """OnionShare 2.6 may not log the URL when using system Tor."""
+    _setup_tmp(monkeypatch, tmp_path)
+    cli.main(["build"])
+    res_root = tmp_path / "data" / "voxvera"
+    test_data_dir = tmp_path / "data"
+    config = json.load(open(res_root / "src" / "config.json"))
+    folder_name = config["folder_name"]
+    dir_path = test_data_dir / "host" / folder_name
+
+    (dir_path / ".onionshare-session").write_text(
+        json.dumps({"general": {"service_id": "sessionserviceid"}}),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(cli, "require_cmd", lambda c: True)
+    orig_build = cli.build_assets
+
+    def safe_build_assets(cfg, download_path=None):
+        dest = cli.ROOT / "host" / json.load(open(cfg))["folder_name"] / "config.json"
+        if Path(cfg) == dest:
+            return
+        return orig_build(cfg, download_path=download_path)
+
+    monkeypatch.setattr(cli, "build_assets", safe_build_assets)
+    monkeypatch.setattr(time, "sleep", lambda x: None)
+
+    class FakePopen:
+        def __init__(self, cmd, stdout=None, stderr=None, env=None, **kwargs):
+            self.pid = 43
+            if stdout is not None:
+                stdout.write("Onion.start_onion_service: key_type=ED25519-V3\n")
+                stdout.flush()
+
+        def poll(self):
+            return None
+
+    monkeypatch.setattr(cli.subprocess, "Popen", FakePopen)
+
+    cli.main(["serve"])
+
+    updated = json.load(open(dir_path / "config.json"))
+    assert updated["tear_off_link"] == "http://sessionserviceid.onion"
+
+
 def test_quickstart_noninteractive(tmp_path, monkeypatch):
     """Test quickstart builds and serves in one command."""
     _setup_tmp(monkeypatch, tmp_path)
@@ -672,11 +717,309 @@ def test_install_systemd_autostart_writes_recovery_timer(tmp_path, monkeypatch):
     service_text = (service_dir / "voxvera-start.service").read_text(encoding="utf-8")
     timer_text = (service_dir / "voxvera-start.timer").read_text(encoding="utf-8")
 
-    assert "ExecStart=/tmp/voxvera start-all" in service_text
+    assert "ExecStart=/tmp/voxvera _linux_autostart_start" in service_text
+    assert "KillMode=process" in service_text
     assert "OnUnitActiveSec=5min" in timer_text
     assert "Persistent=true" in timer_text
     assert any(args[:4] == ["systemctl", "--user", "enable", "--now"] and args[4] == "voxvera-start.timer" for args in commands)
     assert any(args[:4] == ["systemctl", "--user", "start", "voxvera-start.service"] for args in commands)
+
+
+def test_linux_autostart_start_sets_hardened_environment(monkeypatch):
+    events = []
+
+    monkeypatch.delenv("VOXVERA_ONIONSHARE_NO_AWAIT_PUBLICATION", raising=False)
+    monkeypatch.delenv("VOXVERA_ONIONSHARE_SYSTEM_TOR", raising=False)
+    monkeypatch.setattr(cli, "cleanup_onionshare_tmp", lambda max_age_minutes=60: events.append(("cleanup", max_age_minutes)) or 0)
+    monkeypatch.setattr(cli, "_user_is_group_member", lambda group: False)
+    monkeypatch.setattr(cli, "start_all_servers", lambda: events.append(("start_all", None)))
+
+    cli.linux_autostart_start()
+
+    assert events == [("cleanup", 60), ("start_all", None)]
+    assert os.environ["VOXVERA_ONIONSHARE_NO_AWAIT_PUBLICATION"] == "1"
+    assert os.environ["VOXVERA_ONIONSHARE_SYSTEM_TOR"] == "1"
+
+
+def test_linux_autostart_start_switches_to_debian_tor_group(monkeypatch):
+    exec_call = {}
+
+    monkeypatch.setattr(cli, "cleanup_onionshare_tmp", lambda max_age_minutes=60: 0)
+    monkeypatch.setattr(cli, "_user_is_group_member", lambda group: group == "debian-tor")
+    monkeypatch.setattr(cli, "_current_group_names", lambda: {"user"})
+    monkeypatch.setattr(cli, "_find_voxvera_bin", lambda: "/tmp/vox vera")
+
+    def fake_execvp(binary, args):
+        exec_call["binary"] = binary
+        exec_call["args"] = args
+        raise RuntimeError("stop")
+
+    monkeypatch.setattr(cli.os, "execvp", fake_execvp)
+
+    with pytest.raises(RuntimeError, match="stop"):
+        cli.linux_autostart_start()
+
+    assert exec_call["binary"] == "sg"
+    assert exec_call["args"][:3] == ["sg", "debian-tor", "-c"]
+    assert "VOXVERA_ONIONSHARE_NO_AWAIT_PUBLICATION=1" in exec_call["args"][3]
+    assert "VOXVERA_ONIONSHARE_SYSTEM_TOR=1" in exec_call["args"][3]
+    assert "'/tmp/vox vera' start-all" in exec_call["args"][3]
+
+
+def test_serve_uses_internal_onionshare_when_no_await_requested(tmp_path, monkeypatch):
+    _setup_tmp(monkeypatch, tmp_path)
+    cli.main(["build"])
+    res_root = tmp_path / "data" / "voxvera"
+    test_data_dir = tmp_path / "data"
+    config = json.load(open(res_root / "src" / "config.json"))
+    folder_name = config["folder_name"]
+    dir_path = test_data_dir / "host" / folder_name
+
+    monkeypatch.setenv("VOXVERA_ONIONSHARE_NO_AWAIT_PUBLICATION", "1")
+    monkeypatch.setattr(cli, "require_cmd", lambda c: True)
+    monkeypatch.setattr(cli, "build_assets", lambda *args, **kwargs: None)
+    monkeypatch.setattr(time, "sleep", lambda x: None)
+    monkeypatch.setattr(cli.shutil, "which", lambda cmd: "/usr/bin/onionshare-cli" if cmd == "onionshare-cli" else None)
+
+    onion_url = "http://internalpath.onion"
+    popen_calls = []
+
+    class FakePopen:
+        def __init__(self, cmd, stdout=None, stderr=None, env=None, **kwargs):
+            popen_calls.append(cmd)
+            self.pid = 44
+            if stdout is not None:
+                stdout.write(f"URL: {onion_url}\n")
+                stdout.flush()
+
+        def poll(self):
+            return None
+
+    monkeypatch.setattr(cli.subprocess, "Popen", FakePopen)
+
+    cli.main(["serve"])
+
+    assert popen_calls
+    assert "_internal_onionshare" in popen_calls[0]
+    assert "/usr/bin/onionshare-cli" not in popen_calls[0]
+    updated = json.load(open(dir_path / "config.json"))
+    assert updated["tear_off_link"] == onion_url
+
+
+def _write_nostr_event(path, payload_overrides=None, event_overrides=None):
+    payload = {
+        "type": "voxvera_flyer",
+        "version": 1,
+        "folder_name": "nostr-flyer",
+        "lang": "en",
+        "name": "Nostr Flyer",
+        "title": "PUBLIC NOTICE",
+        "subtitle": "DO ~~NOT~~ IGNORE",
+        "headline": "NOSTR SOURCE TEST",
+        "content": "This flyer came from a Nostr event.",
+        "url_message": "Read the source.",
+        "url": "https://example.com/source",
+        "footer_message": "npub test",
+        "attachment_path": "",
+        "attachment_filename": "",
+        "qr_target": "flyer_url",
+    }
+    if payload_overrides:
+        payload.update(payload_overrides)
+    event = {
+        "id": "f" * 64,
+        "pubkey": "a" * 64,
+        "created_at": 1760000000,
+        "kind": 30078,
+        "tags": [["d", "voxvera:nostr-flyer"], ["t", "voxvera"], ["t", "flyer"]],
+        "content": json.dumps(payload),
+        "sig": "b" * 128,
+    }
+    if event_overrides:
+        event.update(event_overrides)
+    path.write_text(json.dumps(event), encoding="utf-8")
+    return path
+
+
+def test_nostr_validate_accepts_local_event_file(tmp_path, monkeypatch, capsys):
+    _setup_tmp(monkeypatch, tmp_path)
+    event_path = _write_nostr_event(tmp_path / "event.json")
+
+    cli.main(["nostr", "validate", str(event_path)])
+
+    assert "Valid VoxVera Nostr flyer: NOSTR SOURCE TEST" in capsys.readouterr().out
+
+
+def test_nostr_import_writes_existing_config_schema(tmp_path, monkeypatch, capsys):
+    _setup_tmp(monkeypatch, tmp_path)
+    event_path = _write_nostr_event(tmp_path / "event.json")
+
+    cli.main(["nostr", "import", str(event_path)])
+
+    config_path = tmp_path / "data" / "host" / "nostr-flyer" / "config.json"
+    imported = json.loads(config_path.read_text(encoding="utf-8"))
+    assert imported["folder_name"] == "nostr-flyer"
+    assert imported["headline"] == "NOSTR SOURCE TEST"
+    assert imported["content"] == "This flyer came from a Nostr event."
+    assert imported["url"] == "https://example.com/source"
+    assert "Imported Nostr flyer to" in capsys.readouterr().out
+
+
+def test_nostr_import_rejects_existing_site_without_overwrite(tmp_path, monkeypatch, capsys):
+    _setup_tmp(monkeypatch, tmp_path)
+    event_path = _write_nostr_event(tmp_path / "event.json")
+    cli.main(["nostr", "import", str(event_path)])
+
+    with pytest.raises(SystemExit):
+        cli.main(["nostr", "import", str(event_path)])
+
+    assert "already exists" in capsys.readouterr().err
+
+
+def test_nostr_build_generates_existing_flyer_output(tmp_path, monkeypatch):
+    _setup_tmp(monkeypatch, tmp_path)
+    event_path = _write_nostr_event(tmp_path / "event.json")
+
+    cli.main(["nostr", "build", str(event_path)])
+
+    host_dir = tmp_path / "data" / "host" / "nostr-flyer"
+    assert (host_dir / "config.json").exists()
+    assert (host_dir / "index.html").exists()
+    html = (host_dir / "index.html").read_text(encoding="utf-8")
+    assert "NOSTR SOURCE TEST" in html
+
+
+def test_nostr_serve_builds_then_uses_existing_serve_path(tmp_path, monkeypatch):
+    _setup_tmp(monkeypatch, tmp_path)
+    event_path = _write_nostr_event(tmp_path / "event.json")
+    served = []
+    monkeypatch.setattr(cli, "serve", lambda config_path: served.append(Path(config_path).name) or "http://ok.onion")
+
+    cli.main(["nostr", "serve", str(event_path)])
+
+    assert served == ["config.json"]
+    assert (tmp_path / "data" / "host" / "nostr-flyer" / "index.html").exists()
+
+
+def test_nostr_validate_rejects_unsafe_url_scheme(tmp_path, monkeypatch, capsys):
+    _setup_tmp(monkeypatch, tmp_path)
+    event_path = _write_nostr_event(tmp_path / "event.json", {"url": "javascript:alert(1)"})
+
+    with pytest.raises(SystemExit):
+        cli.main(["nostr", "validate", str(event_path)])
+
+    assert "Unsupported URL scheme" in capsys.readouterr().err
+
+
+def test_nostr_validate_rejects_raw_html(tmp_path, monkeypatch, capsys):
+    _setup_tmp(monkeypatch, tmp_path)
+    event_path = _write_nostr_event(tmp_path / "event.json", {"content": "<script>alert(1)</script>"})
+
+    with pytest.raises(SystemExit):
+        cli.main(["nostr", "validate", str(event_path)])
+
+    assert "contains raw HTML" in capsys.readouterr().err
+
+
+def test_nostr_validate_rejects_non_file_identifier_in_phase_one(tmp_path, monkeypatch, capsys):
+    _setup_tmp(monkeypatch, tmp_path)
+
+    with pytest.raises(SystemExit):
+        cli.main(["nostr", "validate", "note1example"])
+
+    assert "Phase 1 only supports local Nostr event JSON files" in capsys.readouterr().err
+
+
+def test_is_server_running_returns_false_for_unreachable_onion(tmp_path, monkeypatch):
+    _setup_tmp(monkeypatch, tmp_path)
+    test_data_dir = tmp_path / "data"
+    host_dir = test_data_dir / "host" / "voxvera"
+    host_dir.mkdir(parents=True, exist_ok=True)
+    (host_dir / "server.pid").write_text("123\n", encoding="utf-8")
+    (host_dir / "config.json").write_text(
+        json.dumps({"folder_name": "voxvera", "tear_off_link": "http://examplehiddenservice.onion"}),
+        encoding="utf-8",
+    )
+    old = time.time() - 1200
+    os.utime(host_dir / "server.pid", (old, old))
+
+    monkeypatch.setattr(platform, "system", lambda: "Linux")
+    monkeypatch.setattr(cli.os, "kill", lambda pid, sig: None)
+    monkeypatch.setattr(cli.subprocess, "check_output", lambda *args, **kwargs: b"onionshare-cli --website")
+    monkeypatch.setattr(cli.shutil, "which", lambda cmd: "/usr/bin/curl" if cmd == "curl" else None)
+
+    class _Result:
+        returncode = 97
+        stdout = ""
+
+    monkeypatch.setattr(cli.subprocess, "run", lambda *args, **kwargs: _Result())
+
+    assert cli.is_server_running("voxvera") is False
+    assert (host_dir / "server.pid").exists()
+
+
+def test_is_server_running_keeps_recent_unreachable_onion_alive(tmp_path, monkeypatch):
+    _setup_tmp(monkeypatch, tmp_path)
+    test_data_dir = tmp_path / "data"
+    host_dir = test_data_dir / "host" / "voxvera"
+    host_dir.mkdir(parents=True, exist_ok=True)
+    (host_dir / "server.pid").write_text("123\n", encoding="utf-8")
+    (host_dir / "config.json").write_text(
+        json.dumps({"folder_name": "voxvera", "tear_off_link": "http://examplehiddenservice.onion"}),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(platform, "system", lambda: "Linux")
+    monkeypatch.setattr(cli.os, "kill", lambda pid, sig: None)
+    monkeypatch.setattr(cli.subprocess, "check_output", lambda *args, **kwargs: b"onionshare-cli --website")
+    monkeypatch.setattr(cli.shutil, "which", lambda cmd: "/usr/bin/curl" if cmd == "curl" else None)
+
+    class _Result:
+        returncode = 97
+        stdout = ""
+
+    monkeypatch.setattr(cli.subprocess, "run", lambda *args, **kwargs: _Result())
+
+    assert cli.is_server_running("voxvera") is True
+
+
+def test_start_all_servers_restarts_unhealthy_site(tmp_path, monkeypatch, capsys):
+    _setup_tmp(monkeypatch, tmp_path)
+    host_dir = tmp_path / "data" / "host" / "voxvera"
+    host_dir.mkdir(parents=True, exist_ok=True)
+    (host_dir / "config.json").write_text(json.dumps({"folder_name": "voxvera"}), encoding="utf-8")
+    (host_dir / "server.pid").write_text("123\n", encoding="utf-8")
+
+    events = []
+    monkeypatch.setattr(cli, "_seed_bundled_sites", lambda: None)
+    monkeypatch.setattr(cli, "is_server_running", lambda name: False)
+    monkeypatch.setattr(cli, "stop_server", lambda name: events.append(("stop", name)))
+    monkeypatch.setattr(cli, "serve", lambda path: events.append(("serve", Path(path).name)) or "http://ok.onion")
+
+    cli.start_all_servers()
+
+    assert events == [("stop", "voxvera"), ("serve", "config.json")]
+    output = capsys.readouterr().out
+    assert "[RESTART] voxvera: existing process failed health check" in output
+    assert "[OK]   voxvera: http://ok.onion" in output
+
+
+def test_stop_server_kills_process_group_on_linux(tmp_path, monkeypatch, capsys):
+    _setup_tmp(monkeypatch, tmp_path)
+    host_dir = tmp_path / "data" / "host" / "voxvera"
+    host_dir.mkdir(parents=True, exist_ok=True)
+    pid_file = host_dir / "server.pid"
+    pid_file.write_text("456\n", encoding="utf-8")
+
+    killed = []
+    monkeypatch.setattr(platform, "system", lambda: "Linux")
+    monkeypatch.setattr(cli.os, "killpg", lambda pid, sig: killed.append((pid, sig)))
+
+    cli.stop_server("voxvera")
+
+    assert killed == [(456, cli.signal.SIGTERM)]
+    assert not pid_file.exists()
+    assert "Stopped voxvera (PID 456)" in capsys.readouterr().out
 
 
 def test_get_tor_ports_with_env_vars(monkeypatch):

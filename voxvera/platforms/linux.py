@@ -38,7 +38,8 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
-ExecStart={voxvera_bin} start-all
+KillMode=process
+ExecStart={voxvera_bin} _linux_autostart_start
 """
 
     def render_systemd_timer(self) -> str:

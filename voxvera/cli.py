@@ -3,10 +3,13 @@ import glob
 import json
 import os
 import re
+import shlex
+import signal
 import shutil
 import subprocess
 import sys
 import time
+import urllib.parse
 from pathlib import Path
 from importlib import resources
 from importlib.resources.abc import Traversable
@@ -948,19 +951,22 @@ def _internal_onionshare():
 
     onionshare_args = sys.argv[2:]  # strip 'voxvera _internal_onionshare'
 
-    # Always prefer the system onionshare-cli binary.  This avoids
-    # pkg_resources / setuptools isolation issues in both PyInstaller
-    # builds and pipx venvs.
     # Prevent user-local pip packages from shadowing system packages
     os.environ["PYTHONNOUSERSITE"] = "1"
 
+    # Most invocations should prefer the system onionshare-cli binary. Linux
+    # autostart can request the import path so VoxVera can patch OnionShare's
+    # descriptor-publication wait without modifying system packages.
+    no_await_publication = _truthy_env("VOXVERA_ONIONSHARE_NO_AWAIT_PUBLICATION")
     onionshare_bin = shutil.which("onionshare-cli") or shutil.which("onionshare")
-    if onionshare_bin:
+    if onionshare_bin and not no_await_publication:
         os.execvp(onionshare_bin, [onionshare_bin] + onionshare_args)
         # execvp replaces the process; unreachable unless execvp itself fails
 
     # Last resort: try to import onionshare_cli as a Python module
     try:
+        if no_await_publication:
+            _patch_onionshare_await_publication()
         from onionshare_cli import main
         sys.argv = ["onionshare-cli"] + onionshare_args
         sys.exit(main())
@@ -968,6 +974,105 @@ def _internal_onionshare():
         print(f"Error: onionshare-cli not available: {e}", file=sys.stderr)
         print("Install onionshare-cli via your system package manager.", file=sys.stderr)
         sys.exit(1)
+
+
+def _truthy_env(name: str) -> bool:
+    return os.getenv(name, "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _patch_onionshare_await_publication() -> None:
+    """Force OnionShare CLI startup to bind locally before descriptor publication.
+
+    OnionShare 2.6 waits inside Tor ADD_ONION until the descriptor is published.
+    For a watchdog-managed hidden service this is brittle: the local website
+    port never opens, the parent process can appear hung, and repeated retries
+    can accumulate bundled-Tor temp state. Let Tor publish in the background.
+    """
+    try:
+        from onionshare_cli.onionshare import OnionShare
+    except Exception:
+        return
+
+    if getattr(OnionShare.start_onion_service, "_voxvera_no_await_publication", False):
+        return
+
+    original = OnionShare.start_onion_service
+
+    def start_without_publication_wait(self, mode, mode_settings, await_publication=True):
+        return original(self, mode, mode_settings, False)
+
+    start_without_publication_wait._voxvera_no_await_publication = True
+    OnionShare.start_onion_service = start_without_publication_wait
+
+
+def _onionshare_tmp_dir() -> Path:
+    return Path.home() / ".config" / "onionshare" / "tmp"
+
+
+def cleanup_onionshare_tmp(max_age_minutes: int = 60) -> int:
+    """Delete stale OnionShare temp dirs and return the number removed."""
+    tmp_dir = _onionshare_tmp_dir()
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+    cutoff = time.time() - (max_age_minutes * 60)
+    removed = 0
+    for child in tmp_dir.iterdir():
+        try:
+            if child.stat().st_mtime > cutoff:
+                continue
+            if child.is_dir():
+                shutil.rmtree(child, ignore_errors=True)
+            else:
+                child.unlink(missing_ok=True)
+            removed += 1
+        except Exception:
+            pass
+    return removed
+
+
+def _configure_onionshare_system_tor_if_requested() -> Path | None:
+    """Write an OnionShare config that uses the distro Tor control socket."""
+    if not _truthy_env("VOXVERA_ONIONSHARE_SYSTEM_TOR"):
+        return None
+
+    control_socket = Path("/run/tor/control")
+    if not control_socket.exists():
+        return None
+
+    config_dir = Path.home() / ".config" / "onionshare"
+    config_dir.mkdir(parents=True, exist_ok=True)
+    config_path = config_dir / "onionshare.json"
+    data = {}
+    if config_path.exists():
+        try:
+            data = json.loads(config_path.read_text())
+        except Exception:
+            data = {}
+
+    data.update(
+        {
+            "version": data.get("version", "2.6"),
+            "connection_type": "socket_file",
+            "control_port_address": "127.0.0.1",
+            "control_port_port": 9051,
+            "socks_address": "127.0.0.1",
+            "socks_port": 9050,
+            "socket_file_path": str(control_socket),
+            "auth_type": "no_auth",
+            "auth_password": "",
+            "auto_connect": False,
+            "bridges_enabled": False,
+            "bridges_type": "built-in",
+            "bridges_builtin_pt": "obfs4",
+            "bridges_moat": "",
+            "bridges_custom": "",
+            "bridges_builtin": data.get("bridges_builtin", {}),
+            "persistent_tabs": data.get("persistent_tabs", []),
+            "locale": data.get("locale", "en"),
+            "theme": data.get("theme", 0),
+        }
+    )
+    config_path.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n")
+    return config_path
 
 
 def serve(config_path: str) -> str | None:
@@ -995,7 +1100,11 @@ def serve(config_path: str) -> str | None:
     # stale user-local copies break it.
     env["PYTHONNOUSERSITE"] = "1"
 
-    onionshare_args = [
+    onionshare_config = _configure_onionshare_system_tor_if_requested()
+    onionshare_args = []
+    if onionshare_config is not None:
+        onionshare_args.extend(["--config", str(onionshare_config)])
+    onionshare_args.extend([
         "--website",
         "--public",
         "--persistent",
@@ -1005,12 +1114,12 @@ def serve(config_path: str) -> str | None:
         "--disable_csp",
         "-v",
         str(dir_path),
-    ]
+    ])
 
     # Always prefer the system onionshare-cli binary to avoid pkg_resources
     # and dependency-isolation issues inside both PyInstaller and pipx.
     onionshare_bin = shutil.which("onionshare-cli") or shutil.which("onionshare")
-    if onionshare_bin:
+    if onionshare_bin and not _truthy_env("VOXVERA_ONIONSHARE_NO_AWAIT_PUBLICATION"):
         cmd = [onionshare_bin] + onionshare_args
     else:
         # Fallback: route through our hidden subcommand
@@ -1071,6 +1180,15 @@ def serve(config_path: str) -> str | None:
                     m = _re.search(r"https?://[a-z0-9]+\.onion", content)
                     if m:
                         onion_url = m.group(0)
+                    elif "Can't connect to the Tor controller" not in content:
+                        session_file = dir_path / ".onionshare-session"
+                        try:
+                            session_data = json.loads(session_file.read_text())
+                            service_id = session_data.get("general", {}).get("service_id")
+                            if service_id:
+                                onion_url = f"http://{service_id}.onion"
+                        except Exception:
+                            pass
 
         # update config with the onion URL in the host directory
         config_file = dir_path / "config.json"
@@ -1223,6 +1341,67 @@ def import_multiple_sites(source_dir: str = None):
         print(f"\nImporting {Path(zip_path).name}...")
         import_site(zip_path)
     print("\nImport multiple complete.")
+
+
+def _load_nostr_source(source: str) -> dict:
+    from voxvera.nostr.schema import load_source_file
+
+    return load_source_file(source)
+
+
+def validate_nostr_source(source: str) -> dict:
+    from voxvera.nostr import validate_event_source
+
+    return validate_event_source(_load_nostr_source(source))
+
+
+def import_nostr_source(source: str, folder_name: str | None = None, overwrite: bool = False) -> Path:
+    from voxvera.nostr import normalize_event_source
+
+    source_data = _load_nostr_source(source)
+    defaults = json.loads((_src_res("config.json")).read_text(encoding="utf-8"))
+    config = normalize_event_source(
+        source_data,
+        normalize_config(defaults),
+        folder_name=folder_name,
+        source_identifier=source,
+    )
+    dest_dir = DATA_DIR / "host" / config["folder_name"]
+    if dest_dir.exists() and not overwrite:
+        raise FileExistsError(f"Site '{config['folder_name']}' already exists. Use --overwrite to replace it.")
+    if dest_dir.exists():
+        shutil.rmtree(dest_dir)
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    config_path = dest_dir / "config.json"
+    save_config(config, config_path)
+    return config_path
+
+
+def handle_nostr_command(args) -> None:
+    from voxvera.nostr import NostrValidationError
+
+    try:
+        if args.nostr_action == "validate":
+            payload = validate_nostr_source(args.source)
+            label = payload.get("headline") or payload.get("title") or args.source
+            print(f"Valid VoxVera Nostr flyer: {label}")
+            return
+
+        config_path = import_nostr_source(
+            args.source,
+            folder_name=getattr(args, "folder_name", None),
+            overwrite=getattr(args, "overwrite", False),
+        )
+        print(f"Imported Nostr flyer to {config_path}")
+
+        if args.nostr_action in {"build", "serve"}:
+            build_assets(str(config_path))
+            print(f"Built Nostr flyer from {config_path}")
+        if args.nostr_action == "serve":
+            serve(str(config_path))
+    except (NostrValidationError, FileExistsError, OSError) as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        sys.exit(1)
 
 
 def export_keys(folder_name: str):
@@ -1623,6 +1802,54 @@ def get_servers() -> list[str]:
     return sorted(servers)
 
 
+def _probe_onion_url(onion_url: str, socks_port: str = "9050", timeout: int = 20):
+    """Return True/False when curl can verify the onion, or None if unavailable."""
+    if not onion_url:
+        return None
+    curl_bin = shutil.which("curl")
+    if not curl_bin:
+        return None
+
+    cmd = [
+        curl_bin,
+        "--silent",
+        "--show-error",
+        "--output",
+        "/dev/null",
+        "--write-out",
+        "%{http_code}",
+        "--max-time",
+        str(timeout),
+        "--socks5-hostname",
+        f"127.0.0.1:{socks_port}",
+        onion_url,
+    ]
+    try:
+        result = subprocess.run(
+            cmd,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    except OSError:
+        return None
+
+    if result.returncode != 0:
+        return False
+    return result.stdout.strip().startswith(("2", "3"))
+
+
+def _read_onion_url(folder_name: str) -> str:
+    config_path = DATA_DIR / "host" / folder_name / "config.json"
+    if not config_path.exists():
+        return ""
+    try:
+        config = normalize_config(load_config(config_path))
+    except Exception:
+        return ""
+    return get_effective_tear_off_link(config)
+
+
 def is_server_running(folder_name: str) -> bool:
     pid_file = DATA_DIR / "host" / folder_name / "server.pid"
     if not pid_file.exists():
@@ -1656,6 +1883,18 @@ def is_server_running(folder_name: str) -> bool:
         try:
             output = subprocess.check_output(["ps", "-p", str(pid), "-o", "command="], stderr=subprocess.STDOUT).decode().lower()
             if "onionshare" in output or "python" in output or "tor" in output:
+                onion_url = _read_onion_url(folder_name)
+                if onion_url:
+                    parsed = urllib.parse.urlparse(onion_url)
+                    if parsed.hostname and parsed.hostname.endswith(".onion"):
+                        probe = _probe_onion_url(onion_url)
+                        if probe is False:
+                            try:
+                                if time.time() - pid_file.stat().st_mtime < 900:
+                                    return True
+                            except Exception:
+                                pass
+                            return False
                 return True
             return False
         except Exception:
@@ -1670,11 +1909,14 @@ def stop_server(folder_name: str):
     try:
         with open(pid_file, "r") as f:
             pid = int(f.read().strip())
-        import platform, signal
+        import platform
         if platform.system() == "Windows":
             subprocess.run(["taskkill", "/F", "/PID", str(pid)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         else:
-            os.kill(pid, signal.SIGTERM)
+            try:
+                os.killpg(pid, signal.SIGTERM)
+            except ProcessLookupError:
+                os.kill(pid, signal.SIGTERM)
         print(f"Stopped {folder_name} (PID {pid})")
     except Exception as e:
         print(f"Error stopping {folder_name}: {e}")
@@ -1702,6 +1944,10 @@ def start_all_servers():
         if is_server_running(s):
             print(f"[SKIP] {s} already running")
             continue
+        pid_file = DATA_DIR / "host" / s / "server.pid"
+        if pid_file.exists():
+            print(f"[RESTART] {s}: existing process failed health check")
+            stop_server(s)
         config_path = DATA_DIR / "host" / s / "config.json"
         try:
             url = serve(str(config_path))
@@ -1711,6 +1957,48 @@ def start_all_servers():
                 print(f"[FAIL] {s}: could not obtain onion URL")
         except Exception as e:
             print(f"[FAIL] {s}: {e}")
+
+
+def _current_group_names() -> set[str]:
+    import grp
+
+    names = set()
+    for gid in os.getgroups() + [os.getgid()]:
+        try:
+            names.add(grp.getgrgid(gid).gr_name)
+        except KeyError:
+            pass
+    return names
+
+
+def _user_is_group_member(group_name: str) -> bool:
+    import grp
+    import pwd
+
+    try:
+        group = grp.getgrnam(group_name)
+        username = pwd.getpwuid(os.getuid()).pw_name
+    except KeyError:
+        return False
+    return username in group.gr_mem or os.getgid() == group.gr_gid
+
+
+def linux_autostart_start():
+    """Linux systemd entry point with cleanup and system-Tor hardening."""
+    cleanup_onionshare_tmp(max_age_minutes=60)
+    os.environ["VOXVERA_ONIONSHARE_NO_AWAIT_PUBLICATION"] = "1"
+    os.environ["VOXVERA_ONIONSHARE_SYSTEM_TOR"] = "1"
+
+    if _user_is_group_member("debian-tor") and "debian-tor" not in _current_group_names():
+        voxvera_bin = _find_voxvera_bin()
+        command = (
+            "env VOXVERA_ONIONSHARE_NO_AWAIT_PUBLICATION=1 "
+            "VOXVERA_ONIONSHARE_SYSTEM_TOR=1 "
+            f"{shlex.quote(voxvera_bin)} start-all"
+        )
+        os.execvp("sg", ["sg", "debian-tor", "-c", command])
+
+    start_all_servers()
 
 
 def stop_all_servers():
@@ -2034,13 +2322,26 @@ def main(argv=None):
     p_autostart = sub.add_parser("autostart", help="Install or inspect platform autostart support")
     p_autostart.add_argument("action", nargs="?", choices=["install", "status", "uninstall"], default="install")
     p_autostart.add_argument("--json", action="store_true", help="Emit machine-readable JSON for status")
+    p_nostr = sub.add_parser("nostr", help="Import and build flyers from Nostr event sources")
+    nostr_sub = p_nostr.add_subparsers(dest="nostr_action", required=True)
+    p_nostr_validate = nostr_sub.add_parser("validate", help="Validate a local VoxVera Nostr event JSON file")
+    p_nostr_validate.add_argument("source", help="Path to a local Nostr event JSON file")
+    for action in ("import", "build", "serve"):
+        p = nostr_sub.add_parser(action, help=f"{action.title()} a local VoxVera Nostr event JSON file")
+        p.add_argument("source", help="Path to a local Nostr event JSON file")
+        p.add_argument("--folder-name", help="Override the imported site folder name")
+        p.add_argument("--overwrite", action="store_true", help="Replace an existing site folder")
     sub.add_parser("rebuild-all", help="Rebuild all existing sites from the current template (preserves keys and config)")
     sub.add_parser("_internal_onionshare", help=argparse.SUPPRESS)
+    sub.add_parser("_linux_autostart_start", help=argparse.SUPPRESS)
 
     args, unknown_args = parser.parse_known_args(argv)
 
     if args.command == "_internal_onionshare":
         _internal_onionshare()
+        return
+    if args.command == "_linux_autostart_start":
+        linux_autostart_start()
         return
 
     config_path = Path(args.config).resolve()
@@ -2129,6 +2430,8 @@ def main(argv=None):
             uninstall_autostart()
         else:
             install_autostart()
+    elif args.command == "nostr":
+        handle_nostr_command(args)
     elif args.command == "quickstart":
         ensure_config_exists(config_path)
         if current_lang:
