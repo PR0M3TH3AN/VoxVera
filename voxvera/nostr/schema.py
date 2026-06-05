@@ -21,6 +21,7 @@ CONFIG_FIELDS = {
     "content",
     "url_message",
     "url",
+    "tear_off_link",
     "footer_message",
     "attachment_path",
     "attachment_filename",
@@ -34,6 +35,7 @@ FIELD_LIMITS = {
     "content": 10000,
     "url_message": 240,
     "url": 2048,
+    "tear_off_link": 2048,
     "footer_message": 240,
 }
 HTML_PATTERN = re.compile(r"<\s*/?\s*[A-Za-z][^>]*>|on[A-Za-z]+\s*=", re.IGNORECASE)
@@ -167,6 +169,8 @@ def _validate_payload(payload: dict[str, Any]) -> None:
         _normalize_lang(payload["lang"])
     if "url" in payload:
         _validate_url(payload["url"])
+    if "tear_off_link" in payload:
+        _validate_url(payload["tear_off_link"])
     if payload.get("attachment_path") or payload.get("attachment_filename"):
         raise NostrValidationError("Attachments are not supported for Nostr flyer events in V1.")
 

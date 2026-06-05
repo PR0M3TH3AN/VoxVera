@@ -17,6 +17,7 @@ def _payload(**overrides):
         "headline": "Publish once, render anywhere",
         "content": "This flyer came from a Nostr event.",
         "url": "https://voxvera.org",
+        "tear_off_link": "https://client.example/nostr/?addr=naddr1example",
         "url_message": "Open this poster",
         "footer_message": "share truth",
     }
@@ -55,7 +56,20 @@ def test_normalize_maps_to_flyer_config_defaults():
     assert config["folder_name"] == "nostr-flyer"
     assert config["lang"] == "en"
     assert config["url"] == "https://voxvera.org"
-    assert config["tear_off_link"] == ""
+    assert config["tear_off_link"] == "https://client.example/nostr/?addr=naddr1example"
+
+
+def test_normalize_keeps_content_url_separate_from_tear_off_link():
+    defaults = {"folder_name": "voxvera", "lang": "en", "tear_off_link": ""}
+    event = _event(_payload(
+        url="https://creator.example/action",
+        tear_off_link="https://client.example/nostr/?addr=naddr1example",
+    ))
+
+    config = normalize_event_source(event, defaults)
+
+    assert config["url"] == "https://creator.example/action"
+    assert config["tear_off_link"] == "https://client.example/nostr/?addr=naddr1example"
 
 
 def test_normalize_supports_content_url_qr_target():

@@ -21,6 +21,7 @@
     content: 10000,
     url_message: 240,
     url: 2048,
+    tear_off_link: 2048,
     footer_message: 240
   };
   const CONFIG_DEFAULTS = {
@@ -717,12 +718,14 @@ Join us in a revolution that values truth and transparency. Together, we can bui
         throw new Error(`${key} contains raw HTML.`);
       }
     });
-    if (payload.url) {
-      const parsed = new URL(payload.url);
-      if (!["http:", "https:", "nostr:"].includes(parsed.protocol)) {
-        throw new Error(`Unsupported URL scheme: ${parsed.protocol}`);
+    ["url", "tear_off_link"].forEach((key) => {
+      if (payload[key]) {
+        const parsed = new URL(payload[key]);
+        if (!["http:", "https:", "nostr:"].includes(parsed.protocol)) {
+          throw new Error(`Unsupported URL scheme: ${parsed.protocol}`);
+        }
       }
-    }
+    });
   }
 
   function normalizePayload(payload) {
@@ -739,6 +742,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       content: htmlBreaksToNewlines(payload.content || CONFIG_DEFAULTS.content),
       url_message: payload.url_message || CONFIG_DEFAULTS.url_message,
       url: payload.url || CONFIG_DEFAULTS.url,
+      tear_off_link: payload.tear_off_link || CONFIG_DEFAULTS.tear_off_link,
       footer_message: payload.footer_message || CONFIG_DEFAULTS.footer_message,
       attachment_path: "",
       attachment_filename: ""
@@ -787,7 +791,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     return {
       payload: {
         ...payload,
-        url: posterUrlForNaddr(naddr),
+        tear_off_link: posterUrlForNaddr(naddr),
         qr_target: "flyer_url"
       },
       naddr,
@@ -806,7 +810,6 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       const poster = withPosterUrl(payload, identity, relays);
       naddrOutput.textContent = poster.naddr;
       posterUrlOutput.textContent = poster.posterUrl;
-      el("field-url").value = poster.posterUrl;
       return poster;
     } catch (_) {
       return null;
@@ -820,7 +823,6 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     el("author-npub-output").textContent = identity.npub;
     el("naddr-output").textContent = poster.naddr;
     el("poster-url-output").textContent = poster.posterUrl;
-    el("field-url").value = poster.posterUrl;
     refreshIdentityState();
     if (!signed.id || !signed.sig) {
       throw new Error("Signer returned an event without id/sig.");
@@ -1087,7 +1089,6 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     el("author-npub-output").textContent = identity.npub;
     el("naddr-output").textContent = poster.naddr;
     el("poster-url-output").textContent = poster.posterUrl;
-    el("field-url").value = poster.posterUrl;
     refreshIdentityState();
     syncUiLanguage(poster.payload.lang);
     renderPreview(normalizePayload(poster.payload));
@@ -1249,7 +1250,6 @@ Join us in a revolution that values truth and transparency. Together, we can bui
         el("author-npub-output").textContent = identity.npub;
         el("naddr-output").textContent = poster.naddr;
         el("poster-url-output").textContent = poster.posterUrl;
-        el("field-url").value = poster.posterUrl;
         el("event-json-output").value = JSON.stringify(event, null, 2);
         downloadJson(`${poster.payload.folder_name}-voxvera-event-unsigned.json`, event);
       } catch (error) {

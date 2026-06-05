@@ -75,7 +75,8 @@ Payload:
   "headline": "OPERATION VOX VERA",
   "content": "Flyer body text",
   "url_message": "Follow this link to learn more.",
-  "url": "https://voxvera.org/",
+  "url": "https://creator.example/action",
+  "tear_off_link": "https://voxvera.org/nostr/?addr=naddr1...",
   "footer_message": "0110010",
   "qr_target": "flyer_url"
 }
@@ -87,11 +88,13 @@ The UI labels `folder_name` as `Flyer Name`; it acts as the event slug, not a lo
 
 Default behavior: `qr_target: "flyer_url"`.
 
-When publishing, the client computes the replaceable-event `naddr` and updates the poster URL to the current hosted client URL with `?addr=<naddr>`. The tear-off tabs and QR code point at that resolved poster URL.
+`url` is always the creator-controlled content destination shown in the body of the flyer. The editor must not overwrite this field with generated app URLs.
+
+When publishing, the client computes the replaceable-event `naddr` and writes the generated poster URL to `tear_off_link`. The tear-off tabs and tear-off QR code point at `tear_off_link`, so people can re-open and reprint the flyer. The main flyer QR code points at `url`, so viewers can visit the creator's intended destination.
 
 Supported values:
 
-- `flyer_url`: QR points to the hosted client URL for the poster
+- `flyer_url`: tear-off QR points to the hosted client URL for the poster
 - `content_url`: QR points to the payload's content URL
 - `nostr_event`: QR points to the Nostr source identifier when available
 
