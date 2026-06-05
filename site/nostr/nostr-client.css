@@ -572,6 +572,7 @@ body.mode-viewer .viewer-floating {
   right: 12px;
   z-index: 20;
   display: flex;
+  align-items: center;
   gap: 8px;
 }
 
@@ -579,6 +580,15 @@ body.mode-viewer .viewer-floating button {
   min-height: 34px;
   padding: 6px 10px;
   font-size: 12px;
+}
+
+body.mode-viewer .viewer-floating select {
+  width: auto;
+  min-height: 34px;
+  max-width: 180px;
+  padding: 6px 8px;
+  font-size: 12px;
+  background: #fff;
 }
 
 body.mode-viewer #viewer-panel {
@@ -657,6 +667,7 @@ body.mode-viewer #viewer-panel.drawer-open .result-panel {
   #open-viewer-controls,
   #viewer-print,
   #viewer-editor,
+  #viewer-lang,
   body > main > .panel,
   .preview-toolbar,
   .viewer-drawer {

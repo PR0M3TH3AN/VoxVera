@@ -123,21 +123,23 @@ Join us in a revolution that values truth and transparency. Together, we can bui
   }
 
   function populateLanguageOptions() {
-    const select = el("field-lang");
-    if (!select) return;
     const langEntries = Object.entries(LOCALES).sort((a, b) => {
       const aName = (a[1] && a[1].meta && a[1].meta.language_name) || a[0];
       const bName = (b[1] && b[1].meta && b[1].meta.language_name) || b[0];
       return aName.localeCompare(bName);
     });
-    select.innerHTML = "";
-    for (const [code, data] of langEntries) {
-      const option = document.createElement("option");
-      option.value = code;
-      const meta = data.meta || {};
-      option.textContent = `${meta.flag || ""} ${meta.language_name || code}`.trim();
-      select.appendChild(option);
-    }
+    ["field-lang", "viewer-lang"].forEach((selectId) => {
+      const select = el(selectId);
+      if (!select) return;
+      select.innerHTML = "";
+      for (const [code, data] of langEntries) {
+        const option = document.createElement("option");
+        option.value = code;
+        const meta = data.meta || {};
+        option.textContent = `${meta.flag || ""} ${meta.language_name || code}`.trim();
+        select.appendChild(option);
+      }
+    });
   }
 
   function syncUiLanguage(lang) {
@@ -161,8 +163,10 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     setButtonText("viewer-editor", translate("cli.manage_action_edit", selected) || BUTTON_LABELS["viewer-editor"]);
     setButtonText("close-viewer-controls", translate("cli.manage_action_back", selected) || BUTTON_LABELS["close-viewer-controls"]);
 
-    const select = el("field-lang");
-    if (select) select.value = selected;
+    ["field-lang", "viewer-lang"].forEach((selectId) => {
+      const select = el(selectId);
+      if (select) select.value = selected;
+    });
   }
 
   function setDefaultText(lang) {
@@ -817,6 +821,11 @@ Join us in a revolution that values truth and transparency. Together, we can bui
 
     el("field-lang").addEventListener("change", () => {
       const lang = supportedLang(el("field-lang").value || FALLBACK_LANG);
+      applyFlyerDefaults(lang);
+      renderPreview(buildPayloadFromForm());
+    });
+    el("viewer-lang").addEventListener("change", () => {
+      const lang = supportedLang(el("viewer-lang").value || FALLBACK_LANG);
       applyFlyerDefaults(lang);
       renderPreview(buildPayloadFromForm());
     });
