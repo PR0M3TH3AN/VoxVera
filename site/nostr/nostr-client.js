@@ -1686,8 +1686,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
           </div>
           <hr>
           <div class="footer">
-            <p class="credit">${escapeHtml(builtWithLabel)} <a href="https://github.com/PR0M3TH3AN/VoxVera">voxvera</a></p>
             <p class="binary" data-fit-field="field-footer-message">${redactionToHtml(config.footer_message)}</p>
+            <p class="credit">${escapeHtml(builtWithLabel)} <a href="https://github.com/PR0M3TH3AN/VoxVera">voxvera</a></p>
           </div>
         </div>
       </div>

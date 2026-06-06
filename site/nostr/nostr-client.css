@@ -549,13 +549,13 @@ hr {
 }
 
 .container .footer .binary {
-  margin-bottom: 5px;
-  margin-top: 20px;
+  margin-bottom: 8px;
+  margin-top: 10px;
 }
 
 .container .footer .credit {
   font-size: 12px;
-  margin-top: 5px;
+  margin-top: 0;
 }
 
 body.mode-viewer {
