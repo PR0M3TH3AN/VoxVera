@@ -1692,6 +1692,26 @@ Join us in a revolution that values truth and transparency. Together, we can bui
         </div>
       </div>
     `;
+    updatePreviewScale();
+  }
+
+  function updatePreviewScale() {
+    const preview = el("flyer-preview");
+    const sheet = preview && preview.querySelector(".container");
+    if (!preview || !sheet) return;
+    if (!window.matchMedia("(max-width: 900px)").matches) {
+      preview.style.removeProperty("--flyer-preview-scale");
+      preview.style.removeProperty("--flyer-preview-height");
+      preview.style.removeProperty("--flyer-preview-collapse");
+      return;
+    }
+    const availableWidth = Math.max(0, preview.clientWidth);
+    const sheetWidth = Math.max(1, sheet.offsetWidth);
+    const sheetHeight = Math.max(1, sheet.offsetHeight);
+    const scale = Math.min(1, Math.max(0.32, availableWidth / sheetWidth));
+    preview.style.setProperty("--flyer-preview-scale", scale.toFixed(4));
+    preview.style.setProperty("--flyer-preview-height", `${Math.ceil(sheetHeight * scale)}px`);
+    preview.style.setProperty("--flyer-preview-collapse", `${Math.ceil(sheetHeight * scale) - sheetHeight}px`);
   }
 
   function elementOverflows(node) {
@@ -1763,6 +1783,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     if (!window.location.hash || window.location.hash === "#editor" || window.location.hash === "#viewer") {
       history.replaceState(null, "", `#${mode}`);
     }
+    window.requestAnimationFrame(updatePreviewScale);
   }
 
   function openViewerDrawer() {
@@ -1828,6 +1849,11 @@ Join us in a revolution that values truth and transparency. Together, we can bui
 
   document.addEventListener("DOMContentLoaded", () => {
     setDefaultText(getStoredUiLang() || navigator.language.split("-")[0]);
+    if (window.ResizeObserver) {
+      new ResizeObserver(updatePreviewScale).observe(el("flyer-preview"));
+    } else {
+      window.addEventListener("resize", updatePreviewScale);
+    }
     const urlEvent = getUrlEventReference();
     setMode(window.location.hash === "#editor" && !urlEvent ? "editor" : "viewer");
     if (urlEvent) {
