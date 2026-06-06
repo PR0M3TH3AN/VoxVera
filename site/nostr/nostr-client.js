@@ -1048,10 +1048,35 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     }
   }
 
+  function truncateMiddle(value, prefixLength, suffixLength) {
+    const text = String(value || "");
+    if (text.length <= prefixLength + suffixLength + 3) return text;
+    return `${text.slice(0, prefixLength)}...${text.slice(-suffixLength)}`;
+  }
+
+  function displayTearOffUrl(value) {
+    const text = String(value || "").trim();
+    if (text.length <= 48) return text;
+    try {
+      const parsed = new URL(text);
+      const host = parsed.host.replace(/^www\./, "");
+      const path = parsed.pathname || "/";
+      const lookupKeys = ["addr", "naddr", "event", "id", "note", "nevent"];
+      const lookupKey = lookupKeys.find((key) => parsed.searchParams.get(key));
+      if (lookupKey) {
+        return `${host}${path}?${lookupKey}=${truncateMiddle(parsed.searchParams.get(lookupKey), 12, 8)}`;
+      }
+      return truncateMiddle(`${host}${path}${parsed.search}${parsed.hash}`, 32, 10);
+    } catch (_) {
+      return truncateMiddle(text, 32, 10);
+    }
+  }
+
   function renderPreview(config) {
     const flyerLang = supportedLang(config.lang || FALLBACK_LANG);
     const flyerLocale = localeData(flyerLang);
     const tearOff = config.tear_off_link || config.url || "";
+    const tearOffDisplay = displayTearOffUrl(tearOff);
     const contentQr = config.url || tearOff;
     const tearOffQrSvg = makeQrSvg(tearOff);
     const contentQrSvg = makeQrSvg(contentQr);
@@ -1063,7 +1088,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       <div class="tear-off">
         <div class="tear-off-text">
           ${escapeHtml(openPosterLabel)}<br>
-          <a href="${escapeHtml(tearOff)}">${escapeHtml(tearOff)}</a><br>
+          <a href="${escapeHtml(tearOff)}" title="${escapeHtml(tearOff)}">${escapeHtml(tearOffDisplay)}</a><br>
           ${escapeHtml(shareReprintLabel)}
         </div>
         <div class="qr-code" aria-label="QR code for ${escapeHtml(tearOff)}">${tearOffQrSvg}</div>
