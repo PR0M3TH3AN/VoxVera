@@ -99,6 +99,35 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     "naddr-output": "not_generated",
     "poster-url-output": "not_generated"
   };
+  const TEXT_FIELD_IDS = [
+    "field-folder-name",
+    "field-name",
+    "field-title",
+    "field-subtitle",
+    "field-headline",
+    "field-content",
+    "field-url-message",
+    "field-url",
+    "field-footer-message"
+  ];
+  const DISPLAY_FIT_TARGETS = {
+    "field-title": ".content h1:nth-of-type(1)",
+    "field-subtitle": ".distribute",
+    "field-headline": ".content h1:nth-of-type(2)",
+    "field-content": ".message",
+    "field-url-message": ".url-message",
+    "field-url": ".qr-code-url a",
+    "field-footer-message": ".footer .binary"
+  };
+  const DISPLAY_FIT_LABEL_KEYS = {
+    "field-title": "labels.title",
+    "field-subtitle": "labels.subtitle",
+    "field-headline": "labels.headline",
+    "field-content": "labels.content",
+    "field-url-message": "labels.url_message",
+    "field-url": "labels.poster_url",
+    "field-footer-message": "labels.footer_message"
+  };
   const NOSTR_UI = {
     ar: {
       back: "رجوع",
@@ -254,7 +283,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       relay_required: "Enter at least one wss:// relay.",
       failed: "failed",
       timeout: "timeout",
-      connection_error: "connection error"
+      connection_error: "connection error",
+      field_too_long: "That field is too long for the printable flyer:"
     },
     es: {
       back: "Volver",
@@ -830,6 +860,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     }
   };
   let flyerSource = "default";
+  let loadedEventConfig = null;
+  const lastAcceptedFieldValues = {};
 
   const el = (id) => document.getElementById(id);
 
@@ -884,6 +916,69 @@ Join us in a revolution that values truth and transparency. Together, we can bui
 
   function isEmptyOutput(node) {
     return Boolean(node && node.dataset.emptyKey);
+  }
+
+  function fieldLabel(fieldId, lang = currentUiLang()) {
+    const localePath = DISPLAY_FIT_LABEL_KEYS[fieldId];
+    if (localePath) return translate(localePath, lang) || fieldId;
+    const field = el(fieldId);
+    const label = field ? field.closest("label") : null;
+    const labelText = label ? label.querySelector("span") : null;
+    return labelText ? labelText.textContent.trim() : fieldId;
+  }
+
+  function setFitStatus(message) {
+    const status = el("field-fit-status");
+    if (status) status.textContent = message || "";
+  }
+
+  function syncAcceptedFieldValues() {
+    TEXT_FIELD_IDS.forEach((fieldId) => {
+      const field = el(fieldId);
+      if (field) lastAcceptedFieldValues[fieldId] = field.value;
+    });
+  }
+
+  function fillEditorFromConfig(config) {
+    const normalized = config && config.type === "voxvera_flyer" ? normalizePayload(config) : {
+      ...CONFIG_DEFAULTS,
+      ...config,
+      folder_name: slugify(config && config.folder_name),
+      lang: supportedLang((config && config.lang) || FALLBACK_LANG),
+      content: htmlBreaksToNewlines((config && config.content) || CONFIG_DEFAULTS.content)
+    };
+    el("field-lang").value = normalized.lang;
+    el("field-folder-name").value = normalized.folder_name;
+    el("field-name").value = normalized.name;
+    el("field-title").value = normalized.title;
+    el("field-subtitle").value = normalized.subtitle;
+    el("field-headline").value = normalized.headline;
+    el("field-content").value = normalized.content;
+    el("field-url-message").value = normalized.url_message;
+    el("field-url").value = normalized.url;
+    el("field-footer-message").value = normalized.footer_message;
+    syncUiLanguage(normalized.lang);
+    syncAcceptedFieldValues();
+  }
+
+  function printableTitle() {
+    const source = (el("field-name") && el("field-name").value) || CONFIG_DEFAULTS.name;
+    return String(source || CONFIG_DEFAULTS.name)
+      .trim()
+      .replace(/\s+/g, " ")
+      .slice(0, FIELD_LIMITS.name) || CONFIG_DEFAULTS.name;
+  }
+
+  function printWithPageTitle() {
+    const previousTitle = document.title;
+    document.title = printableTitle();
+    const restoreTitle = () => {
+      document.title = nostrLabel("client_title", currentUiLang()) || previousTitle;
+      window.removeEventListener("focus", restoreTitle);
+    };
+    window.addEventListener("focus", restoreTitle, { once: true });
+    window.print();
+    window.setTimeout(restoreTitle, 1500);
   }
 
   function localeDefaults(lang) {
@@ -1023,6 +1118,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     el("field-url").value = defaults.url;
     el("field-footer-message").value = defaults.footer_message;
     syncUiLanguage(defaults.lang);
+    syncAcceptedFieldValues();
+    setFitStatus("");
   }
 
   function applyLanguageChange(lang) {
@@ -1154,9 +1251,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       .replace(/\r?\n/g, "<br>");
   }
 
-  function buildPayloadFromForm() {
+  function rawPayloadFromForm() {
     const lang = supportedLang(el("field-lang").value || FALLBACK_LANG);
-    const payload = {
+    return {
       type: "voxvera_flyer",
       version: 1,
       folder_name: slugify(el("field-folder-name").value),
@@ -1173,6 +1270,10 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       attachment_filename: "",
       qr_target: "flyer_url"
     };
+  }
+
+  function buildPayloadFromForm() {
+    const payload = rawPayloadFromForm();
     validatePayload(payload);
     return payload;
   }
@@ -1571,26 +1672,70 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       <div class="${sheetClass}" lang="${escapeHtml(flyerLang)}" dir="${escapeHtml((flyerLocale.meta && flyerLocale.meta.direction) || "ltr")}">
         <div class="left-tear-offs">${tearOffHtml}</div>
         <div class="content">
-          <h1>${redactionToHtml(config.title)}</h1>
-          <div class="distribute">${redactionToHtml(config.subtitle)}</div>
-          <h1>${redactionToHtml(config.headline)}</h1>
+          <h1 data-fit-field="field-title">${redactionToHtml(config.title)}</h1>
+          <div class="distribute" data-fit-field="field-subtitle">${redactionToHtml(config.subtitle)}</div>
+          <h1 data-fit-field="field-headline">${redactionToHtml(config.headline)}</h1>
           <hr>
-          <div class="message">${redactionToHtml(config.content)}</div>
+          <div class="message" data-fit-field="field-content">${redactionToHtml(config.content)}</div>
           <div class="qr-code-body">
             <div class="qr-code-url">
-              <span class="url-message">${redactionToHtml(config.url_message)}</span><br><br>
-              <a href="${escapeHtml(config.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(config.url)}</a>
+              <span class="url-message" data-fit-field="field-url-message">${redactionToHtml(config.url_message)}</span><br><br>
+              <a href="${escapeHtml(config.url)}" target="_blank" rel="noopener noreferrer" data-fit-field="field-url">${escapeHtml(config.url)}</a>
             </div>
             <div class="qr-code main-qr" aria-label="QR code for ${escapeHtml(contentQr)}">${contentQrSvg}</div>
           </div>
           <hr>
           <div class="footer">
             <p class="credit">${escapeHtml(builtWithLabel)} <a href="https://github.com/PR0M3TH3AN/VoxVera">voxvera</a></p>
-            <p class="binary">${redactionToHtml(config.footer_message)}</p>
+            <p class="binary" data-fit-field="field-footer-message">${redactionToHtml(config.footer_message)}</p>
           </div>
         </div>
       </div>
     `;
+  }
+
+  function elementOverflows(node) {
+    if (!node) return false;
+    const tolerance = 1;
+    return node.scrollWidth > node.clientWidth + tolerance || node.scrollHeight > node.clientHeight + tolerance;
+  }
+
+  function fieldDisplayFits(fieldId) {
+    const selector = DISPLAY_FIT_TARGETS[fieldId];
+    if (!selector) return true;
+    const target = el("flyer-preview").querySelector(`[data-fit-field="${fieldId}"]`);
+    if (elementOverflows(target)) return false;
+    const sheet = el("flyer-preview").querySelector(".container");
+    return !elementOverflows(sheet);
+  }
+
+  function renderFormPreviewForEditing() {
+    const payload = rawPayloadFromForm();
+    const relays = parseRelays(el("editor-relays").value);
+    const identity = getOrCreateAnonIdentity(false);
+    const poster = withPosterUrl(payload, identity, relays);
+    setRealOutput("author-npub-output", identity.npub);
+    setRealOutput("naddr-output", poster.naddr);
+    setRealOutput("poster-url-output", poster.posterUrl);
+    renderPreview({
+      ...CONFIG_DEFAULTS,
+      ...poster.payload
+    });
+  }
+
+  function handleTextFieldInput(fieldId) {
+    const field = el(fieldId);
+    if (!field) return;
+    flyerSource = "custom";
+    renderFormPreviewForEditing();
+    if (!fieldDisplayFits(fieldId)) {
+      field.value = lastAcceptedFieldValues[fieldId] || "";
+      renderFormPreviewForEditing();
+      setFitStatus(`${nostrLabel("field_too_long", currentUiLang())} ${fieldLabel(fieldId)}`);
+      return;
+    }
+    lastAcceptedFieldValues[fieldId] = field.value;
+    setFitStatus("");
   }
 
   function formToPreview() {
@@ -1673,8 +1818,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     const payload = payloadFromEvent(nostrEvent);
     const config = normalizePayload(payload);
     flyerSource = "event";
-    syncUiLanguage(config.lang);
-    el("field-lang").value = config.lang;
+    loadedEventConfig = config;
+    fillEditorFromConfig(config);
     el("viewer-config-output").value = JSON.stringify(config, null, 2);
     renderPreview(config);
     statusElement.textContent = `${nostrLabel("fetched", config.lang)} ${parsed.type === "address" ? parsed.address.identifier : parsed.id}`;
@@ -1705,28 +1850,19 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       select.addEventListener("change", () => applyLanguageChange(select.value || FALLBACK_LANG));
     });
 
-    [
-      "field-folder-name",
-      "field-name",
-      "field-title",
-      "field-subtitle",
-      "field-headline",
-      "field-content",
-      "field-url-message",
-      "field-url",
-      "field-footer-message"
-    ].forEach((fieldId) => {
+    TEXT_FIELD_IDS.forEach((fieldId) => {
       const field = el(fieldId);
       if (!field) return;
-      field.addEventListener("input", () => {
-        flyerSource = "custom";
-      });
+      field.addEventListener("input", () => handleTextFieldInput(fieldId));
     });
 
     el("open-viewer-controls").addEventListener("click", openViewerDrawer);
     el("close-viewer-controls").addEventListener("click", closeViewerDrawer);
-    el("viewer-editor").addEventListener("click", () => setMode("editor"));
-    el("viewer-print").addEventListener("click", () => window.print());
+    el("viewer-editor").addEventListener("click", () => {
+      if (loadedEventConfig) fillEditorFromConfig(loadedEventConfig);
+      setMode("editor");
+    });
+    el("viewer-print").addEventListener("click", printWithPageTitle);
     document.querySelectorAll(".copy-button").forEach((button) => {
       button.addEventListener("click", () => {
         copyTextFromElement(button.dataset.copyTarget, button).catch((error) => {
@@ -1805,6 +1941,6 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       el("viewer-status").textContent = nostrLabel("config_copied", currentUiLang());
     });
 
-    el("print-preview").addEventListener("click", () => window.print());
+    el("print-preview").addEventListener("click", printWithPageTitle);
   });
 })();

@@ -258,6 +258,13 @@ code {
   color: var(--muted);
 }
 
+.field-fit-status {
+  margin: 0 0 10px;
+  color: var(--warn);
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .preview-band {
   margin-top: 26px;
   border-top: 2px solid #000;
