@@ -84,6 +84,21 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     "normalized-config-heading": "normalized_config",
     "preview-heading": "preview"
   };
+  const STATIC_TEXT_LABELS = {
+    "client-title": "client_title",
+    "client-description": "client_description",
+    "result-event-id-label": "event_id",
+    "result-author-npub-label": "author_npub",
+    "result-naddr-label": "nostr_address",
+    "result-poster-url-label": "poster_url",
+    "result-status-label": "status"
+  };
+  const EMPTY_OUTPUT_LABELS = {
+    "event-id-output": "not_published",
+    "author-npub-output": "not_generated",
+    "naddr-output": "not_generated",
+    "poster-url-output": "not_generated"
+  };
   const NOSTR_UI = {
     ar: {
       back: "رجوع",
@@ -106,7 +121,36 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       published_event: "الحدث المنشور",
       share_reprint: "شارك وأعد الطباعة.",
       built_with: "بني بواسطة",
-      viewer: "العارض"
+      viewer: "العارض",
+      client_title: "عميل VoxVera Nostr",
+      client_description: "محرر وعارض ثابت لأحداث مصدر المنشور اللامركزية.",
+      author_npub: "npub المؤلف",
+      nostr_address: "عنوان Nostr",
+      poster_url: "رابط الملصق",
+      status: "الحالة",
+      copy: "نسخ",
+      copied: "تم النسخ",
+      not_published: "لم ينشر",
+      not_generated: "لم ينشأ",
+      idle: "خامل",
+      checking_signer: "فحص الموقّع",
+      checking_identity: "فحص الهوية",
+      anon_signing_nip07: "التوقيع المجهول هو الافتراضي؛ تم اكتشاف NIP-07",
+      anon_signing_ready: "التوقيع المجهول متاح؛ لا يلزم تسجيل دخول NIP-07",
+      no_anon_npub: "لا يوجد npub مجهول بعد",
+      anon_npub_ready: "npub مجهول جاهز",
+      npub_generated: "تم إنشاء npub مجهول:",
+      preview_updated: "تم تحديث المعاينة.",
+      signing_publishing: "جار التوقيع والنشر...",
+      fetching: "جار الجلب...",
+      fetched: "تم الجلب",
+      config_copied: "تم نسخ الإعداد.",
+      lookup_placeholder: "naddr أو معرف حدث أو note1 أو nevent1 أو رابط nostr:",
+      event_reference_required: "أدخل naddr أو معرف حدث أو note1 أو nevent1.",
+      relay_required: "أدخل رابط relay واحد على الأقل يبدأ بـ wss://.",
+      failed: "فشل",
+      timeout: "انتهت المهلة",
+      connection_error: "خطأ في الاتصال"
     },
     de: {
       back: "Zurück",
@@ -129,7 +173,36 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       published_event: "Veröffentlichtes Event",
       share_reprint: "Teilen und neu drucken.",
       built_with: "Erstellt mit",
-      viewer: "Viewer"
+      viewer: "Viewer",
+      client_title: "VoxVera Nostr-Client",
+      client_description: "Statischer Editor und Viewer für dezentrale Flyer-Quellereignisse.",
+      author_npub: "Autor-npub",
+      nostr_address: "Nostr-Adresse",
+      poster_url: "Poster-URL",
+      status: "Status",
+      copy: "Kopieren",
+      copied: "Kopiert",
+      not_published: "Nicht veröffentlicht",
+      not_generated: "Nicht erzeugt",
+      idle: "Bereit",
+      checking_signer: "Signer prüfen",
+      checking_identity: "Identität prüfen",
+      anon_signing_nip07: "Anonymes Signieren ist Standard; NIP-07 erkannt",
+      anon_signing_ready: "Anonymes Signieren verfügbar; kein NIP-07-Login nötig",
+      no_anon_npub: "Noch kein anonymes npub",
+      anon_npub_ready: "Anonymes npub bereit",
+      npub_generated: "Anonymes npub erzeugt:",
+      preview_updated: "Vorschau aktualisiert.",
+      signing_publishing: "Signieren und veröffentlichen...",
+      fetching: "Abrufen...",
+      fetched: "Abgerufen",
+      config_copied: "Konfiguration kopiert.",
+      lookup_placeholder: "naddr, Event-ID, note1, nevent1 oder nostr:-URL",
+      event_reference_required: "Geben Sie naddr, Event-ID, note1 oder nevent1 ein.",
+      relay_required: "Geben Sie mindestens ein wss://-Relay ein.",
+      failed: "fehlgeschlagen",
+      timeout: "Zeitüberschreitung",
+      connection_error: "Verbindungsfehler"
     },
     en: {
       back: "Back",
@@ -152,7 +225,36 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       published_event: "Published Event",
       share_reprint: "Share and reprint.",
       built_with: "Built with",
-      viewer: "Viewer"
+      viewer: "Viewer",
+      client_title: "VoxVera Nostr Client",
+      client_description: "Static editor and viewer for decentralized flyer source events.",
+      author_npub: "Author npub",
+      nostr_address: "Nostr address",
+      poster_url: "Poster URL",
+      status: "Status",
+      copy: "Copy",
+      copied: "Copied",
+      not_published: "Not published",
+      not_generated: "Not generated",
+      idle: "Idle",
+      checking_signer: "Checking signer",
+      checking_identity: "Checking identity",
+      anon_signing_nip07: "Anonymous signing is default; NIP-07 detected",
+      anon_signing_ready: "Anonymous signing available; no NIP-07 login required",
+      no_anon_npub: "No anonymous npub yet",
+      anon_npub_ready: "Anonymous npub ready",
+      npub_generated: "Anonymous npub generated:",
+      preview_updated: "Preview updated.",
+      signing_publishing: "Signing and publishing...",
+      fetching: "Fetching...",
+      fetched: "Fetched",
+      config_copied: "Config copied.",
+      lookup_placeholder: "naddr, event id, note1, nevent1, or nostr: URL",
+      event_reference_required: "Enter an naddr, event id, note1, or nevent1.",
+      relay_required: "Enter at least one wss:// relay.",
+      failed: "failed",
+      timeout: "timeout",
+      connection_error: "connection error"
     },
     es: {
       back: "Volver",
@@ -175,7 +277,36 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       published_event: "Evento publicado",
       share_reprint: "Comparta y reimprima.",
       built_with: "Creado con",
-      viewer: "Visor"
+      viewer: "Visor",
+      client_title: "Cliente Nostr de VoxVera",
+      client_description: "Editor y visor estático para eventos fuente descentralizados de volantes.",
+      author_npub: "npub del autor",
+      nostr_address: "Dirección Nostr",
+      poster_url: "URL del cartel",
+      status: "Estado",
+      copy: "Copiar",
+      copied: "Copiado",
+      not_published: "No publicado",
+      not_generated: "No generado",
+      idle: "Inactivo",
+      checking_signer: "Comprobando firmante",
+      checking_identity: "Comprobando identidad",
+      anon_signing_nip07: "La firma anónima es predeterminada; NIP-07 detectado",
+      anon_signing_ready: "Firma anónima disponible; no se requiere inicio de sesión NIP-07",
+      no_anon_npub: "Aún no hay npub anónimo",
+      anon_npub_ready: "npub anónimo listo",
+      npub_generated: "npub anónimo generado:",
+      preview_updated: "Vista previa actualizada.",
+      signing_publishing: "Firmando y publicando...",
+      fetching: "Buscando...",
+      fetched: "Recuperado",
+      config_copied: "Configuración copiada.",
+      lookup_placeholder: "naddr, ID de evento, note1, nevent1 o URL nostr:",
+      event_reference_required: "Ingrese un naddr, ID de evento, note1 o nevent1.",
+      relay_required: "Ingrese al menos un relay wss://.",
+      failed: "falló",
+      timeout: "tiempo agotado",
+      connection_error: "error de conexión"
     },
     fa: {
       back: "بازگشت",
@@ -198,7 +329,36 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       published_event: "رویداد منتشرشده",
       share_reprint: "به اشتراک بگذارید و دوباره چاپ کنید.",
       built_with: "ساخته شده با",
-      viewer: "نمایشگر"
+      viewer: "نمایشگر",
+      client_title: "کلاینت Nostr VoxVera",
+      client_description: "ویرایشگر و نمایشگر ایستا برای رویدادهای منبع اعلامیه غیرمتمرکز.",
+      author_npub: "npub نویسنده",
+      nostr_address: "نشانی Nostr",
+      poster_url: "URL پوستر",
+      status: "وضعیت",
+      copy: "کپی",
+      copied: "کپی شد",
+      not_published: "منتشر نشده",
+      not_generated: "ساخته نشده",
+      idle: "آماده",
+      checking_signer: "بررسی امضاکننده",
+      checking_identity: "بررسی هویت",
+      anon_signing_nip07: "امضای ناشناس پیش‌فرض است؛ NIP-07 شناسایی شد",
+      anon_signing_ready: "امضای ناشناس آماده است؛ ورود NIP-07 لازم نیست",
+      no_anon_npub: "هنوز npub ناشناس وجود ندارد",
+      anon_npub_ready: "npub ناشناس آماده است",
+      npub_generated: "npub ناشناس ساخته شد:",
+      preview_updated: "پیش‌نمایش به‌روزرسانی شد.",
+      signing_publishing: "در حال امضا و انتشار...",
+      fetching: "در حال دریافت...",
+      fetched: "دریافت شد",
+      config_copied: "پیکربندی کپی شد.",
+      lookup_placeholder: "naddr، شناسه رویداد، note1، nevent1 یا URL nostr:",
+      event_reference_required: "یک naddr، شناسه رویداد، note1 یا nevent1 وارد کنید.",
+      relay_required: "حداقل یک رله wss:// وارد کنید.",
+      failed: "ناموفق",
+      timeout: "پایان مهلت",
+      connection_error: "خطای اتصال"
     },
     fr: {
       back: "Retour",
@@ -221,7 +381,36 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       published_event: "Evenement publie",
       share_reprint: "Partagez et reimprimez.",
       built_with: "Cree avec",
-      viewer: "Visionneuse"
+      viewer: "Visionneuse",
+      client_title: "Client Nostr VoxVera",
+      client_description: "Editeur et visionneuse statiques pour les evenements source decentralises de flyers.",
+      author_npub: "npub de l'auteur",
+      nostr_address: "Adresse Nostr",
+      poster_url: "URL de l'affiche",
+      status: "Statut",
+      copy: "Copier",
+      copied: "Copie",
+      not_published: "Non publie",
+      not_generated: "Non genere",
+      idle: "Inactif",
+      checking_signer: "Verification du signataire",
+      checking_identity: "Verification de l'identite",
+      anon_signing_nip07: "La signature anonyme est par defaut; NIP-07 detecte",
+      anon_signing_ready: "Signature anonyme disponible; aucune connexion NIP-07 requise",
+      no_anon_npub: "Aucun npub anonyme pour le moment",
+      anon_npub_ready: "npub anonyme pret",
+      npub_generated: "npub anonyme genere :",
+      preview_updated: "Apercu mis a jour.",
+      signing_publishing: "Signature et publication...",
+      fetching: "Chargement...",
+      fetched: "Charge",
+      config_copied: "Configuration copiee.",
+      lookup_placeholder: "naddr, ID d'evenement, note1, nevent1 ou URL nostr:",
+      event_reference_required: "Saisissez un naddr, ID d'evenement, note1 ou nevent1.",
+      relay_required: "Saisissez au moins un relais wss://.",
+      failed: "echec",
+      timeout: "delai depasse",
+      connection_error: "erreur de connexion"
     },
     he: {
       back: "חזרה",
@@ -244,7 +433,36 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       published_event: "אירוע שפורסם",
       share_reprint: "שתף והדפס מחדש.",
       built_with: "נבנה עם",
-      viewer: "מציג"
+      viewer: "מציג",
+      client_title: "לקוח Nostr של VoxVera",
+      client_description: "עורך ומציג סטטיים לאירועי מקור פלייר מבוזרים.",
+      author_npub: "npub המחבר",
+      nostr_address: "כתובת Nostr",
+      poster_url: "כתובת הכרזה",
+      status: "מצב",
+      copy: "העתק",
+      copied: "הועתק",
+      not_published: "לא פורסם",
+      not_generated: "לא נוצר",
+      idle: "ממתין",
+      checking_signer: "בודק חותם",
+      checking_identity: "בודק זהות",
+      anon_signing_nip07: "חתימה אנונימית היא ברירת המחדל; NIP-07 זוהה",
+      anon_signing_ready: "חתימה אנונימית זמינה; אין צורך בהתחברות NIP-07",
+      no_anon_npub: "עדיין אין npub אנונימי",
+      anon_npub_ready: "npub אנונימי מוכן",
+      npub_generated: "npub אנונימי נוצר:",
+      preview_updated: "התצוגה המקדימה עודכנה.",
+      signing_publishing: "חותם ומפרסם...",
+      fetching: "טוען...",
+      fetched: "נטען",
+      config_copied: "התצורה הועתקה.",
+      lookup_placeholder: "naddr, מזהה אירוע, note1, nevent1 או כתובת nostr:",
+      event_reference_required: "הזן naddr, מזהה אירוע, note1 או nevent1.",
+      relay_required: "הזן לפחות relay אחד מסוג wss://.",
+      failed: "נכשל",
+      timeout: "פג הזמן",
+      connection_error: "שגיאת חיבור"
     },
     hi: {
       back: "पीछे",
@@ -267,7 +485,36 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       published_event: "प्रकाशित इवेंट",
       share_reprint: "साझा करें और फिर से प्रिंट करें।",
       built_with: "इसके साथ बनाया गया",
-      viewer: "दर्शक"
+      viewer: "दर्शक",
+      client_title: "VoxVera Nostr क्लाइंट",
+      client_description: "विकेंद्रीकृत फ्लायर स्रोत इवेंट के लिए स्थिर संपादक और दर्शक।",
+      author_npub: "लेखक npub",
+      nostr_address: "Nostr पता",
+      poster_url: "पोस्टर URL",
+      status: "स्थिति",
+      copy: "कॉपी करें",
+      copied: "कॉपी किया गया",
+      not_published: "प्रकाशित नहीं",
+      not_generated: "बनाया नहीं गया",
+      idle: "निष्क्रिय",
+      checking_signer: "हस्ताक्षरकर्ता जांच रहे हैं",
+      checking_identity: "पहचान जांच रहे हैं",
+      anon_signing_nip07: "अनाम हस्ताक्षर डिफ़ॉल्ट है; NIP-07 मिला",
+      anon_signing_ready: "अनाम हस्ताक्षर उपलब्ध; NIP-07 लॉगिन आवश्यक नहीं",
+      no_anon_npub: "अभी कोई अनाम npub नहीं",
+      anon_npub_ready: "अनाम npub तैयार",
+      npub_generated: "अनाम npub बनाया गया:",
+      preview_updated: "पूर्वावलोकन अपडेट हुआ.",
+      signing_publishing: "हस्ताक्षर और प्रकाशन...",
+      fetching: "लाया जा रहा है...",
+      fetched: "लाया गया",
+      config_copied: "कॉन्फिग कॉपी हुआ.",
+      lookup_placeholder: "naddr, इवेंट ID, note1, nevent1, या nostr: URL",
+      event_reference_required: "naddr, इवेंट ID, note1, या nevent1 दर्ज करें.",
+      relay_required: "कम से कम एक wss:// relay दर्ज करें.",
+      failed: "विफल",
+      timeout: "समय समाप्त",
+      connection_error: "कनेक्शन त्रुटि"
     },
     ja: {
       back: "戻る",
@@ -290,7 +537,36 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       published_event: "公開済みイベント",
       share_reprint: "共有して再印刷。",
       built_with: "作成:",
-      viewer: "ビューア"
+      viewer: "ビューア",
+      client_title: "VoxVera Nostr クライアント",
+      client_description: "分散型フライヤーソースイベント用の静的エディターとビューア。",
+      author_npub: "作者 npub",
+      nostr_address: "Nostr アドレス",
+      poster_url: "ポスター URL",
+      status: "状態",
+      copy: "コピー",
+      copied: "コピーしました",
+      not_published: "未公開",
+      not_generated: "未生成",
+      idle: "待機中",
+      checking_signer: "署名者を確認中",
+      checking_identity: "IDを確認中",
+      anon_signing_nip07: "匿名署名が標準です; NIP-07を検出しました",
+      anon_signing_ready: "匿名署名を利用できます; NIP-07ログインは不要です",
+      no_anon_npub: "匿名npubはまだありません",
+      anon_npub_ready: "匿名npub準備完了",
+      npub_generated: "匿名npubを生成しました:",
+      preview_updated: "プレビューを更新しました。",
+      signing_publishing: "署名して公開中...",
+      fetching: "取得中...",
+      fetched: "取得しました",
+      config_copied: "設定をコピーしました。",
+      lookup_placeholder: "naddr、イベントID、note1、nevent1、または nostr: URL",
+      event_reference_required: "naddr、イベントID、note1、またはnevent1を入力してください。",
+      relay_required: "少なくとも1つの wss:// リレーを入力してください。",
+      failed: "失敗",
+      timeout: "タイムアウト",
+      connection_error: "接続エラー"
     },
     pt: {
       back: "Voltar",
@@ -313,7 +589,36 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       published_event: "Evento publicado",
       share_reprint: "Compartilhe e reimprima.",
       built_with: "Criado com",
-      viewer: "Visualizador"
+      viewer: "Visualizador",
+      client_title: "Cliente Nostr VoxVera",
+      client_description: "Editor e visualizador estatico para eventos-fonte descentralizados de panfletos.",
+      author_npub: "npub do autor",
+      nostr_address: "Endereco Nostr",
+      poster_url: "URL do cartaz",
+      status: "Status",
+      copy: "Copiar",
+      copied: "Copiado",
+      not_published: "Nao publicado",
+      not_generated: "Nao gerado",
+      idle: "Ocioso",
+      checking_signer: "Verificando assinante",
+      checking_identity: "Verificando identidade",
+      anon_signing_nip07: "Assinatura anonima e o padrao; NIP-07 detectado",
+      anon_signing_ready: "Assinatura anonima disponivel; login NIP-07 nao necessario",
+      no_anon_npub: "Ainda nao ha npub anonimo",
+      anon_npub_ready: "npub anonimo pronto",
+      npub_generated: "npub anonimo gerado:",
+      preview_updated: "Previa atualizada.",
+      signing_publishing: "Assinando e publicando...",
+      fetching: "Buscando...",
+      fetched: "Buscado",
+      config_copied: "Configuracao copiada.",
+      lookup_placeholder: "naddr, ID do evento, note1, nevent1 ou URL nostr:",
+      event_reference_required: "Insira um naddr, ID do evento, note1 ou nevent1.",
+      relay_required: "Insira pelo menos um relay wss://.",
+      failed: "falhou",
+      timeout: "tempo esgotado",
+      connection_error: "erro de conexao"
     },
     ru: {
       back: "Назад",
@@ -336,7 +641,36 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       published_event: "Опубликованное событие",
       share_reprint: "Поделитесь и распечатайте снова.",
       built_with: "Создано с помощью",
-      viewer: "Просмотр"
+      viewer: "Просмотр",
+      client_title: "Клиент VoxVera Nostr",
+      client_description: "Статический редактор и просмотрщик для децентрализованных исходных событий листовок.",
+      author_npub: "npub автора",
+      nostr_address: "Адрес Nostr",
+      poster_url: "URL плаката",
+      status: "Статус",
+      copy: "Копировать",
+      copied: "Скопировано",
+      not_published: "Не опубликовано",
+      not_generated: "Не создано",
+      idle: "Ожидание",
+      checking_signer: "Проверка подписанта",
+      checking_identity: "Проверка личности",
+      anon_signing_nip07: "Анонимная подпись используется по умолчанию; обнаружен NIP-07",
+      anon_signing_ready: "Анонимная подпись доступна; вход NIP-07 не требуется",
+      no_anon_npub: "Анонимного npub пока нет",
+      anon_npub_ready: "Анонимный npub готов",
+      npub_generated: "Анонимный npub создан:",
+      preview_updated: "Предпросмотр обновлен.",
+      signing_publishing: "Подписание и публикация...",
+      fetching: "Загрузка...",
+      fetched: "Загружено",
+      config_copied: "Конфигурация скопирована.",
+      lookup_placeholder: "naddr, ID события, note1, nevent1 или URL nostr:",
+      event_reference_required: "Введите naddr, ID события, note1 или nevent1.",
+      relay_required: "Введите хотя бы один relay wss://.",
+      failed: "сбой",
+      timeout: "тайм-аут",
+      connection_error: "ошибка соединения"
     },
     sw: {
       back: "Rudi",
@@ -359,7 +693,36 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       published_event: "Tukio lililochapishwa",
       share_reprint: "Shiriki na uchapishe tena.",
       built_with: "Imejengwa na",
-      viewer: "Kitazamaji"
+      viewer: "Kitazamaji",
+      client_title: "Mteja wa VoxVera Nostr",
+      client_description: "Kihariri na kitazamaji tuli kwa matukio chanzo ya vipeperushi vilivyogatuliwa.",
+      author_npub: "npub ya mwandishi",
+      nostr_address: "Anwani ya Nostr",
+      poster_url: "URL ya bango",
+      status: "Hali",
+      copy: "Nakili",
+      copied: "Imenakiliwa",
+      not_published: "Haijachapishwa",
+      not_generated: "Haijatengenezwa",
+      idle: "Tayari",
+      checking_signer: "Inakagua mtia saini",
+      checking_identity: "Inakagua utambulisho",
+      anon_signing_nip07: "Utiaji saini usiojulikana ndio chaguo msingi; NIP-07 imegunduliwa",
+      anon_signing_ready: "Utiaji saini usiojulikana unapatikana; hakuna kuingia kwa NIP-07 kunakohitajika",
+      no_anon_npub: "Hakuna npub isiyojulikana bado",
+      anon_npub_ready: "npub isiyojulikana iko tayari",
+      npub_generated: "npub isiyojulikana imetengenezwa:",
+      preview_updated: "Hakiki imesasishwa.",
+      signing_publishing: "Inatia saini na kuchapisha...",
+      fetching: "Inapakua...",
+      fetched: "Imepakuliwa",
+      config_copied: "Usanidi umenakiliwa.",
+      lookup_placeholder: "naddr, kitambulisho cha tukio, note1, nevent1 au URL ya nostr:",
+      event_reference_required: "Weka naddr, kitambulisho cha tukio, note1 au nevent1.",
+      relay_required: "Weka angalau relay moja ya wss://.",
+      failed: "imeshindwa",
+      timeout: "muda umeisha",
+      connection_error: "hitilafu ya muunganisho"
     },
     tr: {
       back: "Geri",
@@ -382,7 +745,36 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       published_event: "Yayınlanan olay",
       share_reprint: "Paylaşın ve yeniden yazdırın.",
       built_with: "İle yapıldı",
-      viewer: "Görüntüleyici"
+      viewer: "Görüntüleyici",
+      client_title: "VoxVera Nostr İstemcisi",
+      client_description: "Merkeziyetsiz ilan kaynak olayları için statik düzenleyici ve görüntüleyici.",
+      author_npub: "Yazar npub",
+      nostr_address: "Nostr adresi",
+      poster_url: "Poster URL'si",
+      status: "Durum",
+      copy: "Kopyala",
+      copied: "Kopyalandı",
+      not_published: "Yayınlanmadı",
+      not_generated: "Oluşturulmadı",
+      idle: "Boşta",
+      checking_signer: "İmzalayan kontrol ediliyor",
+      checking_identity: "Kimlik kontrol ediliyor",
+      anon_signing_nip07: "Anonim imzalama varsayılandır; NIP-07 algılandı",
+      anon_signing_ready: "Anonim imzalama hazır; NIP-07 girişi gerekmez",
+      no_anon_npub: "Henüz anonim npub yok",
+      anon_npub_ready: "Anonim npub hazır",
+      npub_generated: "Anonim npub oluşturuldu:",
+      preview_updated: "Önizleme güncellendi.",
+      signing_publishing: "İmzalanıyor ve yayınlanıyor...",
+      fetching: "Getiriliyor...",
+      fetched: "Getirildi",
+      config_copied: "Yapılandırma kopyalandı.",
+      lookup_placeholder: "naddr, olay ID, note1, nevent1 veya nostr: URL",
+      event_reference_required: "Bir naddr, olay ID, note1 veya nevent1 girin.",
+      relay_required: "En az bir wss:// relay girin.",
+      failed: "başarısız",
+      timeout: "zaman aşımı",
+      connection_error: "bağlantı hatası"
     },
     zh: {
       back: "返回",
@@ -405,7 +797,36 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       published_event: "已发布事件",
       share_reprint: "分享并重新打印。",
       built_with: "构建自",
-      viewer: "查看器"
+      viewer: "查看器",
+      client_title: "VoxVera Nostr 客户端",
+      client_description: "用于去中心化传单源事件的静态编辑器和查看器。",
+      author_npub: "作者 npub",
+      nostr_address: "Nostr 地址",
+      poster_url: "海报 URL",
+      status: "状态",
+      copy: "复制",
+      copied: "已复制",
+      not_published: "未发布",
+      not_generated: "未生成",
+      idle: "空闲",
+      checking_signer: "正在检查签名器",
+      checking_identity: "正在检查身份",
+      anon_signing_nip07: "默认使用匿名签名；检测到 NIP-07",
+      anon_signing_ready: "匿名签名可用；无需 NIP-07 登录",
+      no_anon_npub: "还没有匿名 npub",
+      anon_npub_ready: "匿名 npub 已就绪",
+      npub_generated: "已生成匿名 npub:",
+      preview_updated: "预览已更新。",
+      signing_publishing: "正在签名并发布...",
+      fetching: "正在获取...",
+      fetched: "已获取",
+      config_copied: "配置已复制。",
+      lookup_placeholder: "naddr、事件 ID、note1、nevent1 或 nostr: URL",
+      event_reference_required: "请输入 naddr、事件 ID、note1 或 nevent1。",
+      relay_required: "请输入至少一个 wss:// relay。",
+      failed: "失败",
+      timeout: "超时",
+      connection_error: "连接错误"
     }
   };
   let flyerSource = "default";
@@ -434,6 +855,35 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     return (NOSTR_UI[selected] && NOSTR_UI[selected][key])
       || (NOSTR_UI[FALLBACK_LANG] && NOSTR_UI[FALLBACK_LANG][key])
       || key;
+  }
+
+  function currentUiLang() {
+    return supportedLang((el("field-lang") && el("field-lang").value) || getStoredUiLang() || FALLBACK_LANG);
+  }
+
+  function setLocalizedText(id, key, lang = currentUiLang()) {
+    const node = el(id);
+    if (!node) return;
+    node.dataset.i18nKey = key;
+    node.textContent = nostrLabel(key, lang);
+  }
+
+  function setEmptyOutput(id, key, lang = currentUiLang()) {
+    const node = el(id);
+    if (!node) return;
+    node.dataset.emptyKey = key;
+    node.textContent = nostrLabel(key, lang);
+  }
+
+  function setRealOutput(id, value) {
+    const node = el(id);
+    if (!node) return;
+    delete node.dataset.emptyKey;
+    node.textContent = value;
+  }
+
+  function isEmptyOutput(node) {
+    return Boolean(node && node.dataset.emptyKey);
   }
 
   function localeDefaults(lang) {
@@ -493,6 +943,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     const meta = data.meta || {};
     document.documentElement.lang = selected;
     document.documentElement.dir = meta.direction || "ltr";
+    document.title = nostrLabel("client_title", selected);
     try {
       window.localStorage.setItem(UI_LANG_STORAGE_KEY, selected);
     } catch (_) {}
@@ -503,11 +954,28 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     });
     Object.entries(NOSTR_TEXT_LABELS).forEach(([id, key]) => setText(id, nostrLabel(key, selected)));
     Object.entries(HEADING_LABELS).forEach(([id, key]) => setText(id, nostrLabel(key, selected)));
+    Object.entries(STATIC_TEXT_LABELS).forEach(([id, key]) => setText(id, nostrLabel(key, selected)));
     Object.entries(BUTTON_LABELS).forEach(([id, key]) => setButtonText(id, nostrLabel(key, selected)));
-    setButtonText("print-preview", translate("web.print_button", selected) || BUTTON_LABELS["print-preview"]);
-    setButtonText("viewer-print", translate("web.print_button", selected) || BUTTON_LABELS["viewer-print"]);
+    setButtonText("print-preview", translate("web.print_button", selected) || nostrLabel("print_preview", selected));
+    setButtonText("viewer-print", translate("web.print_button", selected) || nostrLabel("print", selected));
     setButtonText("viewer-editor", nostrLabel("editor", selected));
     setButtonText("close-viewer-controls", nostrLabel("back", selected));
+    document.querySelectorAll(".copy-button").forEach((button) => {
+      button.textContent = nostrLabel("copy", selected);
+    });
+    Object.entries(EMPTY_OUTPUT_LABELS).forEach(([id, key]) => {
+      const node = el(id);
+      if (!node) return;
+      if (!node.dataset.emptyKey && ["Not published", "Not generated"].includes(node.textContent.trim())) {
+        node.dataset.emptyKey = key;
+      }
+      if (isEmptyOutput(node)) setEmptyOutput(id, node.dataset.emptyKey, selected);
+    });
+    document.querySelectorAll("[data-i18n-key]").forEach((node) => {
+      node.textContent = nostrLabel(node.dataset.i18nKey, selected);
+    });
+    const viewerEventInput = el("viewer-event-id");
+    if (viewerEventInput) viewerEventInput.placeholder = nostrLabel("lookup_placeholder", selected);
 
     LANGUAGE_SELECT_IDS.forEach((selectId) => {
       const select = el(selectId);
@@ -522,6 +990,11 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     populateLanguageOptions();
     const defaultLang = supportedLang(lang || getStoredUiLang() || navigator.language.split("-")[0]);
     applyFlyerDefaults(defaultLang);
+    Object.entries(EMPTY_OUTPUT_LABELS).forEach(([id, key]) => setEmptyOutput(id, key, defaultLang));
+    setLocalizedText("publish-status", "idle", defaultLang);
+    setLocalizedText("viewer-status", "idle", defaultLang);
+    setLocalizedText("signer-state", "checking_signer", defaultLang);
+    setLocalizedText("identity-state", "checking_identity", defaultLang);
     renderPreview(localeDefaults(defaultLang));
     refreshSignerState();
     refreshIdentityState();
@@ -568,11 +1041,11 @@ Join us in a revolution that values truth and transparency. Together, we can bui
   function refreshSignerState() {
     const state = el("signer-state");
     if (window.nostr && typeof window.nostr.signEvent === "function") {
-      state.textContent = "Anonymous signing is default; NIP-07 detected";
+      setLocalizedText("signer-state", "anon_signing_nip07");
       state.style.color = "#1d6b3a";
       return;
     }
-    state.textContent = "Anonymous signing available; no NIP-07 login required";
+    setLocalizedText("signer-state", "anon_signing_ready");
     state.style.color = "#1d6b3a";
   }
 
@@ -632,15 +1105,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     try {
       const secretHex = getStoredAnonSecret();
       if (!secretHex) {
-        state.textContent = "No anonymous npub yet";
+        setLocalizedText("identity-state", "no_anon_npub");
         state.style.color = "#8a4d00";
-        output.textContent = "Not generated";
+        setEmptyOutput("author-npub-output", "not_generated");
         return;
       }
       const identity = getOrCreateAnonIdentity(false);
-      state.textContent = "Anonymous npub ready";
+      setLocalizedText("identity-state", "anon_npub_ready");
       state.style.color = "#1d6b3a";
-      output.textContent = identity.npub;
+      setRealOutput("author-npub-output", identity.npub);
       updatePosterAddressOutputs();
     } catch (error) {
       state.textContent = error.message;
@@ -811,8 +1284,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       const identity = getOrCreateAnonIdentity(false);
       const payload = buildPayloadFromForm();
       const poster = withPosterUrl(payload, identity, relays);
-      naddrOutput.textContent = poster.naddr;
-      posterUrlOutput.textContent = poster.posterUrl;
+      setRealOutput("naddr-output", poster.naddr);
+      setRealOutput("poster-url-output", poster.posterUrl);
       return poster;
     } catch (_) {
       return null;
@@ -823,9 +1296,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     const identity = getOrCreateAnonIdentity(false);
     const poster = withPosterUrl(payload, identity, relays);
     const signed = nostrTools().finalizeEvent(buildUnsignedEvent(poster.payload), identity.secretKey);
-    el("author-npub-output").textContent = identity.npub;
-    el("naddr-output").textContent = poster.naddr;
-    el("poster-url-output").textContent = poster.posterUrl;
+    setRealOutput("author-npub-output", identity.npub);
+    setRealOutput("naddr-output", poster.naddr);
+    setRealOutput("poster-url-output", poster.posterUrl);
     refreshIdentityState();
     if (!signed.id || !signed.sig) {
       throw new Error("Signer returned an event without id/sig.");
@@ -843,7 +1316,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       const ws = new WebSocket(relay);
       const timeout = setTimeout(() => {
         try { ws.close(); } catch (_) {}
-        resolve({ relay, ok: false, message: "timeout" });
+        resolve({ relay, ok: false, message: nostrLabel("timeout", currentUiLang()) });
       }, 9000);
 
       ws.onopen = () => ws.send(JSON.stringify(["EVENT", event]));
@@ -859,7 +1332,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       };
       ws.onerror = () => {
         clearTimeout(timeout);
-        resolve({ relay, ok: false, message: "connection error" });
+        resolve({ relay, ok: false, message: nostrLabel("connection_error", currentUiLang()) });
       };
     });
   }
@@ -1125,9 +1598,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     const relays = parseRelays(el("editor-relays").value);
     const identity = getOrCreateAnonIdentity(false);
     const poster = withPosterUrl(payload, identity, relays);
-    el("author-npub-output").textContent = identity.npub;
-    el("naddr-output").textContent = poster.naddr;
-    el("poster-url-output").textContent = poster.posterUrl;
+    setRealOutput("author-npub-output", identity.npub);
+    setRealOutput("naddr-output", poster.naddr);
+    setRealOutput("poster-url-output", poster.posterUrl);
     refreshIdentityState();
     syncUiLanguage(poster.payload.lang);
     renderPreview(normalizePayload(poster.payload));
@@ -1169,17 +1642,18 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     return `<div class="relay-results">${results.map((item) => `
       <div>
         <span>${escapeHtml(item.relay)}:</span>
-        <span class="${item.ok ? "relay-ok" : "relay-error"}">${item.ok ? "OK" : escapeHtml(item.message || "failed")}</span>
+        <span class="${item.ok ? "relay-ok" : "relay-error"}">${item.ok ? "OK" : escapeHtml(item.message || nostrLabel("failed", currentUiLang()))}</span>
       </div>
     `).join("")}</div>`;
   }
 
   async function copyTextFromElement(targetId, button) {
     const value = el(targetId).textContent.trim();
-    if (!value || value === "Not published" || value === "Not generated") return;
+    const target = el(targetId);
+    if (!value || isEmptyOutput(target)) return;
     await navigator.clipboard.writeText(value);
     const oldText = button.textContent;
-    button.textContent = "Copied";
+    button.textContent = nostrLabel("copied", currentUiLang());
     setTimeout(() => {
       button.textContent = oldText;
     }, 1200);
@@ -1187,12 +1661,12 @@ Join us in a revolution that values truth and transparency. Together, we can bui
 
   async function fetchAndRenderFromInput(eventInput, relaysValue, statusElement = el("viewer-status")) {
     const parsed = parseEventReference(eventInput);
-    if (!parsed) throw new Error("Enter an naddr, event id, note1, or nevent1.");
+    if (!parsed) throw new Error(nostrLabel("event_reference_required", currentUiLang()));
     const relays = parseRelays(`${relaysValue}\n${(parsed.relays || []).join("\n")}`);
-    if (!relays.length) throw new Error("Enter at least one wss:// relay.");
+    if (!relays.length) throw new Error(nostrLabel("relay_required", currentUiLang()));
     el("viewer-event-id").value = eventInput;
     el("viewer-relays").value = relays.join("\n");
-    statusElement.textContent = "Fetching...";
+    statusElement.textContent = nostrLabel("fetching", currentUiLang());
     const nostrEvent = parsed.type === "address"
       ? await fetchReplaceable(parsed.address, relays)
       : await fetchEvent(parsed.id, relays);
@@ -1203,7 +1677,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     el("field-lang").value = config.lang;
     el("viewer-config-output").value = JSON.stringify(config, null, 2);
     renderPreview(config);
-    statusElement.textContent = `Fetched ${parsed.type === "address" ? parsed.address.identifier : parsed.id}`;
+    statusElement.textContent = `${nostrLabel("fetched", config.lang)} ${parsed.type === "address" ? parsed.address.identifier : parsed.id}`;
     closeViewerDrawer();
   }
 
@@ -1239,6 +1713,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       "field-headline",
       "field-content",
       "field-url-message",
+      "field-url",
       "field-footer-message"
     ].forEach((fieldId) => {
       const field = el(fieldId);
@@ -1262,9 +1737,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     el("generate-anon-identity").addEventListener("click", () => {
       try {
         const identity = getOrCreateAnonIdentity(true);
-        el("author-npub-output").textContent = identity.npub;
+        setRealOutput("author-npub-output", identity.npub);
         refreshIdentityState();
-        el("publish-status").textContent = `Anonymous npub generated: ${identity.npub}`;
+        el("publish-status").textContent = `${nostrLabel("npub_generated", currentUiLang())} ${identity.npub}`;
       } catch (error) {
         el("publish-status").textContent = error.message;
       }
@@ -1273,7 +1748,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     el("preview-editor").addEventListener("click", () => {
       try {
         formToPreview();
-        el("publish-status").textContent = "Preview updated.";
+        el("publish-status").textContent = nostrLabel("preview_updated", currentUiLang());
       } catch (error) {
         el("publish-status").textContent = error.message;
       }
@@ -1286,9 +1761,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
         const identity = getOrCreateAnonIdentity(false);
         const poster = withPosterUrl(payload, identity, relays);
         const event = buildUnsignedEvent(poster.payload);
-        el("author-npub-output").textContent = identity.npub;
-        el("naddr-output").textContent = poster.naddr;
-        el("poster-url-output").textContent = poster.posterUrl;
+        setRealOutput("author-npub-output", identity.npub);
+        setRealOutput("naddr-output", poster.naddr);
+        setRealOutput("poster-url-output", poster.posterUrl);
         el("event-json-output").value = JSON.stringify(event, null, 2);
         downloadJson(`${poster.payload.folder_name}-voxvera-event-unsigned.json`, event);
       } catch (error) {
@@ -1301,10 +1776,10 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       try {
         const payload = buildPayloadFromForm();
         const relays = parseRelays(el("editor-relays").value);
-        if (!relays.length) throw new Error("Enter at least one wss:// relay.");
-        el("publish-status").textContent = "Signing and publishing...";
+        if (!relays.length) throw new Error(nostrLabel("relay_required", currentUiLang()));
+        el("publish-status").textContent = nostrLabel("signing_publishing", currentUiLang());
         const result = await signAndPublish(payload, relays);
-        el("event-id-output").textContent = result.event.id;
+        setRealOutput("event-id-output", result.event.id);
         el("event-json-output").value = JSON.stringify(result.event, null, 2);
         el("viewer-event-id").value = result.naddr;
         el("publish-status").innerHTML = renderRelayResults(result.results);
@@ -1327,7 +1802,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       const value = el("viewer-config-output").value;
       if (!value) return;
       await navigator.clipboard.writeText(value);
-      el("viewer-status").textContent = "Config copied.";
+      el("viewer-status").textContent = nostrLabel("config_copied", currentUiLang());
     });
 
     el("print-preview").addEventListener("click", () => window.print());

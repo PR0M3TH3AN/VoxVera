@@ -9,8 +9,8 @@
 <body>
   <header class="topbar">
     <div>
-      <h1>VoxVera Nostr Client</h1>
-      <p>Static editor and viewer for decentralized flyer source events.</p>
+      <h1 id="client-title">VoxVera Nostr Client</h1>
+      <p id="client-description">Static editor and viewer for decentralized flyer source events.</p>
     </div>
     <div class="topbar-controls">
       <nav class="mode-tabs" aria-label="Client mode">
@@ -115,15 +115,15 @@
         <aside class="result-panel">
           <h2 id="published-event-heading">Published Event</h2>
           <dl class="result-list">
-            <dt>Event ID</dt>
+            <dt id="result-event-id-label">Event ID</dt>
             <dd class="copy-value"><code id="event-id-output">Not published</code><button type="button" class="copy-button" data-copy-target="event-id-output">Copy</button></dd>
-            <dt>Author npub</dt>
+            <dt id="result-author-npub-label">Author npub</dt>
             <dd class="copy-value"><code id="author-npub-output">Not generated</code><button type="button" class="copy-button" data-copy-target="author-npub-output">Copy</button></dd>
-            <dt>Nostr address</dt>
+            <dt id="result-naddr-label">Nostr address</dt>
             <dd class="copy-value"><code id="naddr-output">Not generated</code><button type="button" class="copy-button" data-copy-target="naddr-output">Copy</button></dd>
-            <dt>Poster URL</dt>
+            <dt id="result-poster-url-label">Poster URL</dt>
             <dd class="copy-value"><code id="poster-url-output">Not generated</code><button type="button" class="copy-button" data-copy-target="poster-url-output">Copy</button></dd>
-            <dt>Status</dt>
+            <dt id="result-status-label">Status</dt>
             <dd id="publish-status">Idle</dd>
           </dl>
           <textarea id="event-json-output" rows="14" spellcheck="false" readonly></textarea>
