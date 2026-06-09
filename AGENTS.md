@@ -19,6 +19,7 @@
 - Treat Nostr event content as untrusted. Escape rendered content and reject unsafe schema input.
 - Preserve print behavior: app controls must not print or shift the flyer sheet in print output.
 - Preserve the old flyer visual language unless the user explicitly asks for a redesign.
+- Paper size (US Letter / A4) is a local print/view preference (`localStorage`), defaulted from the browser locale region. Never write it into the Nostr event — a flyer must reprint on either size without changing the source event.
 
 ## Localization
 

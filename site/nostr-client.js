@@ -11,6 +11,20 @@
   const LOCALES = window.VoxVeraLocales || {};
   const FALLBACK_LANG = "en";
   const LANGUAGE_SELECT_IDS = ["topbar-lang", "field-lang", "viewer-lang"];
+  const PAPER_SELECT_IDS = ["topbar-paper", "viewer-paper"];
+  const PAPER_STORAGE_KEY = "voxvera_paper";
+  // Print paper sizes. `css` is the CSS @page size keyword. The actual sheet
+  // dimensions live in nostr-client.css (--sheet-w / --sheet-h per paper class).
+  const PAPER_SIZES = {
+    letter: { css: "Letter" },
+    a4: { css: "A4" }
+  };
+  const DEFAULT_PAPER = "letter";
+  // ISO 3166-1 alpha-2 regions whose default print paper is US Letter.
+  // Everywhere else defaults to A4 (ISO 216), which is the global standard.
+  const LETTER_REGIONS = new Set([
+    "US", "CA", "MX", "CL", "CO", "CR", "GT", "DO", "PH", "VE", "PA", "NI", "SV", "HN", "BO", "EC", "PR"
+  ]);
   const EVENT_KIND = 30078;
   // Per-script letter-spacing policy for flyer text. `letter-spacing` is not
   // script-neutral, so the flyer tightens tracking only where it is safe:
@@ -183,6 +197,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       fetched: "تم الجلب",
       loading_content: "جارٍ تحميل المحتوى...",
       load_failed: "تعذّر تحميل هذا الملصق.",
+      paper_size: "حجم الورق",
+      paper_letter: "US Letter (8.5 × 11 بوصة)",
+      paper_a4: "A4 (210 × 297 مم)",
       config_copied: "تم نسخ الإعداد.",
       lookup_placeholder: "naddr أو معرف حدث أو note1 أو nevent1 أو رابط nostr:",
       event_reference_required: "أدخل naddr أو معرف حدث أو note1 أو nevent1.",
@@ -237,6 +254,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       fetched: "Abgerufen",
       loading_content: "Inhalt wird geladen...",
       load_failed: "Dieses Plakat konnte nicht geladen werden.",
+      paper_size: "Papierformat",
+      paper_letter: "US Letter (8,5 × 11 Zoll)",
+      paper_a4: "A4 (210 × 297 mm)",
       config_copied: "Konfiguration kopiert.",
       lookup_placeholder: "naddr, Event-ID, note1, nevent1 oder nostr:-URL",
       event_reference_required: "Geben Sie naddr, Event-ID, note1 oder nevent1 ein.",
@@ -291,6 +311,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       fetched: "Fetched",
       loading_content: "Loading content...",
       load_failed: "Could not load this flyer.",
+      paper_size: "Paper size",
+      paper_letter: "US Letter (8.5 × 11 in)",
+      paper_a4: "A4 (210 × 297 mm)",
       config_copied: "Config copied.",
       lookup_placeholder: "naddr, event id, note1, nevent1, or nostr: URL",
       event_reference_required: "Enter an naddr, event id, note1, or nevent1.",
@@ -346,6 +369,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       fetched: "Recuperado",
       loading_content: "Cargando contenido...",
       load_failed: "No se pudo cargar este cartel.",
+      paper_size: "Tamaño de papel",
+      paper_letter: "US Letter (8,5 × 11 in)",
+      paper_a4: "A4 (210 × 297 mm)",
       config_copied: "Configuración copiada.",
       lookup_placeholder: "naddr, ID de evento, note1, nevent1 o URL nostr:",
       event_reference_required: "Ingrese un naddr, ID de evento, note1 o nevent1.",
@@ -400,6 +426,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       fetched: "دریافت شد",
       loading_content: "در حال بارگذاری محتوا...",
       load_failed: "بارگذاری این پوستر ممکن نشد.",
+      paper_size: "اندازه کاغذ",
+      paper_letter: "US Letter (8.5 × 11 اینچ)",
+      paper_a4: "A4 (210 × 297 میلی‌متر)",
       config_copied: "پیکربندی کپی شد.",
       lookup_placeholder: "naddr، شناسه رویداد، note1، nevent1 یا URL nostr:",
       event_reference_required: "یک naddr، شناسه رویداد، note1 یا nevent1 وارد کنید.",
@@ -454,6 +483,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       fetched: "Charge",
       loading_content: "Chargement du contenu...",
       load_failed: "Impossible de charger cette affiche.",
+      paper_size: "Format du papier",
+      paper_letter: "US Letter (8,5 × 11 po)",
+      paper_a4: "A4 (210 × 297 mm)",
       config_copied: "Configuration copiee.",
       lookup_placeholder: "naddr, ID d'evenement, note1, nevent1 ou URL nostr:",
       event_reference_required: "Saisissez un naddr, ID d'evenement, note1 ou nevent1.",
@@ -508,6 +540,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       fetched: "נטען",
       loading_content: "טוען תוכן...",
       load_failed: "לא ניתן לטעון כרזה זו.",
+      paper_size: "גודל נייר",
+      paper_letter: "US Letter (8.5 × 11 אינץ׳)",
+      paper_a4: "A4 (210 × 297 מ״מ)",
       config_copied: "התצורה הועתקה.",
       lookup_placeholder: "naddr, מזהה אירוע, note1, nevent1 או כתובת nostr:",
       event_reference_required: "הזן naddr, מזהה אירוע, note1 או nevent1.",
@@ -562,6 +597,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       fetched: "लाया गया",
       loading_content: "सामग्री लोड हो रही है...",
       load_failed: "यह पोस्टर लोड नहीं हो सका।",
+      paper_size: "कागज़ का आकार",
+      paper_letter: "US Letter (8.5 × 11 इंच)",
+      paper_a4: "A4 (210 × 297 मिमी)",
       config_copied: "कॉन्फिग कॉपी हुआ.",
       lookup_placeholder: "naddr, इवेंट ID, note1, nevent1, या nostr: URL",
       event_reference_required: "naddr, इवेंट ID, note1, या nevent1 दर्ज करें.",
@@ -616,6 +654,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       fetched: "取得しました",
       loading_content: "コンテンツを読み込んでいます...",
       load_failed: "このちらしを読み込めませんでした。",
+      paper_size: "用紙サイズ",
+      paper_letter: "US レター (8.5 × 11 インチ)",
+      paper_a4: "A4 (210 × 297 mm)",
       config_copied: "設定をコピーしました。",
       lookup_placeholder: "naddr、イベントID、note1、nevent1、または nostr: URL",
       event_reference_required: "naddr、イベントID、note1、またはnevent1を入力してください。",
@@ -670,6 +711,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       fetched: "Buscado",
       loading_content: "Carregando conteúdo...",
       load_failed: "Não foi possível carregar este panfleto.",
+      paper_size: "Tamanho do papel",
+      paper_letter: "US Letter (8,5 × 11 pol)",
+      paper_a4: "A4 (210 × 297 mm)",
       config_copied: "Configuracao copiada.",
       lookup_placeholder: "naddr, ID do evento, note1, nevent1 ou URL nostr:",
       event_reference_required: "Insira um naddr, ID do evento, note1 ou nevent1.",
@@ -724,6 +768,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       fetched: "Загружено",
       loading_content: "Загрузка содержимого...",
       load_failed: "Не удалось загрузить эту листовку.",
+      paper_size: "Размер бумаги",
+      paper_letter: "US Letter (8,5 × 11 дюйма)",
+      paper_a4: "A4 (210 × 297 мм)",
       config_copied: "Конфигурация скопирована.",
       lookup_placeholder: "naddr, ID события, note1, nevent1 или URL nostr:",
       event_reference_required: "Введите naddr, ID события, note1 или nevent1.",
@@ -778,6 +825,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       fetched: "Imepakuliwa",
       loading_content: "Inapakia maudhui...",
       load_failed: "Imeshindwa kupakia bango hili.",
+      paper_size: "Ukubwa wa karatasi",
+      paper_letter: "US Letter (8.5 × 11 inchi)",
+      paper_a4: "A4 (210 × 297 mm)",
       config_copied: "Usanidi umenakiliwa.",
       lookup_placeholder: "naddr, kitambulisho cha tukio, note1, nevent1 au URL ya nostr:",
       event_reference_required: "Weka naddr, kitambulisho cha tukio, note1 au nevent1.",
@@ -832,6 +882,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       fetched: "Getirildi",
       loading_content: "İçerik yükleniyor...",
       load_failed: "Bu el ilanı yüklenemedi.",
+      paper_size: "Kağıt boyutu",
+      paper_letter: "US Letter (8,5 × 11 inç)",
+      paper_a4: "A4 (210 × 297 mm)",
       config_copied: "Yapılandırma kopyalandı.",
       lookup_placeholder: "naddr, olay ID, note1, nevent1 veya nostr: URL",
       event_reference_required: "Bir naddr, olay ID, note1 veya nevent1 girin.",
@@ -886,6 +939,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       fetched: "已获取",
       loading_content: "正在加载内容...",
       load_failed: "无法加载此传单。",
+      paper_size: "纸张大小",
+      paper_letter: "US Letter (8.5 × 11 英寸)",
+      paper_a4: "A4 (210 × 297 毫米)",
       config_copied: "配置已复制。",
       lookup_placeholder: "naddr、事件 ID、note1、nevent1 或 nostr: URL",
       event_reference_required: "请输入 naddr、事件 ID、note1 或 nevent1。",
@@ -1142,6 +1198,14 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       const select = el(selectId);
       if (select) select.value = selected;
     });
+    PAPER_SELECT_IDS.forEach((selectId) => {
+      const select = el(selectId);
+      if (!select) return;
+      select.setAttribute("aria-label", nostrLabel("paper_size", selected));
+      Array.from(select.options).forEach((opt) => {
+        opt.textContent = nostrLabel(`paper_${opt.value}`, selected);
+      });
+    });
   }
 
   function setDefaultText(lang) {
@@ -1149,8 +1213,10 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     el("editor-relays").value = relayText;
     el("viewer-relays").value = relayText;
     populateLanguageOptions();
-    const defaultLang = supportedLang(lang || getStoredUiLang() || navigator.language.split("-")[0]);
+    populatePaperOptions();
+    const defaultLang = supportedLang(lang || getStoredUiLang() || preferredBrowserLang());
     applyFlyerDefaults(defaultLang);
+    applyPaperSize(getStoredPaper() || preferredPaperSize());
     Object.entries(EMPTY_OUTPUT_LABELS).forEach(([id, key]) => setEmptyOutput(id, key, defaultLang));
     setLocalizedText("publish-status", "idle", defaultLang);
     setLocalizedText("viewer-status", "idle", defaultLang);
@@ -1168,6 +1234,96 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     } catch (_) {
       return "";
     }
+  }
+
+  // Walk the browser's full ordered preference list (navigator.languages),
+  // not just the single top choice, and return the first base language we
+  // actually support. This honors a user's secondary preference (e.g. prefers
+  // Dutch, then German) instead of jumping straight to the English fallback.
+  function preferredBrowserLang() {
+    const list = (navigator.languages && navigator.languages.length)
+      ? navigator.languages
+      : [navigator.language || ""];
+    for (const tag of list) {
+      const base = String(tag || "").split("-")[0];
+      if (base && LOCALES[base]) return base;
+    }
+    return "";
+  }
+
+  function supportedPaper(paper) {
+    return PAPER_SIZES[paper] ? paper : DEFAULT_PAPER;
+  }
+
+  function getStoredPaper() {
+    try {
+      const stored = window.localStorage.getItem(PAPER_STORAGE_KEY);
+      return stored && PAPER_SIZES[stored] ? stored : "";
+    } catch (_) {
+      return "";
+    }
+  }
+
+  // "By location" without geolocation: read the region subtag of the browser's
+  // locale list (the "GB" in "en-GB") and pick the paper that country prints on.
+  // Same signal we use for language, no permission prompt. Falls back to
+  // DEFAULT_PAPER only when no locale carries a region at all.
+  function preferredPaperSize() {
+    const list = (navigator.languages && navigator.languages.length)
+      ? navigator.languages
+      : [navigator.language || ""];
+    for (const tag of list) {
+      const parts = String(tag || "").split("-");
+      const region = parts.length > 1 ? parts[parts.length - 1].toUpperCase() : "";
+      if (/^[A-Z]{2}$/.test(region)) {
+        return LETTER_REGIONS.has(region) ? "letter" : "a4";
+      }
+    }
+    return DEFAULT_PAPER;
+  }
+
+  function ensurePageSizeStyle() {
+    let style = document.getElementById("voxvera-page-size");
+    if (!style) {
+      style = document.createElement("style");
+      style.id = "voxvera-page-size";
+      document.head.appendChild(style);
+    }
+    return style;
+  }
+
+  // Paper size is a local print/view preference — it is never written into the
+  // Nostr event, so a flyer authored on Letter reprints on A4 for a European
+  // viewer without changing the source event.
+  function applyPaperSize(paper) {
+    const selected = supportedPaper(paper);
+    const root = document.documentElement;
+    root.classList.remove("paper-letter", "paper-a4");
+    root.classList.add(`paper-${selected}`);
+    // @page size cannot read CSS custom properties reliably across engines, so
+    // drive it from an injected stylesheet that we rewrite on each change.
+    ensurePageSizeStyle().textContent =
+      `@media print { @page { size: ${PAPER_SIZES[selected].css} portrait; margin: 0; } }`;
+    try {
+      window.localStorage.setItem(PAPER_STORAGE_KEY, selected);
+    } catch (_) {}
+    PAPER_SELECT_IDS.forEach((id) => {
+      const sel = el(id);
+      if (sel) sel.value = selected;
+    });
+    updatePreviewScale();
+  }
+
+  function populatePaperOptions() {
+    PAPER_SELECT_IDS.forEach((id) => {
+      const sel = el(id);
+      if (!sel || sel.options.length) return;
+      Object.keys(PAPER_SIZES).forEach((key) => {
+        const opt = document.createElement("option");
+        opt.value = key;
+        sel.appendChild(opt);
+      });
+    });
   }
 
   function applyFlyerDefaults(lang) {
@@ -1934,7 +2090,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
   }
 
   document.addEventListener("DOMContentLoaded", () => {
-    setDefaultText(getStoredUiLang() || navigator.language.split("-")[0]);
+    setDefaultText();
     if (window.ResizeObserver) {
       new ResizeObserver(updatePreviewScale).observe(el("flyer-preview"));
     } else {
@@ -1966,6 +2122,12 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       const select = el(selectId);
       if (!select) return;
       select.addEventListener("change", () => applyLanguageChange(select.value || FALLBACK_LANG));
+    });
+
+    PAPER_SELECT_IDS.forEach((selectId) => {
+      const select = el(selectId);
+      if (!select) return;
+      select.addEventListener("change", () => applyPaperSize(select.value || DEFAULT_PAPER));
     });
 
     TEXT_FIELD_IDS.forEach((fieldId) => {

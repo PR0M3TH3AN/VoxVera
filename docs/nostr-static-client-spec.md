@@ -122,6 +122,36 @@ The client and schema helper must:
 - keep attachments unsupported in V1
 - avoid remote frontend dependencies
 
+## Print paper size
+
+The flyer supports two print sizes: **US Letter** (8.5×11in) and **A4**
+(210×297mm), covering every country whose language the client supports (Letter
+in North America and a few Latin American countries; A4 everywhere else,
+including the EU, Russia, China, Japan, and the Middle East).
+
+- Dimensions live in CSS custom properties `--sheet-w` / `--sheet-h`, switched
+  by a `paper-letter` / `paper-a4` class on `<html>` (`applyPaperSize` in
+  `nostr-client.js`). The tear-off column (`3.75in`) and QR codes (`1.25in`)
+  stay fixed physical sizes; the content column flexes to the sheet width.
+- The print `@page { size: … }` is injected by JS (an element with id
+  `voxvera-page-size`), because `@page size` cannot read CSS custom properties
+  across engines. The static `@media print` block keeps `margin: 0` and a
+  Letter default for the pre-JS state.
+- The default is chosen from the **region subtag** of the browser locale
+  (`preferredPaperSize` — e.g. `en-GB` → A4, `en-US` → Letter). This is "by
+  location" without geolocation, using the same signal as language. When no
+  locale carries a region, it falls back to Letter.
+- A user override (the paper-size selector) is stored in `localStorage`
+  (`voxvera_paper`) and wins over the region default.
+- **Paper size is a local print/view preference and is never written into the
+  Nostr event.** A flyer authored on Letter reprints on A4 for a European
+  viewer without changing the source event. The live fit-check protects
+  authoring on whichever size is active; switching to a narrower size after
+  authoring can ellipsis-truncate a maxed-out single-line field.
+
+Field capacity therefore varies by paper size; see
+[`flyer-field-limits.md`](flyer-field-limits.md).
+
 ## Localization
 
 Flyer defaults come from `site/locales.js`.

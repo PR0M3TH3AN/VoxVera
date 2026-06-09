@@ -86,4 +86,64 @@ test.describe("VoxVera static client", () => {
     );
     await expect(page.locator(".content h1")).toHaveCount(0);
   });
+
+  test("infers language from the first supported browser preference", async ({ page }) => {
+    // Browser prefers Dutch (unsupported), then German (supported), then
+    // English. We should honor German rather than jumping to the English
+    // fallback — i.e. walk navigator.languages, not just navigator.language.
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, "languages", {
+        configurable: true,
+        get: () => ["nl-NL", "de-DE", "en-US"]
+      });
+      Object.defineProperty(navigator, "language", {
+        configurable: true,
+        get: () => "nl-NL"
+      });
+    });
+    await page.goto("/");
+    // German default headline (locales.js de.landing.title).
+    await expect(page.locator(".content h1").first()).toContainText("STRENG GEHEIM");
+    await expect(page.locator("html")).toHaveAttribute("lang", "de");
+  });
+
+  test("defaults to A4 for an A4-region locale (no geolocation)", async ({ page }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, "languages", { configurable: true, get: () => ["de-DE"] });
+      Object.defineProperty(navigator, "language", { configurable: true, get: () => "de-DE" });
+    });
+    await page.goto("/");
+    await expect(page.locator("html")).toHaveClass(/paper-a4/);
+    const pageRule = await page.evaluate(
+      () => document.getElementById("voxvera-page-size").textContent
+    );
+    expect(pageRule).toContain("A4");
+  });
+
+  test("defaults to US Letter for a Letter-region locale", async ({ page }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, "languages", { configurable: true, get: () => ["en-US"] });
+      Object.defineProperty(navigator, "language", { configurable: true, get: () => "en-US" });
+    });
+    await page.goto("/");
+    await expect(page.locator("html")).toHaveClass(/paper-letter/);
+    const pageRule = await page.evaluate(
+      () => document.getElementById("voxvera-page-size").textContent
+    );
+    expect(pageRule).toContain("Letter");
+  });
+
+  test("manual paper-size override persists across reloads", async ({ page }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, "languages", { configurable: true, get: () => ["en-US"] });
+    });
+    // Editor mode shows the topbar controls; viewer mode hides them.
+    await page.goto("/#editor");
+    await expect(page.locator("html")).toHaveClass(/paper-letter/);
+    await page.locator("#topbar-paper").selectOption("a4");
+    await expect(page.locator("html")).toHaveClass(/paper-a4/);
+    await page.reload();
+    // Stored override beats the en-US region default.
+    await expect(page.locator("html")).toHaveClass(/paper-a4/);
+  });
 });

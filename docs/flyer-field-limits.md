@@ -9,7 +9,8 @@ So the real limit is enforced for you as you type — the numbers below are
 practical guidance for drafting copy, sizing translations, or prompting an LLM
 to write flyer text that will fit on the first try.
 
-Capacity varies by **script**, not by individual language, for three reasons:
+Capacity varies by **script** (not by individual language) and by **paper
+size**, for these reasons:
 
 1. The flyer body font is monospace (`Courier New`), so within a script every
    character takes the same width regardless of upper/lowercase.
@@ -17,19 +18,22 @@ Capacity varies by **script**, not by individual language, for three reasons:
    [`nostr-static-client-spec.md`](nostr-static-client-spec.md#letter-spacing-by-script)).
 3. Glyph width differs by script — CJK glyphs are full-width (≈2× a Latin
    character), Devanagari fallback glyphs are narrower, etc.
+4. **Paper size.** A4 (210×297mm) is slightly narrower and taller than US
+   Letter (8.5×11in), so single-line fields hold ~2 fewer characters on A4
+   while the body holds a little more. Both sizes are shown below.
 
 ## Single-line fields (hard caps)
 
 **Title**, **Subtitle**, and **Headline** are single-line: they never wrap, so
 these are the limits people actually run into. Counts are characters
-(codepoints).
+(codepoints), shown as **Letter / A4**.
 
-| Languages | Title | Headline | Subtitle |
-|---|---|---|---|
-| Latin & Cyrillic & Hebrew — en, es, de, fr, pt, sw, tr, ru, he | ~28 | ~28 | ~32 |
-| Arabic & Persian — ar, fa | ~28 | ~28 | ~38 |
-| Devanagari — hi | ~36 | ~36 | ~51 |
-| CJK — ja, zh | ~17 | ~17 | ~23 |
+| Languages | Title & Headline | Subtitle |
+|---|---|---|
+| Latin & Cyrillic & Hebrew — en, es, de, fr, pt, sw, tr, ru, he | ~28 / ~26 | ~32 / ~30 |
+| Arabic & Persian — ar, fa | ~28 / ~27 | ~38 / ~36 |
+| Devanagari — hi | ~36 / ~35 | ~51 / ~48 |
+| CJK — ja, zh | ~17 / ~16 | ~23 / ~21 |
 
 ## Multi-line fields (generous)
 
@@ -37,12 +41,12 @@ these are the limits people actually run into. Counts are characters
 (`footer_message`) wrap across multiple lines, so they hold far more and are
 bounded only by the remaining height of the sheet.
 
-| Languages | Body (content) |
+| Languages | Body (content) — Letter / A4 |
 |---|---|
-| Latin & Cyrillic & Hebrew | ~1,900 (a few hundred words) |
-| Arabic & Persian | ~1,850 |
-| Devanagari — hi | ~2,450 |
-| CJK — ja, zh | ~1,170 |
+| Latin & Cyrillic & Hebrew | ~1,900 / ~2,000 (a few hundred words) |
+| Arabic & Persian | ~1,850 / ~1,930 |
+| Devanagari — hi | ~2,450 / ~2,545 |
+| CJK — ja, zh | ~1,170 / ~1,220 |
 
 `url_message` and `footer_message` share the lower portion of the sheet and can
 hold roughly 1,200–4,800 characters depending on script, but for a readable
@@ -55,7 +59,7 @@ URLs scan more reliably).
 ## Notes and caveats
 
 - **Approximate.** These come from rendering each script in a headless browser
-  at true print size (8.5in × 11in, content column 4.75in). The
+  at true print size for both Letter (8.5×11in) and A4 (210×297mm). The
   Latin/Cyrillic numbers (`Courier New`) are the most reliable; numbers for
   Hebrew, Arabic, Persian, Devanagari, and CJK depend on the system fallback
   font, which can differ slightly between devices and from print output.

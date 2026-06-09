@@ -7,6 +7,21 @@
   --accent: #b80000;
   --ok: #1d6b3a;
   --warn: #8a4d00;
+  /* Printable sheet dimensions. Switched by the paper-* class on <html>
+     (applyPaperSize in nostr-client.js). The tear-off column (3.75in) and QR
+     codes (1.25in) stay fixed physical sizes; the content column flexes. */
+  --sheet-w: 8.5in;
+  --sheet-h: 11in;
+}
+
+html.paper-letter {
+  --sheet-w: 8.5in;
+  --sheet-h: 11in;
+}
+
+html.paper-a4 {
+  --sheet-w: 210mm;
+  --sheet-h: 297mm;
 }
 
 * {
@@ -278,8 +293,8 @@ code {
 
 .flyer-sheet {
   display: flex;
-  width: 8.5in;
-  height: 11in;
+  width: var(--sheet-w);
+  height: var(--sheet-h);
   border: 1px solid #000;
   background: #fff;
   color: #000;
@@ -374,8 +389,8 @@ a {
 .container {
   display: flex;
   flex-direction: row;
-  width: 8.5in;
-  height: 11in;
+  width: var(--sheet-w);
+  height: var(--sheet-h);
   border: 1px solid #000;
   background: #fff;
   color: #000;
@@ -502,7 +517,7 @@ a {
 }
 
 .content {
-  width: calc(8.5in - 3.75in);
+  width: calc(var(--sheet-w) - 3.75in);
   padding: 15px 20px;
   text-align: center;
   box-sizing: border-box;
@@ -880,6 +895,9 @@ body.mode-viewer #viewer-panel.drawer-open .result-panel {
 }
 
 @media print {
+  /* @page size is injected by applyPaperSize() in nostr-client.js (Letter or
+     A4) since @page cannot read CSS custom properties across engines. This
+     rule is the margin fallback and the default size before JS runs. */
   @page {
     size: Letter portrait;
     margin: 0;
@@ -887,8 +905,8 @@ body.mode-viewer #viewer-panel.drawer-open .result-panel {
 
   html,
   body {
-    width: 8.5in;
-    height: 11in;
+    width: var(--sheet-w);
+    height: var(--sheet-h);
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -910,16 +928,16 @@ body.mode-viewer #viewer-panel.drawer-open .result-panel {
 
   main {
     display: block;
-    width: 8.5in;
-    height: 11in;
+    width: var(--sheet-w);
+    height: var(--sheet-h);
     padding: 0;
     margin: 0;
   }
 
   .preview-band {
     display: block;
-    width: 8.5in;
-    height: 11in;
+    width: var(--sheet-w);
+    height: var(--sheet-h);
     border: 0;
     margin: 0;
     padding: 0;
@@ -927,8 +945,8 @@ body.mode-viewer #viewer-panel.drawer-open .result-panel {
 
   .flyer-preview {
     display: block;
-    width: 8.5in;
-    height: 11in;
+    width: var(--sheet-w);
+    height: var(--sheet-h);
     overflow: visible;
     padding: 0;
     margin: 0;
@@ -938,8 +956,8 @@ body.mode-viewer #viewer-panel.drawer-open .result-panel {
   .container {
     position: absolute;
     inset: 0 auto auto 0;
-    width: 8.5in;
-    height: 11in;
+    width: var(--sheet-w);
+    height: var(--sheet-h);
     transform: none;
     margin: 0;
     border: 0;
