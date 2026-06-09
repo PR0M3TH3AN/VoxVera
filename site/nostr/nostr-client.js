@@ -1581,7 +1581,11 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     if (!raw) return null;
     try {
       const decoded = decodeURIComponent(raw);
-      const rawId = decoded.match(/\b[a-f0-9]{64}\b/i);
+      // A 64-char hex event id is often copied with whitespace or a line break
+      // in the middle (e.g. the two-line event ID printed on a tear-off tab, or
+      // a label like "Event ID: ..."), so match against the input with inner
+      // whitespace removed.
+      const rawId = decoded.replace(/\s+/g, "").match(/\b[a-f0-9]{64}\b/i);
       if (rawId) return { type: "event", id: rawId[0].toLowerCase(), relays: [] };
       const nipMatch = decoded.match(/(?:nostr:)?((?:note1|nevent1|naddr1)[023456789acdefghjklmnpqrstuvwxyz]+)/i);
       if (!nipMatch) return null;
