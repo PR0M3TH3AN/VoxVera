@@ -9,6 +9,11 @@ venv/
 # Node/browser tooling
 node_modules/
 
+# Playwright e2e output
+test-results/
+playwright-report/
+playwright/.cache/
+
 # Build and local output
 build/
 dist/

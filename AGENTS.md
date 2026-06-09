@@ -37,3 +37,12 @@ pytest -q
 ```
 
 For visual or print changes, also run a local static server and inspect the site root (`/`) in a browser.
+
+Cross-browser end-to-end tests live in `e2e/` (Playwright; Chromium, Firefox, WebKit, plus mobile emulations). Run them after changes that touch rendering, print, key generation, URL/redirect handling, or the loading state:
+
+```bash
+npm install && npx playwright install
+npm run test:e2e
+```
+
+WebKit/Safari on Linux needs `sudo npx playwright install-deps` once. See `e2e/README.md`. Test tooling is a dev dependency only — it must not pull runtime frontend dependencies from CDNs or otherwise weaken the static, host-agnostic client.
