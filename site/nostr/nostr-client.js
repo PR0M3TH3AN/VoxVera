@@ -12,6 +12,23 @@
   const FALLBACK_LANG = "en";
   const LANGUAGE_SELECT_IDS = ["topbar-lang", "field-lang", "viewer-lang"];
   const EVENT_KIND = 30078;
+  // Per-script letter-spacing policy for flyer text. `letter-spacing` is not
+  // script-neutral, so the flyer tightens tracking only where it is safe:
+  //   "full" (Latin, Cyrillic, Hebrew): reduced positive tracking + slight
+  //          negative on body/url to reclaim space per line.
+  //   "cjk"  (Japanese, Chinese): tracking clamped to 0 — full-width glyphs
+  //          must not overlap, so never negative.
+  //   "none" (Arabic, Persian, Hindi): letter-spacing OFF. These are cursive
+  //          or complex scripts where any tracking breaks the letter joins or
+  //          detaches combining marks; neutralizing it also fixes rendering.
+  // The values themselves live in nostr-client.css, keyed by the ls-* class.
+  const LETTER_SPACING_POLICY = {
+    ar: "none", fa: "none", hi: "none",
+    ja: "cjk", zh: "cjk"
+  };
+  function trackingPolicy(lang) {
+    return LETTER_SPACING_POLICY[supportedLang(lang)] || "full";
+  }
   const FIELD_LIMITS = {
     folder_name: 64,
     name: 120,
@@ -119,15 +136,6 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     "field-url": ".qr-code-url a",
     "field-footer-message": ".footer .binary"
   };
-  const DISPLAY_FIT_LABEL_KEYS = {
-    "field-title": "labels.title",
-    "field-subtitle": "labels.subtitle",
-    "field-headline": "labels.headline",
-    "field-content": "labels.content",
-    "field-url-message": "labels.url_message",
-    "field-url": "labels.poster_url",
-    "field-footer-message": "labels.footer_message"
-  };
   const NOSTR_UI = {
     ar: {
       back: "رجوع",
@@ -141,7 +149,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       language: "اللغة",
       load_event: "تحميل الحدث",
       normalized_config: "الإعداد الموحد",
-      open_poster: "افتح هذا الملصق:",
+      open_poster: "انقر لفتح هذا الملصق.",
       page_title: "عنوان الصفحة",
       preview: "معاينة",
       print: "اطبع المنشور",
@@ -193,7 +201,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       language: "Sprache",
       load_event: "Event laden",
       normalized_config: "Normalisierte Konfiguration",
-      open_poster: "Dieses Plakat öffnen:",
+      open_poster: "Klicken Sie, um dieses Plakat zu öffnen.",
       page_title: "Seitentitel",
       preview: "Vorschau",
       print: "Flyer drucken",
@@ -245,7 +253,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       language: "Language",
       load_event: "Load Event",
       normalized_config: "Normalized Config",
-      open_poster: "Open this poster:",
+      open_poster: "Click to open this poster.",
       page_title: "Page title",
       preview: "Preview",
       print: "Print this page",
@@ -298,7 +306,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       language: "Idioma",
       load_event: "Cargar evento",
       normalized_config: "Configuración normalizada",
-      open_poster: "Abra este cartel:",
+      open_poster: "Haga clic para abrir este cartel.",
       page_title: "Título de la página",
       preview: "Vista previa",
       print: "Imprimir volante",
@@ -350,7 +358,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       language: "زبان",
       load_event: "بارگذاری رویداد",
       normalized_config: "پیکربندی عادی‌شده",
-      open_poster: "این پوستر را باز کنید:",
+      open_poster: "برای باز کردن این پوستر کلیک کنید.",
       page_title: "عنوان صفحه",
       preview: "پیش‌نمایش",
       print: "چاپ اعلامیه",
@@ -402,7 +410,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       language: "Langue",
       load_event: "Charger l'evenement",
       normalized_config: "Configuration normalisee",
-      open_poster: "Ouvrez cette affiche :",
+      open_poster: "Cliquez pour ouvrir cette affiche.",
       page_title: "Titre de page",
       preview: "Apercu",
       print: "Imprimer le flyer",
@@ -454,7 +462,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       language: "שפה",
       load_event: "טען אירוע",
       normalized_config: "תצורה מנורמלת",
-      open_poster: "פתח את הכרזה הזו:",
+      open_poster: "לחץ כדי לפתוח כרזה זו.",
       page_title: "כותרת עמוד",
       preview: "תצוגה מקדימה",
       print: "הדפס פלייר",
@@ -506,7 +514,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       language: "भाषा",
       load_event: "इवेंट लोड करें",
       normalized_config: "सामान्यीकृत कॉन्फिग",
-      open_poster: "यह पोस्टर खोलें:",
+      open_poster: "इस पोस्टर को खोलने के लिए क्लिक करें।",
       page_title: "पृष्ठ शीर्षक",
       preview: "पूर्वावलोकन",
       print: "फ्लायर प्रिंट करें",
@@ -558,7 +566,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       language: "言語",
       load_event: "イベントを読み込む",
       normalized_config: "正規化設定",
-      open_poster: "このポスターを開く:",
+      open_poster: "クリックしてこのポスターを開く。",
       page_title: "ページタイトル",
       preview: "プレビュー",
       print: "フライヤーを印刷",
@@ -610,7 +618,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       language: "Idioma",
       load_event: "Carregar evento",
       normalized_config: "Configuracao normalizada",
-      open_poster: "Abra este cartaz:",
+      open_poster: "Clique para abrir este cartaz.",
       page_title: "Titulo da pagina",
       preview: "Previa",
       print: "Imprimir Panfleto",
@@ -662,7 +670,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       language: "Язык",
       load_event: "Загрузить событие",
       normalized_config: "Нормализованная конфигурация",
-      open_poster: "Откройте этот плакат:",
+      open_poster: "Нажмите, чтобы открыть этот плакат.",
       page_title: "Заголовок страницы",
       preview: "Предпросмотр",
       print: "Печать листовки",
@@ -714,7 +722,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       language: "Lugha",
       load_event: "Pakia tukio",
       normalized_config: "Usanidi uliorekebishwa",
-      open_poster: "Fungua bango hili:",
+      open_poster: "Bofya kufungua bango hili.",
       page_title: "Kichwa cha ukurasa",
       preview: "Hakiki",
       print: "Chapa Kipeperushi",
@@ -766,7 +774,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       language: "Dil",
       load_event: "Olay yükle",
       normalized_config: "Normalleştirilmiş yapılandırma",
-      open_poster: "Bu posteri açın:",
+      open_poster: "Bu posteri açmak için tıklayın.",
       page_title: "Sayfa başlığı",
       preview: "Önizleme",
       print: "İlanı Yazdır",
@@ -818,7 +826,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       language: "语言",
       load_event: "加载事件",
       normalized_config: "标准化配置",
-      open_poster: "打开此海报：",
+      open_poster: "点击打开此海报。",
       page_title: "页面标题",
       preview: "预览",
       print: "打印传单",
@@ -861,6 +869,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
   };
   let flyerSource = "default";
   let loadedEventConfig = null;
+  let loadedEventId = "";
   const lastAcceptedFieldValues = {};
 
   const el = (id) => document.getElementById(id);
@@ -918,18 +927,46 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     return Boolean(node && node.dataset.emptyKey);
   }
 
-  function fieldLabel(fieldId, lang = currentUiLang()) {
-    const localePath = DISPLAY_FIT_LABEL_KEYS[fieldId];
-    if (localePath) return translate(localePath, lang) || fieldId;
+  // The "too long" warning is shown inline under the offending field (so the
+  // issue is visible without scrolling to a single shared status line). The
+  // message element is created lazily inside the field's <label>.
+  function fieldErrorElement(fieldId) {
     const field = el(fieldId);
     const label = field ? field.closest("label") : null;
-    const labelText = label ? label.querySelector("span") : null;
-    return labelText ? labelText.textContent.trim() : fieldId;
+    if (!label) return null;
+    let node = label.querySelector(".field-error");
+    if (!node) {
+      node = document.createElement("p");
+      node.className = "field-error";
+      node.setAttribute("role", "alert");
+      node.hidden = true;
+      label.appendChild(node);
+    }
+    return node;
   }
 
-  function setFitStatus(message) {
-    const status = el("field-fit-status");
-    if (status) status.textContent = message || "";
+  function setFieldError(fieldId, message) {
+    const node = fieldErrorElement(fieldId);
+    if (node) {
+      node.textContent = message || "";
+      node.hidden = !message;
+    }
+    const field = el(fieldId);
+    if (field) {
+      if (message) field.setAttribute("aria-invalid", "true");
+      else field.removeAttribute("aria-invalid");
+    }
+  }
+
+  function clearAllFieldErrors() {
+    document.querySelectorAll("#editor-form .field-error").forEach((node) => {
+      node.textContent = "";
+      node.hidden = true;
+    });
+    TEXT_FIELD_IDS.forEach((fieldId) => {
+      const field = el(fieldId);
+      if (field) field.removeAttribute("aria-invalid");
+    });
   }
 
   function syncAcceptedFieldValues() {
@@ -959,6 +996,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     el("field-footer-message").value = normalized.footer_message;
     syncUiLanguage(normalized.lang);
     syncAcceptedFieldValues();
+    clearAllFieldErrors();
   }
 
   function printableTitle() {
@@ -1107,6 +1145,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
   function applyFlyerDefaults(lang) {
     const defaults = localeDefaults(lang);
     flyerSource = "default";
+    loadedEventId = "";
     el("field-lang").value = defaults.lang;
     el("field-folder-name").value = defaults.folder_name;
     el("field-name").value = defaults.name;
@@ -1119,7 +1158,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     el("field-footer-message").value = defaults.footer_message;
     syncUiLanguage(defaults.lang);
     syncAcceptedFieldValues();
-    setFitStatus("");
+    clearAllFieldErrors();
   }
 
   function applyLanguageChange(lang) {
@@ -1132,7 +1171,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
 
     el("field-lang").value = selected;
     syncUiLanguage(selected);
-    renderPreview(normalizePayload(buildPayloadFromForm()));
+    renderPreview({ ...normalizePayload(buildPayloadFromForm()), event_id: loadedEventId });
   }
 
   function refreshSignerState() {
@@ -1346,12 +1385,19 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     return `voxvera:${slugify(payload.folder_name)}`;
   }
 
+  // The naddr carries a single relay hint (the primary configured relay) rather
+  // than the full relay list. This keeps the poster URL short and its tear-off
+  // QR easy to scan (~171 chars vs ~233 for the old full-list URL) while still
+  // pointing a fresh viewer at a relay that has the event. Viewers also fall
+  // back to DEFAULT_RELAYS. Older relay-bearing naddr URLs still decode and
+  // resolve unchanged.
   function buildNaddr(identity, payload, relays) {
+    const relayHints = Array.isArray(relays) ? relays.slice(0, 1) : [];
     return nostrTools().nip19.naddrEncode({
       identifier: flyerIdentifier(payload),
       pubkey: identity.pubkey,
       kind: EVENT_KIND,
-      relays
+      relays: relayHints
     });
   }
 
@@ -1622,48 +1668,35 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     }
   }
 
-  function truncateMiddle(value, prefixLength, suffixLength) {
-    const text = String(value || "");
-    if (text.length <= prefixLength + suffixLength + 3) return text;
-    return `${text.slice(0, prefixLength)}...${text.slice(-suffixLength)}`;
-  }
-
-  function displayTearOffUrl(value) {
-    const text = String(value || "").trim();
-    if (text.length <= 48) return text;
-    try {
-      const parsed = new URL(text);
-      const host = parsed.host.replace(/^www\./, "");
-      const path = parsed.pathname || "/";
-      const lookupKeys = ["addr", "naddr", "event", "id", "note", "nevent"];
-      const lookupKey = lookupKeys.find((key) => parsed.searchParams.get(key));
-      if (lookupKey) {
-        return `${host}${path}?${lookupKey}=${truncateMiddle(parsed.searchParams.get(lookupKey), 12, 8)}`;
-      }
-      return truncateMiddle(`${host}${path}${parsed.search}${parsed.hash}`, 32, 10);
-    } catch (_) {
-      return truncateMiddle(text, 32, 10);
-    }
-  }
-
   function renderPreview(config) {
     const flyerLang = supportedLang(config.lang || FALLBACK_LANG);
     const flyerLocale = localeData(flyerLang);
     const tearOff = config.tear_off_link || config.url || "";
-    const tearOffDisplay = displayTearOffUrl(tearOff);
     const contentQr = config.url || tearOff;
     const tearOffQrSvg = makeQrSvg(tearOff);
     const contentQrSvg = makeQrSvg(contentQr);
-    const sheetClass = tearOff ? "container" : "container no-tear-offs";
+    const sheetClass = `${tearOff ? "container" : "container no-tear-offs"} ls-${trackingPolicy(flyerLang)}`;
     const openPosterLabel = nostrLabel("open_poster", flyerLang);
     const shareReprintLabel = nostrLabel("share_reprint", flyerLang);
     const builtWithLabel = nostrLabel("built_with", flyerLang);
+    const eventIdLabel = nostrLabel("event_id", flyerLang);
+    const eventId = String(config.event_id || "").trim();
+    const tearOffStatement = [openPosterLabel, shareReprintLabel]
+      .map((part) => String(part || "").trim())
+      .filter(Boolean)
+      .map((part) => escapeHtml(part))
+      .join("<br>");
+    const eventIdValueHtml = eventId.length > 32
+      ? `${escapeHtml(eventId.slice(0, 32))}<br>${escapeHtml(eventId.slice(32))}`
+      : escapeHtml(eventId);
+    const eventIdHtml = eventId
+      ? `<div class="tear-off-event-id">${escapeHtml(eventIdLabel)}:<br><span class="tear-off-event-id-value">${eventIdValueHtml}</span></div>`
+      : "";
     const tearOffHtml = Array.from({ length: 10 }).map(() => `
       <div class="tear-off">
         <div class="tear-off-text">
-          ${escapeHtml(openPosterLabel)}<br>
-          <a href="${escapeHtml(tearOff)}" title="${escapeHtml(tearOff)}">${escapeHtml(tearOffDisplay)}</a><br>
-          ${escapeHtml(shareReprintLabel)}
+          <a href="${escapeHtml(tearOff)}" title="${escapeHtml(tearOff)}">${tearOffStatement}</a>
+          ${eventIdHtml}
         </div>
         <div class="qr-code" aria-label="QR code for ${escapeHtml(tearOff)}">${tearOffQrSvg}</div>
       </div>
@@ -1747,15 +1780,16 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     const field = el(fieldId);
     if (!field) return;
     flyerSource = "custom";
+    loadedEventId = "";
     renderFormPreviewForEditing();
     if (!fieldDisplayFits(fieldId)) {
       field.value = lastAcceptedFieldValues[fieldId] || "";
       renderFormPreviewForEditing();
-      setFitStatus(`${nostrLabel("field_too_long", currentUiLang())} ${fieldLabel(fieldId)}`);
+      setFieldError(fieldId, nostrLabel("field_too_long", currentUiLang()).replace(/[:：]\s*$/, ""));
       return;
     }
     lastAcceptedFieldValues[fieldId] = field.value;
-    setFitStatus("");
+    setFieldError(fieldId, "");
   }
 
   function formToPreview() {
@@ -1840,9 +1874,10 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     const config = normalizePayload(payload);
     flyerSource = "event";
     loadedEventConfig = config;
+    loadedEventId = (nostrEvent && nostrEvent.id) || "";
     fillEditorFromConfig(config);
     el("viewer-config-output").value = JSON.stringify(config, null, 2);
-    renderPreview(config);
+    renderPreview({ ...config, event_id: loadedEventId });
     statusElement.textContent = `${nostrLabel("fetched", config.lang)} ${parsed.type === "address" ? parsed.address.identifier : parsed.id}`;
     closeViewerDrawer();
   }
@@ -1941,11 +1976,12 @@ Join us in a revolution that values truth and transparency. Together, we can bui
         if (!relays.length) throw new Error(nostrLabel("relay_required", currentUiLang()));
         el("publish-status").textContent = nostrLabel("signing_publishing", currentUiLang());
         const result = await signAndPublish(payload, relays);
+        loadedEventId = result.event.id || "";
         setRealOutput("event-id-output", result.event.id);
         el("event-json-output").value = JSON.stringify(result.event, null, 2);
         el("viewer-event-id").value = result.naddr;
         el("publish-status").innerHTML = renderRelayResults(result.results);
-        renderPreview(normalizePayload(result.payload));
+        renderPreview({ ...normalizePayload(result.payload), event_id: loadedEventId });
       } catch (error) {
         el("publish-status").textContent = error.message;
       }

@@ -258,8 +258,8 @@ code {
   color: var(--muted);
 }
 
-.field-fit-status {
-  margin: 0 0 10px;
+.field-error {
+  margin: 0;
   color: var(--warn);
   font-size: 12px;
   font-weight: 700;
@@ -382,6 +382,41 @@ a {
   box-sizing: border-box;
   overflow: hidden;
   page-break-inside: avoid;
+  /* Per-script letter-spacing, set by the ls-* policy class (see
+     LETTER_SPACING_POLICY in nostr-client.js). Defaults below match the
+     historical design and act as a safe fallback if no policy class is set. */
+  --ls-display: 2px;
+  --ls-subtitle: 6px;
+  --ls-body: 0;
+  --ls-url: 0;
+  --ls-footer: 0;
+}
+
+/* Latin, Cyrillic, Hebrew: tighten tracking to reclaim line space. */
+.container.ls-full {
+  --ls-display: 0.5px;
+  --ls-subtitle: 2px;
+  --ls-body: -0.3px;
+  --ls-url: -0.3px;
+  --ls-footer: 0;
+}
+
+/* CJK: tracking is safe but must never go negative (glyphs would overlap). */
+.container.ls-cjk {
+  --ls-display: 0;
+  --ls-subtitle: 0;
+  --ls-body: 0;
+  --ls-url: 0;
+  --ls-footer: 0;
+}
+
+/* Arabic, Persian, Hindi: letter-spacing breaks shaping — turn it off. */
+.container.ls-none {
+  --ls-display: normal;
+  --ls-subtitle: normal;
+  --ls-body: normal;
+  --ls-url: normal;
+  --ls-footer: normal;
 }
 
 .container.no-tear-offs .left-tear-offs {
@@ -410,6 +445,26 @@ a {
   overflow-wrap: anywhere;
   word-break: normal;
   hyphens: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.tear-off-event-id {
+  margin-top: auto;
+  padding-top: 4px;
+  font-size: 8px;
+  line-height: 1.2;
+  word-break: break-all;
+  overflow-wrap: anywhere;
+}
+
+.tear-off-event-id-value {
+  display: block;
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  line-height: 1.1;
+  letter-spacing: -0.2px;
+  word-break: break-all;
 }
 
 .qr-code {
@@ -463,7 +518,7 @@ a {
   padding: 0;
   font-size: 24px;
   line-height: 1.2;
-  letter-spacing: 2px;
+  letter-spacing: var(--ls-display);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -473,7 +528,7 @@ a {
 .distribute {
   font-size: 18px;
   line-height: 1.2;
-  letter-spacing: 6px;
+  letter-spacing: var(--ls-subtitle);
   margin: 2px 0;
   padding: 0;
   white-space: nowrap;
@@ -487,6 +542,7 @@ a {
   margin-top: 4px;
   font-size: 14px;
   line-height: 1.4;
+  letter-spacing: var(--ls-body);
   text-align: left;
   overflow: hidden;
   display: flex;
@@ -516,6 +572,7 @@ a {
 
 .qr-code-url {
   font-size: 12px;
+  letter-spacing: var(--ls-url);
   text-align: left;
   overflow-wrap: anywhere;
   word-break: normal;
@@ -551,6 +608,7 @@ hr {
 .container .footer .binary {
   margin-bottom: 8px;
   margin-top: 10px;
+  letter-spacing: var(--ls-footer);
 }
 
 .container .footer .credit {

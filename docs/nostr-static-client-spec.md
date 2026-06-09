@@ -100,6 +100,8 @@ Default behavior: `qr_target: "flyer_url"`.
 
 When publishing, the client computes the replaceable-event `naddr` and writes the generated poster URL to `tear_off_link`. The tear-off tabs and tear-off QR code point at `tear_off_link`, so people can re-open and reprint the flyer. The main flyer QR code points at `url`, so viewers can visit the creator's intended destination.
 
+The `naddr` is encoded with a **single relay hint** (the primary configured relay) instead of the full relay list. This keeps the poster URL short and its tear-off QR code easy to scan — a typical poster URL drops from ~233 characters (full list) to ~171 — while still pointing a fresh viewer at a relay that has the event. Viewers also fall back to `DEFAULT_RELAYS`, which is where flyers are published by default. This stays a standard NIP-19 `naddr`, so any Nostr client can resolve it, and older relay-bearing `naddr` URLs continue to decode and resolve unchanged.
+
 Supported values:
 
 - `flyer_url`: tear-off QR points to the hosted client URL for the poster
@@ -134,6 +136,27 @@ Language changes should:
 - update editor/viewer tool labels
 - update printed side-tab labels
 - respect RTL direction metadata
+
+### Letter-spacing by script
+
+Flyer text uses tighter letter-spacing than the original design to fit more
+characters per line, but `letter-spacing` is not script-neutral, so it is
+applied per script via a policy class on the flyer `.container`
+(`LETTER_SPACING_POLICY` in `nostr-client.js`; `ls-full` / `ls-cjk` / `ls-none`
+rules and `--ls-*` variables in `nostr-client.css`):
+
+- `full` — Latin, Cyrillic, Hebrew: reduced positive tracking on the display
+  fields plus a slight negative on body/URL to reclaim line width.
+- `cjk` — Japanese, Chinese: tracking is clamped to `0` and never negative, so
+  full-width glyphs do not overlap.
+- `none` — Arabic, Persian, Hindi: letter-spacing is turned off entirely. These
+  are cursive or complex scripts where any tracking breaks the letter joins or
+  detaches combining marks. (This also corrected the prior behavior, which
+  applied the design's display tracking to every language unconditionally.)
+
+When adding a language, classify its script in `LETTER_SPACING_POLICY` (default
+is `full`) and verify the headline, subtitle, and body render correctly in the
+browser.
 
 ## Verification
 
