@@ -181,6 +181,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       signing_publishing: "جار التوقيع والنشر...",
       fetching: "جار الجلب...",
       fetched: "تم الجلب",
+      loading_content: "جارٍ تحميل المحتوى...",
+      load_failed: "تعذّر تحميل هذا الملصق.",
       config_copied: "تم نسخ الإعداد.",
       lookup_placeholder: "naddr أو معرف حدث أو note1 أو nevent1 أو رابط nostr:",
       event_reference_required: "أدخل naddr أو معرف حدث أو note1 أو nevent1.",
@@ -233,6 +235,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       signing_publishing: "Signieren und veröffentlichen...",
       fetching: "Abrufen...",
       fetched: "Abgerufen",
+      loading_content: "Inhalt wird geladen...",
+      load_failed: "Dieses Plakat konnte nicht geladen werden.",
       config_copied: "Konfiguration kopiert.",
       lookup_placeholder: "naddr, Event-ID, note1, nevent1 oder nostr:-URL",
       event_reference_required: "Geben Sie naddr, Event-ID, note1 oder nevent1 ein.",
@@ -285,6 +289,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       signing_publishing: "Signing and publishing...",
       fetching: "Fetching...",
       fetched: "Fetched",
+      loading_content: "Loading content...",
+      load_failed: "Could not load this flyer.",
       config_copied: "Config copied.",
       lookup_placeholder: "naddr, event id, note1, nevent1, or nostr: URL",
       event_reference_required: "Enter an naddr, event id, note1, or nevent1.",
@@ -338,6 +344,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       signing_publishing: "Firmando y publicando...",
       fetching: "Buscando...",
       fetched: "Recuperado",
+      loading_content: "Cargando contenido...",
+      load_failed: "No se pudo cargar este cartel.",
       config_copied: "Configuración copiada.",
       lookup_placeholder: "naddr, ID de evento, note1, nevent1 o URL nostr:",
       event_reference_required: "Ingrese un naddr, ID de evento, note1 o nevent1.",
@@ -390,6 +398,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       signing_publishing: "در حال امضا و انتشار...",
       fetching: "در حال دریافت...",
       fetched: "دریافت شد",
+      loading_content: "در حال بارگذاری محتوا...",
+      load_failed: "بارگذاری این پوستر ممکن نشد.",
       config_copied: "پیکربندی کپی شد.",
       lookup_placeholder: "naddr، شناسه رویداد، note1، nevent1 یا URL nostr:",
       event_reference_required: "یک naddr، شناسه رویداد، note1 یا nevent1 وارد کنید.",
@@ -442,6 +452,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       signing_publishing: "Signature et publication...",
       fetching: "Chargement...",
       fetched: "Charge",
+      loading_content: "Chargement du contenu...",
+      load_failed: "Impossible de charger cette affiche.",
       config_copied: "Configuration copiee.",
       lookup_placeholder: "naddr, ID d'evenement, note1, nevent1 ou URL nostr:",
       event_reference_required: "Saisissez un naddr, ID d'evenement, note1 ou nevent1.",
@@ -494,6 +506,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       signing_publishing: "חותם ומפרסם...",
       fetching: "טוען...",
       fetched: "נטען",
+      loading_content: "טוען תוכן...",
+      load_failed: "לא ניתן לטעון כרזה זו.",
       config_copied: "התצורה הועתקה.",
       lookup_placeholder: "naddr, מזהה אירוע, note1, nevent1 או כתובת nostr:",
       event_reference_required: "הזן naddr, מזהה אירוע, note1 או nevent1.",
@@ -546,6 +560,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       signing_publishing: "हस्ताक्षर और प्रकाशन...",
       fetching: "लाया जा रहा है...",
       fetched: "लाया गया",
+      loading_content: "सामग्री लोड हो रही है...",
+      load_failed: "यह पोस्टर लोड नहीं हो सका।",
       config_copied: "कॉन्फिग कॉपी हुआ.",
       lookup_placeholder: "naddr, इवेंट ID, note1, nevent1, या nostr: URL",
       event_reference_required: "naddr, इवेंट ID, note1, या nevent1 दर्ज करें.",
@@ -598,6 +614,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       signing_publishing: "署名して公開中...",
       fetching: "取得中...",
       fetched: "取得しました",
+      loading_content: "コンテンツを読み込んでいます...",
+      load_failed: "このちらしを読み込めませんでした。",
       config_copied: "設定をコピーしました。",
       lookup_placeholder: "naddr、イベントID、note1、nevent1、または nostr: URL",
       event_reference_required: "naddr、イベントID、note1、またはnevent1を入力してください。",
@@ -650,6 +668,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       signing_publishing: "Assinando e publicando...",
       fetching: "Buscando...",
       fetched: "Buscado",
+      loading_content: "Carregando conteúdo...",
+      load_failed: "Não foi possível carregar este panfleto.",
       config_copied: "Configuracao copiada.",
       lookup_placeholder: "naddr, ID do evento, note1, nevent1 ou URL nostr:",
       event_reference_required: "Insira um naddr, ID do evento, note1 ou nevent1.",
@@ -702,6 +722,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       signing_publishing: "Подписание и публикация...",
       fetching: "Загрузка...",
       fetched: "Загружено",
+      loading_content: "Загрузка содержимого...",
+      load_failed: "Не удалось загрузить эту листовку.",
       config_copied: "Конфигурация скопирована.",
       lookup_placeholder: "naddr, ID события, note1, nevent1 или URL nostr:",
       event_reference_required: "Введите naddr, ID события, note1 или nevent1.",
@@ -754,6 +776,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       signing_publishing: "Inatia saini na kuchapisha...",
       fetching: "Inapakua...",
       fetched: "Imepakuliwa",
+      loading_content: "Inapakia maudhui...",
+      load_failed: "Imeshindwa kupakia bango hili.",
       config_copied: "Usanidi umenakiliwa.",
       lookup_placeholder: "naddr, kitambulisho cha tukio, note1, nevent1 au URL ya nostr:",
       event_reference_required: "Weka naddr, kitambulisho cha tukio, note1 au nevent1.",
@@ -806,6 +830,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       signing_publishing: "İmzalanıyor ve yayınlanıyor...",
       fetching: "Getiriliyor...",
       fetched: "Getirildi",
+      loading_content: "İçerik yükleniyor...",
+      load_failed: "Bu el ilanı yüklenemedi.",
       config_copied: "Yapılandırma kopyalandı.",
       lookup_placeholder: "naddr, olay ID, note1, nevent1 veya nostr: URL",
       event_reference_required: "Bir naddr, olay ID, note1 veya nevent1 girin.",
@@ -858,6 +884,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       signing_publishing: "正在签名并发布...",
       fetching: "正在获取...",
       fetched: "已获取",
+      loading_content: "正在加载内容...",
+      load_failed: "无法加载此传单。",
       config_copied: "配置已复制。",
       lookup_placeholder: "naddr、事件 ID、note1、nevent1 或 nostr: URL",
       event_reference_required: "请输入 naddr、事件 ID、note1 或 nevent1。",
@@ -1676,6 +1704,21 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     }
   }
 
+  function renderStatusPreview(message, lang) {
+    const flyerLang = supportedLang(lang || FALLBACK_LANG);
+    const flyerLocale = localeData(flyerLang);
+    const dir = (flyerLocale.meta && flyerLocale.meta.direction) || "ltr";
+    const sheetClass = `container no-tear-offs ls-${trackingPolicy(flyerLang)}`;
+    el("flyer-preview").innerHTML = `
+      <div class="${sheetClass}" lang="${escapeHtml(flyerLang)}" dir="${escapeHtml(dir)}">
+        <div class="content">
+          <p class="flyer-status-message">${escapeHtml(message)}</p>
+        </div>
+      </div>
+    `;
+    updatePreviewScale();
+  }
+
   function renderPreview(config) {
     const flyerLang = supportedLang(config.lang || FALLBACK_LANG);
     const flyerLocale = localeData(flyerLang);
@@ -1901,9 +1944,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     setMode(window.location.hash === "#editor" && !urlEvent ? "editor" : "viewer");
     if (urlEvent) {
       const urlInput = window.location.href;
+      const loadingLang = currentUiLang();
       el("viewer-event-id").value = urlInput;
       el("viewer-relays").value = mergeRelayList(el("viewer-relays").value, urlEvent.relays);
+      // A viewer arriving via an event-lookup URL should never see the default
+      // placeholder flyer. Show a localized loading state until the real event
+      // resolves (or a load-failed state if it does not).
+      renderStatusPreview(nostrLabel("loading_content", loadingLang), loadingLang);
       fetchAndRenderFromInput(urlInput, el("viewer-relays").value).catch((error) => {
+        renderStatusPreview(nostrLabel("load_failed", loadingLang), loadingLang);
         el("viewer-status").textContent = error.message;
         openViewerDrawer();
       });
