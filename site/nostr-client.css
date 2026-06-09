@@ -641,6 +641,18 @@ hr {
   margin-top: 0;
 }
 
+/* Screen-only link to the bulletin board, shown below the flyer preview
+   (outside the printed sheet). Hidden in print (see @media print). */
+.preview-band > .board-link {
+  text-align: center;
+  font-size: 13px;
+  margin: 12px 0 0;
+}
+
+.board-link a {
+  color: var(--accent);
+}
+
 body.mode-viewer {
   background: #fff;
 }
@@ -916,6 +928,7 @@ body.mode-viewer #viewer-panel.drawer-open .result-panel {
   body > .viewer-floating,
   .viewer-floating,
   .viewer-floating *,
+  .board-link,
   #open-viewer-controls,
   #viewer-print,
   #viewer-editor,
@@ -962,4 +975,74 @@ body.mode-viewer #viewer-panel.drawer-open .result-panel {
     margin: 0;
     border: 0;
   }
+}
+
+/* ---- Bulletin board page (board.html) ---- */
+.board-main {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 24px 20px 48px;
+}
+
+.board-back {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+#board-status {
+  color: var(--muted);
+  margin: 8px 0 16px;
+}
+
+.board-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.board-table th,
+.board-table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.board-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--soft);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.board-table thead th .sort-indicator {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.board-table tbody tr:hover {
+  background: #faf7f7;
+}
+
+.board-table .board-title {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.board-table .board-npub {
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.board-table .board-date {
+  white-space: nowrap;
+  color: var(--muted);
+}
+
+.board-table a {
+  color: var(--accent);
 }

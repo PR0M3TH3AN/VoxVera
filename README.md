@@ -18,11 +18,13 @@ The previous Tor/OnionShare CLI version is preserved on the `legacy-tor` branch.
 - **US Letter and A4.** Print size defaults to the right paper for the visitor's country (from the browser locale's region — `en-US` → Letter, `en-GB` → A4, no geolocation), with a manual override. Paper size is a local print preference and is never written into the event. See the [spec](docs/nostr-static-client-spec.md#print-paper-size).
 - **Fits-the-page editing.** Fields that would overflow the printable sheet are rejected as you type, with an inline error under the affected field. See the [field length cheat sheet](docs/flyer-field-limits.md) for how much text fits each field per language and paper size.
 - **QR codes.** The tear-off QR points at the poster URL (re-open and reprint); the main flyer QR points at the creator's content URL.
+- **Bulletin board.** A small screen-only link below the flyer preview (outside the printed sheet, never printed) opens a spreadsheet-style page of the most recent flyers found on the relays — title, link, posting npub, language, and date — sortable by any column.
 - **Self-contained.** No build step and no CDNs — Nostr and QR libraries are vendored under `site/vendor/`.
 
 ## What Is In `main`
 
 - `site/index.html`, `site/nostr-client.js`, `site/nostr-client.css`, `site/locales.js`: static editor/viewer client
+- `site/board.html`, `site/board.js`: bulletin-board page listing recent flyers from the relays
 - `site/vendor/`: vendored browser dependencies for Nostr and QR generation
 - `site/nostr/index.html`: redirect stub so legacy `/nostr/` poster URLs and QR codes still resolve
 - `site/CNAME`: custom-domain target

@@ -146,4 +146,48 @@ test.describe("VoxVera static client", () => {
     // Stored override beats the en-US region default.
     await expect(page.locator("html")).toHaveClass(/paper-a4/);
   });
+
+  test("bulletin board link sits outside the flyer sheet and is not printed", async ({ page }) => {
+    await page.goto("/");
+    const link = page.locator(".preview-band > .board-link a");
+    await expect(link).toHaveText("Bulletin board");
+    await expect(link).toHaveAttribute("href", "board.html");
+    // It is app chrome below the preview, not part of the printable sheet.
+    await expect(page.locator(".container .board-link")).toHaveCount(0);
+    // Screen-only — it must not appear in print output.
+    await page.emulateMedia({ media: "print" });
+    await expect(page.locator(".board-link")).toBeHidden();
+  });
+
+  test("bulletin board page renders localized, sortable columns", async ({ page }) => {
+    await page.goto("/board.html");
+    await expect(page.locator("#board-title")).toHaveText("Bulletin Board");
+    const headers = page.locator("#board-head th");
+    await expect(headers).toHaveCount(5);
+    await expect(headers.nth(0)).toContainText("Title");
+    await expect(headers.nth(1)).toContainText("Link");
+    await expect(headers.nth(2)).toContainText("Posted by");
+    await expect(headers.nth(3)).toContainText("Language");
+    await expect(headers.nth(4)).toContainText("Posted");
+    // Default sort is date descending.
+    await expect(headers.nth(4).locator(".sort-indicator")).toContainText("▼");
+    // Clicking the Title header makes it the active ascending sort.
+    await headers.nth(0).click();
+    await expect(headers.nth(0).locator(".sort-indicator")).toContainText("▲");
+  });
+
+  test("bulletin board language selector localizes the page", async ({ page }) => {
+    await page.goto("/board.html");
+    await expect(page.locator("#board-title")).toHaveText("Bulletin Board");
+    await page.locator("#board-lang").selectOption("de");
+    await expect(page.locator("#board-title")).toHaveText("Schwarzes Brett");
+    await expect(page.locator("#board-head th").first()).toContainText("Titel");
+    // An RTL language flips the document direction.
+    await page.locator("#board-lang").selectOption("ar");
+    await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+    await expect(page.locator("#board-title")).toHaveText("لوحة الإعلانات");
+    // The choice persists (shared key) and survives a reload.
+    await page.reload();
+    await expect(page.locator("#board-title")).toHaveText("لوحة الإعلانات");
+  });
 });

@@ -5,6 +5,7 @@
 ## Current Architecture
 
 - Active frontend: `site/` (`index.html`, `nostr-client.js`, `nostr-client.css`, `locales.js`)
+- Bulletin board: `site/board.html` + `site/board.js` (standalone page listing recent flyers from the relays; escapes untrusted relay content and rejects non-http(s) link URLs)
 - Static deployment root: `site`
 - Browser dependencies: vendored under `site/vendor/`
 - Legacy path: `site/nostr/index.html` is a redirect stub forwarding old `/nostr/` poster URLs and QR codes to the root

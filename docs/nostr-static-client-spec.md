@@ -26,6 +26,8 @@ site/
   nostr-client.css
   nostr-client.js
   locales.js
+  board.html          (bulletin board page)
+  board.js
   CNAME
   vendor/
     nostr-tools/
@@ -151,6 +153,32 @@ including the EU, Russia, China, Japan, and the Middle East).
 
 Field capacity therefore varies by paper size; see
 [`flyer-field-limits.md`](flyer-field-limits.md).
+
+## Bulletin board
+
+`site/board.html` + `site/board.js` are a standalone page that lists the most
+recent flyers found on the default relays as a sortable, spreadsheet-style
+table: **title**, **link** (the poster URL, rendered as the word "link"),
+**posting npub**, **language**, and **posted date**. Any column header sorts
+(default is date descending); replaceable events are de-duplicated per
+author+`d` identifier, keeping the latest.
+
+- The entry point is a small screen-only link below the flyer preview
+  (`.board-link`, label `bulletin_board`), outside the printable sheet. It must
+  never print (hidden in the `@media print` block alongside the other app
+  chrome).
+- `board.js` is independent of `nostr-client.js` (which exports nothing), so its
+  UI strings live in `BOARD_UI` (all supported languages); it reuses the
+  vendored nostr-tools and `locales.js` (for language names + RTL direction).
+- The board has its own language selector. It reads/writes the same
+  `voxvera_nostr_lang` localStorage key as the main client, so the chosen
+  language carries across both pages, and switching it re-localizes the chrome,
+  column headers, language labels, and date formatting (and flips RTL).
+- Relay content is untrusted: titles and npubs are escaped, and link URLs are
+  rejected unless `http:`/`https:` (so `javascript:`/`data:` never render as a
+  link).
+- The npub column is forward-looking — anonymous keys today, but a stable
+  identity per author maps cleanly onto this view later.
 
 ## Localization
 
