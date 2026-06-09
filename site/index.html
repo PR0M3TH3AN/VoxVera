@@ -1,15 +1,176 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="refresh" content="0; url=/nostr/">
-    <title>VoxVera</title>
-    <script>
-      window.location.replace("/nostr/" + window.location.search + window.location.hash);
-    </script>
-  </head>
-  <body>
-    <p><a href="/nostr/">Open VoxVera</a></p>
-  </body>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VoxVera Nostr Client</title>
+  <link rel="stylesheet" href="nostr-client.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1 id="client-title">VoxVera Nostr Client</h1>
+      <p id="client-description">Static editor and viewer for decentralized flyer source events.</p>
+    </div>
+    <div class="topbar-controls">
+      <nav class="mode-tabs" aria-label="Client mode">
+        <button id="editor-tab" class="tab active" type="button" data-mode="editor">Editor</button>
+        <button id="viewer-tab" class="tab" type="button" data-mode="viewer">Viewer</button>
+      </nav>
+      <select id="topbar-lang" aria-label="Language"></select>
+    </div>
+  </header>
+
+  <div class="viewer-floating" aria-label="Viewer controls">
+    <button type="button" id="open-viewer-controls">Load Event</button>
+    <button type="button" id="viewer-print">Print</button>
+    <button type="button" id="viewer-editor">Editor</button>
+    <select id="viewer-lang" aria-label="Language"></select>
+  </div>
+
+  <main>
+    <section id="editor-panel" class="panel active" aria-labelledby="editor-heading">
+      <div class="workspace">
+        <form id="editor-form" class="editor-form">
+          <div class="section-title">
+            <h2 id="editor-heading">Editor</h2>
+            <span id="signer-state" class="state-pill">Checking signer</span>
+          </div>
+
+          <label>
+            <span id="label-relays">Relays</span>
+            <textarea id="editor-relays" rows="3" spellcheck="false"></textarea>
+          </label>
+          <div class="identity-row">
+            <span id="identity-state" class="state-pill">Checking identity</span>
+            <button type="button" id="generate-anon-identity" class="secondary-button">Generate anonymous npub</button>
+          </div>
+
+          <div class="field-grid">
+            <label>
+              <span id="label-flyer-name">Flyer Name</span>
+              <input id="field-folder-name" name="folder_name" maxlength="64" value="voxvera">
+            </label>
+            <label>
+              <span id="label-language">Language</span>
+              <select id="field-lang" name="lang">
+                <option value="en">en</option>
+                <option value="es">es</option>
+                <option value="de">de</option>
+                <option value="fr">fr</option>
+                <option value="ru">ru</option>
+                <option value="he">he</option>
+                <option value="ar">ar</option>
+                <option value="ja">ja</option>
+                <option value="hi">hi</option>
+                <option value="sw">sw</option>
+                <option value="pt">pt</option>
+                <option value="tr">tr</option>
+                <option value="zh">zh</option>
+                <option value="fa">fa</option>
+              </select>
+            </label>
+          </div>
+
+          <label>
+            <span id="label-page-title">Page title</span>
+            <input id="field-name" name="name" maxlength="120" value="Vox Vera Printable Flyers">
+          </label>
+          <label>
+            <span id="label-title">Title</span>
+            <input id="field-title" name="title" maxlength="80" value="TOP SECRET">
+          </label>
+          <label>
+            <span id="label-subtitle">Subtitle</span>
+            <input id="field-subtitle" name="subtitle" maxlength="120" value="DO ~~NOT~~ DISTRIBUTE">
+          </label>
+          <label>
+            <span id="label-headline">Headline</span>
+            <input id="field-headline" name="headline" maxlength="160" value="OPERATION VOX VERA">
+          </label>
+          <label>
+            <span id="label-content">Content</span>
+            <textarea id="field-content" name="content" rows="9" maxlength="10000"></textarea>
+          </label>
+          <label>
+            <span id="label-url-message">URL message</span>
+            <input id="field-url-message" name="url_message" maxlength="240" value="Follow this link to learn more.">
+          </label>
+          <label>
+            <span id="label-poster-url">Content URL</span>
+            <input id="field-url" name="url" maxlength="2048" value="https://voxvera.org/">
+          </label>
+          <label>
+            <span id="label-footer-message">Footer message</span>
+            <input id="field-footer-message" name="footer_message" maxlength="240" value="0110010 0101011 0110010 0111101 0110100">
+          </label>
+          <div class="actions">
+            <button type="button" id="preview-editor">Preview</button>
+            <button type="button" id="export-event">Export event JSON</button>
+            <button type="submit" id="publish-event">Sign and publish</button>
+          </div>
+        </form>
+
+        <aside class="result-panel">
+          <h2 id="published-event-heading">Published Event</h2>
+          <dl class="result-list">
+            <dt id="result-event-id-label">Event ID</dt>
+            <dd class="copy-value"><code id="event-id-output">Not published</code><button type="button" class="copy-button" data-copy-target="event-id-output">Copy</button></dd>
+            <dt id="result-author-npub-label">Author npub</dt>
+            <dd class="copy-value"><code id="author-npub-output">Not generated</code><button type="button" class="copy-button" data-copy-target="author-npub-output">Copy</button></dd>
+            <dt id="result-naddr-label">Nostr address</dt>
+            <dd class="copy-value"><code id="naddr-output">Not generated</code><button type="button" class="copy-button" data-copy-target="naddr-output">Copy</button></dd>
+            <dt id="result-poster-url-label">Poster URL</dt>
+            <dd class="copy-value"><code id="poster-url-output">Not generated</code><button type="button" class="copy-button" data-copy-target="poster-url-output">Copy</button></dd>
+            <dt id="result-status-label">Status</dt>
+            <dd id="publish-status">Idle</dd>
+          </dl>
+          <textarea id="event-json-output" rows="14" spellcheck="false" readonly></textarea>
+        </aside>
+      </div>
+    </section>
+
+    <section id="viewer-panel" class="panel viewer-drawer" aria-labelledby="viewer-heading">
+      <div class="workspace">
+        <form id="viewer-form" class="editor-form">
+          <div class="section-title">
+            <h2 id="viewer-heading">Viewer</h2>
+            <button type="button" id="close-viewer-controls" class="secondary-button">Close</button>
+          </div>
+          <label>
+            <span id="label-event-id">Event ID</span>
+            <input id="viewer-event-id" spellcheck="false" placeholder="naddr, event id, note1, nevent1, or nostr: URL">
+          </label>
+          <label>
+            <span id="label-viewer-relays">Relays</span>
+            <textarea id="viewer-relays" rows="3" spellcheck="false"></textarea>
+          </label>
+          <div class="actions">
+            <button id="viewer-fetch-render" type="submit">Fetch and render</button>
+            <button type="button" id="copy-viewer-config">Copy config JSON</button>
+          </div>
+          <p id="viewer-status" class="status-line">Idle</p>
+        </form>
+
+        <aside class="result-panel">
+          <h2 id="normalized-config-heading">Normalized Config</h2>
+          <textarea id="viewer-config-output" rows="16" spellcheck="false" readonly></textarea>
+        </aside>
+      </div>
+    </section>
+
+    <section class="preview-band" aria-label="Flyer preview">
+      <div class="preview-toolbar">
+        <h2 id="preview-heading">Preview</h2>
+        <button type="button" id="print-preview">Print preview</button>
+      </div>
+      <div id="flyer-preview" class="flyer-preview"></div>
+    </section>
+  </main>
+
+  <script src="locales.js"></script>
+  <script src="vendor/qrcode-generator/qrcode.js"></script>
+  <script src="vendor/nostr-tools/nostr.bundle.js"></script>
+  <script src="nostr-client.js"></script>
+</body>
 </html>

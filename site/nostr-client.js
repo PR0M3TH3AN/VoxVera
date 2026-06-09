@@ -1406,7 +1406,11 @@ Join us in a revolution that values truth and transparency. Together, we can bui
   }
 
   function posterUrlForNaddr(naddr) {
-    return `${clientBaseUrl()}?addr=${encodeURIComponent(naddr)}`;
+    // The naddr is carried in the URL fragment (#) rather than a ?addr= query
+    // param: it is shorter (less QR clutter), needs no URL-encoding (naddr is
+    // bech32, URL-safe), and never reaches the static host. The viewer reads
+    // both forms, so older ?addr= URLs and QR codes still resolve.
+    return `${clientBaseUrl()}#${naddr}`;
   }
 
   function withPosterUrl(payload, identity, relays) {

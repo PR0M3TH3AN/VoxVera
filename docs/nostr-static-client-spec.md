@@ -22,16 +22,16 @@ Nostr relays store the flyer source content. Static hosts only serve the client.
 
 ```text
 site/
-  index.html
+  index.html          (the client)
+  nostr-client.css
+  nostr-client.js
+  locales.js
   CNAME
+  vendor/
+    nostr-tools/
+    qrcode-generator/
   nostr/
-    index.html
-    nostr-client.css
-    nostr-client.js
-    locales.js
-    vendor/
-      nostr-tools/
-      qrcode-generator/
+    index.html        (redirect stub for legacy /nostr/ URLs)
 voxvera/
   nostr/
     schema.py
@@ -49,7 +49,7 @@ No build command is required. Vercel should use:
 - output directory: `site`
 - build command: empty
 
-`site/index.html` redirects root traffic to `/nostr/`.
+The client is served from the root (`site/index.html`). `site/nostr/index.html` is a redirect stub that forwards the legacy `/nostr/` path to the root, preserving the query string and `#naddr` fragment, so poster URLs and QR codes printed before the move still resolve.
 
 ## Event Model
 
@@ -84,7 +84,7 @@ Payload:
   "content": "Flyer body text",
   "url_message": "Follow this link to learn more.",
   "url": "https://creator.example/action",
-  "tear_off_link": "https://voxvera.org/nostr/?addr=naddr1...",
+  "tear_off_link": "https://voxvera.org/nostr/#naddr1...",
   "footer_message": "0110010",
   "qr_target": "flyer_url"
 }
@@ -101,6 +101,8 @@ Default behavior: `qr_target: "flyer_url"`.
 When publishing, the client computes the replaceable-event `naddr` and writes the generated poster URL to `tear_off_link`. The tear-off tabs and tear-off QR code point at `tear_off_link`, so people can re-open and reprint the flyer. The main flyer QR code points at `url`, so viewers can visit the creator's intended destination.
 
 The `naddr` is encoded with a **single relay hint** (the primary configured relay) instead of the full relay list. This keeps the poster URL short and its tear-off QR code easy to scan — a typical poster URL drops from ~233 characters (full list) to ~171 — while still pointing a fresh viewer at a relay that has the event. Viewers also fall back to `DEFAULT_RELAYS`, which is where flyers are published by default. This stays a standard NIP-19 `naddr`, so any Nostr client can resolve it, and older relay-bearing `naddr` URLs continue to decode and resolve unchanged.
+
+The naddr is carried in the URL **fragment** (`#naddr1...`) rather than a `?addr=` query parameter. The fragment is shorter (less QR clutter), needs no URL-encoding, and never reaches the static host. `getUrlEventReference` reads the naddr from query params, the fragment, or anywhere in the full URL, so older `?addr=` poster URLs and printed QR codes still resolve.
 
 Supported values:
 
@@ -122,9 +124,9 @@ The client and schema helper must:
 
 ## Localization
 
-Flyer defaults come from `site/nostr/locales.js`.
+Flyer defaults come from `site/locales.js`.
 
-Nostr editor/viewer controls and Nostr-specific flyer labels come from `NOSTR_UI` in `site/nostr/nostr-client.js`.
+Nostr editor/viewer controls and Nostr-specific flyer labels come from `NOSTR_UI` in `site/nostr-client.js`.
 
 Language changes should:
 
@@ -161,7 +163,7 @@ browser.
 ## Verification
 
 ```bash
-node --check site/nostr/nostr-client.js
+node --check site/nostr-client.js
 pytest -q
 ```
 

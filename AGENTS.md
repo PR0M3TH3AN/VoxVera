@@ -4,9 +4,10 @@
 
 ## Current Architecture
 
-- Active frontend: `site/nostr/`
+- Active frontend: `site/` (`index.html`, `nostr-client.js`, `nostr-client.css`, `locales.js`)
 - Static deployment root: `site`
-- Browser dependencies: vendored under `site/nostr/vendor/`
+- Browser dependencies: vendored under `site/vendor/`
+- Legacy path: `site/nostr/index.html` is a redirect stub forwarding old `/nostr/` poster URLs and QR codes to the root
 - Python helper package: `voxvera/nostr/`
 - Design plan: `docs/nostr-static-client-spec.md`
 
@@ -21,8 +22,8 @@
 
 ## Localization
 
-- Use `site/nostr/locales.js` for flyer content defaults.
-- Use `NOSTR_UI` in `site/nostr/nostr-client.js` for editor/viewer controls and Nostr-specific labels.
+- Use `site/locales.js` for flyer content defaults.
+- Use `NOSTR_UI` in `site/nostr-client.js` for editor/viewer controls and Nostr-specific labels.
 - Add translations for every supported language when adding user-facing strings.
 - Check right-to-left languages when touching layout.
 
@@ -31,8 +32,8 @@
 Run:
 
 ```bash
-node --check site/nostr/nostr-client.js
+node --check site/nostr-client.js
 pytest -q
 ```
 
-For visual or print changes, also run a local static server and inspect `/nostr/` in a browser.
+For visual or print changes, also run a local static server and inspect the site root (`/`) in a browser.

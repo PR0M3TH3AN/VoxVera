@@ -2,14 +2,15 @@
 
 VoxVera is now a static Nostr-powered flyer client.
 
-The active app lives at [`site/nostr/`](site/nostr/). It lets a user author flyer content, publish it as a public Nostr event, and render the flyer later from an event ID or Nostr address. The frontend is intentionally self-contained: relays store the content, and any static host can serve the client.
+The active app lives at the site root ([`site/`](site/)). It lets a user author flyer content, publish it as a public Nostr event, and render the flyer later from an event ID or Nostr address. The frontend is intentionally self-contained: relays store the content, and any static host can serve the client.
 
 The previous Tor/OnionShare CLI version is preserved on the `legacy-tor` branch.
 
 ## What Is In `main`
 
-- `site/nostr/`: static editor/viewer client
-- `site/nostr/vendor/`: vendored browser dependencies for Nostr and QR generation
+- `site/index.html`, `site/nostr-client.js`, `site/nostr-client.css`, `site/locales.js`: static editor/viewer client
+- `site/vendor/`: vendored browser dependencies for Nostr and QR generation
+- `site/nostr/index.html`: redirect stub so legacy `/nostr/` poster URLs and QR codes still resolve
 - `site/CNAME`: custom-domain target
 - `voxvera/nostr/`: small Python schema/validation helpers
 - `docs/nostr-static-client-spec.md`: design notes and development plan
@@ -25,7 +26,7 @@ python3 -m http.server 8768 --directory site
 Then open:
 
 ```text
-http://127.0.0.1:8768/nostr/
+http://127.0.0.1:8768/
 ```
 
 No build command is required for the frontend.
@@ -39,12 +40,12 @@ Point Vercel at this repository on `main`.
 - Build command: leave empty
 - Output directory: `site`
 
-The root `site/index.html` redirects to `/nostr/`, so the domain can serve the current client without preserving the legacy Tor page.
+The client is served from the domain root (`site/index.html`). `site/nostr/index.html` is a redirect stub that forwards the legacy `/nostr/` path to the root while preserving the query/fragment, so older poster URLs and printed QR codes still resolve.
 
 ## Verification
 
 ```bash
-node --check site/nostr/nostr-client.js
+node --check site/nostr-client.js
 pytest -q
 ```
 
