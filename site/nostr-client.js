@@ -2101,8 +2101,29 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     });
   }
 
+  // Untrusted fetched URLs: only http(s)/nostr may become a clickable href.
+  // Anything else (javascript:, data:, …) is blanked so it renders inert. The
+  // renderer escapes the rest of the content, so this is the one piece of
+  // sanitization the view path still needs.
+  function safeViewUrl(value) {
+    const raw = String(value || "").trim();
+    if (!raw) return "";
+    try {
+      const parsed = new URL(raw);
+      return ["http:", "https:", "nostr:"].includes(parsed.protocol) ? raw : "";
+    } catch (_) {
+      return "";
+    }
+  }
+
+  // Shape a payload for rendering. This is the VIEW path and is intentionally
+  // lenient: it does NOT run the strict authoring validation (length caps,
+  // raw-HTML rejection, version), because the renderer escapes every text field
+  // and unsafe URL schemes are neutralized below. Refusing to display an
+  // already-published flyer just because a field is over the authoring cap or
+  // contains "<"/">" is the bug that let the board show flyers the viewer could
+  // not open. Authoring still validates strictly via buildPayloadFromForm.
   function normalizePayload(payload) {
-    validatePayload(payload);
     const lang = supportedLang(payload.lang || FALLBACK_LANG);
     return {
       ...CONFIG_DEFAULTS,
@@ -2114,8 +2135,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       headline: payload.headline || CONFIG_DEFAULTS.headline,
       content: htmlBreaksToNewlines(payload.content || CONFIG_DEFAULTS.content),
       url_message: payload.url_message || CONFIG_DEFAULTS.url_message,
-      url: payload.url || CONFIG_DEFAULTS.url,
-      tear_off_link: payload.tear_off_link || CONFIG_DEFAULTS.tear_off_link,
+      url: payload.url ? safeViewUrl(payload.url) : CONFIG_DEFAULTS.url,
+      tear_off_link: payload.tear_off_link ? safeViewUrl(payload.tear_off_link) : CONFIG_DEFAULTS.tear_off_link,
       footer_message: payload.footer_message || CONFIG_DEFAULTS.footer_message,
       attachment_path: "",
       attachment_filename: ""
@@ -2305,25 +2326,33 @@ Join us in a revolution that values truth and transparency. Together, we can bui
         }
       };
 
+      const consider = (event) => {
+        if (!event || event.pubkey !== address.pubkey || event.kind !== address.kind) return;
+        const hasMatchingD = Array.isArray(event.tags)
+          && event.tags.some((tag) => tag[0] === "d" && tag[1] === address.identifier);
+        if (hasMatchingD && (!best || (event.created_at || 0) > (best.created_at || 0))) {
+          best = event;
+        }
+      };
+
+      // Query by author + kind and match the d-tag to the naddr identifier
+      // in-page, rather than relying on a relay-side "#d" filter. Some relays do
+      // not honor the #d filter for addressable events yet still return the event
+      // for a broader query — which is exactly how the bulletin board finds it.
+      // This makes the viewer resolve any flyer the board can list.
       const sockets = relays.map((relay) => {
         const ws = new WebSocket(relay);
         ws.onopen = () => ws.send(JSON.stringify(["REQ", sub, {
           authors: [address.pubkey],
           kinds: [address.kind],
-          "#d": [address.identifier],
-          limit: 1
+          limit: 100
         }]));
         ws.onmessage = (message) => {
           try {
             const data = JSON.parse(message.data);
-            if (data[0] === "EVENT" && data[2]) {
-              const event = data[2];
-              const hasMatchingD = Array.isArray(event.tags) && event.tags.some((tag) => tag[0] === "d" && tag[1] === address.identifier);
-              if (event.pubkey === address.pubkey && event.kind === address.kind && hasMatchingD && (!best || event.created_at > best.created_at)) {
-                best = event;
-              }
-            }
-            if (data[0] === "EOSE") {
+            if (data[0] === "EVENT") {
+              consider(data[2]);
+            } else if (data[0] === "EOSE") {
               remaining -= 1;
               if (remaining <= 0) finish();
             }
@@ -2336,7 +2365,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
         return ws;
       });
 
-      setTimeout(finish, 5000);
+      setTimeout(finish, 8000);
     });
   }
 
@@ -2400,13 +2429,20 @@ Join us in a revolution that values truth and transparency. Together, we can bui
   function payloadFromEvent(event) {
     if (!event || event.kind !== EVENT_KIND) throw new Error("Event kind is not a VoxVera source kind.");
     const hasTag = (name, value) => Array.isArray(event.tags) && event.tags.some((tag) => tag[0] === name && tag[1] === value);
-    if (!hasTag("t", "voxvera") || !hasTag("t", "flyer")) throw new Error("Event is missing VoxVera flyer tags.");
+    // Match the bulletin board's acceptance: a VoxVera flyer is any kind-30078
+    // event tagged t=voxvera whose content parses as a voxvera_flyer payload.
+    // (The t=flyer tag is no longer required, so a flyer the board lists always
+    // opens in the viewer.)
+    if (!hasTag("t", "voxvera")) throw new Error("Event is missing the VoxVera tag.");
     const payload = JSON.parse(event.content);
+    if (!payload || payload.type !== "voxvera_flyer") throw new Error("Event is not a VoxVera flyer payload.");
     const taggedLang = languageFromTags(event.tags);
     if (!payload.lang && taggedLang) {
       payload.lang = taggedLang;
     }
-    validatePayload(payload);
+    // No strict validatePayload here — the flyer is rendered defensively
+    // (normalizePayload neutralizes unsafe URLs, renderPreview escapes all text),
+    // so we display what was published rather than refusing over authoring caps.
     return payload;
   }
 

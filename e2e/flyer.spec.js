@@ -161,6 +161,89 @@ test.describe("VoxVera static client", () => {
     await expect(page.locator(".content h1")).toHaveCount(0);
   });
 
+  test("viewer renders a fetched flyer that fails strict authoring validation", async ({ page }) => {
+    // A flyer that the board would list but the old viewer refused to open:
+    // text that looks like HTML, an over-length body, and a javascript: URL.
+    const PK = "c".repeat(64);
+    const IDENT = "voxvera:edge-case-flyer";
+    const event = {
+      id: "e".repeat(64),
+      kind: 30078,
+      pubkey: PK,
+      created_at: 3000,
+      tags: [["d", IDENT], ["t", "voxvera"], ["language", "en"]], // note: no t=flyer
+      content: JSON.stringify({
+        type: "voxvera_flyer", version: 1, folder_name: "edge-case-flyer", lang: "en",
+        name: "Edge", title: "BITCOIN < FREEDOM > STATE", subtitle: "sub", headline: "HEAD",
+        content: "value < x > y and onload = boom " + "z".repeat(6000), // raw-HTML-ish + over length
+        url_message: "msg", url: "javascript:alert(1)", footer_message: "foot",
+        tear_off_link: "https://voxvera.org/#naddr1edgecase", qr_target: "flyer_url"
+      })
+    };
+    await stubRelays(page, [event]);
+    await page.goto("/");
+    const naddr = await page.evaluate(({ pk, ident }) =>
+      window.NostrTools.nip19.naddrEncode({ identifier: ident, pubkey: pk, kind: 30078, relays: [] }),
+      { pk: PK, ident: IDENT });
+    await page.goto("about:blank");
+    await page.goto(`/#${naddr}`);
+    // It renders (old behavior: "Could not load this flyer"). Title text is shown
+    // with the angle brackets escaped to plain text, not refused.
+    await expect(page.locator(".content h1").first()).toContainText("BITCOIN");
+    await expect(page.locator(".content h1").first()).toContainText("FREEDOM");
+    await expect(page.locator(".flyer-status-message")).toHaveCount(0);
+    // The javascript: URL is neutralized — never rendered as a clickable link.
+    const href = await page.locator(".qr-code-url a").getAttribute("href");
+    expect(href || "").not.toMatch(/^javascript:/i);
+  });
+
+  test("viewer resolves a flyer from relays that ignore the #d filter", async ({ page }) => {
+    // Simulate a relay that does NOT honor the addressable "#d" tag filter (it
+    // returns nothing for such a REQ) but does answer a broad author query —
+    // which is how the board finds the flyer. The viewer must still resolve it.
+    const PK = "d".repeat(64);
+    const IDENT = "voxvera:no-d-filter";
+    const event = {
+      id: "1".repeat(64), kind: 30078, pubkey: PK, created_at: 4000,
+      tags: [["d", IDENT], ["t", "voxvera"], ["t", "flyer"], ["language", "en"]],
+      content: JSON.stringify({
+        type: "voxvera_flyer", version: 1, folder_name: "no-d-filter", lang: "en",
+        name: "N", title: "RESOLVED VIA BROAD QUERY", subtitle: "s", headline: "H",
+        content: "body", url_message: "m", url: "https://example.com/x",
+        footer_message: "f", tear_off_link: "https://voxvera.org/#naddr1x", qr_target: "flyer_url"
+      })
+    };
+    await page.addInitScript((ev) => {
+      class FakeWS {
+        constructor() { this.readyState = 1; setTimeout(() => this.onopen && this.onopen(), 1); }
+        send(data) {
+          let m; try { m = JSON.parse(data); } catch (_) { return; }
+          if (m[0] !== "REQ") return;
+          const sub = m[1], filter = m[2] || {};
+          const emit = (arr) => this.onmessage && this.onmessage({ data: JSON.stringify(arr) });
+          // Relay that ignores #d: a REQ carrying "#d" gets only EOSE, no events.
+          const deny = Object.prototype.hasOwnProperty.call(filter, "#d");
+          setTimeout(() => {
+            if (!deny && (!filter.authors || filter.authors.indexOf(ev.pubkey) !== -1)) {
+              emit(["EVENT", sub, ev]);
+            }
+            emit(["EOSE", sub]);
+          }, 1);
+        }
+        close() {}
+      }
+      window.WebSocket = FakeWS;
+    }, event);
+    await page.goto("/");
+    const naddr = await page.evaluate(({ pk, ident }) =>
+      window.NostrTools.nip19.naddrEncode({ identifier: ident, pubkey: pk, kind: 30078, relays: [] }),
+      { pk: PK, ident: IDENT });
+    await page.goto("about:blank");
+    await page.goto(`/#${naddr}`);
+    await expect(page.locator(".content h1").first()).toContainText("RESOLVED VIA BROAD QUERY");
+    await expect(page.locator(".flyer-status-message")).toHaveCount(0);
+  });
+
   test("infers language from the first supported browser preference", async ({ page }) => {
     // Browser prefers Dutch (unsupported), then German (supported), then
     // English. We should honor German rather than jumping to the English
@@ -494,6 +577,9 @@ test.describe("VoxVera static client", () => {
   });
 
   test("a remembered nsec is PIN-encrypted at rest and unlocks on reload", async ({ page }) => {
+    // PBKDF2 at 600k iterations (encrypt + two decrypts) is CPU-heavy on WebKit
+    // under full parallelism; give it room rather than weakening the KDF.
+    test.slow();
     await page.goto("/#editor");
     const { nsec, npub, hex } = await page.evaluate(() => {
       const t = window.NostrTools;
@@ -532,6 +618,7 @@ test.describe("VoxVera static client", () => {
   });
 
   test("forgetting a stored identity clears it and returns to anonymous", async ({ page }) => {
+    test.slow(); // PBKDF2 encrypt is CPU-heavy on WebKit under full parallelism.
     await page.goto("/#editor");
     const nsec = await page.evaluate(() => window.NostrTools.nip19.nsecEncode(window.NostrTools.generateSecretKey()));
     await page.locator("#use-nsec-toggle").click();
@@ -539,6 +626,9 @@ test.describe("VoxVera static client", () => {
     await page.locator("#nsec-remember").check();
     await page.locator("#nsec-pin").fill("2468");
     await page.locator("#nsec-submit").click();
+    // Wait for the (async) encrypt+persist to finish before reloading, or the
+    // stored blob may not exist yet on slower engines.
+    await expect(page.locator("#signer-state")).toHaveText("Publishing as your imported key");
     await page.reload();
     await expect(page.locator("#identity-locked-row")).toBeVisible();
     await page.locator("#forget-key").click();
