@@ -9,6 +9,26 @@ because almost every other risk flows from it being undefined.
 Status legend: **Open** (not started) · **Partial** (some mitigation exists) ·
 **Planned** (committed direction) · **In progress** (partially shipped).
 
+## Shipped so far (2026-06-10)
+
+The trust model (#1–#2) has moved from undefined to implemented:
+
+- **Bulletin board login gate** — viewing the board requires a connected Nostr
+  identity (NIP-07 extension, a pasted `nsec`, or a generated key).
+- **Web-of-trust filter** — the board defaults to flyers from authors in the
+  viewer's NIP-02 follow graph, seeded from a curator account for fresh keys,
+  with a "Show all" opt-out (so it is no longer an unmoderated firehose).
+- **Editor publishing identity** — authors can publish anonymously (default),
+  via NIP-07, or with an imported `nsec` that is optionally PIN-encrypted at
+  rest (PBKDF2 → AES-GCM; plaintext never stored).
+
+All of the above is localized across the 14 languages and covered by the
+cross-engine Playwright suite. **What remains** on #1–#2 is polish (degree-2
+trust, blocklist/report, NIP-05 badges, an identified-vs-anonymous display) plus
+the editor follow-ups noted under the *Planned direction* section. **#3–#5 are
+still fully open** — distribution centralization (#3) is now the
+highest-leverage untouched item.
+
 ---
 
 ## 1. Bulletin board has no moderation or abuse story — **In progress**
@@ -228,6 +248,7 @@ should follow the board's trust model.
 
 ---
 
-*Reviewed 2026-06-09. The highest-leverage next decision is the trust model
-(who can post, who appears on the board); most other risks resolve more easily
-once that is defined.*
+*Reviewed 2026-06-10. The trust model (#1–#2) is now implemented — see "Shipped
+so far" above. The highest-leverage untouched item is now #3 (the client is a
+single centralized domain), since it most undercuts the censorship-resistance
+premise even with the backend on decentralized relays.*
