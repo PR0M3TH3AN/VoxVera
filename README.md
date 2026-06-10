@@ -10,6 +10,7 @@ The previous Tor/OnionShare CLI version is preserved on the `legacy-tor` branch.
 
 - **Author and publish.** Fill in the flyer fields and publish them as a Nostr `30078` parameterized replaceable event. Republishing with the same flyer name replaces the previous version.
 - **Anonymous by default.** The client generates an anonymous browser-side key to sign events. A NIP-07 browser extension is detected and used if present, but is never required.
+- **Publish confirmation.** After signing and publishing, a modal shows the new flyer's URL to copy, so authors know they're done and where to find it (localized, like everything else).
 - **Open from a link or ID.** Load a flyer from an `naddr`, `nevent1`, `note1`, raw 64-char event ID, or `nostr:` URL. The lookup field tolerates copy/paste whitespace and newlines, so an event ID copied off a printed tear-off (where it wraps across two lines) still resolves.
 - **Short, scannable poster URLs.** Each poster URL is a standard NIP-19 `naddr` carrying a single relay hint, placed in the URL `#fragment` (no `?addr=` query). Shorter URLs make the tear-off QR code easier to scan. Older relay-list `naddr`s and `?addr=` URLs still resolve.
 - **Tear-off tabs.** The printable flyer has ten tear-off tabs. Each tab is a single hyperlinked call to action (the URL is the link, not printed as text) and prints the full event ID so anyone can re-find the flyer by typing it.

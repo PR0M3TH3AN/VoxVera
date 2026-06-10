@@ -171,6 +171,18 @@
     </section>
   </main>
 
+  <div id="publish-modal" class="modal-overlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="publish-modal-title">
+      <h2 id="publish-modal-title" data-i18n-key="published_title">Flyer published</h2>
+      <p id="publish-modal-message" data-i18n-key="published_message">Copy this URL to see your new flyer:</p>
+      <div class="modal-url-row">
+        <input id="publish-modal-url" type="text" readonly aria-label="Flyer URL">
+        <button type="button" id="publish-modal-copy">Copy</button>
+      </div>
+      <button type="button" id="publish-modal-close" class="modal-close" data-i18n-key="close">Close</button>
+    </div>
+  </div>
+
   <script src="locales.js"></script>
   <script src="vendor/qrcode-generator/qrcode.js"></script>
   <script src="vendor/nostr-tools/nostr.bundle.js"></script>

@@ -189,6 +189,36 @@ test.describe("VoxVera static client", () => {
     }
   });
 
+  test("publishing shows a confirmation modal with the flyer URL", async ({ page }) => {
+    // Stub the relay WebSocket so the publish resolves instantly with an OK.
+    await page.addInitScript(() => {
+      class FakeWS {
+        constructor() { this.readyState = 1; setTimeout(() => this.onopen && this.onopen(), 1); }
+        send(data) {
+          try {
+            const m = JSON.parse(data);
+            if (m[0] === "EVENT" && m[1] && m[1].id) {
+              const id = m[1].id;
+              setTimeout(() => this.onmessage && this.onmessage({ data: JSON.stringify(["OK", id, true, ""]) }), 1);
+            }
+          } catch (_) {}
+        }
+        close() {}
+      }
+      window.WebSocket = FakeWS;
+    });
+    await page.goto("/#editor");
+    await page.locator("#publish-event").click();
+    const modal = page.locator("#publish-modal");
+    await expect(modal).toBeVisible();
+    await expect(page.locator("#publish-modal-title")).toHaveText("Flyer published");
+    await expect(page.locator("#publish-modal-message")).toContainText("Copy this URL");
+    // The URL is a poster URL (naddr in the fragment).
+    await expect(page.locator("#publish-modal-url")).toHaveValue(/#naddr1[0-9a-z]+/);
+    await page.locator("#publish-modal-close").click();
+    await expect(modal).toBeHidden();
+  });
+
   test("bulletin board language selector localizes the page", async ({ page }) => {
     await page.goto("/board.html");
     await expect(page.locator("#board-title")).toHaveText("Bulletin Board");

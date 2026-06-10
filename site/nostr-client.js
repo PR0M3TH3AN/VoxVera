@@ -199,6 +199,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       load_failed: "تعذّر تحميل هذا الملصق.",
       paper_size: "حجم الورق",
       bulletin_board: "لوحة الإعلانات",
+      published_title: "تم نشر الملصق",
+      published_message: "انسخ هذا الرابط لرؤية ملصقك الجديد:",
+      close: "إغلاق",
       paper_letter: "US Letter (8.5 × 11 بوصة)",
       paper_a4: "A4 (210 × 297 مم)",
       config_copied: "تم نسخ الإعداد.",
@@ -257,6 +260,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       load_failed: "Dieses Plakat konnte nicht geladen werden.",
       paper_size: "Papierformat",
       bulletin_board: "Schwarzes Brett",
+      published_title: "Plakat veröffentlicht",
+      published_message: "Kopiere diese URL, um dein neues Plakat zu sehen:",
+      close: "Schließen",
       paper_letter: "US Letter (8,5 × 11 Zoll)",
       paper_a4: "A4 (210 × 297 mm)",
       config_copied: "Konfiguration kopiert.",
@@ -315,6 +321,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       load_failed: "Could not load this flyer.",
       paper_size: "Paper size",
       bulletin_board: "Bulletin board",
+      published_title: "Flyer published",
+      published_message: "Copy this URL to see your new flyer:",
+      close: "Close",
       paper_letter: "US Letter (8.5 × 11 in)",
       paper_a4: "A4 (210 × 297 mm)",
       config_copied: "Config copied.",
@@ -374,6 +383,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       load_failed: "No se pudo cargar este cartel.",
       paper_size: "Tamaño de papel",
       bulletin_board: "Tablón de anuncios",
+      published_title: "Cartel publicado",
+      published_message: "Copia esta URL para ver tu nuevo cartel:",
+      close: "Cerrar",
       paper_letter: "US Letter (8,5 × 11 in)",
       paper_a4: "A4 (210 × 297 mm)",
       config_copied: "Configuración copiada.",
@@ -432,6 +444,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       load_failed: "بارگذاری این پوستر ممکن نشد.",
       paper_size: "اندازه کاغذ",
       bulletin_board: "تابلوی اعلانات",
+      published_title: "پوستر منتشر شد",
+      published_message: "این نشانی را کپی کنید تا پوستر جدید خود را ببینید:",
+      close: "بستن",
       paper_letter: "US Letter (8.5 × 11 اینچ)",
       paper_a4: "A4 (210 × 297 میلی‌متر)",
       config_copied: "پیکربندی کپی شد.",
@@ -490,6 +505,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       load_failed: "Impossible de charger cette affiche.",
       paper_size: "Format du papier",
       bulletin_board: "Tableau d'affichage",
+      published_title: "Affiche publiée",
+      published_message: "Copiez cette URL pour voir votre nouvelle affiche :",
+      close: "Fermer",
       paper_letter: "US Letter (8,5 × 11 po)",
       paper_a4: "A4 (210 × 297 mm)",
       config_copied: "Configuration copiee.",
@@ -548,6 +566,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       load_failed: "לא ניתן לטעון כרזה זו.",
       paper_size: "גודל נייר",
       bulletin_board: "לוח מודעות",
+      published_title: "הכרזה פורסמה",
+      published_message: "העתק כתובת זו כדי לראות את הכרזה החדשה שלך:",
+      close: "סגור",
       paper_letter: "US Letter (8.5 × 11 אינץ׳)",
       paper_a4: "A4 (210 × 297 מ״מ)",
       config_copied: "התצורה הועתקה.",
@@ -606,6 +627,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       load_failed: "यह पोस्टर लोड नहीं हो सका।",
       paper_size: "कागज़ का आकार",
       bulletin_board: "बुलेटिन बोर्ड",
+      published_title: "पोस्टर प्रकाशित",
+      published_message: "अपना नया पोस्टर देखने के लिए यह URL कॉपी करें:",
+      close: "बंद करें",
       paper_letter: "US Letter (8.5 × 11 इंच)",
       paper_a4: "A4 (210 × 297 मिमी)",
       config_copied: "कॉन्फिग कॉपी हुआ.",
@@ -664,6 +688,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       load_failed: "このちらしを読み込めませんでした。",
       paper_size: "用紙サイズ",
       bulletin_board: "掲示板",
+      published_title: "ちらしを公開しました",
+      published_message: "新しいちらしを見るにはこの URL をコピーしてください:",
+      close: "閉じる",
       paper_letter: "US レター (8.5 × 11 インチ)",
       paper_a4: "A4 (210 × 297 mm)",
       config_copied: "設定をコピーしました。",
@@ -722,6 +749,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       load_failed: "Não foi possível carregar este panfleto.",
       paper_size: "Tamanho do papel",
       bulletin_board: "Quadro de avisos",
+      published_title: "Panfleto publicado",
+      published_message: "Copie este URL para ver seu novo panfleto:",
+      close: "Fechar",
       paper_letter: "US Letter (8,5 × 11 pol)",
       paper_a4: "A4 (210 × 297 mm)",
       config_copied: "Configuracao copiada.",
@@ -780,6 +810,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       load_failed: "Не удалось загрузить эту листовку.",
       paper_size: "Размер бумаги",
       bulletin_board: "Доска объявлений",
+      published_title: "Листовка опубликована",
+      published_message: "Скопируйте этот URL, чтобы увидеть свою листовку:",
+      close: "Закрыть",
       paper_letter: "US Letter (8,5 × 11 дюйма)",
       paper_a4: "A4 (210 × 297 мм)",
       config_copied: "Конфигурация скопирована.",
@@ -838,6 +871,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       load_failed: "Imeshindwa kupakia bango hili.",
       paper_size: "Ukubwa wa karatasi",
       bulletin_board: "Ubao wa matangazo",
+      published_title: "Bango limechapishwa",
+      published_message: "Nakili URL hii ili kuona bango lako jipya:",
+      close: "Funga",
       paper_letter: "US Letter (8.5 × 11 inchi)",
       paper_a4: "A4 (210 × 297 mm)",
       config_copied: "Usanidi umenakiliwa.",
@@ -896,6 +932,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       load_failed: "Bu el ilanı yüklenemedi.",
       paper_size: "Kağıt boyutu",
       bulletin_board: "İlan panosu",
+      published_title: "El ilanı yayımlandı",
+      published_message: "Yeni el ilanınızı görmek için bu URL'yi kopyalayın:",
+      close: "Kapat",
       paper_letter: "US Letter (8,5 × 11 inç)",
       paper_a4: "A4 (210 × 297 mm)",
       config_copied: "Yapılandırma kopyalandı.",
@@ -954,6 +993,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       load_failed: "无法加载此传单。",
       paper_size: "纸张大小",
       bulletin_board: "公告栏",
+      published_title: "传单已发布",
+      published_message: "复制此网址以查看您的新传单：",
+      close: "关闭",
       paper_letter: "US Letter (8.5 × 11 英寸)",
       paper_a4: "A4 (210 × 297 毫米)",
       config_copied: "配置已复制。",
@@ -2080,6 +2122,25 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     }, 1200);
   }
 
+  // Confirmation modal shown after a successful publish, so the author knows
+  // the flyer is live and can copy the URL to view/share it.
+  function openPublishModal(url) {
+    const modal = el("publish-modal");
+    const input = el("publish-modal-url");
+    if (!modal || !input) return;
+    input.value = url || "";
+    const copyBtn = el("publish-modal-copy");
+    if (copyBtn) copyBtn.textContent = nostrLabel("copy", currentUiLang());
+    modal.hidden = false;
+    input.focus();
+    input.select();
+  }
+
+  function closePublishModal() {
+    const modal = el("publish-modal");
+    if (modal) modal.hidden = true;
+  }
+
   async function fetchAndRenderFromInput(eventInput, relaysValue, statusElement = el("viewer-status")) {
     const parsed = parseEventReference(eventInput);
     if (!parsed) throw new Error(nostrLabel("event_reference_required", currentUiLang()));
@@ -2130,6 +2191,27 @@ Join us in a revolution that values truth and transparency. Together, we can bui
 
     document.querySelectorAll(".tab").forEach((button) => {
       button.addEventListener("click", () => setMode(button.dataset.mode));
+    });
+
+    el("publish-modal-close").addEventListener("click", closePublishModal);
+    el("publish-modal").addEventListener("click", (event) => {
+      if (event.target === el("publish-modal")) closePublishModal();
+    });
+    el("publish-modal-copy").addEventListener("click", async () => {
+      const input = el("publish-modal-url");
+      if (!input.value) return;
+      const button = el("publish-modal-copy");
+      try {
+        await navigator.clipboard.writeText(input.value);
+        button.textContent = nostrLabel("copied", currentUiLang());
+        setTimeout(() => { button.textContent = nostrLabel("copy", currentUiLang()); }, 1200);
+      } catch (_) {
+        input.focus();
+        input.select();
+      }
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closePublishModal();
     });
 
     LANGUAGE_SELECT_IDS.forEach((selectId) => {
@@ -2215,6 +2297,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
         el("viewer-event-id").value = result.naddr;
         el("publish-status").innerHTML = renderRelayResults(result.results);
         renderPreview({ ...normalizePayload(result.payload), event_id: loadedEventId });
+        openPublishModal(result.posterUrl);
       } catch (error) {
         el("publish-status").textContent = error.message;
       }
