@@ -190,6 +190,83 @@ main {
   font-size: 12px;
 }
 
+/* Identity mode controls (anonymous / NIP-07 / imported nsec). */
+.identity-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 10px;
+}
+
+.identity-controls .secondary-button {
+  min-height: 32px;
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+/* Vertical stack so the input, the "remember" checkbox, the PIN field, and the
+   action button each get their own line (a wrapping row collided the label and
+   button). */
+.identity-import {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--soft);
+}
+
+.identity-import input[type="password"] {
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.identity-import .secondary-button {
+  align-self: flex-start;
+  min-height: 32px;
+  padding: 5px 12px;
+  font-size: 12px;
+}
+
+.identity-import .nsec-remember-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.identity-import .nsec-remember-row input {
+  width: auto;
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+/* The locked row keeps the note on its own line, then PIN + buttons below. */
+#identity-locked-row {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+#identity-locked-note {
+  font-size: 12px;
+  color: var(--muted);
+  flex: 1 1 100%;
+}
+
+#identity-locked-row input[type="password"] {
+  width: auto;
+  flex: 1 1 160px;
+}
+
 .editor-form label {
   display: grid;
   gap: 5px;

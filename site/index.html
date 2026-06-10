@@ -45,8 +45,31 @@
           </label>
           <div class="identity-row">
             <span id="identity-state" class="state-pill">Checking identity</span>
-            <button type="button" id="generate-anon-identity" class="secondary-button">Generate anonymous npub</button>
           </div>
+          <div class="identity-controls">
+            <button type="button" id="generate-anon-identity" class="secondary-button">Generate anonymous npub</button>
+            <button type="button" id="connect-nip07" class="secondary-button">Connect extension</button>
+            <button type="button" id="use-nsec-toggle" class="secondary-button">Use a private key (nsec)</button>
+          </div>
+          <!-- Import a private key. The secret signs in-page; it is only written
+               to storage (encrypted with the PIN) when "Remember" is checked. -->
+          <div id="nsec-import" class="identity-import" hidden>
+            <input id="nsec-input" type="password" autocomplete="off" spellcheck="false" placeholder="nsec1…">
+            <label class="nsec-remember-row">
+              <input type="checkbox" id="nsec-remember">
+              <span data-i18n-key="remember_pin">Remember on this device (PIN)</span>
+            </label>
+            <input id="nsec-pin" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN (4+ digits)" hidden>
+            <button type="button" id="nsec-submit" class="secondary-button">Use this key</button>
+          </div>
+          <!-- Shown on load when a PIN-encrypted identity is stored. -->
+          <div id="identity-locked-row" class="identity-import" hidden>
+            <span id="identity-locked-note" data-i18n-key="identity_locked">Saved identity is locked. Enter your PIN to unlock it.</span>
+            <input id="unlock-pin" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN">
+            <button type="button" id="unlock-key" class="secondary-button">Unlock</button>
+            <button type="button" id="forget-key" class="secondary-button">Forget</button>
+          </div>
+          <p id="identity-error" class="field-error" role="alert" hidden></p>
 
           <div class="field-grid">
             <label>

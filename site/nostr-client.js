@@ -7,6 +7,13 @@
     "wss://relay.primal.net"
   ];
   const ANON_SECRET_STORAGE_KEY = "voxvera_nostr_anon_secret_hex";
+  // Publishing identity ("anon" | "nip07" | "nsec") and, for an nsec the user
+  // chose to remember, its PIN-encrypted secret. The plaintext secret is never
+  // stored for nsec — only this AES-GCM blob, decrypted in memory on unlock.
+  const IDENTITY_MODE_STORAGE_KEY = "voxvera_identity_mode";
+  const IDENTITY_ENC_STORAGE_KEY = "voxvera_identity_nsec_enc";
+  const IDENTITY_NPUB_STORAGE_KEY = "voxvera_identity_npub";
+  const PBKDF2_ITERATIONS = 600000;
   const UI_LANG_STORAGE_KEY = "voxvera_nostr_lang";
   const LOCALES = window.VoxVeraLocales || {};
   const FALLBACK_LANG = "en";
@@ -104,6 +111,11 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     "viewer-editor": "editor",
     "close-viewer-controls": "back",
     "generate-anon-identity": "generate_npub",
+    "connect-nip07": "connect_extension",
+    "use-nsec-toggle": "use_nsec",
+    "nsec-submit": "use_key",
+    "unlock-key": "unlock",
+    "forget-key": "forget_key",
     "viewer-fetch-render": "fetch_render",
     "editor-tab": "editor",
     "viewer-tab": "viewer"
@@ -188,6 +200,22 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       checking_identity: "فحص الهوية",
       anon_signing_nip07: "التوقيع المجهول هو الافتراضي؛ تم اكتشاف NIP-07",
       anon_signing_ready: "التوقيع المجهول متاح؛ لا يلزم تسجيل دخول NIP-07",
+      connect_extension: "ربط الإضافة",
+      use_nsec: "استخدام مفتاح خاص (nsec)",
+      use_key: "استخدام هذا المفتاح",
+      remember_pin: "تذكُّر على هذا الجهاز (رمز PIN)",
+      pin_prompt: "رمز PIN (4 أرقام أو أكثر)",
+      unlock: "فتح القفل",
+      forget_key: "نسيان",
+      invalid_nsec: "لا يبدو هذا مفتاح nsec صالحًا.",
+      pin_short: "يجب أن يتكون رمز PIN من 4 أرقام على الأقل.",
+      pin_wrong: "رمز PIN غير صحيح. حاول مرة أخرى.",
+      nip07_missing: "لم يتم العثور على إضافة NIP-07.",
+      identity_locked: "الهوية المحفوظة مقفلة. أدخل رمز PIN لفتحها.",
+      locked: "مقفل",
+      signer_anon: "النشر بشكل مجهول",
+      signer_nip07: "النشر بهوية الإضافة الخاصة بك",
+      signer_nsec: "النشر بمفتاحك المستورد",
       no_anon_npub: "لا يوجد npub مجهول بعد",
       anon_npub_ready: "npub مجهول جاهز",
       npub_generated: "تم إنشاء npub مجهول:",
@@ -249,6 +277,22 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       checking_identity: "Identität prüfen",
       anon_signing_nip07: "Anonymes Signieren ist Standard; NIP-07 erkannt",
       anon_signing_ready: "Anonymes Signieren verfügbar; kein NIP-07-Login nötig",
+      connect_extension: "Erweiterung verbinden",
+      use_nsec: "Privaten Schlüssel (nsec) verwenden",
+      use_key: "Diesen Schlüssel verwenden",
+      remember_pin: "Auf diesem Gerät merken (PIN)",
+      pin_prompt: "PIN (mind. 4 Ziffern)",
+      unlock: "Entsperren",
+      forget_key: "Verwerfen",
+      invalid_nsec: "Das sieht nicht nach einem gültigen nsec-Schlüssel aus.",
+      pin_short: "Die PIN muss mindestens 4 Ziffern haben.",
+      pin_wrong: "Falsche PIN. Bitte erneut versuchen.",
+      nip07_missing: "Keine NIP-07-Erweiterung gefunden.",
+      identity_locked: "Gespeicherte Identität ist gesperrt. Gib deine PIN ein, um sie zu entsperren.",
+      locked: "Gesperrt",
+      signer_anon: "Anonym veröffentlichen",
+      signer_nip07: "Veröffentlichung mit deiner Erweiterungs-Identität",
+      signer_nsec: "Veröffentlichung mit deinem importierten Schlüssel",
       no_anon_npub: "Noch kein anonymes npub",
       anon_npub_ready: "Anonymes npub bereit",
       npub_generated: "Anonymes npub erzeugt:",
@@ -310,6 +354,22 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       checking_identity: "Checking identity",
       anon_signing_nip07: "Anonymous signing is default; NIP-07 detected",
       anon_signing_ready: "Anonymous signing available; no NIP-07 login required",
+      connect_extension: "Connect extension",
+      use_nsec: "Use a private key (nsec)",
+      use_key: "Use this key",
+      remember_pin: "Remember on this device (PIN)",
+      pin_prompt: "PIN (4+ digits)",
+      unlock: "Unlock",
+      forget_key: "Forget",
+      invalid_nsec: "That doesn't look like a valid nsec key.",
+      pin_short: "PIN must be at least 4 digits.",
+      pin_wrong: "Wrong PIN. Try again.",
+      nip07_missing: "No NIP-07 extension found.",
+      identity_locked: "Saved identity is locked. Enter your PIN to unlock it.",
+      locked: "Locked",
+      signer_anon: "Publishing anonymously",
+      signer_nip07: "Publishing as your extension identity",
+      signer_nsec: "Publishing as your imported key",
       no_anon_npub: "No anonymous npub yet",
       anon_npub_ready: "Anonymous npub ready",
       npub_generated: "Anonymous npub generated:",
@@ -372,6 +432,22 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       checking_identity: "Comprobando identidad",
       anon_signing_nip07: "La firma anónima es predeterminada; NIP-07 detectado",
       anon_signing_ready: "Firma anónima disponible; no se requiere inicio de sesión NIP-07",
+      connect_extension: "Conectar extensión",
+      use_nsec: "Usar una clave privada (nsec)",
+      use_key: "Usar esta clave",
+      remember_pin: "Recordar en este dispositivo (PIN)",
+      pin_prompt: "PIN (4 o más dígitos)",
+      unlock: "Desbloquear",
+      forget_key: "Olvidar",
+      invalid_nsec: "Eso no parece una clave nsec válida.",
+      pin_short: "El PIN debe tener al menos 4 dígitos.",
+      pin_wrong: "PIN incorrecto. Inténtalo de nuevo.",
+      nip07_missing: "No se encontró ninguna extensión NIP-07.",
+      identity_locked: "La identidad guardada está bloqueada. Introduce tu PIN para desbloquearla.",
+      locked: "Bloqueada",
+      signer_anon: "Publicando de forma anónima",
+      signer_nip07: "Publicando con la identidad de tu extensión",
+      signer_nsec: "Publicando con tu clave importada",
       no_anon_npub: "Aún no hay npub anónimo",
       anon_npub_ready: "npub anónimo listo",
       npub_generated: "npub anónimo generado:",
@@ -433,6 +509,22 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       checking_identity: "بررسی هویت",
       anon_signing_nip07: "امضای ناشناس پیش‌فرض است؛ NIP-07 شناسایی شد",
       anon_signing_ready: "امضای ناشناس آماده است؛ ورود NIP-07 لازم نیست",
+      connect_extension: "اتصال افزونه",
+      use_nsec: "استفاده از کلید خصوصی (nsec)",
+      use_key: "استفاده از این کلید",
+      remember_pin: "روی این دستگاه به خاطر بسپار (PIN)",
+      pin_prompt: "PIN (۴ رقم یا بیشتر)",
+      unlock: "باز کردن قفل",
+      forget_key: "فراموش کردن",
+      invalid_nsec: "این یک کلید nsec معتبر به نظر نمی‌رسد.",
+      pin_short: "PIN باید حداقل ۴ رقم باشد.",
+      pin_wrong: "PIN نادرست است. دوباره تلاش کنید.",
+      nip07_missing: "هیچ افزونه NIP-07 یافت نشد.",
+      identity_locked: "هویت ذخیره‌شده قفل است. برای باز کردن آن PIN خود را وارد کنید.",
+      locked: "قفل‌شده",
+      signer_anon: "انتشار به‌صورت ناشناس",
+      signer_nip07: "انتشار با هویت افزونه شما",
+      signer_nsec: "انتشار با کلید واردشده شما",
       no_anon_npub: "هنوز npub ناشناس وجود ندارد",
       anon_npub_ready: "npub ناشناس آماده است",
       npub_generated: "npub ناشناس ساخته شد:",
@@ -494,6 +586,22 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       checking_identity: "Verification de l'identite",
       anon_signing_nip07: "La signature anonyme est par defaut; NIP-07 detecte",
       anon_signing_ready: "Signature anonyme disponible; aucune connexion NIP-07 requise",
+      connect_extension: "Connecter l'extension",
+      use_nsec: "Utiliser une clé privée (nsec)",
+      use_key: "Utiliser cette clé",
+      remember_pin: "Se souvenir sur cet appareil (PIN)",
+      pin_prompt: "PIN (4 chiffres ou plus)",
+      unlock: "Déverrouiller",
+      forget_key: "Oublier",
+      invalid_nsec: "Cela ne ressemble pas à une clé nsec valide.",
+      pin_short: "Le PIN doit comporter au moins 4 chiffres.",
+      pin_wrong: "PIN incorrect. Veuillez réessayer.",
+      nip07_missing: "Aucune extension NIP-07 trouvée.",
+      identity_locked: "L'identité enregistrée est verrouillée. Saisissez votre PIN pour la déverrouiller.",
+      locked: "Verrouillée",
+      signer_anon: "Publication anonyme",
+      signer_nip07: "Publication avec l'identité de votre extension",
+      signer_nsec: "Publication avec votre clé importée",
       no_anon_npub: "Aucun npub anonyme pour le moment",
       anon_npub_ready: "npub anonyme pret",
       npub_generated: "npub anonyme genere :",
@@ -555,6 +663,22 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       checking_identity: "בודק זהות",
       anon_signing_nip07: "חתימה אנונימית היא ברירת המחדל; NIP-07 זוהה",
       anon_signing_ready: "חתימה אנונימית זמינה; אין צורך בהתחברות NIP-07",
+      connect_extension: "חבר תוסף",
+      use_nsec: "השתמש במפתח פרטי (nsec)",
+      use_key: "השתמש במפתח זה",
+      remember_pin: "זכור במכשיר זה (PIN)",
+      pin_prompt: "PIN (4 ספרות או יותר)",
+      unlock: "בטל נעילה",
+      forget_key: "שכח",
+      invalid_nsec: "זה לא נראה כמו מפתח nsec תקין.",
+      pin_short: "ה-PIN חייב להכיל לפחות 4 ספרות.",
+      pin_wrong: "PIN שגוי. נסה שוב.",
+      nip07_missing: "לא נמצא תוסף NIP-07.",
+      identity_locked: "הזהות השמורה נעולה. הזן את ה-PIN שלך כדי לבטל את הנעילה.",
+      locked: "נעול",
+      signer_anon: "מפרסם באופן אנונימי",
+      signer_nip07: "מפרסם עם זהות התוסף שלך",
+      signer_nsec: "מפרסם עם המפתח המיובא שלך",
       no_anon_npub: "עדיין אין npub אנונימי",
       anon_npub_ready: "npub אנונימי מוכן",
       npub_generated: "npub אנונימי נוצר:",
@@ -616,6 +740,22 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       checking_identity: "पहचान जांच रहे हैं",
       anon_signing_nip07: "अनाम हस्ताक्षर डिफ़ॉल्ट है; NIP-07 मिला",
       anon_signing_ready: "अनाम हस्ताक्षर उपलब्ध; NIP-07 लॉगिन आवश्यक नहीं",
+      connect_extension: "एक्सटेंशन कनेक्ट करें",
+      use_nsec: "निजी कुंजी (nsec) का उपयोग करें",
+      use_key: "इस कुंजी का उपयोग करें",
+      remember_pin: "इस डिवाइस पर याद रखें (PIN)",
+      pin_prompt: "PIN (4+ अंक)",
+      unlock: "अनलॉक करें",
+      forget_key: "भूल जाएँ",
+      invalid_nsec: "यह एक मान्य nsec कुंजी नहीं लगती।",
+      pin_short: "PIN कम से कम 4 अंकों का होना चाहिए।",
+      pin_wrong: "गलत PIN। पुनः प्रयास करें।",
+      nip07_missing: "कोई NIP-07 एक्सटेंशन नहीं मिला।",
+      identity_locked: "सहेजी गई पहचान लॉक है। इसे अनलॉक करने के लिए अपना PIN दर्ज करें।",
+      locked: "लॉक",
+      signer_anon: "अनाम रूप से प्रकाशित किया जा रहा है",
+      signer_nip07: "आपकी एक्सटेंशन पहचान से प्रकाशित किया जा रहा है",
+      signer_nsec: "आपकी आयातित कुंजी से प्रकाशित किया जा रहा है",
       no_anon_npub: "अभी कोई अनाम npub नहीं",
       anon_npub_ready: "अनाम npub तैयार",
       npub_generated: "अनाम npub बनाया गया:",
@@ -677,6 +817,22 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       checking_identity: "IDを確認中",
       anon_signing_nip07: "匿名署名が標準です; NIP-07を検出しました",
       anon_signing_ready: "匿名署名を利用できます; NIP-07ログインは不要です",
+      connect_extension: "拡張機能を接続",
+      use_nsec: "秘密鍵 (nsec) を使う",
+      use_key: "この鍵を使う",
+      remember_pin: "このデバイスで記憶する (PIN)",
+      pin_prompt: "PIN（4桁以上）",
+      unlock: "ロック解除",
+      forget_key: "破棄",
+      invalid_nsec: "有効な nsec 鍵ではないようです。",
+      pin_short: "PIN は4桁以上にしてください。",
+      pin_wrong: "PIN が違います。もう一度お試しください。",
+      nip07_missing: "NIP-07 拡張機能が見つかりません。",
+      identity_locked: "保存された ID はロックされています。PIN を入力して解除してください。",
+      locked: "ロック中",
+      signer_anon: "匿名で公開します",
+      signer_nip07: "拡張機能の ID で公開します",
+      signer_nsec: "インポートした鍵で公開します",
       no_anon_npub: "匿名npubはまだありません",
       anon_npub_ready: "匿名npub準備完了",
       npub_generated: "匿名npubを生成しました:",
@@ -738,6 +894,22 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       checking_identity: "Verificando identidade",
       anon_signing_nip07: "Assinatura anonima e o padrao; NIP-07 detectado",
       anon_signing_ready: "Assinatura anonima disponivel; login NIP-07 nao necessario",
+      connect_extension: "Conectar extensão",
+      use_nsec: "Usar uma chave privada (nsec)",
+      use_key: "Usar esta chave",
+      remember_pin: "Lembrar neste dispositivo (PIN)",
+      pin_prompt: "PIN (4 ou mais dígitos)",
+      unlock: "Desbloquear",
+      forget_key: "Esquecer",
+      invalid_nsec: "Isso não parece uma chave nsec válida.",
+      pin_short: "O PIN deve ter pelo menos 4 dígitos.",
+      pin_wrong: "PIN incorreto. Tente novamente.",
+      nip07_missing: "Nenhuma extensão NIP-07 encontrada.",
+      identity_locked: "A identidade salva está bloqueada. Digite seu PIN para desbloqueá-la.",
+      locked: "Bloqueada",
+      signer_anon: "Publicando anonimamente",
+      signer_nip07: "Publicando com a identidade da sua extensão",
+      signer_nsec: "Publicando com sua chave importada",
       no_anon_npub: "Ainda nao ha npub anonimo",
       anon_npub_ready: "npub anonimo pronto",
       npub_generated: "npub anonimo gerado:",
@@ -799,6 +971,22 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       checking_identity: "Проверка личности",
       anon_signing_nip07: "Анонимная подпись используется по умолчанию; обнаружен NIP-07",
       anon_signing_ready: "Анонимная подпись доступна; вход NIP-07 не требуется",
+      connect_extension: "Подключить расширение",
+      use_nsec: "Использовать приватный ключ (nsec)",
+      use_key: "Использовать этот ключ",
+      remember_pin: "Запомнить на этом устройстве (PIN)",
+      pin_prompt: "PIN (не менее 4 цифр)",
+      unlock: "Разблокировать",
+      forget_key: "Забыть",
+      invalid_nsec: "Это не похоже на действительный ключ nsec.",
+      pin_short: "PIN должен содержать не менее 4 цифр.",
+      pin_wrong: "Неверный PIN. Попробуйте снова.",
+      nip07_missing: "Расширение NIP-07 не найдено.",
+      identity_locked: "Сохранённая личность заблокирована. Введите PIN, чтобы разблокировать её.",
+      locked: "Заблокировано",
+      signer_anon: "Публикация анонимно",
+      signer_nip07: "Публикация под личностью вашего расширения",
+      signer_nsec: "Публикация вашим импортированным ключом",
       no_anon_npub: "Анонимного npub пока нет",
       anon_npub_ready: "Анонимный npub готов",
       npub_generated: "Анонимный npub создан:",
@@ -860,6 +1048,22 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       checking_identity: "Inakagua utambulisho",
       anon_signing_nip07: "Utiaji saini usiojulikana ndio chaguo msingi; NIP-07 imegunduliwa",
       anon_signing_ready: "Utiaji saini usiojulikana unapatikana; hakuna kuingia kwa NIP-07 kunakohitajika",
+      connect_extension: "Unganisha kiendelezi",
+      use_nsec: "Tumia ufunguo wa faragha (nsec)",
+      use_key: "Tumia ufunguo huu",
+      remember_pin: "Kumbuka kwenye kifaa hiki (PIN)",
+      pin_prompt: "PIN (tarakimu 4 au zaidi)",
+      unlock: "Fungua",
+      forget_key: "Sahau",
+      invalid_nsec: "Huu hauonekani kama ufunguo halali wa nsec.",
+      pin_short: "PIN lazima iwe na tarakimu nne au zaidi.",
+      pin_wrong: "PIN si sahihi. Jaribu tena.",
+      nip07_missing: "Hakuna kiendelezi cha NIP-07 kilichopatikana.",
+      identity_locked: "Kitambulisho kilichohifadhiwa kimefungwa. Weka PIN yako kukifungua.",
+      locked: "Imefungwa",
+      signer_anon: "Inachapisha bila kujulikana",
+      signer_nip07: "Inachapisha kwa kitambulisho cha kiendelezi chako",
+      signer_nsec: "Inachapisha kwa ufunguo wako ulioingizwa",
       no_anon_npub: "Hakuna npub isiyojulikana bado",
       anon_npub_ready: "npub isiyojulikana iko tayari",
       npub_generated: "npub isiyojulikana imetengenezwa:",
@@ -921,6 +1125,22 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       checking_identity: "Kimlik kontrol ediliyor",
       anon_signing_nip07: "Anonim imzalama varsayılandır; NIP-07 algılandı",
       anon_signing_ready: "Anonim imzalama hazır; NIP-07 girişi gerekmez",
+      connect_extension: "Uzantıyı bağla",
+      use_nsec: "Özel anahtar (nsec) kullan",
+      use_key: "Bu anahtarı kullan",
+      remember_pin: "Bu cihazda hatırla (PIN)",
+      pin_prompt: "PIN (4+ rakam)",
+      unlock: "Kilidi aç",
+      forget_key: "Unut",
+      invalid_nsec: "Bu geçerli bir nsec anahtarı gibi görünmüyor.",
+      pin_short: "PIN en az 4 rakam olmalıdır.",
+      pin_wrong: "Yanlış PIN. Tekrar deneyin.",
+      nip07_missing: "NIP-07 uzantısı bulunamadı.",
+      identity_locked: "Kayıtlı kimlik kilitli. Kilidini açmak için PIN'inizi girin.",
+      locked: "Kilitli",
+      signer_anon: "Anonim olarak yayımlanıyor",
+      signer_nip07: "Uzantı kimliğinizle yayımlanıyor",
+      signer_nsec: "İçe aktardığınız anahtarla yayımlanıyor",
       no_anon_npub: "Henüz anonim npub yok",
       anon_npub_ready: "Anonim npub hazır",
       npub_generated: "Anonim npub oluşturuldu:",
@@ -982,6 +1202,22 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       checking_identity: "正在检查身份",
       anon_signing_nip07: "默认使用匿名签名；检测到 NIP-07",
       anon_signing_ready: "匿名签名可用；无需 NIP-07 登录",
+      connect_extension: "连接扩展",
+      use_nsec: "使用私钥 (nsec)",
+      use_key: "使用此密钥",
+      remember_pin: "在此设备上记住 (PIN)",
+      pin_prompt: "PIN（4位以上）",
+      unlock: "解锁",
+      forget_key: "忘记",
+      invalid_nsec: "这看起来不是有效的 nsec 密钥。",
+      pin_short: "PIN 至少需要 4 位数字。",
+      pin_wrong: "PIN 错误。请重试。",
+      nip07_missing: "未找到 NIP-07 扩展。",
+      identity_locked: "已保存的身份已锁定。请输入 PIN 解锁。",
+      locked: "已锁定",
+      signer_anon: "正在匿名发布",
+      signer_nip07: "正在以你的扩展身份发布",
+      signer_nsec: "正在使用你导入的密钥发布",
       no_anon_npub: "还没有匿名 npub",
       anon_npub_ready: "匿名 npub 已就绪",
       npub_generated: "已生成匿名 npub:",
@@ -1249,6 +1485,10 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     });
     const viewerEventInput = el("viewer-event-id");
     if (viewerEventInput) viewerEventInput.placeholder = nostrLabel("lookup_placeholder", selected);
+    ["nsec-pin", "unlock-pin"].forEach((id) => {
+      const node = el(id);
+      if (node) node.placeholder = nostrLabel("pin_prompt", selected);
+    });
 
     LANGUAGE_SELECT_IDS.forEach((selectId) => {
       const select = el(selectId);
@@ -1416,12 +1656,11 @@ Join us in a revolution that values truth and transparency. Together, we can bui
 
   function refreshSignerState() {
     const state = el("signer-state");
-    if (window.nostr && typeof window.nostr.signEvent === "function") {
-      setLocalizedText("signer-state", "anon_signing_nip07");
-      state.style.color = "#1d6b3a";
-      return;
-    }
-    setLocalizedText("signer-state", "anon_signing_ready");
+    if (!state) return;
+    const key = identityMode === "nip07" ? "signer_nip07"
+      : identityMode === "nsec" ? "signer_nsec"
+      : "signer_anon";
+    setLocalizedText("signer-state", key);
     state.style.color = "#1d6b3a";
   }
 
@@ -1474,22 +1713,303 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     return { secretKey, secretHex, pubkey, npub, nsec };
   }
 
+  // ---- Publishing identity (anon / NIP-07 / imported nsec) ----------------
+  // Flyers are signed under one of three identities. "anon" is the per-device
+  // key (default, unchanged). "nip07" signs via the browser extension. "nsec"
+  // signs with a key the user imported; its secret lives only in memory unless
+  // they choose to remember it, in which case it is PIN-encrypted at rest.
+  let identityMode = "anon";    // "anon" | "nip07" | "nsec"
+  let nip07Pubkey = null;       // hex, when mode === "nip07"
+  let importedSecretHex = null; // hex, in-memory only, when mode === "nsec"
+  let importedPubkey = null;    // hex, when mode === "nsec"
+  let lockedNpub = null;        // npub of a stored-but-locked nsec identity
+
+  function npubFromHex(pubkeyHex) {
+    try { return nostrTools().nip19.npubEncode(pubkeyHex); } catch (_) { return pubkeyHex; }
+  }
+
+  // The identity flyers are currently published under: { mode, pubkey, npub }
+  // (never the secret). Falls back to the device anon key.
+  function activeIdentity() {
+    if (identityMode === "nip07" && nip07Pubkey) {
+      return { mode: "nip07", pubkey: nip07Pubkey, npub: npubFromHex(nip07Pubkey) };
+    }
+    if (identityMode === "nsec" && importedPubkey) {
+      return { mode: "nsec", pubkey: importedPubkey, npub: npubFromHex(importedPubkey) };
+    }
+    const anon = getOrCreateAnonIdentity(false);
+    return { mode: "anon", pubkey: anon.pubkey, npub: anon.npub };
+  }
+
+  // Sign an unsigned event with the active identity (extension or local key).
+  async function signActiveEvent(unsigned) {
+    const tools = nostrTools();
+    if (identityMode === "nip07") {
+      if (!(window.nostr && typeof window.nostr.signEvent === "function")) {
+        throw new Error(nostrLabel("nip07_missing", currentUiLang()));
+      }
+      return await window.nostr.signEvent({ ...unsigned, pubkey: nip07Pubkey });
+    }
+    if (identityMode === "nsec") {
+      if (!importedSecretHex) throw new Error(nostrLabel("identity_locked", currentUiLang()));
+      return tools.finalizeEvent(unsigned, hexToBytes(importedSecretHex));
+    }
+    return tools.finalizeEvent(unsigned, getOrCreateAnonIdentity(false).secretKey);
+  }
+
+  function setIdentityError(messageKey) {
+    const node = el("identity-error");
+    if (!node) return;
+    if (messageKey) {
+      node.hidden = false;
+      node.textContent = nostrLabel(messageKey, currentUiLang());
+    } else {
+      node.hidden = true;
+      node.textContent = "";
+    }
+  }
+
+  function persistMode(mode) {
+    try {
+      window.localStorage.setItem(IDENTITY_MODE_STORAGE_KEY, mode);
+      if (mode === "anon") {
+        window.localStorage.removeItem(IDENTITY_NPUB_STORAGE_KEY);
+      } else {
+        window.localStorage.setItem(IDENTITY_NPUB_STORAGE_KEY, activeIdentity().npub);
+      }
+    } catch (_) {}
+  }
+
+  // --- WebCrypto PIN encryption for a remembered nsec (PBKDF2 -> AES-GCM) ---
+  function b64encode(bytes) {
+    let bin = "";
+    bytes.forEach((b) => { bin += String.fromCharCode(b); });
+    return window.btoa(bin);
+  }
+  function b64decode(text) {
+    const bin = window.atob(text);
+    const out = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i += 1) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+  async function deriveAesKey(pin, salt, usage) {
+    const subtle = window.crypto.subtle;
+    const material = await subtle.importKey(
+      "raw", new TextEncoder().encode(pin), "PBKDF2", false, ["deriveKey"]
+    );
+    return subtle.deriveKey(
+      { name: "PBKDF2", salt, iterations: PBKDF2_ITERATIONS, hash: "SHA-256" },
+      material, { name: "AES-GCM", length: 256 }, false, usage
+    );
+  }
+  async function encryptSecretHex(secretHex, pin) {
+    const salt = window.crypto.getRandomValues(new Uint8Array(16));
+    const iv = window.crypto.getRandomValues(new Uint8Array(12));
+    const key = await deriveAesKey(pin, salt, ["encrypt"]);
+    const ct = await window.crypto.subtle.encrypt(
+      { name: "AES-GCM", iv }, key, new TextEncoder().encode(secretHex)
+    );
+    return {
+      v: 1, iters: PBKDF2_ITERATIONS,
+      salt: b64encode(salt), iv: b64encode(iv), ct: b64encode(new Uint8Array(ct))
+    };
+  }
+  async function decryptSecretHex(blob, pin) {
+    const salt = b64decode(blob.salt);
+    const iv = b64decode(blob.iv);
+    const key = await deriveAesKey(pin, salt, ["decrypt"]);
+    const pt = await window.crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, b64decode(blob.ct));
+    const hex = new TextDecoder().decode(pt).trim();
+    if (!/^[0-9a-f]{64}$/i.test(hex)) throw new Error("bad plaintext");
+    return hex.toLowerCase();
+  }
+  function getStoredEnc() {
+    try {
+      const raw = window.localStorage.getItem(IDENTITY_ENC_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function showLockedRow(show) {
+    const row = el("identity-locked-row");
+    if (row) row.hidden = !show;
+  }
+
+  // --- Identity actions wired to the controls ---
+  function chooseAnonIdentity() {
+    identityMode = "anon";
+    nip07Pubkey = null;
+    setIdentityError(null);
+    const imp = el("nsec-import");
+    if (imp) imp.hidden = true;
+    persistMode("anon");
+    refreshSignerState();
+    refreshIdentityState();
+  }
+
+  async function connectNip07Identity() {
+    setIdentityError(null);
+    if (!(window.nostr && typeof window.nostr.getPublicKey === "function")) {
+      setIdentityError("nip07_missing");
+      return;
+    }
+    try {
+      const pk = await window.nostr.getPublicKey();
+      if (!/^[0-9a-f]{64}$/i.test(String(pk || ""))) throw new Error("bad pubkey");
+      nip07Pubkey = String(pk).toLowerCase();
+      identityMode = "nip07";
+      const imp = el("nsec-import");
+      if (imp) imp.hidden = true;
+      persistMode("nip07");
+      refreshSignerState();
+      refreshIdentityState();
+    } catch (_) {
+      setIdentityError("nip07_missing");
+    }
+  }
+
+  function toggleNsecImport() {
+    setIdentityError(null);
+    showLockedRow(false);
+    const row = el("nsec-import");
+    if (!row) return;
+    row.hidden = !row.hidden;
+    if (!row.hidden) { const i = el("nsec-input"); if (i) i.focus(); }
+  }
+
+  async function submitNsecImport() {
+    setIdentityError(null);
+    const tools = nostrTools();
+    const input = el("nsec-input");
+    const raw = String((input && input.value) || "").trim();
+    let secretBytes;
+    let pubkey;
+    try {
+      const decoded = tools.nip19.decode(raw);
+      if (decoded.type !== "nsec") throw new Error("not an nsec");
+      secretBytes = decoded.data;
+      pubkey = tools.getPublicKey(secretBytes);
+    } catch (_) {
+      setIdentityError("invalid_nsec");
+      return;
+    }
+    const remember = Boolean(el("nsec-remember") && el("nsec-remember").checked);
+    if (remember) {
+      const pin = String((el("nsec-pin") && el("nsec-pin").value) || "");
+      if (!/^[0-9]{4,}$/.test(pin)) { setIdentityError("pin_short"); return; }
+      try {
+        const blob = await encryptSecretHex(bytesToHex(secretBytes), pin);
+        window.localStorage.setItem(IDENTITY_ENC_STORAGE_KEY, JSON.stringify(blob));
+      } catch (_) {
+        setIdentityError("invalid_nsec");
+        return;
+      }
+    } else {
+      try { window.localStorage.removeItem(IDENTITY_ENC_STORAGE_KEY); } catch (_) {}
+    }
+    importedSecretHex = bytesToHex(secretBytes);
+    importedPubkey = String(pubkey).toLowerCase();
+    lockedNpub = npubFromHex(importedPubkey);
+    identityMode = "nsec";
+    if (input) input.value = "";
+    if (el("nsec-pin")) el("nsec-pin").value = "";
+    if (el("nsec-import")) el("nsec-import").hidden = true;
+    // Remembered keys persist mode "nsec" (locked on reload); session-only keys
+    // persist "anon" so a reload returns cleanly to anonymous, not a dead lock.
+    persistMode(remember ? "nsec" : "anon");
+    refreshSignerState();
+    refreshIdentityState();
+  }
+
+  async function unlockIdentity() {
+    setIdentityError(null);
+    const blob = getStoredEnc();
+    if (!blob) { showLockedRow(false); chooseAnonIdentity(); return; }
+    const pin = String((el("unlock-pin") && el("unlock-pin").value) || "");
+    let hex;
+    try {
+      hex = await decryptSecretHex(blob, pin);
+    } catch (_) {
+      setIdentityError("pin_wrong");
+      return;
+    }
+    importedSecretHex = hex;
+    importedPubkey = nostrTools().getPublicKey(hexToBytes(hex));
+    lockedNpub = npubFromHex(importedPubkey);
+    identityMode = "nsec";
+    if (el("unlock-pin")) el("unlock-pin").value = "";
+    showLockedRow(false);
+    persistMode("nsec");
+    refreshSignerState();
+    refreshIdentityState();
+  }
+
+  function forgetStoredIdentity() {
+    try {
+      window.localStorage.removeItem(IDENTITY_ENC_STORAGE_KEY);
+      window.localStorage.removeItem(IDENTITY_NPUB_STORAGE_KEY);
+    } catch (_) {}
+    importedSecretHex = null;
+    importedPubkey = null;
+    lockedNpub = null;
+    showLockedRow(false);
+    chooseAnonIdentity();
+  }
+
+  // Restore the chosen identity on load (called from the DOMContentLoaded init).
+  function restoreIdentity() {
+    let mode = "anon";
+    try { mode = window.localStorage.getItem(IDENTITY_MODE_STORAGE_KEY) || "anon"; } catch (_) {}
+    try { lockedNpub = window.localStorage.getItem(IDENTITY_NPUB_STORAGE_KEY) || null; } catch (_) {}
+    if (mode === "nip07") {
+      identityMode = "nip07";
+      if (window.nostr && typeof window.nostr.getPublicKey === "function") {
+        window.nostr.getPublicKey().then((pk) => {
+          if (/^[0-9a-f]{64}$/i.test(String(pk || ""))) {
+            nip07Pubkey = String(pk).toLowerCase();
+            refreshSignerState();
+            refreshIdentityState();
+          }
+        }).catch(() => {});
+      }
+    } else if (mode === "nsec" && getStoredEnc()) {
+      identityMode = "nsec"; // locked until the PIN is entered
+      showLockedRow(true);
+    } else {
+      identityMode = "anon";
+    }
+    refreshSignerState();
+    refreshIdentityState();
+  }
+
   function refreshIdentityState() {
     const state = el("identity-state");
     const output = el("author-npub-output");
     if (!state || !output) return;
     try {
-      const secretHex = getStoredAnonSecret();
-      if (!secretHex) {
+      // nsec mode but no secret in memory yet → it is stored and locked.
+      if (identityMode === "nsec" && !importedPubkey) {
+        setLocalizedText("identity-state", "locked");
+        state.style.color = "#8a4d00";
+        if (lockedNpub) setRealOutput("author-npub-output", lockedNpub);
+        else setEmptyOutput("author-npub-output", "not_generated");
+        return;
+      }
+      if (identityMode === "anon" && !getStoredAnonSecret()) {
         setLocalizedText("identity-state", "no_anon_npub");
         state.style.color = "#8a4d00";
         setEmptyOutput("author-npub-output", "not_generated");
         return;
       }
-      const identity = getOrCreateAnonIdentity(false);
-      setLocalizedText("identity-state", "anon_npub_ready");
+      const id = activeIdentity();
+      const key = id.mode === "nip07" ? "signer_nip07"
+        : id.mode === "nsec" ? "signer_nsec"
+        : "anon_npub_ready";
+      setLocalizedText("identity-state", key);
       state.style.color = "#1d6b3a";
-      setRealOutput("author-npub-output", identity.npub);
+      setRealOutput("author-npub-output", id.npub);
       updatePosterAddressOutputs();
     } catch (error) {
       state.textContent = error.message;
@@ -1672,7 +2192,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     if (!naddrOutput || !posterUrlOutput) return null;
     try {
       const relays = parseRelays(el("editor-relays").value);
-      const identity = getOrCreateAnonIdentity(false);
+      const identity = activeIdentity();
       const payload = buildPayloadFromForm();
       const poster = withPosterUrl(payload, identity, relays);
       setRealOutput("naddr-output", poster.naddr);
@@ -1684,14 +2204,14 @@ Join us in a revolution that values truth and transparency. Together, we can bui
   }
 
   async function signAndPublish(payload, relays) {
-    const identity = getOrCreateAnonIdentity(false);
+    const identity = activeIdentity();
     const poster = withPosterUrl(payload, identity, relays);
-    const signed = nostrTools().finalizeEvent(buildUnsignedEvent(poster.payload), identity.secretKey);
+    const signed = await signActiveEvent(buildUnsignedEvent(poster.payload));
     setRealOutput("author-npub-output", identity.npub);
     setRealOutput("naddr-output", poster.naddr);
     setRealOutput("poster-url-output", poster.posterUrl);
     refreshIdentityState();
-    if (!signed.id || !signed.sig) {
+    if (!signed || !signed.id || !signed.sig) {
       throw new Error("Signer returned an event without id/sig.");
     }
     const results = await publishEvent(signed, relays);
@@ -2249,13 +2769,42 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     el("generate-anon-identity").addEventListener("click", () => {
       try {
         const identity = getOrCreateAnonIdentity(true);
+        identityMode = "anon";
+        nip07Pubkey = null;
+        persistMode("anon");
         setRealOutput("author-npub-output", identity.npub);
+        refreshSignerState();
         refreshIdentityState();
         el("publish-status").textContent = `${nostrLabel("npub_generated", currentUiLang())} ${identity.npub}`;
       } catch (error) {
         el("publish-status").textContent = error.message;
       }
     });
+
+    // Identity mode controls.
+    el("connect-nip07").addEventListener("click", () => {
+      connectNip07Identity().catch(() => setIdentityError("nip07_missing"));
+    });
+    el("use-nsec-toggle").addEventListener("click", toggleNsecImport);
+    el("nsec-remember").addEventListener("change", () => {
+      const pin = el("nsec-pin");
+      if (pin) pin.hidden = !el("nsec-remember").checked;
+    });
+    el("nsec-submit").addEventListener("click", () => {
+      submitNsecImport().catch(() => setIdentityError("invalid_nsec"));
+    });
+    el("nsec-input").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") { event.preventDefault(); el("nsec-submit").click(); }
+    });
+    el("unlock-key").addEventListener("click", () => {
+      unlockIdentity().catch(() => setIdentityError("pin_wrong"));
+    });
+    el("unlock-pin").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") { event.preventDefault(); el("unlock-key").click(); }
+    });
+    el("forget-key").addEventListener("click", forgetStoredIdentity);
+
+    restoreIdentity();
 
     el("preview-editor").addEventListener("click", () => {
       try {
@@ -2270,7 +2819,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       try {
         const payload = buildPayloadFromForm();
         const relays = parseRelays(el("editor-relays").value);
-        const identity = getOrCreateAnonIdentity(false);
+        const identity = activeIdentity();
         const poster = withPosterUrl(payload, identity, relays);
         const event = buildUnsignedEvent(poster.payload);
         setRealOutput("author-npub-output", identity.npub);

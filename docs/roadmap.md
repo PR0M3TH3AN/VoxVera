@@ -7,14 +7,17 @@ roughly in priority order: the trust model (#1–#2) is the highest-leverage are
 because almost every other risk flows from it being undefined.
 
 Status legend: **Open** (not started) · **Partial** (some mitigation exists) ·
-**Planned** (committed direction).
+**Planned** (committed direction) · **In progress** (partially shipped).
 
 ---
 
-## 1. Bulletin board has no moderation or abuse story — **Planned**
+## 1. Bulletin board has no moderation or abuse story — **In progress**
 
-> Direction agreed — see *Planned direction: identity + web-of-trust on the
-> board* below (jointly addresses #1 and #2).
+> Direction agreed and **Phases 1–2 shipped**: the board requires a connected
+> Nostr identity to view, and it now filters to flyers from the viewer's NIP-02
+> web of trust (with a bootstrap seed for new keys). See *Planned direction:
+> identity + web-of-trust on the board* below (jointly addresses #1 and #2).
+> Remaining: degree-2 trust, blocklist/report, NIP-05 badges (Phase 3).
 
 
 **Problem.** `board.html` lists every Nostr event tagged `t=voxvera` / `t=flyer`
@@ -44,7 +47,16 @@ the single biggest liability for promoting the board publicly.
 
 Depends on **#2** (without identity, allowlists/blocklists are weak).
 
-## 2. Anonymous keys give no authenticity or accountability — **Planned**
+## 2. Anonymous keys give no authenticity or accountability — **In progress**
+
+> Phases 1–2 shipped: the board viewer connects a real Nostr identity (NIP-07)
+> and the board is filtered by that viewer's web of trust (with a curator seed
+> for new keys), so spam from unknown authors is hidden by default. The **editor
+> now lets authors publish under their own identity too** — NIP-07, an imported
+> `nsec` (optionally PIN-encrypted at rest), or stay anonymous (default) — so a
+> flyer can carry a stable, identifiable author when the creator wants one.
+> Authenticity *display* on the board (NIP-05 badges, an identified/anonymous
+> distinction) remains ahead.
 
 **Problem.** The client generates a fresh anonymous key per browser, so the
 board's "Posted by" npub is effectively random and there is no way to verify a
@@ -94,23 +106,62 @@ board can show them flyers from people they trust.
   existing anonymous key to a kept identity.
 
 **Phased plan.**
-- **Phase 1 — Identity.** A "Connect" flow (`window.nostr.getPublicKey()` with
-  an nsec-import fallback) establishes the viewer's npub; publish under that key
-  when connected; surface the connected npub. Anonymous create/print stays
-  intact.
-- **Phase 2 — Web-of-trust filter.** Fetch the connected user's NIP-02 contact
-  list and default the board to flyers from authors in their follow graph, with
-  a "show all" opt-out. This is the spam gate.
-- **Phase 3 — Optional.** Local blocklist / "hide this", report-to-list, NIP-05
-  verified badges.
+- **Phase 1 — Identity. ✅ Shipped.** The board (`board.html` / `board.js`) shows
+  a login gate instead of the table until the viewer connects. Three methods: a
+  NIP-07 extension (`window.nostr.getPublicKey()`), pasting an `nsec`, or creating
+  a new key (see decision 2 below). On success it reveals the table, surfaces the
+  connected npub with a Disconnect control, and remembers the pubkey in
+  `localStorage` (`voxvera_connected_pubkey`) so a return visit reconnects from
+  the pubkey alone — no prompt or re-entry, regardless of method. Anonymous
+  create/print is untouched — connecting is required only to *view the board*.
+- **Phase 2 — Web-of-trust filter. ✅ Shipped.** On connect the board fetches
+  the viewer's NIP-02 contact list (kind 3) and defaults to flyers from authors
+  in their follow graph (degree 1) plus themselves, with a **"Show all"**
+  opt-out. **Bootstrap seed:** a viewer with no follow list of their own (a
+  fresh key) is seeded from a pinned curator account's follows
+  (`FALLBACK_CURATOR_PUBKEY` in `board.js` =
+  `npub15jnttpymeytm80hatjqcvhhqhzrhx6gxp8pq0wn93rhnu8s9h9dsha32lx`), so a brand-
+  new viewer still gets a curated board instead of the unmoderated firehose. If
+  no trust data can be fetched at all, the board falls back to showing
+  everything (never mysteriously empty). Covered by the cross-engine e2e suite
+  (followed-only view + show-all opt-out; curator-seeded fallback).
+- **Phase 3 — Optional / next.** Degree-2 trust (follows-of-follows), a local
+  blocklist / "hide this", report-to-list, and NIP-05 verified badges. Also:
+  the bootstrap curator is currently a single hardcoded pubkey — consider making
+  it configurable or a small curated set.
 
-**Open decisions (need a call before building).**
-1. **Board viewing:** login-required (Nostr-native, smaller insider audience) vs
-   open-with-WoT-applied-when-logged-in (broader physical-flyer reach; logged-out
-   sees a curated/limited set). Leaning open-with-WoT, but depends on whether the
-   board is a discovery surface or a members' space.
-2. **Login methods at launch:** NIP-07 only, or NIP-07 + nsec import (so mobile
-   isn't excluded).
+**Decisions made (2026-06-10).**
+1. **Board viewing: login-required.** The board is blank (a Connect prompt)
+   until a Nostr identity is connected — framed as a members' space rather than a
+   public discovery surface.
+2. **Login methods: NIP-07 + nsec import + key generation. ✅ Shipped.** The gate
+   offers three ways in: a NIP-07 browser extension, pasting a private key
+   (`nsec`), or creating a new key. The nsec is decoded **in-page** to derive the
+   pubkey and then discarded — only the pubkey is persisted, since the board only
+   reads (never signs). "Create a new key" reuses this device's existing
+   anonymous key if present (so it doesn't orphan an editor identity) or
+   generates one, and reveals the `nsec` with a "save this — we can't recover it"
+   warning before continuing. This **resolves the earlier mobile-lockout
+   trade-off**: a phone visitor with no extension can now generate or paste a key
+   to view the board. Covered by the cross-engine e2e suite (nsec import +
+   pubkey-only persistence + reload restore; invalid nsec; key generation +
+   reveal + connect).
+
+**Follow-ups this opens.**
+- **In-page nsec handling.** Pasting a secret key into a web page is inherently
+  riskier than a NIP-07 extension that keeps the key isolated; the input is a
+  password field, the value is cleared after use, and nothing is transmitted, but
+  a NIP-46 remote signer would be a safer mobile path to add later.
+- **Editor identity (shipped).** The editor now signs under anon / NIP-07 /
+  imported nsec. A remembered nsec is PIN-encrypted at rest (PBKDF2 600k →
+  AES-GCM); plaintext is never stored. **Known weakness:** a short numeric PIN is
+  brute-forceable offline if the encrypted blob leaks — it guards casual snooping,
+  not a targeted attacker. Next: NIP-46 remote signer; an attempt-limit / lockout
+  on repeated wrong PINs; and optionally encrypting the anonymous device key the
+  same way (today it is stored in plaintext, as before).
+- **Editor vs board identity are independent.** The editor's publishing identity
+  and the board's viewing identity are stored separately and don't yet sync; a
+  future pass could share one connected identity across both pages.
 
 ## 3. Client distribution is centralized (a single chokepoint) — **Open**
 

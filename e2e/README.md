@@ -32,6 +32,23 @@ engine-sensitive surfaces:
 - anonymous key generation works (the **WebCrypto** path)
 - the legacy `/nostr/` redirect preserves the query string and `#hash`
 - an event-lookup URL shows the localized loading state, never the default flyer
+- the bulletin board is gated behind a Nostr connection: the gate shows when no
+  identity is connected, connecting (stubbed `window.nostr`) reveals the table
+  and the connected npub, disconnecting returns to the gate, and a remembered
+  connection auto-restores on revisit
+- the board's alternative connect methods: pasting an `nsec` derives the pubkey,
+  reveals the board, leaves no secret in the DOM or storage, and restores on
+  reload from the pubkey alone; an invalid `nsec` errors without connecting; and
+  "Create a new key" reveals the npub/nsec, stores the device key, then connects
+- the editor's publishing identity: defaults to anonymous; connecting NIP-07
+  (stubbed) signs/publishes under the extension key; importing an `nsec` signs
+  for the session without persisting the secret; an invalid `nsec` errors; a
+  remembered `nsec` is PIN-encrypted at rest (the stored blob never contains the
+  plaintext secret), locks on reload, rejects a wrong PIN, and unlocks with the
+  right one; "Forget" clears the stored identity back to anonymous
+- the board's web-of-trust filter (stubbed relays): a connected viewer sees only
+  flyers from authors in their NIP-02 follow graph, "Show all" opts out to the
+  full set, and a viewer with no follow list is seeded from the curator's follows
 
 ## Running
 

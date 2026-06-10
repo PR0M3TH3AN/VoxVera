@@ -124,6 +124,43 @@ The client and schema helper must:
 - keep attachments unsupported in V1
 - avoid remote frontend dependencies
 
+## Publishing identity
+
+The editor signs flyer events under one of three identities, chosen in the
+identity controls (`activeIdentity` / `signActiveEvent` in `nostr-client.js`):
+
+- **Anonymous (default).** The per-device key in `localStorage`
+  (`voxvera_nostr_anon_secret_hex`); signs locally with `finalizeEvent`.
+  Unchanged behavior — no connection required. "Generate anonymous npub" rolls a
+  fresh device key.
+- **Browser extension (NIP-07).** Signs via `window.nostr.signEvent`; the secret
+  never enters the page. The pubkey is fetched with `getPublicKey()`.
+- **Private key (nsec).** The user pastes an `nsec`; it is decoded to a secret
+  key used to sign with `finalizeEvent`. By default the secret lives **only in
+  memory** for the session. If the user ticks "Remember on this device", the
+  secret is encrypted with a PIN and stored as `voxvera_identity_nsec_enc`; the
+  plaintext secret is never written to storage.
+
+The chosen mode is remembered in `voxvera_identity_mode` (and the npub in
+`voxvera_identity_npub` for display). On reload: NIP-07 re-fetches the pubkey;
+a remembered nsec shows a **locked** state until the PIN is entered (`unlock`);
+a session-only nsec falls back to anonymous. `naddr`/poster-URL/`author npub`
+outputs all reflect the active identity.
+
+**PIN encryption details.** PBKDF2 (`SHA-256`, 600k iterations, random 16-byte
+salt) derives an AES-GCM-256 key (random 12-byte IV); the blob stores
+`{v, iters, salt, iv, ct}` base64. A minimum 4-digit numeric PIN is enforced,
+but longer PINs are allowed and encouraged.
+
+> **Security caveat (documented deliberately).** A short numeric PIN has a tiny
+> keyspace (a 4-digit PIN is ~10,000 combinations), so if the encrypted blob is
+> exfiltrated (targeted XSS, or devtools access on a shared/stolen device) it is
+> brute-forceable offline regardless of PBKDF2 cost. PIN-at-rest protects against
+> casual snooping and untargeted localStorage scraping, **not** a determined or
+> targeted attacker. The NIP-07 extension path (secret never in the page) is the
+> stronger option; a NIP-46 remote signer is a future addition. See
+> [`roadmap.md`](roadmap.md).
+
 ## Print paper size
 
 The flyer supports two print sizes: **US Letter** (8.5×11in) and **A4**
@@ -167,6 +204,34 @@ author+`d` identifier, keeping the latest.
   (`.board-link`, label `bulletin_board`), outside the printable sheet. It must
   never print (hidden in the `@media print` block alongside the other app
   chrome).
+- **The board is gated behind a connected Nostr identity.** On load it shows a
+  login gate (`#board-gate`) instead of the table, with three ways to connect:
+  a **NIP-07** extension (`window.nostr.getPublicKey()`), **pasting an `nsec`**
+  (decoded in-page to derive the pubkey, then discarded — the secret is never
+  stored or transmitted), or **creating a new key** (reuses this device's anon
+  key in `voxvera_nostr_anon_secret_hex` if present, else generates one, and
+  reveals the `nsec` with a save-it warning before continuing). On success it
+  reveals the table and surfaces the connected npub (`#board-identity`) with a
+  Disconnect control. The board only ever needs the *pubkey* (it reads, never
+  signs), so the connected pubkey is remembered in `localStorage`
+  (`voxvera_connected_pubkey`, shared with the main client) and a return visit
+  reconnects from it directly — no prompt or re-entry, any method. This is
+  **not access control** — the events are public on the relays regardless — it
+  establishes the *viewer's* identity for the web-of-trust filter below.
+  Authoring and printing flyers stays fully anonymous and never requires
+  connecting.
+- **Web-of-trust filter (NIP-02).** Once connected, the board fetches the
+  viewer's contact list (kind 3) and defaults to showing only flyers whose
+  author is in the viewer's follow graph (degree 1) plus the viewer themself. A
+  **"Show all"** checkbox opts out to the full relay firehose. A viewer with no
+  follow list of their own (a fresh key) is **seeded** from a pinned curator
+  account's follows (`FALLBACK_CURATOR_PUBKEY` in `board.js`), so a brand-new
+  viewer still gets a curated board. If no trust data can be fetched at all, the
+  board falls back to showing everything so it is never mysteriously empty. The
+  `#board-filter-note` explains which mode is active (following / seeded / all),
+  and re-localizes with the language selector. See [`roadmap.md`](roadmap.md)
+  for the phased plan (Phase 1 = the gate; Phase 2 = this filter; Phase 3 =
+  degree-2 trust, blocklist/report, NIP-05 badges).
 - `board.js` is independent of `nostr-client.js` (which exports nothing), so its
   UI strings live in `BOARD_UI` (all supported languages); it reuses the
   vendored nostr-tools and `locales.js` (for language names + RTL direction).
@@ -180,8 +245,9 @@ author+`d` identifier, keeping the latest.
 - The npub column is forward-looking — anonymous keys today, but a stable
   identity per author maps cleanly onto this view later.
 
-The board has no moderation and anonymous keys provide no authenticity yet;
-these and other product/threat-model gaps are tracked in
+The login gate (Phase 1) and the web-of-trust filter (Phase 2) are in place.
+Remaining gaps — degree-2 trust, a blocklist/report flow, NIP-05 badges, and
+making the bootstrap curator configurable — are tracked in
 [`roadmap.md`](roadmap.md).
 
 ## Localization

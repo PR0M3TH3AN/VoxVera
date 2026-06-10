@@ -428,6 +428,124 @@ test.describe("VoxVera static client", () => {
     await expect(modal).toBeHidden();
   });
 
+  test("editor defaults to anonymous signing", async ({ page }) => {
+    await page.goto("/#editor");
+    await expect(page.locator("#signer-state")).toHaveText("Publishing anonymously");
+  });
+
+  test("editor can connect a NIP-07 identity and publish under it", async ({ page }) => {
+    const PK = "a".repeat(64);
+    await page.addInitScript((pk) => {
+      window.nostr = {
+        getPublicKey: async () => pk,
+        // Return a plausibly-signed event so the publish path completes.
+        signEvent: async (e) => ({ ...e, pubkey: pk, id: "f".repeat(64), sig: "0".repeat(128) })
+      };
+      class FakeWS {
+        constructor() { this.readyState = 1; setTimeout(() => this.onopen && this.onopen(), 1); }
+        send(data) {
+          try {
+            const m = JSON.parse(data);
+            if (m[0] === "EVENT" && m[1] && m[1].id) {
+              const id = m[1].id;
+              setTimeout(() => this.onmessage && this.onmessage({ data: JSON.stringify(["OK", id, true, ""]) }), 1);
+            }
+          } catch (_) {}
+        }
+        close() {}
+      }
+      window.WebSocket = FakeWS;
+    }, PK);
+    await page.goto("/#editor");
+    const expectedNpub = await page.evaluate((pk) => window.NostrTools.nip19.npubEncode(pk), PK);
+    await page.locator("#connect-nip07").click();
+    await expect(page.locator("#signer-state")).toHaveText("Publishing as your extension identity");
+    await expect(page.locator("#author-npub-output")).toHaveText(expectedNpub);
+    // Publishing routes through window.nostr.signEvent and still shows the modal.
+    await page.locator("#publish-event").click();
+    await expect(page.locator("#publish-modal")).toBeVisible();
+  });
+
+  test("editor imports an nsec for the session without storing the secret", async ({ page }) => {
+    await page.goto("/#editor");
+    const { nsec, npub } = await page.evaluate(() => {
+      const t = window.NostrTools;
+      const sk = t.generateSecretKey();
+      return { nsec: t.nip19.nsecEncode(sk), npub: t.nip19.npubEncode(t.getPublicKey(sk)) };
+    });
+    await page.locator("#use-nsec-toggle").click();
+    await page.locator("#nsec-input").fill(nsec);
+    await page.locator("#nsec-submit").click();
+    await expect(page.locator("#signer-state")).toHaveText("Publishing as your imported key");
+    await expect(page.locator("#author-npub-output")).toHaveText(npub);
+    // No "remember" → nothing encrypted is stored, and the mode falls back to
+    // anonymous on reload (so no dead lock).
+    expect(await page.evaluate(() => localStorage.getItem("voxvera_identity_nsec_enc"))).toBeNull();
+    expect(await page.evaluate(() => localStorage.getItem("voxvera_identity_mode"))).toBe("anon");
+  });
+
+  test("an invalid nsec in the editor shows an error", async ({ page }) => {
+    await page.goto("/#editor");
+    await page.locator("#use-nsec-toggle").click();
+    await page.locator("#nsec-input").fill("nsec1clearlynotvalid");
+    await page.locator("#nsec-submit").click();
+    await expect(page.locator("#identity-error")).toContainText(/valid nsec/i);
+    await expect(page.locator("#signer-state")).toHaveText("Publishing anonymously");
+  });
+
+  test("a remembered nsec is PIN-encrypted at rest and unlocks on reload", async ({ page }) => {
+    await page.goto("/#editor");
+    const { nsec, npub, hex } = await page.evaluate(() => {
+      const t = window.NostrTools;
+      const sk = t.generateSecretKey();
+      const toHex = (b) => Array.from(b, (x) => x.toString(16).padStart(2, "0")).join("");
+      return { nsec: t.nip19.nsecEncode(sk), npub: t.nip19.npubEncode(t.getPublicKey(sk)), hex: toHex(sk) };
+    });
+    await page.locator("#use-nsec-toggle").click();
+    await page.locator("#nsec-input").fill(nsec);
+    await page.locator("#nsec-remember").check();
+    await page.locator("#nsec-pin").fill("13579");
+    await page.locator("#nsec-submit").click();
+    await expect(page.locator("#signer-state")).toHaveText("Publishing as your imported key");
+    // What's stored is an AES-GCM blob, never the plaintext secret.
+    const stored = await page.evaluate(() => localStorage.getItem("voxvera_identity_nsec_enc"));
+    expect(stored).toBeTruthy();
+    expect(stored).not.toContain(hex);
+    expect(stored).not.toContain(nsec);
+    expect(JSON.parse(stored)).toHaveProperty("ct");
+
+    // Reload → the identity is locked and requires the PIN. (reload() forces a
+    // real document load; goto("/#editor") here would be a same-document hash
+    // change that keeps JS memory, so the in-memory key would never clear.)
+    await page.reload();
+    await expect(page.locator("#identity-locked-row")).toBeVisible();
+    await expect(page.locator("#identity-state")).toHaveText("Locked");
+    // Wrong PIN is rejected.
+    await page.locator("#unlock-pin").fill("00000");
+    await page.locator("#unlock-key").click();
+    await expect(page.locator("#identity-error")).toContainText(/Wrong PIN/i);
+    // Correct PIN unlocks and restores the imported identity.
+    await page.locator("#unlock-pin").fill("13579");
+    await page.locator("#unlock-key").click();
+    await expect(page.locator("#signer-state")).toHaveText("Publishing as your imported key");
+    await expect(page.locator("#author-npub-output")).toHaveText(npub);
+  });
+
+  test("forgetting a stored identity clears it and returns to anonymous", async ({ page }) => {
+    await page.goto("/#editor");
+    const nsec = await page.evaluate(() => window.NostrTools.nip19.nsecEncode(window.NostrTools.generateSecretKey()));
+    await page.locator("#use-nsec-toggle").click();
+    await page.locator("#nsec-input").fill(nsec);
+    await page.locator("#nsec-remember").check();
+    await page.locator("#nsec-pin").fill("2468");
+    await page.locator("#nsec-submit").click();
+    await page.reload();
+    await expect(page.locator("#identity-locked-row")).toBeVisible();
+    await page.locator("#forget-key").click();
+    await expect(page.locator("#signer-state")).toHaveText("Publishing anonymously");
+    expect(await page.evaluate(() => localStorage.getItem("voxvera_identity_nsec_enc"))).toBeNull();
+  });
+
   test("bulletin board language selector localizes the page", async ({ page }) => {
     await page.goto("/board.html");
     await expect(page.locator("#board-title")).toHaveText("Bulletin Board");
