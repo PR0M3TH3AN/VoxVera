@@ -1741,14 +1741,42 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     return { mode: "anon", pubkey: anon.pubkey, npub: anon.npub };
   }
 
+  // Resolve the concrete pubkey the active identity will sign with. For NIP-07
+  // this fetches the extension's pubkey if it has not loaded yet, so the poster
+  // naddr is always built from the SAME key that signs (rather than silently
+  // falling back to the anonymous key — which produced flyers whose naddr
+  // pointed at the wrong author).
+  async function resolveActivePubkey() {
+    if (identityMode === "nip07") {
+      if (!nip07Pubkey) {
+        if (!(window.nostr && typeof window.nostr.getPublicKey === "function")) {
+          throw new Error(nostrLabel("nip07_missing", currentUiLang()));
+        }
+        const pk = await window.nostr.getPublicKey();
+        if (!/^[0-9a-f]{64}$/i.test(String(pk || ""))) {
+          throw new Error(nostrLabel("nip07_missing", currentUiLang()));
+        }
+        nip07Pubkey = String(pk).toLowerCase();
+      }
+      return nip07Pubkey;
+    }
+    if (identityMode === "nsec") {
+      if (!importedPubkey) throw new Error(nostrLabel("identity_locked", currentUiLang()));
+      return importedPubkey;
+    }
+    return getOrCreateAnonIdentity(false).pubkey;
+  }
+
   // Sign an unsigned event with the active identity (extension or local key).
-  async function signActiveEvent(unsigned) {
+  // pubkeyHex is the resolved signing key, used so the NIP-07 event carries the
+  // same pubkey the naddr was built from.
+  async function signActiveEvent(unsigned, pubkeyHex) {
     const tools = nostrTools();
     if (identityMode === "nip07") {
       if (!(window.nostr && typeof window.nostr.signEvent === "function")) {
         throw new Error(nostrLabel("nip07_missing", currentUiLang()));
       }
-      return await window.nostr.signEvent({ ...unsigned, pubkey: nip07Pubkey });
+      return await window.nostr.signEvent({ ...unsigned, pubkey: pubkeyHex || nip07Pubkey });
     }
     if (identityMode === "nsec") {
       if (!importedSecretHex) throw new Error(nostrLabel("identity_locked", currentUiLang()));
@@ -2225,16 +2253,24 @@ Join us in a revolution that values truth and transparency. Together, we can bui
   }
 
   async function signAndPublish(payload, relays) {
-    const identity = activeIdentity();
+    // Resolve the exact signing pubkey FIRST, then build the poster naddr from
+    // it, so the naddr can never point at a different author than the signer.
+    const pubkey = await resolveActivePubkey();
+    const identity = { pubkey, npub: npubFromHex(pubkey) };
     const poster = withPosterUrl(payload, identity, relays);
-    const signed = await signActiveEvent(buildUnsignedEvent(poster.payload));
+    const signed = await signActiveEvent(buildUnsignedEvent(poster.payload), pubkey);
+    if (!signed || !signed.id || !signed.sig) {
+      throw new Error("Signer returned an event without id/sig.");
+    }
+    // Guard against a signer that used a different key than the naddr was built
+    // from — publishing that would create an unresolvable poster URL.
+    if (String(signed.pubkey || "").toLowerCase() !== pubkey.toLowerCase()) {
+      throw new Error("Signer key does not match the poster address; not publishing.");
+    }
     setRealOutput("author-npub-output", identity.npub);
     setRealOutput("naddr-output", poster.naddr);
     setRealOutput("poster-url-output", poster.posterUrl);
     refreshIdentityState();
-    if (!signed || !signed.id || !signed.sig) {
-      throw new Error("Signer returned an event without id/sig.");
-    }
     const results = await publishEvent(signed, relays);
     return { event: signed, results, naddr: poster.naddr, posterUrl: poster.posterUrl, payload: poster.payload };
   }

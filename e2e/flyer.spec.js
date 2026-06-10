@@ -574,6 +574,53 @@ test.describe("VoxVera static client", () => {
     // Publishing routes through window.nostr.signEvent and still shows the modal.
     await page.locator("#publish-event").click();
     await expect(page.locator("#publish-modal")).toBeVisible();
+    // The poster naddr must encode the SAME pubkey that signed (not the anon key).
+    const url = await page.locator("#publish-modal-url").inputValue();
+    const naddrPk = await page.evaluate(
+      (u) => window.NostrTools.nip19.decode(u.split("#")[1]).data.pubkey,
+      url
+    );
+    expect(naddrPk).toBe(PK);
+  });
+
+  test("NIP-07 publish builds the naddr from the signer even before the pubkey loads", async ({ page }) => {
+    // Regression: a flyer signed via NIP-07 had its poster naddr built from the
+    // anonymous key whenever window.nostr.getPublicKey hadn't resolved yet (e.g.
+    // right after a reload restored nip07 mode) — so the poster URL pointed at
+    // the wrong author and would not load back. The naddr must match the signer.
+    const PK = "b".repeat(64);
+    await page.addInitScript((pk) => {
+      // nip07 mode persisted (as after a reload), and getPublicKey is slow, so at
+      // publish time the pubkey is not yet cached — the old bug's trigger.
+      localStorage.setItem("voxvera_identity_mode", "nip07");
+      window.nostr = {
+        getPublicKey: () => new Promise((res) => setTimeout(() => res(pk), 400)),
+        signEvent: async (e) => ({ ...e, pubkey: pk, id: "f".repeat(64), sig: "0".repeat(128) })
+      };
+      class FakeWS {
+        constructor() { this.readyState = 1; setTimeout(() => this.onopen && this.onopen(), 1); }
+        send(data) {
+          try {
+            const m = JSON.parse(data);
+            if (m[0] === "EVENT" && m[1] && m[1].id) {
+              setTimeout(() => this.onmessage && this.onmessage({ data: JSON.stringify(["OK", m[1].id, true, ""]) }), 1);
+            }
+          } catch (_) {}
+        }
+        close() {}
+      }
+      window.WebSocket = FakeWS;
+    }, PK);
+    await page.goto("/#editor");
+    // Publish right away, while getPublicKey is still pending (pubkey not cached).
+    await page.locator("#publish-event").click();
+    await expect(page.locator("#publish-modal")).toBeVisible();
+    const url = await page.locator("#publish-modal-url").inputValue();
+    const naddrPk = await page.evaluate(
+      (u) => window.NostrTools.nip19.decode(u.split("#")[1]).data.pubkey,
+      url
+    );
+    expect(naddrPk).toBe(PK);
   });
 
   test("editor imports an nsec for the session without storing the secret", async ({ page }) => {
