@@ -17,15 +17,63 @@
       </div>
       <div class="topbar-controls">
         <a id="board-back" class="board-back" href="/">Back to VoxVera</a>
+        <span id="board-identity" class="board-identity" hidden>
+          <span id="board-identity-npub" class="board-npub"></span>
+          <button id="board-disconnect" type="button" class="board-disconnect">Disconnect</button>
+        </span>
         <select id="board-lang" aria-label="Language"></select>
       </div>
     </header>
     <main class="board-main">
-      <p id="board-status">Loading…</p>
-      <table class="board-table" id="board-table">
-        <thead><tr id="board-head"></tr></thead>
-        <tbody id="board-rows"></tbody>
-      </table>
+      <!-- Login gate: the board is visible only to a connected Nostr identity.
+           The data itself is public on the relays, so this is not access
+           control — it supplies the viewer's identity so a later web-of-trust
+           filter can show them a trustworthy board (see docs/roadmap.md). -->
+      <section id="board-gate" class="board-gate">
+        <h2 id="board-gate-title">Connect to view the board</h2>
+        <p id="board-gate-body">Connect a Nostr identity to view the bulletin board.</p>
+        <div class="board-connect-methods">
+          <button id="board-connect" type="button" class="board-connect">Browser extension (NIP-07)</button>
+          <button id="board-connect-nsec-toggle" type="button" class="board-connect-alt">Use a private key (nsec)</button>
+          <button id="board-generate" type="button" class="board-connect-alt">Create a new key</button>
+        </div>
+        <!-- nsec import: the key is decoded in-page to derive the pubkey, then
+             discarded. Only the pubkey is persisted (board never signs). -->
+        <div id="board-nsec-row" class="board-nsec-row" hidden>
+          <input id="board-nsec-input" type="password" autocomplete="off" spellcheck="false" placeholder="nsec1…">
+          <button id="board-nsec-submit" type="button" class="board-connect">Connect</button>
+          <p id="board-nsec-note" class="board-key-note"></p>
+        </div>
+        <!-- Generated key reveal: shown once so the user can save the secret. -->
+        <div id="board-generated" class="board-generated" hidden>
+          <p id="board-gen-warning" class="board-key-warning"></p>
+          <label class="board-key-field">npub
+            <input id="board-gen-npub" readonly>
+          </label>
+          <label class="board-key-field">nsec
+            <span class="board-key-secret">
+              <input id="board-gen-nsec" type="password" readonly>
+              <button id="board-gen-copy" type="button" class="board-disconnect">Copy</button>
+            </span>
+          </label>
+          <button id="board-gen-continue" type="button" class="board-connect">Continue</button>
+        </div>
+        <p id="board-gate-error" class="board-gate-error" role="alert" hidden></p>
+      </section>
+      <div id="board-content" hidden>
+        <div class="board-filter">
+          <span id="board-filter-note" class="board-filter-note"></span>
+          <label class="board-show-all">
+            <input type="checkbox" id="board-show-all">
+            <span id="board-show-all-label">Show all flyers</span>
+          </label>
+        </div>
+        <p id="board-status">Loading…</p>
+        <table class="board-table" id="board-table">
+          <thead><tr id="board-head"></tr></thead>
+          <tbody id="board-rows"></tbody>
+        </table>
+      </div>
     </main>
     <script src="/locales.js"></script>
     <script src="/vendor/nostr-tools/nostr.bundle.js"></script>

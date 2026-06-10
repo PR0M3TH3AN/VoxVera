@@ -1055,6 +1055,171 @@ body.mode-viewer #viewer-panel.drawer-open .result-panel {
   color: var(--accent);
 }
 
+/* ---- Bulletin board login gate (NIP-07) ---- */
+.board-gate {
+  max-width: 520px;
+  margin: 48px auto;
+  text-align: center;
+}
+
+.board-gate h2 {
+  margin: 0 0 8px;
+  font-size: 22px;
+}
+
+.board-gate p {
+  color: var(--muted);
+  margin: 0 0 20px;
+  line-height: 1.4;
+}
+
+.board-connect {
+  font: inherit;
+  font-weight: 700;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+.board-connect:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.board-gate-error {
+  color: #8a4d00;
+  margin: 16px 0 0;
+}
+
+.board-connect-methods {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.board-connect-alt {
+  font: inherit;
+  font-size: 14px;
+  padding: 8px 18px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.board-nsec-row,
+.board-generated {
+  max-width: 420px;
+  margin: 18px auto 0;
+  text-align: left;
+}
+
+.board-nsec-row input,
+.board-key-field input {
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.board-nsec-row .board-connect {
+  margin-top: 8px;
+}
+
+.board-key-note {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 8px 0 0;
+}
+
+.board-key-warning {
+  color: #8a4d00;
+  font-size: 13px;
+  margin: 0 0 12px;
+  line-height: 1.4;
+}
+
+.board-key-field {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0 0 10px;
+}
+
+.board-key-field input {
+  margin-top: 4px;
+  font-family: "Courier New", monospace;
+}
+
+.board-key-secret {
+  display: flex;
+  gap: 6px;
+  align-items: stretch;
+}
+
+.board-key-secret input {
+  flex: 1;
+}
+
+.board-identity {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* The `hidden` attribute must win over the display rule above. */
+.board-identity[hidden] {
+  display: none;
+}
+
+.board-identity .board-npub {
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.board-disconnect {
+  font: inherit;
+  font-size: 13px;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+/* Web-of-trust filter bar above the board table. */
+.board-filter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 4px 0 12px;
+}
+
+.board-filter-note {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.board-show-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
 /* ---- Publish confirmation modal ---- */
 .modal-overlay {
   position: fixed;

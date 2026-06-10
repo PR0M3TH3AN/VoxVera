@@ -16,6 +16,80 @@ function trackErrors(page) {
   return errors;
 }
 
+/** Install a fake NIP-07 provider (window.nostr) so the board's login gate can
+ *  be satisfied headlessly — no real extension exists in CI. */
+function stubNip07(page, pubkeyHex) {
+  const pk = pubkeyHex || "1".repeat(64);
+  return page.addInitScript((hex) => {
+    window.nostr = {
+      getPublicKey: async () => hex,
+      signEvent: async (e) => e
+    };
+  }, pk);
+}
+
+/** Stub all relay WebSockets so the board's REQs are answered from a fixed set
+ *  of events (no real network). Events are matched against the REQ filter by
+ *  kind, authors, and the `#t` tag, then streamed back followed by EOSE. */
+function stubRelays(page, events) {
+  return page.addInitScript((evts) => {
+    function matches(ev, filter) {
+      if (filter.kinds && filter.kinds.indexOf(ev.kind) === -1) return false;
+      if (filter.authors && filter.authors.indexOf(ev.pubkey) === -1) return false;
+      if (filter["#t"]) {
+        const tvals = (ev.tags || []).filter((x) => x[0] === "t").map((x) => x[1]);
+        if (!filter["#t"].some((v) => tvals.indexOf(v) !== -1)) return false;
+      }
+      return true;
+    }
+    class FakeWS {
+      constructor() { this.readyState = 1; setTimeout(() => this.onopen && this.onopen(), 1); }
+      send(data) {
+        let m;
+        try { m = JSON.parse(data); } catch (_) { return; }
+        if (m[0] !== "REQ") return;
+        const sub = m[1];
+        const filter = m[2] || {};
+        const out = evts.filter((ev) => matches(ev, filter));
+        setTimeout(() => {
+          out.forEach((ev) => this.onmessage && this.onmessage({ data: JSON.stringify(["EVENT", sub, ev]) }));
+          this.onmessage && this.onmessage({ data: JSON.stringify(["EOSE", sub]) });
+        }, 1);
+      }
+      close() {}
+    }
+    window.WebSocket = FakeWS;
+  }, events || []);
+}
+
+// Pubkeys used by the web-of-trust tests. ME matches stubNip07's default.
+const ME = "1".repeat(64);
+const TRUSTED = "a".repeat(64);
+const UNTRUSTED = "b".repeat(64);
+const CURATOR = "a4a6b5849bc917b3befd5c81865ee0b88773690609c207ba6588ef3e1e05b95b";
+
+function flyerEvent(id, pubkey, title) {
+  return {
+    id,
+    kind: 30078,
+    pubkey,
+    created_at: 2000,
+    tags: [["d", "voxvera:" + id], ["t", "voxvera"], ["t", "flyer"]],
+    content: JSON.stringify({ type: "voxvera_flyer", title, lang: "en", url: "https://example.com/" + id })
+  };
+}
+
+function contactList(pubkey, follows) {
+  return {
+    id: "contacts-" + pubkey.slice(0, 6),
+    kind: 3,
+    pubkey,
+    created_at: 1000,
+    tags: follows.map((p) => ["p", p]),
+    content: ""
+  };
+}
+
 test.describe("VoxVera static client", () => {
   test("loads the default flyer with no JS errors", async ({ page }) => {
     const errors = trackErrors(page);
@@ -160,8 +234,13 @@ test.describe("VoxVera static client", () => {
   });
 
   test("bulletin board page renders localized, sortable columns", async ({ page }) => {
+    await stubNip07(page);
+    await stubRelays(page, []);
     await page.goto("/board.html");
     await expect(page.locator("#board-title")).toHaveText("Bulletin Board");
+    // The board is gated: connect a (stubbed) Nostr identity to reveal it.
+    await page.locator("#board-connect").click();
+    await expect(page.locator("#board-content")).toBeVisible();
     const headers = page.locator("#board-head th");
     await expect(headers).toHaveCount(5);
     await expect(headers.nth(0)).toContainText("Title");
@@ -174,6 +253,136 @@ test.describe("VoxVera static client", () => {
     // Clicking the Title header makes it the active ascending sort.
     await headers.nth(0).click();
     await expect(headers.nth(0).locator(".sort-indicator")).toContainText("▲");
+  });
+
+  test("bulletin board is gated behind a Nostr connection", async ({ page }) => {
+    // No NIP-07 provider: the gate is shown, the table is hidden, and trying to
+    // connect reports that no extension was found.
+    await page.goto("/board.html");
+    await expect(page.locator("#board-gate")).toBeVisible();
+    await expect(page.locator("#board-content")).toBeHidden();
+    await expect(page.locator("#board-identity")).toBeHidden();
+    await page.locator("#board-connect").click();
+    await expect(page.locator("#board-gate-error")).toContainText(/No Nostr extension/i);
+  });
+
+  test("connecting a Nostr identity reveals the board and disconnect hides it", async ({ page }) => {
+    await stubNip07(page);
+    await stubRelays(page, []);
+    await page.goto("/board.html");
+    await expect(page.locator("#board-content")).toBeHidden();
+    await page.locator("#board-connect").click();
+    // Board content appears and the connected npub is surfaced.
+    await expect(page.locator("#board-content")).toBeVisible();
+    await expect(page.locator("#board-identity")).toBeVisible();
+    await expect(page.locator("#board-identity-npub")).toContainText(/^npub1/);
+    // Disconnect returns to the gate.
+    await page.locator("#board-disconnect").click();
+    await expect(page.locator("#board-gate")).toBeVisible();
+    await expect(page.locator("#board-content")).toBeHidden();
+  });
+
+  test("a remembered connection auto-restores on revisit", async ({ page }) => {
+    await stubNip07(page);
+    await stubRelays(page, []);
+    await page.goto("/board.html");
+    await page.locator("#board-connect").click();
+    await expect(page.locator("#board-content")).toBeVisible();
+    // The pubkey was remembered, so a fresh load connects without a click.
+    await page.reload();
+    await expect(page.locator("#board-content")).toBeVisible();
+    await expect(page.locator("#board-gate")).toBeHidden();
+  });
+
+  test("connecting by pasting an nsec derives the pubkey and reveals the board", async ({ page }) => {
+    // No NIP-07 here — the nsec path must work without an extension (mobile).
+    await stubRelays(page, []);
+    await page.goto("/board.html");
+    // Build a valid nsec in-page and capture the npub it should resolve to.
+    const { nsec, npub } = await page.evaluate(() => {
+      const t = window.NostrTools;
+      const sk = t.generateSecretKey();
+      return { nsec: t.nip19.nsecEncode(sk), npub: t.nip19.npubEncode(t.getPublicKey(sk)) };
+    });
+    await page.locator("#board-connect-nsec-toggle").click();
+    await page.locator("#board-nsec-input").fill(nsec);
+    await page.locator("#board-nsec-submit").click();
+    await expect(page.locator("#board-content")).toBeVisible();
+    await expect(page.locator("#board-identity-npub")).toContainText(npub.slice(0, 12));
+    // The secret is not left in the input, and only the pubkey is remembered.
+    await expect(page.locator("#board-nsec-input")).toHaveValue("");
+    expect(await page.evaluate(() => localStorage.getItem("voxvera_connected_pubkey"))).toMatch(/^[0-9a-f]{64}$/);
+    expect(await page.evaluate(() => localStorage.getItem("voxvera_nostr_anon_secret_hex"))).toBeNull();
+    // A reload restores the session from the pubkey alone (no nsec re-entry).
+    await page.reload();
+    await expect(page.locator("#board-content")).toBeVisible();
+  });
+
+  test("an invalid nsec shows an error and does not connect", async ({ page }) => {
+    await page.goto("/board.html");
+    await page.locator("#board-connect-nsec-toggle").click();
+    await page.locator("#board-nsec-input").fill("nsec1notarealkey");
+    await page.locator("#board-nsec-submit").click();
+    await expect(page.locator("#board-gate-error")).toContainText(/valid nsec/i);
+    await expect(page.locator("#board-content")).toBeHidden();
+  });
+
+  test("creating a new key reveals the secret then connects", async ({ page }) => {
+    await stubRelays(page, []);
+    await page.goto("/board.html");
+    await page.locator("#board-generate").click();
+    // The new key is revealed (npub + nsec) so the user can save it.
+    await expect(page.locator("#board-generated")).toBeVisible();
+    await expect(page.locator("#board-gen-npub")).toHaveValue(/^npub1[0-9a-z]+/);
+    await expect(page.locator("#board-gen-nsec")).toHaveValue(/^nsec1[0-9a-z]+/);
+    // It is stored as the device key (shared with the editor's anon identity).
+    expect(await page.evaluate(() => localStorage.getItem("voxvera_nostr_anon_secret_hex"))).toMatch(/^[0-9a-f]{64}$/);
+    await page.locator("#board-gen-continue").click();
+    await expect(page.locator("#board-content")).toBeVisible();
+    await expect(page.locator("#board-identity-npub")).toContainText(/^npub1/);
+  });
+
+  test("web-of-trust filter shows only followed authors, with a show-all opt-out", async ({ page }) => {
+    // The connected viewer follows TRUSTED (but not UNTRUSTED).
+    await stubNip07(page, ME);
+    await stubRelays(page, [
+      contactList(ME, [TRUSTED]),
+      flyerEvent("trusted", TRUSTED, "Trusted Flyer"),
+      flyerEvent("untrusted", UNTRUSTED, "Untrusted Flyer")
+    ]);
+    await page.goto("/board.html");
+    await page.locator("#board-connect").click();
+    await expect(page.locator("#board-content")).toBeVisible();
+    // Only the followed author's flyer is shown by default.
+    await expect(page.locator("#board-rows")).toContainText("Trusted Flyer");
+    await expect(page.locator("#board-rows")).not.toContainText("Untrusted Flyer");
+    await expect(page.locator("#board-filter-note")).toContainText(/people you follow/i);
+    await expect(page.locator("#board-show-all")).not.toBeChecked();
+    // Opting in to "show all" reveals the untrusted flyer too. Click the label
+    // (WebKit can report the bare checkbox as not actionable); this is also how
+    // a user toggles it.
+    await page.locator("#board-show-all-label").click();
+    await expect(page.locator("#board-show-all")).toBeChecked();
+    await expect(page.locator("#board-rows")).toContainText("Untrusted Flyer");
+    await expect(page.locator("#board-filter-note")).toContainText(/all flyers/i);
+  });
+
+  test("a viewer with no follow list is seeded from the curator's web of trust", async ({ page }) => {
+    // The connected viewer has NO contact list; the curator follows TRUSTED, so
+    // the board seeds its trust set from the curator and still hides UNTRUSTED.
+    await stubNip07(page, ME);
+    await stubRelays(page, [
+      contactList(CURATOR, [TRUSTED]),
+      flyerEvent("trusted", TRUSTED, "Trusted Flyer"),
+      flyerEvent("untrusted", UNTRUSTED, "Untrusted Flyer")
+    ]);
+    await page.goto("/board.html");
+    await page.locator("#board-connect").click();
+    await expect(page.locator("#board-content")).toBeVisible();
+    await expect(page.locator("#board-rows")).toContainText("Trusted Flyer");
+    await expect(page.locator("#board-rows")).not.toContainText("Untrusted Flyer");
+    // The note explains this is a seeded/curated set, not the viewer's own graph.
+    await expect(page.locator("#board-filter-note")).toContainText(/don't follow anyone yet|curated/i);
   });
 
   test("bulletin board assets use root-absolute paths (cleanUrls/trailingSlash safe)", async ({ page }) => {
