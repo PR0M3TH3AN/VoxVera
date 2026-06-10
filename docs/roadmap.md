@@ -21,6 +21,11 @@ The trust model (#1–#2) has moved from undefined to implemented:
 - **Editor publishing identity** — authors can publish anonymously (default),
   via NIP-07, or with an imported `nsec` that is optionally PIN-encrypted at
   rest (PBKDF2 → AES-GCM; plaintext never stored).
+- **Flyer management (edit / re-publish / delete)** — an author can edit a
+  loaded flyer (re-publish replaces in place via the `d` tag), re-publish as a
+  keep-alive, or delete it. Delete is belt-and-suspenders: a replaceable
+  **tombstone** (so the board/viewer hide it even on relays that ignore NIP-09)
+  plus a **NIP-09** deletion request. Best-effort, author-only.
 
 All of the above is localized across the 14 languages and covered by the
 cross-engine Playwright suite. **What remains** on #1–#2 is polish (degree-2
@@ -204,7 +209,11 @@ of mirrors is unsolved, so in practice users depend on the canonical domain.
 - Publish the client itself to a content-addressed network so the front door is
   not a single DNS name.
 
-## 4. Relay permanence is overstated — **Open**
+## 4. Relay permanence is overstated — **Partial**
+
+> Partial mitigation shipped: the editor now has a **Re-publish (keep-alive)**
+> action, so an author can refresh a flyer before relays age it out. The durable
+> fix (a pinned/dedicated relay) is still open.
 
 **Problem.** The app depends on a few general-purpose relays
 (`relay.damus.io`, `nos.lol`, `relay.primal.net`) that can prune app-data kinds,

@@ -157,22 +157,39 @@
     });
   }
 
+  // A tombstone is the deletion marker a flyer is replaced with (same d-tag):
+  // payload.deleted, or a ["deleted"] tag. The latest version winning means a
+  // tombstone hides the flyer even on relays that ignore NIP-09 deletions.
+  function isTombstone(event, payload) {
+    if (payload && payload.deleted === true) return true;
+    const tags = (event && event.tags) || [];
+    return tags.some((x) => x[0] === "deleted");
+  }
+
   // Reduce raw events to the latest flyer per author+identifier (replaceable).
+  // Keep the newest event per key first (including tombstones), then drop any
+  // key whose newest version is a deletion — so a delete can't be undone by an
+  // older copy that happens to arrive after it.
   function parseFlyers(events) {
     const tools = window.NostrTools;
-    const byKey = new Map();
+    const latest = new Map();
     events.forEach((e) => {
       if (!e || e.kind !== EVENT_KIND) return;
       const tags = e.tags || [];
       if (!tags.some((x) => x[0] === "t" && x[1] === "voxvera")) return;
+      const key = e.pubkey + ":" + dtagOf(tags);
+      const prev = latest.get(key);
+      if (!prev || (e.created_at || 0) > (prev.created_at || 0)) latest.set(key, e);
+    });
+    const out = [];
+    latest.forEach((e) => {
       let payload;
       try { payload = JSON.parse(e.content); } catch (_) { return; }
-      const key = e.pubkey + ":" + dtagOf(tags);
-      const prev = byKey.get(key);
-      if (prev && prev.created_at >= (e.created_at || 0)) return;
+      if (isTombstone(e, payload)) return;
+      const tags = e.tags || [];
       let npub = e.pubkey;
       try { npub = tools.nip19.npubEncode(e.pubkey); } catch (_) {}
-      byKey.set(key, {
+      out.push({
         title: String(payload.title || "").trim(),
         link: String(payload.tear_off_link || payload.url || "").trim(),
         npub: npub,
@@ -182,7 +199,7 @@
         created_at: e.created_at || 0
       });
     });
-    return Array.from(byKey.values());
+    return out;
   }
 
   let rows = [];

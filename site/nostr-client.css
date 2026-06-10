@@ -1377,3 +1377,25 @@ body.mode-viewer #viewer-panel.drawer-open .result-panel {
   display: block;
   margin-left: auto;
 }
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+/* Destructive action (delete). */
+.secondary-button.danger {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.secondary-button.danger:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+#loaded-flyer-status {
+  color: var(--muted);
+}

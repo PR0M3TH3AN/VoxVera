@@ -50,6 +50,27 @@ def test_validate_accepts_nostr_event_payload():
     assert validate_event_source(_event())["content"] == "This flyer came from a Nostr event."
 
 
+def test_validate_accepts_deletion_tombstone():
+    # A deleted flyer is replaced (same d-tag) with a minimal tombstone payload
+    # carrying deleted: true. It is still a valid voxvera_flyer event.
+    tombstone = {
+        "type": "voxvera_flyer",
+        "version": 1,
+        "deleted": True,
+        "folder_name": "nostr-flyer",
+        "lang": "en",
+    }
+    event = _event(tombstone, tags=[
+        ["d", "voxvera:nostr-flyer"],
+        ["t", "voxvera"],
+        ["t", "flyer"],
+        ["deleted", ""],
+        ["language", "en"],
+    ])
+    payload = validate_event_source(event)
+    assert payload["deleted"] is True
+
+
 def test_validate_uses_language_tag_when_payload_lang_is_missing():
     payload = _payload()
     payload.pop("lang")

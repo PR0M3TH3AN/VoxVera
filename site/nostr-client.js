@@ -216,6 +216,17 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       signer_anon: "النشر بشكل مجهول",
       signer_nip07: "النشر بهوية الإضافة الخاصة بك",
       signer_nsec: "النشر بمفتاحك المستورد",
+      republish: "إعادة النشر إلى المرحلات",
+      delete_flyer: "حذف الملصق",
+      delete_title: "حذف هذا الملصق؟",
+      delete_message: "يطلب هذا من المرحلات حذفه ويستبدله بعلامة حذف حتى يخفيه VoxVera. لا يمكن ضمان الحذف عبر كل مرحل.",
+      delete_confirm: "حذف",
+      cancel: "إلغاء",
+      flyer_removed: "تمت إزالة هذا الملصق.",
+      deleting: "جارٍ الحذف…",
+      deleted_done: "تم طلب الحذف.",
+      republished_done: "تمت إعادة النشر إلى المرحلات.",
+      not_author: "يمكنك فقط حذف أو إعادة نشر الملصقات التي نشرتها.",
       no_anon_npub: "لا يوجد npub مجهول بعد",
       anon_npub_ready: "npub مجهول جاهز",
       npub_generated: "تم إنشاء npub مجهول:",
@@ -293,6 +304,17 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       signer_anon: "Anonym veröffentlichen",
       signer_nip07: "Veröffentlichung mit deiner Erweiterungs-Identität",
       signer_nsec: "Veröffentlichung mit deinem importierten Schlüssel",
+      republish: "Erneut auf Relays veröffentlichen",
+      delete_flyer: "Plakat löschen",
+      delete_title: "Dieses Plakat löschen?",
+      delete_message: "Dies bittet die Relays, es zu löschen, und ersetzt es durch eine Löschmarkierung, sodass VoxVera es ausblendet. Eine Löschung über alle Relays hinweg kann nicht garantiert werden.",
+      delete_confirm: "Löschen",
+      cancel: "Abbrechen",
+      flyer_removed: "Dieses Plakat wurde entfernt.",
+      deleting: "Wird gelöscht…",
+      deleted_done: "Löschung angefordert.",
+      republished_done: "Erneut auf Relays veröffentlicht.",
+      not_author: "Du kannst nur Plakate löschen oder erneut veröffentlichen, die du veröffentlicht hast.",
       no_anon_npub: "Noch kein anonymes npub",
       anon_npub_ready: "Anonymes npub bereit",
       npub_generated: "Anonymes npub erzeugt:",
@@ -370,6 +392,17 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       signer_anon: "Publishing anonymously",
       signer_nip07: "Publishing as your extension identity",
       signer_nsec: "Publishing as your imported key",
+      republish: "Re-publish to relays",
+      delete_flyer: "Delete flyer",
+      delete_title: "Delete this flyer?",
+      delete_message: "This asks the relays to delete it and replaces it with a deletion marker so VoxVera hides it. Deletion can't be guaranteed across every relay.",
+      delete_confirm: "Delete",
+      cancel: "Cancel",
+      flyer_removed: "This flyer was removed.",
+      deleting: "Deleting…",
+      deleted_done: "Deletion requested.",
+      republished_done: "Re-published to relays.",
+      not_author: "You can only delete or re-publish flyers you published.",
       no_anon_npub: "No anonymous npub yet",
       anon_npub_ready: "Anonymous npub ready",
       npub_generated: "Anonymous npub generated:",
@@ -448,6 +481,17 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       signer_anon: "Publicando de forma anónima",
       signer_nip07: "Publicando con la identidad de tu extensión",
       signer_nsec: "Publicando con tu clave importada",
+      republish: "Volver a publicar en los relés",
+      delete_flyer: "Eliminar cartel",
+      delete_title: "¿Eliminar este cartel?",
+      delete_message: "Esto pide a los relés que lo eliminen y lo reemplaza por una marca de eliminación para que VoxVera lo oculte. No se puede garantizar la eliminación en todos los relés.",
+      delete_confirm: "Eliminar",
+      cancel: "Cancelar",
+      flyer_removed: "Este cartel fue eliminado.",
+      deleting: "Eliminando…",
+      deleted_done: "Eliminación solicitada.",
+      republished_done: "Vuelto a publicar en los relés.",
+      not_author: "Solo puedes eliminar o volver a publicar carteles que tú publicaste.",
       no_anon_npub: "Aún no hay npub anónimo",
       anon_npub_ready: "npub anónimo listo",
       npub_generated: "npub anónimo generado:",
@@ -525,6 +569,17 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       signer_anon: "انتشار به‌صورت ناشناس",
       signer_nip07: "انتشار با هویت افزونه شما",
       signer_nsec: "انتشار با کلید واردشده شما",
+      republish: "انتشار مجدد در رله‌ها",
+      delete_flyer: "حذف پوستر",
+      delete_title: "این پوستر حذف شود؟",
+      delete_message: "این از رله‌ها می‌خواهد آن را حذف کنند و آن را با یک نشان حذف جایگزین می‌کند تا VoxVera آن را پنهان کند. حذف در همه رله‌ها تضمین نمی‌شود.",
+      delete_confirm: "حذف",
+      cancel: "لغو",
+      flyer_removed: "این پوستر حذف شد.",
+      deleting: "در حال حذف…",
+      deleted_done: "درخواست حذف ارسال شد.",
+      republished_done: "دوباره در رله‌ها منتشر شد.",
+      not_author: "فقط می‌توانید پوسترهایی را که خودتان منتشر کرده‌اید حذف یا دوباره منتشر کنید.",
       no_anon_npub: "هنوز npub ناشناس وجود ندارد",
       anon_npub_ready: "npub ناشناس آماده است",
       npub_generated: "npub ناشناس ساخته شد:",
@@ -602,6 +657,17 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       signer_anon: "Publication anonyme",
       signer_nip07: "Publication avec l'identité de votre extension",
       signer_nsec: "Publication avec votre clé importée",
+      republish: "Republier sur les relais",
+      delete_flyer: "Supprimer l'affiche",
+      delete_title: "Supprimer cette affiche ?",
+      delete_message: "Cela demande aux relais de la supprimer et la remplace par un marqueur de suppression pour que VoxVera la masque. La suppression ne peut pas être garantie sur tous les relais.",
+      delete_confirm: "Supprimer",
+      cancel: "Annuler",
+      flyer_removed: "Cette affiche a été supprimée.",
+      deleting: "Suppression…",
+      deleted_done: "Suppression demandée.",
+      republished_done: "Republiée sur les relais.",
+      not_author: "Vous ne pouvez supprimer ou republier que les affiches que vous avez publiées.",
       no_anon_npub: "Aucun npub anonyme pour le moment",
       anon_npub_ready: "npub anonyme pret",
       npub_generated: "npub anonyme genere :",
@@ -679,6 +745,17 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       signer_anon: "מפרסם באופן אנונימי",
       signer_nip07: "מפרסם עם זהות התוסף שלך",
       signer_nsec: "מפרסם עם המפתח המיובא שלך",
+      republish: "פרסם מחדש לממסרים",
+      delete_flyer: "מחק כרזה",
+      delete_title: "למחוק את הכרזה הזו?",
+      delete_message: "פעולה זו מבקשת מהממסרים למחוק אותה ומחליפה אותה בסימן מחיקה כך ש-VoxVera יסתיר אותה. לא ניתן להבטיח מחיקה בכל הממסרים.",
+      delete_confirm: "מחק",
+      cancel: "ביטול",
+      flyer_removed: "כרזה זו הוסרה.",
+      deleting: "מוחק…",
+      deleted_done: "התבקשה מחיקה.",
+      republished_done: "פורסם מחדש לממסרים.",
+      not_author: "ניתן למחוק או לפרסם מחדש רק כרזות שפרסמת.",
       no_anon_npub: "עדיין אין npub אנונימי",
       anon_npub_ready: "npub אנונימי מוכן",
       npub_generated: "npub אנונימי נוצר:",
@@ -756,6 +833,17 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       signer_anon: "अनाम रूप से प्रकाशित किया जा रहा है",
       signer_nip07: "आपकी एक्सटेंशन पहचान से प्रकाशित किया जा रहा है",
       signer_nsec: "आपकी आयातित कुंजी से प्रकाशित किया जा रहा है",
+      republish: "रिले पर फिर से प्रकाशित करें",
+      delete_flyer: "पोस्टर हटाएँ",
+      delete_title: "इस पोस्टर को हटाएँ?",
+      delete_message: "यह रिले से इसे हटाने का अनुरोध करता है और इसे एक विलोपन चिह्न से बदल देता है ताकि VoxVera इसे छिपा दे। हर रिले पर विलोपन की गारंटी नहीं दी जा सकती।",
+      delete_confirm: "हटाएँ",
+      cancel: "रद्द करें",
+      flyer_removed: "यह पोस्टर हटा दिया गया।",
+      deleting: "हटाया जा रहा है…",
+      deleted_done: "विलोपन का अनुरोध किया गया।",
+      republished_done: "रिले पर फिर से प्रकाशित किया गया।",
+      not_author: "आप केवल अपने द्वारा प्रकाशित पोस्टर ही हटा या फिर से प्रकाशित कर सकते हैं।",
       no_anon_npub: "अभी कोई अनाम npub नहीं",
       anon_npub_ready: "अनाम npub तैयार",
       npub_generated: "अनाम npub बनाया गया:",
@@ -833,6 +921,17 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       signer_anon: "匿名で公開します",
       signer_nip07: "拡張機能の ID で公開します",
       signer_nsec: "インポートした鍵で公開します",
+      republish: "リレーに再公開",
+      delete_flyer: "ちらしを削除",
+      delete_title: "このちらしを削除しますか？",
+      delete_message: "リレーに削除を要求し、削除マーカーに置き換えて VoxVera で非表示にします。すべてのリレーでの削除は保証できません。",
+      delete_confirm: "削除",
+      cancel: "キャンセル",
+      flyer_removed: "このちらしは削除されました。",
+      deleting: "削除しています…",
+      deleted_done: "削除を要求しました。",
+      republished_done: "リレーに再公開しました。",
+      not_author: "自分が公開したちらしのみ削除または再公開できます。",
       no_anon_npub: "匿名npubはまだありません",
       anon_npub_ready: "匿名npub準備完了",
       npub_generated: "匿名npubを生成しました:",
@@ -910,6 +1009,17 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       signer_anon: "Publicando anonimamente",
       signer_nip07: "Publicando com a identidade da sua extensão",
       signer_nsec: "Publicando com sua chave importada",
+      republish: "Republicar nos relés",
+      delete_flyer: "Excluir panfleto",
+      delete_title: "Excluir este panfleto?",
+      delete_message: "Isso pede aos relés que o excluam e o substitui por um marcador de exclusão para que o VoxVera o oculte. A exclusão não pode ser garantida em todos os relés.",
+      delete_confirm: "Excluir",
+      cancel: "Cancelar",
+      flyer_removed: "Este panfleto foi removido.",
+      deleting: "Excluindo…",
+      deleted_done: "Exclusão solicitada.",
+      republished_done: "Republicado nos relés.",
+      not_author: "Você só pode excluir ou republicar panfletos que você publicou.",
       no_anon_npub: "Ainda nao ha npub anonimo",
       anon_npub_ready: "npub anonimo pronto",
       npub_generated: "npub anonimo gerado:",
@@ -987,6 +1097,17 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       signer_anon: "Публикация анонимно",
       signer_nip07: "Публикация под личностью вашего расширения",
       signer_nsec: "Публикация вашим импортированным ключом",
+      republish: "Опубликовать снова на реле",
+      delete_flyer: "Удалить листовку",
+      delete_title: "Удалить эту листовку?",
+      delete_message: "Это попросит реле удалить её и заменит её маркером удаления, чтобы VoxVera её скрыл. Удаление на всех реле не гарантируется.",
+      delete_confirm: "Удалить",
+      cancel: "Отмена",
+      flyer_removed: "Эта листовка удалена.",
+      deleting: "Удаление…",
+      deleted_done: "Запрошено удаление.",
+      republished_done: "Снова опубликовано на реле.",
+      not_author: "Вы можете удалять или повторно публиковать только свои листовки.",
       no_anon_npub: "Анонимного npub пока нет",
       anon_npub_ready: "Анонимный npub готов",
       npub_generated: "Анонимный npub создан:",
@@ -1064,6 +1185,17 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       signer_anon: "Inachapisha bila kujulikana",
       signer_nip07: "Inachapisha kwa kitambulisho cha kiendelezi chako",
       signer_nsec: "Inachapisha kwa ufunguo wako ulioingizwa",
+      republish: "Chapisha tena kwenye relay",
+      delete_flyer: "Futa bango",
+      delete_title: "Futa bango hili?",
+      delete_message: "Hii inaomba relay zifute na kulibadilisha na alama ya kufuta ili VoxVera ilifiche. Kufuta hakuwezi kuhakikishwa kwenye kila relay.",
+      delete_confirm: "Futa",
+      cancel: "Ghairi",
+      flyer_removed: "Bango hili limeondolewa.",
+      deleting: "Inafuta…",
+      deleted_done: "Kufuta kumeombwa.",
+      republished_done: "Limechapishwa tena kwenye relay.",
+      not_author: "Unaweza tu kufuta au kuchapisha tena mabango uliyochapisha.",
       no_anon_npub: "Hakuna npub isiyojulikana bado",
       anon_npub_ready: "npub isiyojulikana iko tayari",
       npub_generated: "npub isiyojulikana imetengenezwa:",
@@ -1141,6 +1273,17 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       signer_anon: "Anonim olarak yayımlanıyor",
       signer_nip07: "Uzantı kimliğinizle yayımlanıyor",
       signer_nsec: "İçe aktardığınız anahtarla yayımlanıyor",
+      republish: "Rölelere yeniden yayımla",
+      delete_flyer: "El ilanını sil",
+      delete_title: "Bu el ilanı silinsin mi?",
+      delete_message: "Bu, rölelerden silmesini ister ve VoxVera'nın gizlemesi için bir silme işaretiyle değiştirir. Silme her rölede garanti edilemez.",
+      delete_confirm: "Sil",
+      cancel: "İptal",
+      flyer_removed: "Bu el ilanı kaldırıldı.",
+      deleting: "Siliniyor…",
+      deleted_done: "Silme istendi.",
+      republished_done: "Rölelere yeniden yayımlandı.",
+      not_author: "Yalnızca kendi yayımladığın el ilanlarını silebilir veya yeniden yayımlayabilirsin.",
       no_anon_npub: "Henüz anonim npub yok",
       anon_npub_ready: "Anonim npub hazır",
       npub_generated: "Anonim npub oluşturuldu:",
@@ -1218,6 +1361,17 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       signer_anon: "正在匿名发布",
       signer_nip07: "正在以你的扩展身份发布",
       signer_nsec: "正在使用你导入的密钥发布",
+      republish: "重新发布到中继",
+      delete_flyer: "删除传单",
+      delete_title: "删除此传单？",
+      delete_message: "这将请求中继删除它，并用删除标记替换它，使 VoxVera 将其隐藏。无法保证在每个中继上都删除。",
+      delete_confirm: "删除",
+      cancel: "取消",
+      flyer_removed: "此传单已被移除。",
+      deleting: "正在删除…",
+      deleted_done: "已请求删除。",
+      republished_done: "已重新发布到中继。",
+      not_author: "你只能删除或重新发布你自己发布的传单。",
       no_anon_npub: "还没有匿名 npub",
       anon_npub_ready: "匿名 npub 已就绪",
       npub_generated: "已生成匿名 npub:",
@@ -1246,6 +1400,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
   let flyerSource = "default";
   let loadedEventConfig = null;
   let loadedEventId = "";
+  let loadedEventPubkey = "";
   const lastAcceptedFieldValues = {};
 
   const el = (id) => document.getElementById(id);
@@ -2194,6 +2349,39 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     return `voxvera:${slugify(payload.folder_name)}`;
   }
 
+  // Replaceable tombstone: same (kind, d) so it overwrites the flyer's content.
+  // Carries deleted:true + a ["deleted"] tag so the board/viewer hide it even if
+  // a relay ignores the NIP-09 deletion request.
+  function buildTombstoneEvent(payload) {
+    const folderName = slugify(payload.folder_name);
+    const lang = supportedLang(payload.lang || FALLBACK_LANG);
+    return {
+      kind: EVENT_KIND,
+      created_at: Math.floor(Date.now() / 1000),
+      tags: [
+        ["d", `voxvera:${folderName}`],
+        ["t", "voxvera"],
+        ["t", "flyer"],
+        ["deleted", ""],
+        ["language", lang],
+        ["L", "ISO-639-1"],
+        ["l", lang, "ISO-639-1"]
+      ],
+      content: JSON.stringify({ type: "voxvera_flyer", version: 1, deleted: true, folder_name: folderName, lang })
+    };
+  }
+
+  // NIP-09 deletion request (kind 5) for the addressable flyer, plus the
+  // specific event id when known.
+  function buildDeletionEvent(pubkeyHex, payload, eventId) {
+    const tags = [
+      ["a", `${EVENT_KIND}:${pubkeyHex}:${flyerIdentifier(payload)}`],
+      ["k", String(EVENT_KIND)]
+    ];
+    if (/^[0-9a-f]{64}$/i.test(String(eventId || ""))) tags.push(["e", eventId]);
+    return { kind: 5, created_at: Math.floor(Date.now() / 1000), tags, content: "" };
+  }
+
   // The naddr carries a single relay hint (the primary configured relay) rather
   // than the full relay list. This keeps the poster URL short and its tear-off
   // QR easy to scan (~171 chars vs ~233 for the old full-list URL) while still
@@ -2482,6 +2670,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     return payload;
   }
 
+  // A deleted flyer is replaced (same d-tag) with a tombstone — payload.deleted
+  // or a ["deleted"] tag — so the viewer shows a "removed" state instead of the
+  // (now empty) content, even on relays that ignored the NIP-09 deletion.
+  function isFlyerTombstone(event, payload) {
+    if (payload && payload.deleted === true) return true;
+    const tags = (event && event.tags) || [];
+    return tags.some((tag) => tag[0] === "deleted");
+  }
+
   function languageFromTags(tags) {
     if (!Array.isArray(tags)) return "";
     const languageTag = tags.find((tag) => Array.isArray(tag) && tag[0] === "language" && tag[1]);
@@ -2733,6 +2930,81 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     if (modal) modal.hidden = true;
   }
 
+  // ---- Loaded-flyer actions (re-publish / delete) -----------------------
+  // These act on a flyer loaded from an event, and only the author (the key
+  // that signed it) may use them.
+  function setLoadedFlyerStatus(message) {
+    const node = el("loaded-flyer-status");
+    if (!node) return;
+    node.textContent = message || "";
+    node.hidden = !message;
+  }
+
+  // Show the re-publish/delete controls only when a flyer loaded from an event
+  // is on screen. Author verification happens at click time (the active signing
+  // key must match), so the buttons appear whenever a fetched flyer is loaded.
+  function refreshLoadedFlyerActions() {
+    const group = el("loaded-flyer-actions");
+    if (!group) return;
+    const loaded = flyerSource === "event" && Boolean(loadedEventPubkey);
+    group.hidden = !loaded;
+    if (!loaded) setLoadedFlyerStatus("");
+  }
+
+  function openDeleteModal() {
+    const modal = el("delete-modal");
+    if (modal) modal.hidden = false;
+  }
+
+  function closeDeleteModal() {
+    const modal = el("delete-modal");
+    if (modal) modal.hidden = true;
+  }
+
+  // Re-publish (keep-alive): re-sign the loaded flyer's content under the same
+  // address and broadcast it so relays don't age it out. Same code path as
+  // publishing, so it also picks up any edits made in the form.
+  async function republishCurrentFlyer() {
+    setLoadedFlyerStatus("");
+    const pubkey = await resolveActivePubkey();
+    if (loadedEventPubkey && loadedEventPubkey.toLowerCase() !== pubkey.toLowerCase()) {
+      setLoadedFlyerStatus(nostrLabel("not_author", currentUiLang()));
+      return;
+    }
+    setLoadedFlyerStatus(nostrLabel("signing_publishing", currentUiLang()));
+    const payload = buildPayloadFromForm();
+    const relays = parseRelays(el("editor-relays").value);
+    const result = await signAndPublish(payload, relays);
+    loadedEventId = (result.event && result.event.id) || loadedEventId;
+    setLoadedFlyerStatus(nostrLabel("republished_done", currentUiLang()));
+  }
+
+  // Delete: publish a replaceable tombstone (overwrites the content) AND a
+  // NIP-09 deletion request. Belt and suspenders across relay behaviors.
+  async function deleteLoadedFlyer() {
+    setLoadedFlyerStatus("");
+    const pubkey = await resolveActivePubkey();
+    if (loadedEventPubkey && loadedEventPubkey.toLowerCase() !== pubkey.toLowerCase()) {
+      setLoadedFlyerStatus(nostrLabel("not_author", currentUiLang()));
+      return;
+    }
+    setLoadedFlyerStatus(nostrLabel("deleting", currentUiLang()));
+    const payload = loadedEventConfig || buildPayloadFromForm();
+    const relays = parseRelays(el("editor-relays").value);
+    // 1) Tombstone (replaceable overwrite), 2) NIP-09 deletion request.
+    const tombstone = await signActiveEvent(buildTombstoneEvent(payload), pubkey);
+    if (tombstone && String(tombstone.pubkey || "").toLowerCase() !== pubkey.toLowerCase()) {
+      throw new Error("Signer key does not match the flyer; not deleting.");
+    }
+    await publishEvent(tombstone, relays);
+    const deletion = await signActiveEvent(buildDeletionEvent(pubkey, payload, loadedEventId), pubkey);
+    await publishEvent(deletion, relays);
+    setLoadedFlyerStatus(nostrLabel("deleted_done", currentUiLang()));
+    // Reflect the removal in the preview.
+    renderStatusPreview(nostrLabel("flyer_removed", currentUiLang()), currentUiLang());
+    loadedEventConfig = null;
+  }
+
   async function fetchAndRenderFromInput(eventInput, relaysValue, statusElement = el("viewer-status")) {
     const parsed = parseEventReference(eventInput);
     if (!parsed) throw new Error(nostrLabel("event_reference_required", currentUiLang()));
@@ -2745,14 +3017,25 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       ? await fetchReplaceable(parsed.address, relays)
       : await fetchEvent(parsed.id, relays);
     const payload = payloadFromEvent(nostrEvent);
-    const config = normalizePayload(payload);
-    flyerSource = "event";
-    loadedEventConfig = config;
+    loadedEventPubkey = (nostrEvent && nostrEvent.pubkey) || "";
     loadedEventId = (nostrEvent && nostrEvent.id) || "";
+    flyerSource = "event";
+    // A deleted flyer shows a "removed" state rather than rendering empty content.
+    if (isFlyerTombstone(nostrEvent, payload)) {
+      loadedEventConfig = null;
+      renderStatusPreview(nostrLabel("flyer_removed", currentUiLang()), currentUiLang());
+      statusElement.textContent = nostrLabel("flyer_removed", currentUiLang());
+      refreshLoadedFlyerActions();
+      closeViewerDrawer();
+      return;
+    }
+    const config = normalizePayload(payload);
+    loadedEventConfig = config;
     fillEditorFromConfig(config);
     el("viewer-config-output").value = JSON.stringify(config, null, 2);
     renderPreview({ ...config, event_id: loadedEventId });
     statusElement.textContent = `${nostrLabel("fetched", config.lang)} ${parsed.type === "address" ? parsed.address.identifier : parsed.id}`;
+    refreshLoadedFlyerActions();
     closeViewerDrawer();
   }
 
@@ -2803,7 +3086,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       }
     });
     document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") closePublishModal();
+      if (event.key === "Escape") { closePublishModal(); closeDeleteModal(); }
     });
 
     LANGUAGE_SELECT_IDS.forEach((selectId) => {
@@ -2918,10 +3201,25 @@ Join us in a revolution that values truth and transparency. Together, we can bui
         el("viewer-event-id").value = result.naddr;
         el("publish-status").innerHTML = renderRelayResults(result.results);
         renderPreview({ ...normalizePayload(result.payload), event_id: loadedEventId });
+        // The just-published flyer is now yours and loaded — enable re-publish/delete.
+        loadedEventPubkey = (result.event && result.event.pubkey) || "";
+        loadedEventConfig = normalizePayload(result.payload);
+        flyerSource = "event";
+        refreshLoadedFlyerActions();
         openPublishModal(result.posterUrl);
       } catch (error) {
         el("publish-status").textContent = error.message;
       }
+    });
+
+    el("republish-flyer").addEventListener("click", () => {
+      republishCurrentFlyer().catch((error) => setLoadedFlyerStatus(error.message));
+    });
+    el("delete-flyer").addEventListener("click", openDeleteModal);
+    el("delete-modal-cancel").addEventListener("click", closeDeleteModal);
+    el("delete-modal-confirm").addEventListener("click", () => {
+      closeDeleteModal();
+      deleteLoadedFlyer().catch((error) => setLoadedFlyerStatus(error.message));
     });
 
     el("viewer-form").addEventListener("submit", async (event) => {

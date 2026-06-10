@@ -162,6 +162,36 @@ but longer PINs are allowed and encouraged.
 > stronger option; a NIP-46 remote signer is a future addition. See
 > [`roadmap.md`](roadmap.md).
 
+## Editing, re-publishing, and deleting flyers
+
+Because flyers are addressable replaceable events (`kind 30078`, identified by
+`(pubkey, d)` where `d = voxvera:<slug>`), the author can manage a published
+flyer by re-publishing under the same key + Flyer Name. When a flyer is loaded
+from an event, the editor shows author-only actions (`#loaded-flyer-actions`):
+
+- **Edit** — change fields and publish again; the same `d` tag replaces the
+  prior version in place, keeping the same `naddr`/poster URL.
+- **Re-publish (keep-alive)** — re-sign and re-broadcast the current content so
+  relays that prune app-data don't age the flyer out (`republishCurrentFlyer`).
+- **Delete** (`deleteLoadedFlyer`) — two layers, for robustness across relays:
+  1. a **replaceable tombstone** (`buildTombstoneEvent`) — same `(kind, d)`, with
+     `deleted: true` in the payload and a `["deleted"]` tag, so it *overwrites*
+     the flyer's content; relays honoring replaceable semantics now serve the
+     tombstone, and
+  2. a **NIP-09 deletion request** (`buildDeletionEvent`, kind `5`) referencing
+     the addressable `a` tag (`30078:<pubkey>:voxvera:<slug>`) and the event id,
+     asking relays to drop it entirely.
+
+All three are **author-only**: the active signing key must match the loaded
+flyer's author (`resolveActivePubkey`), and `signAndPublish` refuses to publish
+if the signed key diverges from the address. **Tombstone recognition:** the
+board's `parseFlyers` keeps the newest event per `(pubkey, d)` and skips it if
+that newest version is a tombstone (so a delete can't be undone by an older copy
+arriving later); the viewer shows a localized "This flyer was removed." state
+(`isFlyerTombstone`). Deletion is **best-effort** — relays that ignore both
+replaceable overwrites and NIP-09 may still serve the original — so it is framed
+as a request, not a guarantee.
+
 ## Print paper size
 
 The flyer supports two print sizes: **US Letter** (8.5×11in) and **A4**

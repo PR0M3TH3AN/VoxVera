@@ -636,6 +636,88 @@ test.describe("VoxVera static client", () => {
     expect(naddrPk).toBe(PK);
   });
 
+  test("deleting a loaded flyer publishes a tombstone and a NIP-09 deletion", async ({ page }) => {
+    const PK = "a".repeat(64);
+    await page.addInitScript((pk) => {
+      let n = 0;
+      window.nostr = {
+        getPublicKey: async () => pk,
+        signEvent: async (e) => ({ ...e, pubkey: pk, id: (++n).toString(16).padStart(64, "0"), sig: "0".repeat(128) })
+      };
+      window.__published = [];
+      class FakeWS {
+        constructor() { this.readyState = 1; setTimeout(() => this.onopen && this.onopen(), 1); }
+        send(data) {
+          try {
+            const m = JSON.parse(data);
+            if (m[0] === "EVENT" && m[1] && m[1].id) {
+              window.__published.push(m[1]);
+              setTimeout(() => this.onmessage && this.onmessage({ data: JSON.stringify(["OK", m[1].id, true, ""]) }), 1);
+            }
+          } catch (_) {}
+        }
+        close() {}
+      }
+      window.WebSocket = FakeWS;
+    }, PK);
+    await page.goto("/#editor");
+    await page.locator("#connect-nip07").click();
+    await expect(page.locator("#signer-state")).toHaveText("Publishing as your extension identity");
+    // Publish so a flyer is "loaded" and the delete/re-publish actions appear.
+    await page.locator("#publish-event").click();
+    await expect(page.locator("#publish-modal")).toBeVisible();
+    await page.locator("#publish-modal-close").click();
+    await expect(page.locator("#loaded-flyer-actions")).toBeVisible();
+    // Delete → confirm.
+    await page.locator("#delete-flyer").click();
+    await expect(page.locator("#delete-modal")).toBeVisible();
+    await page.locator("#delete-modal-confirm").click();
+    await expect(page.locator(".flyer-status-message")).toContainText("This flyer was removed");
+    const pub = await page.evaluate(() => window.__published);
+    const tombstone = pub.find((e) => e.kind === 30078 && (e.tags || []).some((t) => t[0] === "deleted"));
+    const deletion = pub.find((e) => e.kind === 5);
+    expect(tombstone, "a replaceable tombstone is published").toBeTruthy();
+    expect(JSON.parse(tombstone.content).deleted).toBe(true);
+    expect(deletion, "a NIP-09 deletion request is published").toBeTruthy();
+    expect((deletion.tags || []).some((t) => t[0] === "a" && t[1].startsWith(`30078:${PK}:voxvera:`))).toBe(true);
+  });
+
+  test("the board hides a flyer that has been tombstoned", async ({ page }) => {
+    const A = "a".repeat(64);
+    await stubNip07(page);
+    await stubRelays(page, [
+      flyerEvent("live", A, "Live Flyer"), // d=voxvera:live, created_at 2000
+      {
+        id: "9".repeat(64), kind: 30078, pubkey: A, created_at: 3000,
+        tags: [["d", "voxvera:live"], ["t", "voxvera"], ["deleted", ""]],
+        content: JSON.stringify({ type: "voxvera_flyer", version: 1, deleted: true, folder_name: "live", lang: "en" })
+      }
+    ]);
+    await page.goto("/board.html");
+    await page.locator("#board-connect").click();
+    await expect(page.locator("#board-content")).toBeVisible();
+    // The newer tombstone hides the flyer even though both are returned.
+    await expect(page.locator("#board-rows")).not.toContainText("Live Flyer");
+  });
+
+  test("viewer shows a removed state for a tombstoned flyer", async ({ page }) => {
+    const PK = "c".repeat(64);
+    const IDENT = "voxvera:gone";
+    await stubRelays(page, [{
+      id: "d".repeat(64), kind: 30078, pubkey: PK, created_at: 5000,
+      tags: [["d", IDENT], ["t", "voxvera"], ["deleted", ""]],
+      content: JSON.stringify({ type: "voxvera_flyer", version: 1, deleted: true, folder_name: "gone", lang: "en" })
+    }]);
+    await page.goto("/");
+    const naddr = await page.evaluate(({ pk, ident }) =>
+      window.NostrTools.nip19.naddrEncode({ identifier: ident, pubkey: pk, kind: 30078, relays: [] }),
+      { pk: PK, ident: IDENT });
+    await page.goto("about:blank");
+    await page.goto(`/#${naddr}`);
+    await expect(page.locator(".flyer-status-message")).toContainText("This flyer was removed");
+    await expect(page.locator(".content h1")).toHaveCount(0);
+  });
+
   test("editor imports an nsec for the session without storing the secret", async ({ page }) => {
     await page.goto("/#editor");
     const { nsec, npub } = await page.evaluate(() => {

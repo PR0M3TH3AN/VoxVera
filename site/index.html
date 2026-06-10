@@ -135,6 +135,12 @@
             <button type="button" id="export-event">Export event JSON</button>
             <button type="submit" id="publish-event">Sign and publish</button>
           </div>
+          <!-- Shown only when a flyer you authored is loaded from an event. -->
+          <div id="loaded-flyer-actions" class="actions" hidden>
+            <button type="button" id="republish-flyer" class="secondary-button" data-i18n-key="republish">Re-publish to relays</button>
+            <button type="button" id="delete-flyer" class="secondary-button danger" data-i18n-key="delete_flyer">Delete flyer</button>
+          </div>
+          <p id="loaded-flyer-status" class="field-error" role="status" hidden></p>
         </form>
 
         <aside class="result-panel">
@@ -204,6 +210,17 @@
         <button type="button" id="publish-modal-copy">Copy</button>
       </div>
       <button type="button" id="publish-modal-close" class="modal-close" data-i18n-key="close">Close</button>
+    </div>
+  </div>
+
+  <div id="delete-modal" class="modal-overlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
+      <h2 id="delete-modal-title" data-i18n-key="delete_title">Delete this flyer?</h2>
+      <p id="delete-modal-message" data-i18n-key="delete_message">This asks the relays to delete it and replaces it with a deletion marker so VoxVera hides it. Deletion can't be guaranteed across every relay.</p>
+      <div class="modal-actions">
+        <button type="button" id="delete-modal-cancel" class="secondary-button" data-i18n-key="cancel">Cancel</button>
+        <button type="button" id="delete-modal-confirm" class="secondary-button danger" data-i18n-key="delete_confirm">Delete</button>
+      </div>
     </div>
   </div>
 
