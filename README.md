@@ -32,6 +32,7 @@ The previous Tor/OnionShare CLI version is preserved on the `legacy-tor` branch.
 - `voxvera/nostr/`: small Python schema/validation helpers
 - `docs/nostr-static-client-spec.md`: design notes and development plan
 - `docs/flyer-field-limits.md`: per-language field length cheat sheet
+- `docs/roadmap.md`: known issues and future development directions
 
 ## Local Development
 

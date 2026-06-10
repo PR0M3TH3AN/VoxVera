@@ -180,6 +180,10 @@ author+`d` identifier, keeping the latest.
 - The npub column is forward-looking — anonymous keys today, but a stable
   identity per author maps cleanly onto this view later.
 
+The board has no moderation and anonymous keys provide no authenticity yet;
+these and other product/threat-model gaps are tracked in
+[`roadmap.md`](roadmap.md).
+
 ## Localization
 
 Flyer defaults come from `site/locales.js`.
