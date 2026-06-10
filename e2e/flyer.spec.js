@@ -325,17 +325,44 @@ test.describe("VoxVera static client", () => {
     await page.locator("#board-connect").click();
     await expect(page.locator("#board-content")).toBeVisible();
     const headers = page.locator("#board-head th");
-    await expect(headers).toHaveCount(5);
+    await expect(headers).toHaveCount(6);
     await expect(headers.nth(0)).toContainText("Title");
     await expect(headers.nth(1)).toContainText("Link");
     await expect(headers.nth(2)).toContainText("Posted by");
     await expect(headers.nth(3)).toContainText("Language");
     await expect(headers.nth(4)).toContainText("Posted");
+    await expect(headers.nth(5)).toContainText("Event ID");
     // Default sort is date descending.
     await expect(headers.nth(4).locator(".sort-indicator")).toContainText("▼");
     // Clicking the Title header makes it the active ascending sort.
     await headers.nth(0).click();
     await expect(headers.nth(0).locator(".sort-indicator")).toContainText("▲");
+  });
+
+  test("the board shows each flyer's event ID with a copy button", async ({ page }) => {
+    const EVENT_ID = "a1b2c3d4e5f6071829303142535465768798a0b1c2d3e4f50617283940a1b2c3";
+    await stubNip07(page);
+    await stubRelays(page, [{
+      id: EVENT_ID, kind: 30078, pubkey: "f".repeat(64), created_at: 5000,
+      tags: [["d", "voxvera:id-test"], ["t", "voxvera"], ["t", "flyer"], ["language", "en"]],
+      content: JSON.stringify({
+        type: "voxvera_flyer", version: 1, folder_name: "id-test", lang: "en",
+        name: "N", title: "ID Test Flyer", subtitle: "s", headline: "h", content: "c",
+        url_message: "m", url: "https://example.com/i", footer_message: "f",
+        tear_off_link: "https://voxvera.org/#naddr1i", qr_target: "flyer_url"
+      })
+    }]);
+    await page.goto("/board.html");
+    await page.locator("#board-connect").click();
+    await expect(page.locator("#board-content")).toBeVisible();
+    // Shortened id is displayed, the full id is in the title, and the copy button
+    // carries the full id as its copy target.
+    const idCell = page.locator(".board-eventid");
+    await expect(idCell).toContainText("a1b2c3d4");
+    await expect(idCell).toHaveAttribute("title", EVENT_ID);
+    const copyBtn = page.locator(".board-copy");
+    await expect(copyBtn).toHaveText("Copy");
+    await expect(copyBtn).toHaveAttribute("data-copy", EVENT_ID);
   });
 
   test("bulletin board is gated behind a Nostr connection", async ({ page }) => {

@@ -196,9 +196,10 @@ Field capacity therefore varies by paper size; see
 `site/board.html` + `site/board.js` are a standalone page that lists the most
 recent flyers found on the default relays as a sortable, spreadsheet-style
 table: **title**, **link** (the poster URL, rendered as the word "link"),
-**posting npub**, **language**, and **posted date**. Any column header sorts
-(default is date descending); replaceable events are de-duplicated per
-author+`d` identifier, keeping the latest.
+**posting npub**, **language**, **posted date**, and the **event ID** (shown
+shortened, full value in the title attribute, with a per-row copy button). Any
+column header sorts (default is date descending); replaceable events are
+de-duplicated per author+`d` identifier, keeping the latest.
 
 - The entry point is a small screen-only link below the flyer preview
   (`.board-link`, label `bulletin_board`), outside the printable sheet. It must

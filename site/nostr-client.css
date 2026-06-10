@@ -1128,6 +1128,25 @@ body.mode-viewer #viewer-panel.drawer-open .result-panel {
   color: var(--muted);
 }
 
+.board-table .board-eventid {
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.board-table .board-copy {
+  margin-inline-start: 6px;
+  font: inherit;
+  font-size: 11px;
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
 .board-table a {
   color: var(--accent);
 }
