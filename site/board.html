@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>VoxVera — Bulletin Board</title>
-    <link rel="stylesheet" href="nostr-client.css">
+    <!-- Root-absolute asset paths: with Vercel cleanUrls + trailingSlash this
+         page is served at /board/, so relative paths would resolve to
+         /board/... and 404. -->
+    <link rel="stylesheet" href="/nostr-client.css">
   </head>
   <body class="board-page">
     <header class="topbar">
@@ -13,7 +16,7 @@
         <p id="board-subtitle">Most recent flyers published to the relays.</p>
       </div>
       <div class="topbar-controls">
-        <a id="board-back" class="board-back" href="./">Back to VoxVera</a>
+        <a id="board-back" class="board-back" href="/">Back to VoxVera</a>
         <select id="board-lang" aria-label="Language"></select>
       </div>
     </header>
@@ -24,8 +27,8 @@
         <tbody id="board-rows"></tbody>
       </table>
     </main>
-    <script src="locales.js"></script>
-    <script src="vendor/nostr-tools/nostr.bundle.js"></script>
-    <script src="board.js"></script>
+    <script src="/locales.js"></script>
+    <script src="/vendor/nostr-tools/nostr.bundle.js"></script>
+    <script src="/board.js"></script>
   </body>
 </html>

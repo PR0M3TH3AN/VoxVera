@@ -176,6 +176,19 @@ test.describe("VoxVera static client", () => {
     await expect(headers.nth(0).locator(".sort-indicator")).toContainText("▲");
   });
 
+  test("bulletin board assets use root-absolute paths (cleanUrls/trailingSlash safe)", async ({ page }) => {
+    await page.goto("/board.html");
+    const refs = await page.evaluate(() =>
+      Array.from(document.querySelectorAll("link[href], script[src]"))
+        .map((n) => n.getAttribute("href") || n.getAttribute("src")));
+    expect(refs.length).toBeGreaterThan(0);
+    // Vercel serves this page at /board/ — relative asset paths would resolve
+    // to /board/... and 404, leaving the page unstyled with no scripts.
+    for (const ref of refs) {
+      expect(ref, `asset "${ref}" must be root-absolute or external`).toMatch(/^(https?:|\/)/);
+    }
+  });
+
   test("bulletin board language selector localizes the page", async ({ page }) => {
     await page.goto("/board.html");
     await expect(page.locator("#board-title")).toHaveText("Bulletin Board");
