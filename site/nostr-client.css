@@ -108,6 +108,13 @@ button:hover {
   max-width: 220px;
 }
 
+/* Wider so the full paper size (e.g. "US Letter (8.5 × 11 in)") is readable. */
+#topbar-paper,
+#viewer-paper {
+  min-width: 210px;
+  max-width: 260px;
+}
+
 .tab {
   border: 0;
   border-right: 1px solid #000;
@@ -646,7 +653,7 @@ hr {
 .preview-band > .board-link {
   text-align: center;
   font-size: 13px;
-  margin: 12px 0 0;
+  margin: 12px 0;
 }
 
 .board-link a {
