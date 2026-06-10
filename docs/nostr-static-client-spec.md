@@ -28,6 +28,7 @@ site/
   locales.js
   board.html          (bulletin board page)
   board.js
+  favicon.svg         (inline SVG site icon)
   CNAME
   vendor/
     nostr-tools/

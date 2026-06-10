@@ -104,6 +104,19 @@ test.describe("VoxVera static client", () => {
     expect(errors, errors.join("\n")).toHaveLength(0);
   });
 
+  test("both pages declare an SVG favicon (no /favicon.ico 404)", async ({ page }) => {
+    for (const path of ["/", "/board.html"]) {
+      await page.goto(path);
+      const href = await page.locator('link[rel~="icon"]').first().getAttribute("href");
+      expect(href, `${path} should link a favicon`).toBe("/favicon.svg");
+    }
+    // The asset itself is served and is valid SVG.
+    const res = await page.request.get("/favicon.svg");
+    expect(res.status()).toBe(200);
+    expect(res.headers()["content-type"] || "").toContain("svg");
+    expect(await res.text()).toContain("<svg");
+  });
+
   test("print media hides app chrome and keeps the flyer", async ({ page }, testInfo) => {
     await page.goto("/");
     await page.emulateMedia({ media: "print" });

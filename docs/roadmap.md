@@ -240,7 +240,8 @@ should follow the board's trust model.
   varies with font availability and zoom; the
   [cheat sheet](flyer-field-limits.md) is explicitly approximate. Fine as-is;
   noted so it is not mistaken for a contract.
-- **No favicon** — browsers log a harmless `404 /favicon.ico`. Cosmetic.
+- **Favicon — ✅ done.** A small inline SVG (`site/favicon.svg`) is linked from
+  both pages, so browsers no longer request (and 404 on) `/favicon.ico`.
 - **WebKit/Safari coverage in CI** needs `libavif16` on Linux runners
   (`sudo npx playwright install-deps`); headless WebKit is also not a perfect
   stand-in for real Safari/iOS print + clipboard behavior, so a real-device
