@@ -15,9 +15,13 @@ The trust model (#1–#2) has moved from undefined to implemented:
 
 - **Bulletin board login gate** — viewing the board requires a connected Nostr
   identity (NIP-07 extension, a pasted `nsec`, or a generated key).
-- **Web-of-trust filter** — the board defaults to flyers from authors in the
-  viewer's NIP-02 follow graph, seeded from a curator account for fresh keys,
-  with a "Show all" opt-out (so it is no longer an unmoderated firehose).
+- **Web-of-trust filter (degree-2)** — the board defaults to flyers from authors
+  in the viewer's NIP-02 follow graph *and the people those follows follow*
+  (follows-of-follows), seeded from a curator account for fresh keys, with a
+  "Show all" opt-out (so it is no longer an unmoderated firehose).
+- **Editor↔board identity sync** — a deliberate editor identity choice (NIP-07,
+  imported/generated/unlocked nsec, or anonymous) is shared with the board via a
+  local pubkey, so the same person sees a consistent identity across both pages.
 - **Editor publishing identity** — authors can publish anonymously (default),
   via NIP-07, or with an imported `nsec` that is optionally PIN-encrypted at
   rest (PBKDF2 → AES-GCM; plaintext never stored).
@@ -38,8 +42,8 @@ The trust model (#1–#2) has moved from undefined to implemented:
   flyers (overrides the trust filter, since your own may not be in your graph).
 
 All of the above is localized across the 14 languages and covered by the
-cross-engine Playwright suite. **What remains** on #1–#2 is polish (degree-2
-trust, blocklist/report, NIP-05 badges, an identified-vs-anonymous display) plus
+cross-engine Playwright suite. **What remains** on #1–#2 is polish (report-to-list,
+NIP-05 badges, an identified-vs-anonymous display) plus
 the editor follow-ups noted under the *Planned direction* section. **#3–#5 are
 still fully open** — distribution centralization (#3) is now the
 highest-leverage untouched item.
@@ -52,7 +56,7 @@ highest-leverage untouched item.
 > Nostr identity to view, and it now filters to flyers from the viewer's NIP-02
 > web of trust (with a bootstrap seed for new keys). See *Planned direction:
 > identity + web-of-trust on the board* below (jointly addresses #1 and #2).
-> Remaining: degree-2 trust, blocklist/report, NIP-05 badges (Phase 3).
+> Remaining: report-to-list, NIP-05 badges (Phase 3). Degree-2 trust shipped.
 
 
 **Problem.** `board.html` lists every Nostr event tagged `t=voxvera` / `t=flyer`
@@ -161,10 +165,10 @@ board can show them flyers from people they trust.
   no trust data can be fetched at all, the board falls back to showing
   everything (never mysteriously empty). Covered by the cross-engine e2e suite
   (followed-only view + show-all opt-out; curator-seeded fallback).
-- **Phase 3 — Optional / next.** Degree-2 trust (follows-of-follows), a local
-  blocklist / "hide this", report-to-list, and NIP-05 verified badges. Also:
-  the bootstrap curator is currently a single hardcoded pubkey — consider making
-  it configurable or a small curated set.
+- **Phase 3 — In progress.** Degree-2 trust (follows-of-follows) ✅ shipped; the
+  local blocklist / "hide this" ✅ shipped. **Remaining:** report-to-list and
+  NIP-05 verified badges. Also: the bootstrap curator is currently a single
+  hardcoded pubkey — consider making it configurable or a small curated set.
 
 **Decisions made (2026-06-10).**
 1. **Board viewing: login-required.** The board is blank (a Connect prompt)

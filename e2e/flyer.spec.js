@@ -567,6 +567,28 @@ test.describe("VoxVera static client", () => {
     await expect(page.locator("#board-filter-note")).toContainText(/all flyers/i);
   });
 
+  test("the web-of-trust filter includes follows-of-follows (degree 2)", async ({ page }) => {
+    const A = "a".repeat(64);
+    const B = "b".repeat(64);
+    const C = "c".repeat(64);
+    await stubNip07(page); // viewer = ME (1*64)
+    await stubRelays(page, [
+      contactList(ME, [A]),  // you follow A (degree 1)
+      contactList(A, [B]),   // A follows B (degree 2)
+      flyerEvent("fa", A, "Direct Follow Flyer"),
+      flyerEvent("fb", B, "Friend Of Friend Flyer"),
+      flyerEvent("fc", C, "Stranger Flyer")
+    ]);
+    await page.goto("/board.html");
+    await page.locator("#board-connect").click();
+    await expect(page.locator("#board-content")).toBeVisible();
+    // Trust-filtered (not show-all): degree-1 and degree-2 appear, stranger hidden.
+    await expect(page.locator("#board-rows")).toContainText("Direct Follow Flyer");
+    await expect(page.locator("#board-rows")).toContainText("Friend Of Friend Flyer");
+    await expect(page.locator("#board-rows")).not.toContainText("Stranger Flyer");
+    await expect(page.locator("#board-show-all")).not.toBeChecked();
+  });
+
   test("a viewer with no follow list is seeded from the curator's web of trust", async ({ page }) => {
     // The connected viewer has NO contact list; the curator follows TRUSTED, so
     // the board seeds its trust set from the curator and still hides UNTRUSTED.
@@ -633,6 +655,18 @@ test.describe("VoxVera static client", () => {
   test("editor defaults to anonymous signing", async ({ page }) => {
     await page.goto("/#editor");
     await expect(page.locator("#signer-state")).toHaveText("Publishing anonymously");
+  });
+
+  test("a deliberate editor identity choice syncs to the board's connected key", async ({ page }) => {
+    const PK = "a".repeat(64);
+    await page.addInitScript((pk) => {
+      window.nostr = { getPublicKey: async () => pk, signEvent: async (e) => e };
+    }, PK);
+    await page.goto("/#editor");
+    await page.locator("#connect-nip07").click();
+    await expect(page.locator("#signer-state")).toHaveText("Publishing as your extension identity");
+    // The board reads this shared key to reflect the same identity.
+    expect(await page.evaluate(() => localStorage.getItem("voxvera_connected_pubkey"))).toBe(PK);
   });
 
   test("editor can connect a NIP-07 identity and publish under it", async ({ page }) => {

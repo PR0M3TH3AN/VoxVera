@@ -12,6 +12,10 @@
   // stored for nsec — only this AES-GCM blob, decrypted in memory on unlock.
   const IDENTITY_MODE_STORAGE_KEY = "voxvera_identity_mode";
   const IDENTITY_ENC_STORAGE_KEY = "voxvera_identity_nsec_enc";
+  // Shared with the bulletin board: mirror the editor's active pubkey here so a
+  // deliberate identity choice (connect / import / unlock / generate) carries
+  // over and the board reflects the same identity (and "My flyers" works).
+  const BOARD_CONNECTED_PUBKEY_KEY = "voxvera_connected_pubkey";
   // Wrong-PIN lockout: after a few bad PINs, refuse unlocking for a cooldown.
   // A deterrent against casual on-device guessing (a leaked blob is still
   // offline-brute-forceable — see the PIN caveat in docs/roadmap.md). The
@@ -2039,6 +2043,13 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     } catch (_) {}
   }
 
+  // Mirror a deliberately-chosen identity's pubkey to the board's connected-key
+  // slot, so the editor and board share one identity on this device.
+  function syncConnectedPubkey(pubkeyHex) {
+    if (!/^[0-9a-f]{64}$/i.test(String(pubkeyHex || ""))) return;
+    try { window.localStorage.setItem(BOARD_CONNECTED_PUBKEY_KEY, String(pubkeyHex).toLowerCase()); } catch (_) {}
+  }
+
   // --- WebCrypto PIN encryption for a remembered nsec (PBKDF2 -> AES-GCM) ---
   function b64encode(bytes) {
     let bin = "";
@@ -2104,6 +2115,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     const imp = el("nsec-import");
     if (imp) imp.hidden = true;
     persistMode("anon");
+    syncConnectedPubkey(activeIdentity().pubkey);
     refreshSignerState();
     refreshIdentityState();
   }
@@ -2122,6 +2134,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       const imp = el("nsec-import");
       if (imp) imp.hidden = true;
       persistMode("nip07");
+      syncConnectedPubkey(nip07Pubkey);
       refreshSignerState();
       refreshIdentityState();
     } catch (_) {
@@ -2178,6 +2191,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     // Remembered keys persist mode "nsec" (locked on reload); session-only keys
     // persist "anon" so a reload returns cleanly to anonymous, not a dead lock.
     persistMode(remember ? "nsec" : "anon");
+    syncConnectedPubkey(importedPubkey);
     refreshSignerState();
     refreshIdentityState();
   }
@@ -2222,6 +2236,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     if (el("unlock-pin")) el("unlock-pin").value = "";
     showLockedRow(false);
     persistMode("nsec");
+    syncConnectedPubkey(importedPubkey);
     refreshSignerState();
     refreshIdentityState();
   }
@@ -3267,6 +3282,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
         identityMode = "anon";
         nip07Pubkey = null;
         persistMode("anon");
+        syncConnectedPubkey(identity.pubkey);
         setRealOutput("author-npub-output", identity.npub);
         refreshSignerState();
         refreshIdentityState();

@@ -660,25 +660,45 @@
       .map((x) => x[1].toLowerCase());
   }
 
+  // Degree-2: fetch the contact lists of a batch of authors and return the union
+  // of everyone they follow. Bounded so the board doesn't fan out unboundedly.
+  async function fetchFollowsOfMany(authors) {
+    const list = Array.from(new Set(authors.filter((a) => /^[0-9a-f]{64}$/i.test(a)))).slice(0, 150);
+    if (!list.length) return [];
+    const { events } = await queryRelays(DEFAULT_RELAYS, { kinds: [3], authors: list, limit: 400 }, 6000);
+    const latest = new Map();
+    events.forEach((e) => {
+      if (!e || e.kind !== 3) return;
+      const prev = latest.get(e.pubkey);
+      if (!prev || (e.created_at || 0) > (prev.created_at || 0)) latest.set(e.pubkey, e);
+    });
+    const out = new Set();
+    latest.forEach((e) => (e.tags || []).forEach((x) => {
+      if (x[0] === "p" && /^[0-9a-f]{64}$/i.test(String(x[1] || ""))) out.add(x[1].toLowerCase());
+    }));
+    return Array.from(out);
+  }
+
   // Build the viewer's trust set: their own follows if they have any, otherwise
   // seed from the curator's follows. The viewer always trusts themselves.
   async function buildTrustSet(viewerPubkey) {
     const viewerFollows = await fetchFollows(viewerPubkey);
-    let follows;
+    const set = new Set();
     if (viewerFollows.length) {
-      follows = viewerFollows;
       trustSource = "viewer";
+      viewerFollows.forEach((x) => set.add(x.toLowerCase()));
+      // Degree-2: also trust the people your follows follow (web of trust).
+      (await fetchFollowsOfMany(viewerFollows)).forEach((x) => set.add(x));
     } else {
       const curatorFollows = await fetchFollows(FALLBACK_CURATOR_PUBKEY);
       if (curatorFollows.length) {
-        follows = curatorFollows.concat(FALLBACK_CURATOR_PUBKEY);
         trustSource = "seeded";
+        curatorFollows.forEach((x) => set.add(x.toLowerCase()));
+        set.add(FALLBACK_CURATOR_PUBKEY);
       } else {
-        follows = [];
         trustSource = "unavailable";
       }
     }
-    const set = new Set(follows.map((x) => x.toLowerCase()));
     if (viewerPubkey) set.add(String(viewerPubkey).toLowerCase());
     return set;
   }
