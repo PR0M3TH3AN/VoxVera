@@ -276,7 +276,8 @@ de-duplicated per author+`d` identifier, keeping the latest.
   link).
 - The npub column is forward-looking — anonymous keys today, but a stable
   identity per author maps cleanly onto this view later.
-- **Per-row actions.** On flyers the connected viewer authored, the board shows
+- **Per-row actions** (behind a per-row **⋯ menu**). On flyers the connected
+  viewer authored, the menu offers
   **Edit** (a link to `/?edit=1#<naddr>`, which loads the flyer in the editor),
   **Re-broadcast** (re-sends the already-signed event to all relays — no signing
   needed), and **Delete** (tombstone + NIP-09; the board signs via the device

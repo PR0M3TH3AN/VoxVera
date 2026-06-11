@@ -726,8 +726,10 @@ test.describe("VoxVera static client", () => {
     await page.locator("#board-connect").click();
     await expect(page.locator("#board-content")).toBeVisible();
     await expect(page.locator("#board-rows")).toContainText("Someone Else's Flyer");
-    // force: sticky header can overlap the button after auto-scroll on mobile.
-    await page.locator('.board-action[data-act="block"]').first().click({ force: true });
+    // Open the row's ⋯ menu, then Block. (force: a sticky header can overlap the
+    // control after auto-scroll on a mobile viewport.)
+    await page.locator(".board-menu-btn").first().click({ force: true });
+    await page.locator('.board-menu-item[data-act="block"]').first().click({ force: true });
     await expect(page.locator("#board-rows")).not.toContainText("Someone Else's Flyer");
     await expect(page.locator("#board-blocked-note")).toBeVisible();
     // Persists across a reload…
@@ -748,12 +750,16 @@ test.describe("VoxVera static client", () => {
     await page.locator("#board-connect").click();
     await expect(page.locator("#board-content")).toBeVisible();
     const myRow = page.locator("#board-rows tr", { hasText: "My Flyer" });
-    await expect(myRow.locator('.board-action[data-act="rebroadcast"]')).toBeVisible();
-    await expect(myRow.locator('.board-action[data-act="delete"]')).toBeVisible();
-    await expect(myRow.locator('.board-action[data-act="block"]')).toHaveCount(0);
+    await myRow.locator(".board-menu-btn").click({ force: true });
+    await expect(myRow.locator('.board-menu-item[data-act="rebroadcast"]')).toBeVisible();
+    await expect(myRow.locator('.board-menu-item[data-act="delete"]')).toBeVisible();
+    await expect(myRow.getByText("Edit")).toBeVisible();
+    await expect(myRow.locator('.board-menu-item[data-act="block"]')).toHaveCount(0);
+    await page.keyboard.press("Escape"); // close the first row's menu
     const theirRow = page.locator("#board-rows tr", { hasText: "Their Flyer" });
-    await expect(theirRow.locator('.board-action[data-act="block"]')).toBeVisible();
-    await expect(theirRow.locator('.board-action[data-act="delete"]')).toHaveCount(0);
+    await theirRow.locator(".board-menu-btn").click({ force: true });
+    await expect(theirRow.locator('.board-menu-item[data-act="block"]')).toBeVisible();
+    await expect(theirRow.locator('.board-menu-item[data-act="delete"]')).toHaveCount(0);
   });
 
   test("deleting your own flyer from the board publishes a tombstone + NIP-09", async ({ page }) => {
@@ -799,9 +805,9 @@ test.describe("VoxVera static client", () => {
     await page.locator("#board-connect").click();
     await expect(page.locator("#board-content")).toBeVisible();
     const myRow = page.locator("#board-rows tr", { hasText: "My Flyer" });
-    // force: on a narrow mobile viewport Playwright scrolls the button under the
-    // sticky table header, which then intercepts the click (harness artifact).
-    await myRow.locator('.board-action[data-act="delete"]').click({ force: true });
+    // Open the ⋯ menu, then Delete. (force: sticky header overlap on mobile.)
+    await myRow.locator(".board-menu-btn").click({ force: true });
+    await myRow.locator('.board-menu-item[data-act="delete"]').click({ force: true });
     await expect(page.locator("#board-delete-modal")).toBeVisible();
     await page.locator("#board-delete-confirm").click({ force: true });
     await expect(page.locator("#board-rows")).not.toContainText("My Flyer");
