@@ -820,6 +820,39 @@ test.describe("VoxVera static client", () => {
     await expect(page.locator("#board-rows")).toContainText("Someone Else's Flyer");
   });
 
+  test("the 'My flyers' filter shows only the connected user's flyers", async ({ page }) => {
+    const ME = "1".repeat(64);
+    const OTHER = "b".repeat(64);
+    await stubNip07(page); // viewer = ME
+    await stubRelays(page, [flyerEvent("mine", ME, "My Own Flyer"), flyerEvent("theirs", OTHER, "Other Flyer")]);
+    await page.goto("/board.html");
+    await page.locator("#board-connect").click();
+    await expect(page.locator("#board-content")).toBeVisible();
+    await expect(page.locator("#board-rows")).toContainText("My Own Flyer");
+    await expect(page.locator("#board-rows")).toContainText("Other Flyer");
+    // Click the label (WebKit treats a bare checkbox as not actionable); this is
+    // also how a user toggles it.
+    await page.locator("#board-mine-only-label").click();
+    await expect(page.locator("#board-mine-only")).toBeChecked();
+    await expect(page.locator("#board-rows")).toContainText("My Own Flyer");
+    await expect(page.locator("#board-rows")).not.toContainText("Other Flyer");
+  });
+
+  test("the board shows author display names from kind-0 metadata", async ({ page }) => {
+    const A = "a".repeat(64);
+    await stubNip07(page);
+    await stubRelays(page, [
+      flyerEvent("byalice", A, "Alice's Flyer"),
+      { id: "0".repeat(64), kind: 0, pubkey: A, created_at: 9000, tags: [], content: JSON.stringify({ name: "alice", display_name: "Alice A" }) }
+    ]);
+    await page.goto("/board.html");
+    await page.locator("#board-connect").click();
+    await expect(page.locator("#board-content")).toBeVisible();
+    await expect(page.locator("#board-rows")).toContainText("Alice's Flyer");
+    // display_name (preferred) appears once the kind-0 profiles load.
+    await expect(page.locator(".board-author-name")).toContainText("Alice A");
+  });
+
   test("the board shows manage actions on your flyers and Block on others", async ({ page }) => {
     const ME = "1".repeat(64);
     const OTHER = "b".repeat(64);
@@ -980,6 +1013,21 @@ test.describe("VoxVera static client", () => {
     await page.locator("#forget-key").click();
     await expect(page.locator("#signer-state")).toHaveText("Publishing anonymously");
     expect(await page.evaluate(() => localStorage.getItem("voxvera_identity_nsec_enc"))).toBeNull();
+  });
+
+  test("unlock is locked out while the wrong-PIN cooldown is active", async ({ page }) => {
+    // Seed a locked identity + an active lockout deadline so we exercise the
+    // enforcement path without running several slow PBKDF2 decrypts.
+    await page.addInitScript(() => {
+      localStorage.setItem("voxvera_identity_mode", "nsec");
+      localStorage.setItem("voxvera_identity_nsec_enc", JSON.stringify({ v: 1, iters: 600000, salt: "AAAA", iv: "BBBB", ct: "CCCC" }));
+      localStorage.setItem("voxvera_identity_unlock_until", String(Date.now() + 60000));
+    });
+    await page.goto("/#editor");
+    await expect(page.locator("#identity-locked-row")).toBeVisible();
+    await page.locator("#unlock-pin").fill("1234");
+    await page.locator("#unlock-key").click();
+    await expect(page.locator("#identity-error")).toContainText(/too many attempts/i);
   });
 
   test("bulletin board language selector localizes the page", async ({ page }) => {

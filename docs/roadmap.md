@@ -31,6 +31,11 @@ The trust model (#1–#2) has moved from undefined to implemented:
 - **Local blocklist** — a per-device "Block" on the board hides flyers from any
   author you didn't post (separate from the web-of-trust filter), with a clear
   control. This is the local blocklist direction from #1.
+- **Author display names** — the board shows each author's kind-0 display name
+  (falling back to the npub), so flyers aren't labeled by bare keys. (NIP-05
+  *verification* is still a future addition.)
+- **"My flyers" filter** — a board toggle to show only the connected user's own
+  flyers (overrides the trust filter, since your own may not be in your graph).
 
 All of the above is localized across the 14 languages and covered by the
 cross-engine Playwright suite. **What remains** on #1–#2 is polish (degree-2
@@ -187,9 +192,10 @@ board can show them flyers from people they trust.
   imported nsec. A remembered nsec is PIN-encrypted at rest (PBKDF2 600k →
   AES-GCM); plaintext is never stored. **Known weakness:** a short numeric PIN is
   brute-forceable offline if the encrypted blob leaks — it guards casual snooping,
-  not a targeted attacker. Next: NIP-46 remote signer; an attempt-limit / lockout
-  on repeated wrong PINs; and optionally encrypting the anonymous device key the
-  same way (today it is stored in plaintext, as before).
+  not a targeted attacker. A **wrong-PIN lockout** is now in place (3 bad PINs →
+  a 30s cooldown, persisted across reloads). Still open: NIP-46 remote signer,
+  and optionally encrypting the anonymous device key the same way (today it is
+  stored in plaintext, as before).
 - **Editor vs board identity are independent.** The editor's publishing identity
   and the board's viewing identity are stored separately and don't yet sync; a
   future pass could share one connected identity across both pages.

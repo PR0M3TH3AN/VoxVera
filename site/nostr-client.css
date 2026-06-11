@@ -1155,6 +1155,11 @@ body.mode-viewer #viewer-panel.drawer-open .result-panel {
   white-space: nowrap;
 }
 
+.board-table .board-author-name {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
 .board-table .board-date {
   white-space: nowrap;
   color: var(--muted);
