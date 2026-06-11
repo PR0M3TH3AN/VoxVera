@@ -3047,6 +3047,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       window.addEventListener("resize", updatePreviewScale);
     }
     const urlEvent = getUrlEventReference();
+    // `?edit=1` (used by the board's "Edit" link) opens the loaded flyer in the
+    // editor instead of the viewer, so the author lands on the form + actions.
+    const editIntent = new URLSearchParams(window.location.search).get("edit") === "1";
     setMode(window.location.hash === "#editor" && !urlEvent ? "editor" : "viewer");
     if (urlEvent) {
       const urlInput = window.location.href;
@@ -3057,7 +3060,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       // placeholder flyer. Show a localized loading state until the real event
       // resolves (or a load-failed state if it does not).
       renderStatusPreview(nostrLabel("loading_content", loadingLang), loadingLang);
-      fetchAndRenderFromInput(urlInput, el("viewer-relays").value).catch((error) => {
+      fetchAndRenderFromInput(urlInput, el("viewer-relays").value).then(() => {
+        if (editIntent) setMode("editor");
+      }).catch((error) => {
         renderStatusPreview(nostrLabel("load_failed", loadingLang), loadingLang);
         el("viewer-status").textContent = error.message;
         openViewerDrawer();

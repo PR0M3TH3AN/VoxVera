@@ -25,7 +25,12 @@ The trust model (#1–#2) has moved from undefined to implemented:
   loaded flyer (re-publish replaces in place via the `d` tag), re-publish as a
   keep-alive, or delete it. Delete is belt-and-suspenders: a replaceable
   **tombstone** (so the board/viewer hide it even on relays that ignore NIP-09)
-  plus a **NIP-09** deletion request. Best-effort, author-only.
+  plus a **NIP-09** deletion request. Best-effort, author-only. These actions are
+  available in the editor and inline on the bulletin board (Edit / Re-broadcast /
+  Delete on your own rows).
+- **Local blocklist** — a per-device "Block" on the board hides flyers from any
+  author you didn't post (separate from the web-of-trust filter), with a clear
+  control. This is the local blocklist direction from #1.
 
 All of the above is localized across the 14 languages and covered by the
 cross-engine Playwright suite. **What remains** on #1–#2 is polish (degree-2
@@ -64,7 +69,8 @@ the single biggest liability for promoting the board publicly.
 - Client-side curation: an allowlist of npubs (a "follows"/featured set) so the
   default view shows only vetted authors.
 - A local, user-controlled blocklist / "hide this" with `localStorage`
-  persistence (per-device, no server needed).
+  persistence (per-device, no server needed). **✅ Shipped** — the board's
+  per-row **Block** (`voxvera_blocked_pubkeys`).
 - A dedicated VoxVera relay (or relay set) that applies its own admission
   policy, with the public relays as fallback.
 - A "report" affordance that records to a relay/list a curator can act on.

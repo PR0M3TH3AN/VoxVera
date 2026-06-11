@@ -338,7 +338,7 @@ test.describe("VoxVera static client", () => {
     await page.locator("#board-connect").click();
     await expect(page.locator("#board-content")).toBeVisible();
     const headers = page.locator("#board-head th");
-    await expect(headers).toHaveCount(6);
+    await expect(headers).toHaveCount(7); // + a non-sortable actions column
     await expect(headers.nth(0)).toContainText("Title");
     await expect(headers.nth(1)).toContainText("Link");
     await expect(headers.nth(2)).toContainText("Posted by");
@@ -716,6 +716,98 @@ test.describe("VoxVera static client", () => {
     await page.goto(`/#${naddr}`);
     await expect(page.locator(".flyer-status-message")).toContainText("This flyer was removed");
     await expect(page.locator(".content h1")).toHaveCount(0);
+  });
+
+  test("blocking an author hides their flyers, persists, and clears", async ({ page }) => {
+    const OTHER = "b".repeat(64);
+    await stubNip07(page); // viewer = 1*64
+    await stubRelays(page, [flyerEvent("other", OTHER, "Someone Else's Flyer")]);
+    await page.goto("/board.html");
+    await page.locator("#board-connect").click();
+    await expect(page.locator("#board-content")).toBeVisible();
+    await expect(page.locator("#board-rows")).toContainText("Someone Else's Flyer");
+    // force: sticky header can overlap the button after auto-scroll on mobile.
+    await page.locator('.board-action[data-act="block"]').first().click({ force: true });
+    await expect(page.locator("#board-rows")).not.toContainText("Someone Else's Flyer");
+    await expect(page.locator("#board-blocked-note")).toBeVisible();
+    // Persists across a reload…
+    await page.reload();
+    await expect(page.locator("#board-content")).toBeVisible();
+    await expect(page.locator("#board-rows")).not.toContainText("Someone Else's Flyer");
+    // …and "Clear blocked" restores it.
+    await page.locator("#board-unblock-all").click();
+    await expect(page.locator("#board-rows")).toContainText("Someone Else's Flyer");
+  });
+
+  test("the board shows manage actions on your flyers and Block on others", async ({ page }) => {
+    const ME = "1".repeat(64);
+    const OTHER = "b".repeat(64);
+    await stubNip07(page); // viewer = ME
+    await stubRelays(page, [flyerEvent("mine", ME, "My Flyer"), flyerEvent("theirs", OTHER, "Their Flyer")]);
+    await page.goto("/board.html");
+    await page.locator("#board-connect").click();
+    await expect(page.locator("#board-content")).toBeVisible();
+    const myRow = page.locator("#board-rows tr", { hasText: "My Flyer" });
+    await expect(myRow.locator('.board-action[data-act="rebroadcast"]')).toBeVisible();
+    await expect(myRow.locator('.board-action[data-act="delete"]')).toBeVisible();
+    await expect(myRow.locator('.board-action[data-act="block"]')).toHaveCount(0);
+    const theirRow = page.locator("#board-rows tr", { hasText: "Their Flyer" });
+    await expect(theirRow.locator('.board-action[data-act="block"]')).toBeVisible();
+    await expect(theirRow.locator('.board-action[data-act="delete"]')).toHaveCount(0);
+  });
+
+  test("deleting your own flyer from the board publishes a tombstone + NIP-09", async ({ page }) => {
+    const ME = "a".repeat(64);
+    await page.addInitScript((me) => {
+      let n = 0;
+      window.nostr = {
+        getPublicKey: async () => me,
+        signEvent: async (e) => ({ ...e, pubkey: me, id: (++n).toString(16).padStart(64, "0"), sig: "0".repeat(128) })
+      };
+      window.__published = [];
+      const flyer = {
+        id: "e".repeat(64), kind: 30078, pubkey: me, created_at: 2000,
+        tags: [["d", "voxvera:mine"], ["t", "voxvera"], ["t", "flyer"], ["language", "en"]],
+        content: JSON.stringify({ type: "voxvera_flyer", version: 1, folder_name: "mine", lang: "en", title: "My Flyer", subtitle: "s", headline: "h", content: "c", url_message: "m", url: "https://example.com/m", footer_message: "f", tear_off_link: "https://voxvera.org/#naddr1m", qr_target: "flyer_url" })
+      };
+      const matches = (ev, f) => {
+        if (f.kinds && f.kinds.indexOf(ev.kind) === -1) return false;
+        if (f.authors && f.authors.indexOf(ev.pubkey) === -1) return false;
+        if (f["#t"]) { const tv = (ev.tags || []).filter((x) => x[0] === "t").map((x) => x[1]); if (!f["#t"].some((v) => tv.indexOf(v) !== -1)) return false; }
+        return true;
+      };
+      class FakeWS {
+        constructor() { this.readyState = 1; setTimeout(() => this.onopen && this.onopen(), 1); }
+        send(data) {
+          let m; try { m = JSON.parse(data); } catch (_) { return; }
+          if (m[0] === "REQ") {
+            const sub = m[1], f = m[2] || {};
+            setTimeout(() => {
+              if (matches(flyer, f)) this.onmessage && this.onmessage({ data: JSON.stringify(["EVENT", sub, flyer]) });
+              this.onmessage && this.onmessage({ data: JSON.stringify(["EOSE", sub]) });
+            }, 1);
+          } else if (m[0] === "EVENT") {
+            window.__published.push(m[1]);
+            setTimeout(() => this.onmessage && this.onmessage({ data: JSON.stringify(["OK", m[1].id, true, ""]) }), 1);
+          }
+        }
+        close() {}
+      }
+      window.WebSocket = FakeWS;
+    }, ME);
+    await page.goto("/board.html");
+    await page.locator("#board-connect").click();
+    await expect(page.locator("#board-content")).toBeVisible();
+    const myRow = page.locator("#board-rows tr", { hasText: "My Flyer" });
+    // force: on a narrow mobile viewport Playwright scrolls the button under the
+    // sticky table header, which then intercepts the click (harness artifact).
+    await myRow.locator('.board-action[data-act="delete"]').click({ force: true });
+    await expect(page.locator("#board-delete-modal")).toBeVisible();
+    await page.locator("#board-delete-confirm").click({ force: true });
+    await expect(page.locator("#board-rows")).not.toContainText("My Flyer");
+    const pub = await page.evaluate(() => window.__published);
+    expect(pub.some((e) => e.kind === 30078 && (e.tags || []).some((t) => t[0] === "deleted"))).toBe(true);
+    expect(pub.some((e) => e.kind === 5 && (e.tags || []).some((t) => t[0] === "a" && t[1] === `30078:${ME}:voxvera:mine`))).toBe(true);
   });
 
   test("editor imports an nsec for the session without storing the secret", async ({ page }) => {

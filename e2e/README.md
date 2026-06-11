@@ -40,6 +40,11 @@ engine-sensitive surfaces:
   reveals the board, leaves no secret in the DOM or storage, and restores on
   reload from the pubkey alone; an invalid `nsec` errors without connecting; and
   "Create a new key" reveals the npub/nsec, stores the device key, then connects
+- flyer management: editor and board **delete** publish a tombstone + a NIP-09
+  deletion (the board/viewer then hide it); a NIP-07 publish builds the naddr
+  from the signer even before the pubkey loads; the board's **Block** hides an
+  author locally, persists, and clears; own-flyer rows show Edit/Re-broadcast/
+  Delete while others show Block
 - the editor's publishing identity: defaults to anonymous; connecting NIP-07
   (stubbed) signs/publishes under the extension key; importing an `nsec` signs
   for the session without persisting the secret; an invalid `nsec` errors; a

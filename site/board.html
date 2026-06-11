@@ -64,6 +64,9 @@
       <div id="board-content" hidden>
         <div class="board-filter">
           <span id="board-filter-note" class="board-filter-note"></span>
+          <span id="board-blocked-note" class="board-blocked-note" hidden>
+            <span id="board-blocked-count">0</span>&nbsp;·&nbsp;<button id="board-unblock-all" type="button" class="board-action">Clear blocked</button>
+          </span>
           <label class="board-show-all">
             <input type="checkbox" id="board-show-all">
             <span id="board-show-all-label">Show all flyers</span>
@@ -76,6 +79,18 @@
         </table>
       </div>
     </main>
+
+    <div id="board-delete-modal" class="modal-overlay" hidden>
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="board-delete-title">
+        <h2 id="board-delete-title">Delete this flyer?</h2>
+        <p id="board-delete-message">This requests deletion from the relays and hides it in VoxVera. Deletion can't be guaranteed across every relay.</p>
+        <div class="modal-actions">
+          <button id="board-delete-cancel" type="button" class="board-action">Cancel</button>
+          <button id="board-delete-confirm" type="button" class="board-action danger">Delete</button>
+        </div>
+      </div>
+    </div>
+
     <script src="/locales.js"></script>
     <script src="/vendor/nostr-tools/nostr.bundle.js"></script>
     <script src="/board.js"></script>

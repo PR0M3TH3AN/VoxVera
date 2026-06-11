@@ -1147,6 +1147,33 @@ body.mode-viewer #viewer-panel.drawer-open .result-panel {
   white-space: nowrap;
 }
 
+/* Per-row management actions (edit / re-broadcast / delete / block) + the
+   "blocked" note in the filter bar. */
+.board-action {
+  display: inline-block;
+  font: inherit;
+  font-size: 11px;
+  padding: 2px 8px;
+  margin: 0 2px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--accent);
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.board-action.danger:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.board-blocked-note {
+  font-size: 12px;
+  color: var(--muted);
+}
+
 .board-table a {
   color: var(--accent);
 }
