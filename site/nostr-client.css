@@ -548,6 +548,27 @@ a {
   flex-direction: column;
 }
 
+/* Tear-off title labels each tab. Its font-size is set by fitTabTitles() in JS
+   to be as large as fits; this caps the height so a long title shrinks (and at
+   worst clips) instead of pushing the link/event-id out of the 1in tab. */
+.tear-off-title {
+  font-weight: 700;
+  line-height: 1.05;
+  text-align: center;
+  letter-spacing: 0;
+  max-height: 0.42in;
+  overflow: hidden;
+  margin-bottom: 2px;
+}
+
+/* The clickable action line under the title (also clickable in a printed PDF). */
+.tear-off-link {
+  display: block;
+  font-size: 10px;
+  line-height: 1.15;
+  text-align: center;
+}
+
 .tear-off-event-id {
   margin-top: auto;
   padding-top: 4px;

@@ -210,6 +210,38 @@ test.describe("VoxVera static client", () => {
     expect(href || "").not.toMatch(/^javascript:/i);
   });
 
+  test("tear-off tabs carry the title, an open-&-reprint link, and a VoxVera.org event-id", async ({ page }) => {
+    const PK = "c".repeat(64);
+    const IDENT = "voxvera:tab-test";
+    await stubRelays(page, [{
+      id: "ab".repeat(32), kind: 30078, pubkey: PK, created_at: 3000,
+      tags: [["d", IDENT], ["t", "voxvera"], ["t", "flyer"], ["language", "en"]],
+      content: JSON.stringify({
+        type: "voxvera_flyer", version: 1, folder_name: "tab-test", lang: "en",
+        name: "N", title: "BITCOIN", subtitle: "s", headline: "h", content: "c",
+        url_message: "m", url: "https://example.com/x", footer_message: "f",
+        tear_off_link: "https://voxvera.org/#naddr1tab", qr_target: "flyer_url"
+      })
+    }]);
+    await page.goto("/");
+    const naddr = await page.evaluate(({ pk, ident }) =>
+      window.NostrTools.nip19.naddrEncode({ identifier: ident, pubkey: pk, kind: 30078, relays: [] }),
+      { pk: PK, ident: IDENT });
+    await page.goto("about:blank");
+    await page.goto(`/#${naddr}`);
+    const tab = page.locator(".tear-off").first();
+    // Title labels the tab and is auto-sized to a concrete font size.
+    await expect(tab.locator(".tear-off-title")).toHaveText("BITCOIN");
+    expect(await tab.locator(".tear-off-title").evaluate((n) => n.style.fontSize)).toMatch(/\d+px/);
+    // The instruction line is the clickable link to the poster URL.
+    const link = tab.locator("a.tear-off-link");
+    await expect(link).toHaveText("Open & reprint this flyer");
+    await expect(link).toHaveAttribute("href", "https://voxvera.org/#naddr1tab");
+    // Event-id label points people back to VoxVera.org.
+    await expect(tab.locator(".tear-off-event-id")).toContainText("Reopen at VoxVera.org");
+    await expect(tab.locator(".tear-off-event-id")).toContainText("Event ID");
+  });
+
   test("viewer resolves a flyer from relays that ignore the #d filter", async ({ page }) => {
     // Simulate a relay that does NOT honor the addressable "#d" tag filter (it
     // returns nothing for such a REQ) but does answer a broad author query —

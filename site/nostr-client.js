@@ -183,6 +183,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       publish_event: "توقيع ونشر",
       published_event: "الحدث المنشور",
       share_reprint: "شارك وأعد الطباعة.",
+      tab_link: "افتح وأعد طباعة هذا الملصق",
+      tab_event_id: "أعد الفتح على VoxVera.org — معرّف الحدث",
       built_with: "بني بواسطة",
       viewer: "العارض",
       client_title: "عميل VoxVera Nostr",
@@ -271,6 +273,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       publish_event: "Signieren und veröffentlichen",
       published_event: "Veröffentlichtes Event",
       share_reprint: "Teilen und neu drucken.",
+      tab_link: "Plakat öffnen & neu drucken",
+      tab_event_id: "Erneut öffnen auf VoxVera.org — Event-ID",
       built_with: "Erstellt mit",
       viewer: "Viewer",
       client_title: "VoxVera Nostr-Client",
@@ -359,6 +363,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       publish_event: "Sign and publish",
       published_event: "Published Event",
       share_reprint: "Share and reprint.",
+      tab_link: "Open & reprint this flyer",
+      tab_event_id: "Reopen at VoxVera.org — Event ID",
       built_with: "Built with",
       viewer: "Viewer",
       client_title: "VoxVera Nostr Client",
@@ -448,6 +454,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       publish_event: "Firmar y publicar",
       published_event: "Evento publicado",
       share_reprint: "Comparta y reimprima.",
+      tab_link: "Abre y reimprime este cartel",
+      tab_event_id: "Reábrelo en VoxVera.org — ID del evento",
       built_with: "Creado con",
       viewer: "Visor",
       client_title: "Cliente Nostr de VoxVera",
@@ -536,6 +544,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       publish_event: "امضا و انتشار",
       published_event: "رویداد منتشرشده",
       share_reprint: "به اشتراک بگذارید و دوباره چاپ کنید.",
+      tab_link: "این پوستر را باز و دوباره چاپ کنید",
+      tab_event_id: "در VoxVera.org دوباره باز کنید — شناسه رویداد",
       built_with: "ساخته شده با",
       viewer: "نمایشگر",
       client_title: "کلاینت Nostr VoxVera",
@@ -624,6 +634,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       publish_event: "Signer et publier",
       published_event: "Evenement publie",
       share_reprint: "Partagez et reimprimez.",
+      tab_link: "Ouvrir et réimprimer cette affiche",
+      tab_event_id: "Rouvrir sur VoxVera.org — ID de l'événement",
       built_with: "Cree avec",
       viewer: "Visionneuse",
       client_title: "Client Nostr VoxVera",
@@ -712,6 +724,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       publish_event: "חתום ופרסם",
       published_event: "אירוע שפורסם",
       share_reprint: "שתף והדפס מחדש.",
+      tab_link: "פתח והדפס מחדש את הכרזה",
+      tab_event_id: "פתח מחדש ב-VoxVera.org — מזהה אירוע",
       built_with: "נבנה עם",
       viewer: "מציג",
       client_title: "לקוח Nostr של VoxVera",
@@ -800,6 +814,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       publish_event: "हस्ताक्षर कर प्रकाशित करें",
       published_event: "प्रकाशित इवेंट",
       share_reprint: "साझा करें और फिर से प्रिंट करें।",
+      tab_link: "इस पोस्टर को खोलें और फिर से प्रिंट करें",
+      tab_event_id: "VoxVera.org पर फिर से खोलें — इवेंट ID",
       built_with: "इसके साथ बनाया गया",
       viewer: "दर्शक",
       client_title: "VoxVera Nostr क्लाइंट",
@@ -888,6 +904,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       publish_event: "署名して公開",
       published_event: "公開済みイベント",
       share_reprint: "共有して再印刷。",
+      tab_link: "開いて再印刷",
+      tab_event_id: "VoxVera.org で再度開く — イベントID",
       built_with: "作成:",
       viewer: "ビューア",
       client_title: "VoxVera Nostr クライアント",
@@ -976,6 +994,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       publish_event: "Assinar e publicar",
       published_event: "Evento publicado",
       share_reprint: "Compartilhe e reimprima.",
+      tab_link: "Abrir e reimprimir este panfleto",
+      tab_event_id: "Reabrir em VoxVera.org — ID do evento",
       built_with: "Criado com",
       viewer: "Visualizador",
       client_title: "Cliente Nostr VoxVera",
@@ -1064,6 +1084,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       publish_event: "Подписать и опубликовать",
       published_event: "Опубликованное событие",
       share_reprint: "Поделитесь и распечатайте снова.",
+      tab_link: "Открыть и распечатать снова",
+      tab_event_id: "Открыть снова на VoxVera.org — ID события",
       built_with: "Создано с помощью",
       viewer: "Просмотр",
       client_title: "Клиент VoxVera Nostr",
@@ -1152,6 +1174,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       publish_event: "Saini na chapisha",
       published_event: "Tukio lililochapishwa",
       share_reprint: "Shiriki na uchapishe tena.",
+      tab_link: "Fungua na uchapishe tena bango hili",
+      tab_event_id: "Fungua tena kwenye VoxVera.org — Kitambulisho cha tukio",
       built_with: "Imejengwa na",
       viewer: "Kitazamaji",
       client_title: "Mteja wa VoxVera Nostr",
@@ -1240,6 +1264,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       publish_event: "İmzala ve yayınla",
       published_event: "Yayınlanan olay",
       share_reprint: "Paylaşın ve yeniden yazdırın.",
+      tab_link: "Bu el ilanını aç ve yeniden yazdır",
+      tab_event_id: "VoxVera.org'da yeniden aç — Olay ID",
       built_with: "İle yapıldı",
       viewer: "Görüntüleyici",
       client_title: "VoxVera Nostr İstemcisi",
@@ -1328,6 +1354,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       publish_event: "签名并发布",
       published_event: "已发布事件",
       share_reprint: "分享并重新打印。",
+      tab_link: "打开并重新打印此传单",
+      tab_event_id: "在 VoxVera.org 重新打开 — 事件 ID",
       built_with: "构建自",
       viewer: "查看器",
       client_title: "VoxVera Nostr 客户端",
@@ -2728,26 +2756,26 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     const tearOffQrSvg = makeQrSvg(tearOff);
     const contentQrSvg = makeQrSvg(contentQr);
     const sheetClass = `${tearOff ? "container" : "container no-tear-offs"} ls-${trackingPolicy(flyerLang)}`;
-    const openPosterLabel = nostrLabel("open_poster", flyerLang);
-    const shareReprintLabel = nostrLabel("share_reprint", flyerLang);
+    const tabLinkLabel = nostrLabel("tab_link", flyerLang);
     const builtWithLabel = nostrLabel("built_with", flyerLang);
-    const eventIdLabel = nostrLabel("event_id", flyerLang);
+    const tabEventIdLabel = nostrLabel("tab_event_id", flyerLang);
     const eventId = String(config.event_id || "").trim();
-    const tearOffStatement = [openPosterLabel, shareReprintLabel]
-      .map((part) => String(part || "").trim())
-      .filter(Boolean)
-      .map((part) => escapeHtml(part))
-      .join("<br>");
+    // The flyer's title labels each tab; it is auto-sized to fit after render.
+    const tabTitle = String(config.title || "").trim();
+    const tabTitleHtml = tabTitle
+      ? `<div class="tear-off-title" dir="${escapeHtml((flyerLocale.meta && flyerLocale.meta.direction) || "ltr")}">${escapeHtml(tabTitle)}</div>`
+      : "";
     const eventIdValueHtml = eventId.length > 32
       ? `${escapeHtml(eventId.slice(0, 32))}<br>${escapeHtml(eventId.slice(32))}`
       : escapeHtml(eventId);
     const eventIdHtml = eventId
-      ? `<div class="tear-off-event-id">${escapeHtml(eventIdLabel)}:<br><span class="tear-off-event-id-value">${eventIdValueHtml}</span></div>`
+      ? `<div class="tear-off-event-id">${escapeHtml(tabEventIdLabel)}:<br><span class="tear-off-event-id-value">${eventIdValueHtml}</span></div>`
       : "";
     const tearOffHtml = Array.from({ length: 10 }).map(() => `
       <div class="tear-off">
         <div class="tear-off-text">
-          <a href="${escapeHtml(tearOff)}" title="${escapeHtml(tearOff)}">${tearOffStatement}</a>
+          ${tabTitleHtml}
+          <a class="tear-off-link" href="${escapeHtml(tearOff)}" title="${escapeHtml(tearOff)}">${escapeHtml(tabLinkLabel)}</a>
           ${eventIdHtml}
         </div>
         <div class="qr-code" aria-label="QR code for ${escapeHtml(tearOff)}">${tearOffQrSvg}</div>
@@ -2777,7 +2805,29 @@ Join us in a revolution that values truth and transparency. Together, we can bui
         </div>
       </div>
     `;
+    fitTabTitles();
     updatePreviewScale();
+  }
+
+  // Size the tear-off title as large as it can be while still fitting the tab
+  // (so short titles are big and long ones shrink instead of overflowing). All
+  // ten tabs share the same title, so measure one and apply the result to all.
+  function fitTabTitles() {
+    const titles = el("flyer-preview") && el("flyer-preview").querySelectorAll(".tear-off-title");
+    if (!titles || !titles.length) return;
+    const MAX = 22;
+    const MIN = 9;
+    const probe = titles[0];
+    let size = MAX;
+    probe.style.fontSize = `${size}px`;
+    // .tear-off-title caps its height via CSS; shrink until the text fits within
+    // both that height and the tab width.
+    const fits = () => probe.scrollHeight <= probe.clientHeight + 1 && probe.scrollWidth <= probe.clientWidth + 1;
+    while (size > MIN && !fits()) {
+      size -= 1;
+      probe.style.fontSize = `${size}px`;
+    }
+    titles.forEach((node) => { node.style.fontSize = `${size}px`; });
   }
 
   function updatePreviewScale() {
