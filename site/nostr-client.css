@@ -207,6 +207,12 @@ main {
 /* Vertical stack so the input, the "remember" checkbox, the PIN field, and the
    action button each get their own line (a wrapping row collided the label and
    button). */
+/* The `hidden` attribute must win over the display rule below (otherwise the
+   nsec-import box and the locked-identity row show on every load). */
+.identity-import[hidden] {
+  display: none;
+}
+
 .identity-import {
   display: flex;
   flex-direction: column;
@@ -969,6 +975,11 @@ body.mode-viewer #viewer-panel.drawer-open .result-panel {
 
   .flyer-sheet,
   .container {
+    /* Keep the sheet's true print width so the scale math (availableWidth /
+       sheetWidth) is right. In viewer mode .flyer-preview is a flexbox, and
+       without flex:none the sheet shrinks to the viewport, making the scale
+       compute to 1 and the full-width content clip instead of shrinking. */
+    flex: 0 0 auto;
     transform: scale(var(--mobile-flyer-scale));
     transform-origin: top left;
     margin-bottom: var(--flyer-preview-collapse, calc((1056px * var(--mobile-flyer-scale)) - 1056px));
@@ -1261,6 +1272,89 @@ body.mode-viewer #viewer-panel.drawer-open .result-panel {
 
 .board-menu-item.danger {
   color: var(--accent);
+}
+
+/* The mobile "Details" disclosure toggle is hidden on desktop (the secondary
+   fields are their own columns there). */
+.board-details-toggle {
+  display: none;
+}
+
+/* Narrow screens: the 7-column table becomes a stacked card per flyer. Title +
+   the ⋯ menu are always shown; the rest sits behind a per-row "Details" toggle. */
+@media (max-width: 640px) {
+  .board-table thead { display: none; }
+  .board-table,
+  .board-table tbody,
+  .board-table tr,
+  .board-table td { display: block; width: auto; }
+
+  .board-table tr {
+    position: relative;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    margin: 0 0 10px;
+    padding: 10px 44px 10px 12px;
+  }
+
+  .board-table td {
+    border: none;
+    padding: 2px 0;
+    white-space: normal;
+  }
+
+  .board-table td[data-col="title"] { padding-top: 0; }
+  .board-table td[data-col="title"] .board-title { font-size: 15px; }
+
+  .board-table td[data-col="actions"] {
+    position: absolute;
+    top: 8px;
+    inset-inline-end: 8px;
+    padding: 0;
+  }
+
+  .board-details-toggle {
+    display: block;
+    width: fit-content;
+    margin-top: 4px;
+    padding: 2px 0;
+    font: inherit;
+    font-size: 12px;
+    background: transparent;
+    border: none;
+    color: var(--accent);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  /* Secondary fields collapsed until the row is expanded. */
+  .board-table td[data-col="link"],
+  .board-table td[data-col="author"],
+  .board-table td[data-col="language"],
+  .board-table td[data-col="date"],
+  .board-table td[data-col="id"] {
+    display: none;
+    font-size: 13px;
+  }
+
+  .board-table tr.expanded td[data-col="link"],
+  .board-table tr.expanded td[data-col="author"],
+  .board-table tr.expanded td[data-col="language"],
+  .board-table tr.expanded td[data-col="date"],
+  .board-table tr.expanded td[data-col="id"] {
+    display: block;
+  }
+
+  /* Label each revealed field with its column name. */
+  .board-table tr.expanded td[data-col="link"]::before,
+  .board-table tr.expanded td[data-col="author"]::before,
+  .board-table tr.expanded td[data-col="language"]::before,
+  .board-table tr.expanded td[data-col="date"]::before,
+  .board-table tr.expanded td[data-col="id"]::before {
+    content: attr(data-label) ": ";
+    color: var(--muted);
+    font-weight: 700;
+  }
 }
 
 .board-table a {

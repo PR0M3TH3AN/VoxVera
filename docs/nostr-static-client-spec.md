@@ -288,6 +288,16 @@ de-duplicated per author+`d` identifier, keeping the latest.
   pubkeys (`voxvera_blocked_pubkeys`) that always hides them, with a "Clear
   blocked" control. The blocklist is local "hide this," separate from the
   web-of-trust filter (roadmap #1).
+- **Narrow screens (≤640px):** the table collapses to a card per flyer — the
+  **title** and the **⋯ menu** stay visible, and the secondary fields (link,
+  posted-by, language, date, event id) sit behind a per-row **Details**
+  disclosure (`.board-details-toggle` toggles `tr.expanded`; the columns become
+  labeled rows via their `data-label`).
+
+On mobile the flyer preview scales to fully fit the screen width
+(`updatePreviewScale` / `--flyer-preview-scale`): the sheet keeps its true print
+width (`flex: 0 0 auto`, so the viewer-mode flexbox doesn't shrink it) and is
+visually scaled with a transform — so it never side-scrolls or clips.
 
 The login gate (Phase 1) and the web-of-trust filter (Phase 2) are in place.
 Remaining gaps — degree-2 trust, a blocklist/report flow, NIP-05 badges, and

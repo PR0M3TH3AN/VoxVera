@@ -289,6 +289,45 @@ test.describe("VoxVera static client", () => {
     await expect(page.locator(".flyer-status-message")).toHaveCount(0);
   });
 
+  test("on a narrow screen the flyer shrinks to fully fit the width", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 800 });
+    await page.goto("/");
+    await page.waitForSelector("#flyer-preview .container");
+    await page.waitForTimeout(200);
+    const m = await page.evaluate(() => {
+      const sheet = document.querySelector("#flyer-preview .container");
+      return {
+        rectW: Math.round(sheet.getBoundingClientRect().width),
+        win: window.innerWidth,
+        overflow: document.documentElement.scrollWidth > window.innerWidth
+      };
+    });
+    expect(m.rectW).toBeLessThanOrEqual(m.win); // no clipping past the screen edge
+    expect(m.overflow).toBe(false); // no horizontal page scroll
+  });
+
+  test("editor identity controls stay hidden until chosen", async ({ page }) => {
+    await page.goto("/#editor");
+    await expect(page.locator("#nsec-import")).toBeHidden();
+    await expect(page.locator("#identity-locked-row")).toBeHidden();
+  });
+
+  test("on a narrow screen the board collapses to cards with a Details toggle", async ({ page }) => {
+    await page.setViewportSize({ width: 380, height: 800 });
+    await stubNip07(page);
+    await stubRelays(page, [flyerEvent("solo", "b".repeat(64), "Mobile Flyer")]);
+    await page.goto("/board.html");
+    await page.locator("#board-connect").click();
+    await expect(page.locator("#board-content")).toBeVisible();
+    const row = page.locator("#board-rows tr").first();
+    const toggle = row.locator(".board-details-toggle");
+    await expect(toggle).toBeVisible(); // shown only at narrow widths
+    await expect(row.locator('td[data-col="author"]')).toBeHidden(); // collapsed
+    await toggle.click();
+    await expect(row).toHaveClass(/expanded/);
+    await expect(row.locator('td[data-col="author"]')).toBeVisible(); // revealed
+  });
+
   test("infers language from the first supported browser preference", async ({ page }) => {
     // Browser prefers Dutch (unsupported), then German (supported), then
     // English. We should honor German rather than jumping to the English
@@ -362,6 +401,8 @@ test.describe("VoxVera static client", () => {
   });
 
   test("bulletin board page renders localized, sortable columns", async ({ page }) => {
+    // Desktop table mode (narrow screens collapse to cards with the header hidden).
+    await page.setViewportSize({ width: 1024, height: 768 });
     await stubNip07(page);
     await stubRelays(page, []);
     await page.goto("/board.html");
