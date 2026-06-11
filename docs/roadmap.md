@@ -198,15 +198,19 @@ board can show them flyers from people they trust.
   riskier than a NIP-07 extension that keeps the key isolated; the input is a
   password field, the value is cleared after use, and nothing is transmitted. The
   **NIP-46 remote signer** (below) is now the safer mobile path.
-- **NIP-46 remote signer (shipped).** The editor can connect a remote signer
+- **NIP-46 remote signer (shipped — editor *and* board).** Both the editor's
+  publishing identity and the board's login gate can connect a remote signer
   (bunker) by pasting a `bunker://` link: the user's secret stays in their signer
   app (nsec.app, Amber, …) and the browser only holds an ephemeral local key. The
   client is hand-rolled over a raw WebSocket using the vendored NIP-44 (with a
-  NIP-04 decrypt fallback) — the bundle ships no nip46 module. Connections are
-  **session-only** (the bunker token is never written to disk, so a reload returns
-  to anonymous). Covered by the cross-engine e2e suite (full connect →
-  get_public_key → sign_event → publish round-trip against a fake signer doing
-  real NIP-44 crypto).
+  NIP-04 decrypt fallback) — the bundle ships no nip46 module. On the board it
+  establishes the viewer pubkey and keeps the connection so reports/deletes are
+  signed remotely (read-only after a reload). Connections are **session-only**
+  (the bunker token is never written to disk, so a reload returns to anonymous /
+  read-only). Covered by the cross-engine e2e suite (editor: connect →
+  get_public_key → sign_event → publish; board: connect → reveal → report
+  signed through the remote signer — both against a fake signer doing real
+  NIP-44 crypto).
 - **Editor identity (shipped).** The editor signs under anon / NIP-07 / imported
   nsec / remote signer. A remembered nsec is PIN-encrypted at rest (PBKDF2 600k →
   AES-GCM); plaintext is never stored. **Known weakness:** a short numeric PIN is

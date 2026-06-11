@@ -45,8 +45,18 @@
         <p id="board-gate-body">Connect a Nostr identity to view the bulletin board.</p>
         <div class="board-connect-methods">
           <button id="board-connect" type="button" class="board-connect">Browser extension (NIP-07)</button>
+          <button id="board-connect-nip46-toggle" type="button" class="board-connect-alt">Remote signer (NIP-46)</button>
           <button id="board-connect-nsec-toggle" type="button" class="board-connect-alt">Use a private key (nsec)</button>
           <button id="board-generate" type="button" class="board-connect-alt">Create a new key</button>
+        </div>
+        <!-- NIP-46 remote signer (bunker): the local key is ephemeral and
+             in-memory; the user's secret stays in their signer app. Establishes
+             the viewer pubkey and keeps the connection so reports/deletes can be
+             signed remotely this session. -->
+        <div id="board-nip46-row" class="board-nsec-row" hidden>
+          <input id="board-nip46-input" type="text" autocomplete="off" spellcheck="false" placeholder="bunker://…">
+          <button id="board-nip46-submit" type="button" class="board-connect">Connect</button>
+          <p id="board-nip46-note" class="board-key-note"></p>
         </div>
         <!-- nsec import: the key is decoded in-page to derive the pubkey, then
              discarded. Only the pubkey is persisted (board never signs). -->

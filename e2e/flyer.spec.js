@@ -1176,6 +1176,86 @@ test.describe("VoxVera static client", () => {
     expect(rep.content).toBe("clearly spam");
   });
 
+  test("board can connect via a NIP-46 remote signer and report through it", async ({ page }) => {
+    const AUTHOR = "c".repeat(64);
+    const FLYER_ID = "f".repeat(64);
+    await page.addInitScript((cfg) => {
+      function hexToBytes(hex) {
+        const b = new Uint8Array(hex.length / 2);
+        for (let i = 0; i < b.length; i += 1) b[i] = parseInt(hex.substr(i * 2, 2), 16);
+        return b;
+      }
+      window.__published = [];
+      const flyer = {
+        id: cfg.flyerId, kind: 30078, pubkey: cfg.author, created_at: 2000,
+        tags: [["d", "voxvera:bad"], ["t", "voxvera"], ["t", "flyer"], ["language", "en"]],
+        content: JSON.stringify({ type: "voxvera_flyer", version: 1, lang: "en", title: "Stranger Flyer", url: "https://example.com/x" })
+      };
+      class FakeWS {
+        constructor() { this.readyState = 1; setTimeout(() => this.onopen && this.onopen(), 1); }
+        send(data) {
+          let m; try { m = JSON.parse(data); } catch (_) { return; }
+          if (m[0] === "REQ") {
+            this.sub = m[1];
+            const f = m[2] || {};
+            const serveFlyer = f.kinds && f.kinds.indexOf(30078) !== -1;
+            setTimeout(() => {
+              if (serveFlyer) this.onmessage && this.onmessage({ data: JSON.stringify(["EVENT", this.sub, flyer]) });
+              this.onmessage && this.onmessage({ data: JSON.stringify(["EOSE", this.sub]) });
+            }, 1);
+            return;
+          }
+          if (m[0] !== "EVENT") return;
+          const ev = m[1];
+          const NT = window.NostrTools;
+          if (ev.kind === 24133) {
+            const skBytes = hexToBytes(window.__nip46SkHex);
+            const ck = NT.nip44.getConversationKey(skBytes, ev.pubkey);
+            let req; try { req = JSON.parse(NT.nip44.decrypt(ev.content, ck)); } catch (_) { return; }
+            let result = "";
+            if (req.method === "connect") result = "ack";
+            else if (req.method === "get_public_key") result = window.__nip46Pubkey;
+            else if (req.method === "sign_event") result = JSON.stringify(NT.finalizeEvent(JSON.parse(req.params[0]), skBytes));
+            const content = NT.nip44.encrypt(JSON.stringify({ id: req.id, result }), ck);
+            const resp = NT.finalizeEvent({ kind: 24133, created_at: Math.floor(Date.now() / 1000), tags: [["p", ev.pubkey]], content }, skBytes);
+            const sub = this.sub;
+            setTimeout(() => this.onmessage && this.onmessage({ data: JSON.stringify(["EVENT", sub, resp]) }), 1);
+            return;
+          }
+          window.__published.push(ev);
+          setTimeout(() => this.onmessage && this.onmessage({ data: JSON.stringify(["OK", ev.id, true, ""]) }), 1);
+        }
+        close() {}
+      }
+      window.WebSocket = FakeWS;
+    }, { author: AUTHOR, flyerId: FLYER_ID });
+    await page.goto("/board.html");
+    const signerPubkey = await page.evaluate(() => {
+      const sk = window.NostrTools.generateSecretKey();
+      window.__nip46SkHex = Array.from(sk).map((b) => b.toString(16).padStart(2, "0")).join("");
+      window.__nip46Pubkey = window.NostrTools.getPublicKey(sk);
+      return window.__nip46Pubkey;
+    });
+    // Connect the board via the bunker link.
+    await page.locator("#board-connect-nip46-toggle").click();
+    await page.locator("#board-nip46-input").fill(`bunker://${signerPubkey}?relay=wss://relay.damus.io&secret=x`);
+    await page.locator("#board-nip46-submit").click();
+    // The board reveals as the remote-signer identity and shows the flyer.
+    await expect(page.locator("#board-content")).toBeVisible();
+    expect(await page.evaluate(() => localStorage.getItem("voxvera_connected_pubkey"))).toBe(signerPubkey);
+    const theirRow = page.locator("#board-rows tr", { hasText: "Stranger Flyer" });
+    await expect(theirRow).toBeVisible();
+    // Reporting signs through the remote signer (sign_event round-trip).
+    await theirRow.locator(".board-menu-btn").click({ force: true });
+    await theirRow.locator('.board-menu-item[data-act="report"]').click({ force: true });
+    await page.locator("#board-report-confirm").click({ force: true });
+    await expect(page.locator("#board-rows")).not.toContainText("Stranger Flyer");
+    const reports = await page.evaluate(() => window.__published.filter((e) => e.kind === 1984));
+    expect(reports.length).toBeGreaterThan(0);
+    expect(reports[0].pubkey).toBe(signerPubkey);
+    expect(reports[0].tags.some((tg) => tg[0] === "p" && tg[1] === AUTHOR)).toBe(true);
+  });
+
   test("safety page renders all sections, localizes, and is linked from editor + board", async ({ page }) => {
     const errors = trackErrors(page);
     await page.goto("/safety.html");

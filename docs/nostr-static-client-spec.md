@@ -276,15 +276,19 @@ de-duplicated per author+`d` identifier, keeping the latest.
   never print (hidden in the `@media print` block alongside the other app
   chrome).
 - **The board is gated behind a connected Nostr identity.** On load it shows a
-  login gate (`#board-gate`) instead of the table, with three ways to connect:
-  a **NIP-07** extension (`window.nostr.getPublicKey()`), **pasting an `nsec`**
-  (decoded in-page to derive the pubkey, then discarded — the secret is never
-  stored or transmitted), or **creating a new key** (reuses this device's anon
-  key in `voxvera_nostr_anon_secret_hex` if present, else generates one, and
-  reveals the `nsec` with a save-it warning before continuing). On success it
-  reveals the table and surfaces the connected npub (`#board-identity`) with a
-  Disconnect control. The board only ever needs the *pubkey* (it reads, never
-  signs), so the connected pubkey is remembered in `localStorage`
+  login gate (`#board-gate`) instead of the table, with four ways to connect:
+  a **NIP-07** extension (`window.nostr.getPublicKey()`), a **NIP-46 remote
+  signer** (paste a `bunker://` link; same hand-rolled client as the editor —
+  it establishes the viewer pubkey via `get_public_key` and keeps the connection
+  so `getBoardSigner` can sign reports/deletes remotely this session, then falls
+  back to read-only after a reload), **pasting an `nsec`** (decoded in-page to
+  derive the pubkey, then discarded — the secret is never stored or transmitted),
+  or **creating a new key** (reuses this device's anon key in
+  `voxvera_nostr_anon_secret_hex` if present, else generates one, and reveals the
+  `nsec` with a save-it warning before continuing). On success it reveals the
+  table and surfaces the connected npub (`#board-identity`) with a Disconnect
+  control. The board only ever needs the *pubkey* to view (it reads to filter),
+  so the connected pubkey is remembered in `localStorage`
   (`voxvera_connected_pubkey`, shared with the main client) and a return visit
   reconnects from it directly — no prompt or re-entry, any method. This is
   **not access control** — the events are public on the relays regardless — it
