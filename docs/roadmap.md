@@ -190,19 +190,29 @@ board can show them flyers from people they trust.
 **Follow-ups this opens.**
 - **In-page nsec handling.** Pasting a secret key into a web page is inherently
   riskier than a NIP-07 extension that keeps the key isolated; the input is a
-  password field, the value is cleared after use, and nothing is transmitted, but
-  a NIP-46 remote signer would be a safer mobile path to add later.
-- **Editor identity (shipped).** The editor now signs under anon / NIP-07 /
-  imported nsec. A remembered nsec is PIN-encrypted at rest (PBKDF2 600k →
+  password field, the value is cleared after use, and nothing is transmitted. The
+  **NIP-46 remote signer** (below) is now the safer mobile path.
+- **NIP-46 remote signer (shipped).** The editor can connect a remote signer
+  (bunker) by pasting a `bunker://` link: the user's secret stays in their signer
+  app (nsec.app, Amber, …) and the browser only holds an ephemeral local key. The
+  client is hand-rolled over a raw WebSocket using the vendored NIP-44 (with a
+  NIP-04 decrypt fallback) — the bundle ships no nip46 module. Connections are
+  **session-only** (the bunker token is never written to disk, so a reload returns
+  to anonymous). Covered by the cross-engine e2e suite (full connect →
+  get_public_key → sign_event → publish round-trip against a fake signer doing
+  real NIP-44 crypto).
+- **Editor identity (shipped).** The editor signs under anon / NIP-07 / imported
+  nsec / remote signer. A remembered nsec is PIN-encrypted at rest (PBKDF2 600k →
   AES-GCM); plaintext is never stored. **Known weakness:** a short numeric PIN is
   brute-forceable offline if the encrypted blob leaks — it guards casual snooping,
   not a targeted attacker. A **wrong-PIN lockout** is now in place (3 bad PINs →
-  a 30s cooldown, persisted across reloads). Still open: NIP-46 remote signer,
-  and optionally encrypting the anonymous device key the same way (today it is
-  stored in plaintext, as before).
-- **Editor vs board identity are independent.** The editor's publishing identity
-  and the board's viewing identity are stored separately and don't yet sync; a
-  future pass could share one connected identity across both pages.
+  a 30s cooldown, persisted across reloads). Optionally encrypting the anonymous
+  device key the same way is still open (today it is stored in plaintext, as
+  before).
+- **Editor↔board identity sync (shipped).** A deliberate editor identity choice
+  (NIP-07 / imported / generated / unlocked nsec / remote signer) writes a shared
+  local pubkey the board reads, so one connected identity is reflected across both
+  pages.
 
 ## 3. Client distribution is centralized (a single chokepoint) — **Open**
 

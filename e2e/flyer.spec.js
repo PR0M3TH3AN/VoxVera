@@ -669,6 +669,77 @@ test.describe("VoxVera static client", () => {
     expect(await page.evaluate(() => localStorage.getItem("voxvera_connected_pubkey"))).toBe(PK);
   });
 
+  test("editor connects a NIP-46 remote signer and publishes through it", async ({ page }) => {
+    const errors = trackErrors(page);
+    // A fake relay that also plays the remote signer: it decrypts NIP-46
+    // requests with real NIP-44 crypto and replies with signed responses.
+    await page.addInitScript(() => {
+      function hexToBytes(hex) {
+        const b = new Uint8Array(hex.length / 2);
+        for (let i = 0; i < b.length; i += 1) b[i] = parseInt(hex.substr(i * 2, 2), 16);
+        return b;
+      }
+      class FakeWS {
+        constructor() { this.readyState = 1; setTimeout(() => this.onopen && this.onopen(), 1); }
+        send(data) {
+          let m; try { m = JSON.parse(data); } catch (_) { return; }
+          if (m[0] === "REQ") {
+            this.sub = m[1];
+            setTimeout(() => this.onmessage && this.onmessage({ data: JSON.stringify(["EOSE", this.sub]) }), 1);
+            return;
+          }
+          if (m[0] !== "EVENT") return;
+          const ev = m[1];
+          const NT = window.NostrTools;
+          if (ev.kind === 24133) {
+            const skBytes = hexToBytes(window.__nip46SkHex);
+            const ck = NT.nip44.getConversationKey(skBytes, ev.pubkey);
+            let req; try { req = JSON.parse(NT.nip44.decrypt(ev.content, ck)); } catch (_) { return; }
+            let result = "";
+            if (req.method === "connect") result = "ack";
+            else if (req.method === "get_public_key") result = window.__nip46Pubkey;
+            else if (req.method === "sign_event") {
+              result = JSON.stringify(NT.finalizeEvent(JSON.parse(req.params[0]), skBytes));
+            }
+            const content = NT.nip44.encrypt(JSON.stringify({ id: req.id, result }), ck);
+            const resp = NT.finalizeEvent({
+              kind: 24133, created_at: Math.floor(Date.now() / 1000),
+              tags: [["p", ev.pubkey]], content
+            }, skBytes);
+            const sub = this.sub;
+            setTimeout(() => this.onmessage && this.onmessage({ data: JSON.stringify(["EVENT", sub, resp]) }), 1);
+            return;
+          }
+          // A published flyer event → acknowledge with OK.
+          setTimeout(() => this.onmessage && this.onmessage({ data: JSON.stringify(["OK", ev.id, true, ""]) }), 1);
+        }
+        close() {}
+      }
+      window.WebSocket = FakeWS;
+    });
+    await page.goto("/#editor");
+    // Mint the signer keypair in-page (NostrTools is loaded there).
+    const signerPubkey = await page.evaluate(() => {
+      const sk = window.NostrTools.generateSecretKey();
+      window.__nip46SkHex = Array.from(sk).map((b) => b.toString(16).padStart(2, "0")).join("");
+      window.__nip46Pubkey = window.NostrTools.getPublicKey(sk);
+      return window.__nip46Pubkey;
+    });
+    const expectedNpub = await page.evaluate((pk) => window.NostrTools.nip19.npubEncode(pk), signerPubkey);
+    // Paste a bunker URI pointing at the fake signer and connect.
+    await page.locator("#use-nip46-toggle").click();
+    await page.locator("#nip46-input").fill(`bunker://${signerPubkey}?relay=wss://relay.damus.io&secret=hunter2`);
+    await page.locator("#nip46-submit").click();
+    // The connect + get_public_key handshake resolves the user's identity.
+    await expect(page.locator("#signer-state")).toHaveText("Publishing via remote signer");
+    await expect(page.locator("#author-npub-output")).toHaveText(expectedNpub);
+    // Publishing routes signing through the remote signer (sign_event round-trip).
+    await page.locator("#field-title").fill("Remote Signed Flyer");
+    await page.locator("#publish-event").click();
+    await expect(page.locator("#event-id-output")).not.toHaveText(/not published/i);
+    expect(errors, errors.join("\n")).toHaveLength(0);
+  });
+
   test("editor can connect a NIP-07 identity and publish under it", async ({ page }) => {
     const PK = "a".repeat(64);
     await page.addInitScript((pk) => {

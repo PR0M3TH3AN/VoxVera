@@ -225,7 +225,8 @@ main {
   background: var(--soft);
 }
 
-.identity-import input[type="password"] {
+.identity-import input[type="password"],
+.identity-import input[type="text"] {
   width: 100%;
   box-sizing: border-box;
   font: inherit;

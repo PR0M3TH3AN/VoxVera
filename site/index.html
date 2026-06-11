@@ -51,6 +51,7 @@
             <button type="button" id="generate-anon-identity" class="secondary-button">Generate anonymous npub</button>
             <button type="button" id="connect-nip07" class="secondary-button">Connect extension</button>
             <button type="button" id="use-nsec-toggle" class="secondary-button">Use a private key (nsec)</button>
+            <button type="button" id="use-nip46-toggle" class="secondary-button">Remote signer (NIP-46)</button>
           </div>
           <!-- Import a private key. The secret signs in-page; it is only written
                to storage (encrypted with the PIN) when "Remember" is checked. -->
@@ -62,6 +63,15 @@
             </label>
             <input id="nsec-pin" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN (4+ digits)" hidden>
             <button type="button" id="nsec-submit" class="secondary-button">Use this key</button>
+          </div>
+          <!-- Connect a NIP-46 remote signer (bunker). The local key is
+               ephemeral and in-memory only; the user's secret stays in their
+               signer app. Session-only: not persisted across reloads. -->
+          <div id="nip46-import" class="identity-import" hidden>
+            <span id="nip46-hint" class="board-key-note" data-i18n-key="nip46_hint">Paste a bunker:// link from your signer app.</span>
+            <input id="nip46-input" type="text" autocomplete="off" spellcheck="false" placeholder="bunker://…">
+            <button type="button" id="nip46-submit" class="secondary-button">Connect</button>
+            <span id="nip46-status" class="board-key-note" role="status"></span>
           </div>
           <!-- Shown on load when a PIN-encrypted identity is stored. -->
           <div id="identity-locked-row" class="identity-import" hidden>

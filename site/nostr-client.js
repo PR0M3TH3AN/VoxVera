@@ -25,6 +25,12 @@
   const UNLOCK_COOLDOWN_MS = 30000;
   const IDENTITY_NPUB_STORAGE_KEY = "voxvera_identity_npub";
   const PBKDF2_ITERATIONS = 600000;
+  // NIP-46 remote signer (bunker) kind + timeouts. The connect/sign waits are
+  // long because they require a human to approve the request in the signer app.
+  const NIP46_KIND = 24133;
+  const NIP46_RELAY_TIMEOUT_MS = 12000;
+  const NIP46_CONNECT_TIMEOUT_MS = 90000;
+  const NIP46_SIGN_TIMEOUT_MS = 90000;
   const UI_LANG_STORAGE_KEY = "voxvera_nostr_lang";
   const LOCALES = window.VoxVeraLocales || {};
   const FALLBACK_LANG = "en";
@@ -124,7 +130,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     "generate-anon-identity": "generate_npub",
     "connect-nip07": "connect_extension",
     "use-nsec-toggle": "use_nsec",
+    "use-nip46-toggle": "use_nip46",
     "nsec-submit": "use_key",
+    "nip46-submit": "connect_remote",
     "unlock-key": "unlock",
     "forget-key": "forget_key",
     "viewer-fetch-render": "fetch_render",
@@ -243,6 +251,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       field_too_long: "هذا الحقل طويل جدًا على الملصق القابل للطباعة:",
       relays_accepted: "المرحلات التي قبلت",
       too_many_attempts: "محاولات كثيرة جدًا — انتظر لحظة وحاول مرة أخرى.",
+      use_nip46: "موقّع عن بُعد (NIP-46)",
+      connect_remote: "اتصال",
+      signer_nip46: "النشر عبر موقّع عن بُعد",
+      nip46_hint: "الصق رابط bunker:// من تطبيق التوقيع لديك (مثل nsec.app أو Amber).",
+      nip46_connecting: "جارٍ الاتصال — وافق على الطلب في تطبيق التوقيع…",
+      nip46_connected: "تم الاتصال بالموقّع عن بُعد.",
+      nip46_bad_uri: "لا يبدو هذا رابط bunker://.",
+      nip46_timeout: "لم يستجب الموقّع عن بُعد. افتح التطبيق وحاول مرة أخرى.",
+      nip46_failed: "تعذّر الاتصال بالموقّع عن بُعد.",
       no_anon_npub: "لا يوجد npub مجهول بعد",
       anon_npub_ready: "npub مجهول جاهز",
       npub_generated: "تم إنشاء npub مجهول:",
@@ -336,6 +353,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       field_too_long: "Dieses Feld ist zu lang für das druckbare Plakat:",
       relays_accepted: "Relays akzeptiert",
       too_many_attempts: "Zu viele Versuche – warte einen Moment und versuche es erneut.",
+      use_nip46: "Externer Signierer (NIP-46)",
+      connect_remote: "Verbinden",
+      signer_nip46: "Veröffentlichung über externen Signierer",
+      nip46_hint: "Füge einen bunker://-Link aus deiner Signier-App ein (z. B. nsec.app, Amber).",
+      nip46_connecting: "Verbinde – bestätige die Anfrage in deiner Signier-App…",
+      nip46_connected: "Externer Signierer verbunden.",
+      nip46_bad_uri: "Das sieht nicht nach einem bunker://-Link aus.",
+      nip46_timeout: "Der externe Signierer hat nicht geantwortet. Öffne die App und versuche es erneut.",
+      nip46_failed: "Verbindung zum externen Signierer fehlgeschlagen.",
       no_anon_npub: "Noch kein anonymes npub",
       anon_npub_ready: "Anonymes npub bereit",
       npub_generated: "Anonymes npub erzeugt:",
@@ -451,7 +477,16 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       connection_error: "connection error",
       field_too_long: "That field is too long for the printable flyer:",
       relays_accepted: "Relays accepted",
-      too_many_attempts: "Too many attempts — wait a moment and try again."
+      too_many_attempts: "Too many attempts — wait a moment and try again.",
+      use_nip46: "Remote signer (NIP-46)",
+      connect_remote: "Connect",
+      signer_nip46: "Publishing via remote signer",
+      nip46_hint: "Paste a bunker:// link from your signer app (e.g. nsec.app, Amber).",
+      nip46_connecting: "Connecting — approve the request in your signer app…",
+      nip46_connected: "Remote signer connected.",
+      nip46_bad_uri: "That doesn't look like a bunker:// link.",
+      nip46_timeout: "The remote signer didn't respond. Open your signer app and try again.",
+      nip46_failed: "Couldn't connect to the remote signer.",
     },
     es: {
       back: "Volver",
@@ -522,6 +557,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       field_too_long: "Ese campo es demasiado largo para el cartel imprimible:",
       relays_accepted: "Relés que aceptaron",
       too_many_attempts: "Demasiados intentos: espera un momento e inténtalo de nuevo.",
+      use_nip46: "Firmante remoto (NIP-46)",
+      connect_remote: "Conectar",
+      signer_nip46: "Publicando mediante firmante remoto",
+      nip46_hint: "Pega un enlace bunker:// de tu app de firma (p. ej. nsec.app, Amber).",
+      nip46_connecting: "Conectando: aprueba la solicitud en tu app de firma…",
+      nip46_connected: "Firmante remoto conectado.",
+      nip46_bad_uri: "Esto no parece un enlace bunker://.",
+      nip46_timeout: "El firmante remoto no respondió. Abre la app e inténtalo de nuevo.",
+      nip46_failed: "No se pudo conectar con el firmante remoto.",
       no_anon_npub: "Aún no hay npub anónimo",
       anon_npub_ready: "npub anónimo listo",
       npub_generated: "npub anónimo generado:",
@@ -615,6 +659,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       field_too_long: "این فیلد برای پوستر قابل چاپ خیلی طولانی است:",
       relays_accepted: "رله‌هایی که پذیرفتند",
       too_many_attempts: "تلاش‌های بیش از حد — کمی صبر کنید و دوباره تلاش کنید.",
+      use_nip46: "امضاکننده از راه دور (NIP-46)",
+      connect_remote: "اتصال",
+      signer_nip46: "انتشار از طریق امضاکننده از راه دور",
+      nip46_hint: "پیوند bunker:// را از برنامه امضای خود وارد کنید (مثل nsec.app یا Amber).",
+      nip46_connecting: "در حال اتصال — درخواست را در برنامه امضا تأیید کنید…",
+      nip46_connected: "امضاکننده از راه دور متصل شد.",
+      nip46_bad_uri: "این یک پیوند bunker:// به نظر نمی‌رسد.",
+      nip46_timeout: "امضاکننده از راه دور پاسخ نداد. برنامه را باز کنید و دوباره تلاش کنید.",
+      nip46_failed: "اتصال به امضاکننده از راه دور ممکن نشد.",
       no_anon_npub: "هنوز npub ناشناس وجود ندارد",
       anon_npub_ready: "npub ناشناس آماده است",
       npub_generated: "npub ناشناس ساخته شد:",
@@ -708,6 +761,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       field_too_long: "Ce champ est trop long pour l'affiche imprimable :",
       relays_accepted: "Relais ayant accepté",
       too_many_attempts: "Trop de tentatives — patientez un instant et réessayez.",
+      use_nip46: "Signataire distant (NIP-46)",
+      connect_remote: "Connecter",
+      signer_nip46: "Publication via un signataire distant",
+      nip46_hint: "Collez un lien bunker:// depuis votre app de signature (ex. nsec.app, Amber).",
+      nip46_connecting: "Connexion — approuvez la demande dans votre app de signature…",
+      nip46_connected: "Signataire distant connecté.",
+      nip46_bad_uri: "Cela ne ressemble pas à un lien bunker://.",
+      nip46_timeout: "Le signataire distant n'a pas répondu. Ouvrez l'app et réessayez.",
+      nip46_failed: "Impossible de se connecter au signataire distant.",
       no_anon_npub: "Aucun npub anonyme pour le moment",
       anon_npub_ready: "npub anonyme pret",
       npub_generated: "npub anonyme genere :",
@@ -801,6 +863,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       field_too_long: "השדה הזה ארוך מדי עבור הכרזה הניתנת להדפסה:",
       relays_accepted: "ממסרים שקיבלו",
       too_many_attempts: "יותר מדי ניסיונות — המתן רגע ונסה שוב.",
+      use_nip46: "חותם מרוחק (NIP-46)",
+      connect_remote: "התחבר",
+      signer_nip46: "פרסום באמצעות חותם מרוחק",
+      nip46_hint: "הדבק קישור bunker:// מאפליקציית החתימה שלך (למשל nsec.app או Amber).",
+      nip46_connecting: "מתחבר — אשר את הבקשה באפליקציית החתימה…",
+      nip46_connected: "החותם המרוחק מחובר.",
+      nip46_bad_uri: "זה לא נראה כמו קישור bunker://.",
+      nip46_timeout: "החותם המרוחק לא הגיב. פתח את האפליקציה ונסה שוב.",
+      nip46_failed: "לא ניתן להתחבר לחותם המרוחק.",
       no_anon_npub: "עדיין אין npub אנונימי",
       anon_npub_ready: "npub אנונימי מוכן",
       npub_generated: "npub אנונימי נוצר:",
@@ -894,6 +965,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       field_too_long: "यह फ़ील्ड प्रिंट करने योग्य पोस्टर के लिए बहुत लंबा है:",
       relays_accepted: "स्वीकृत रिले",
       too_many_attempts: "बहुत अधिक प्रयास — थोड़ी देर रुकें और पुनः प्रयास करें।",
+      use_nip46: "रिमोट साइनर (NIP-46)",
+      connect_remote: "कनेक्ट करें",
+      signer_nip46: "रिमोट साइनर के माध्यम से प्रकाशन",
+      nip46_hint: "अपने साइनर ऐप से bunker:// लिंक पेस्ट करें (जैसे nsec.app, Amber)।",
+      nip46_connecting: "कनेक्ट हो रहा है — अपने साइनर ऐप में अनुरोध स्वीकृत करें…",
+      nip46_connected: "रिमोट साइनर कनेक्ट हो गया।",
+      nip46_bad_uri: "यह bunker:// लिंक जैसा नहीं लगता।",
+      nip46_timeout: "रिमोट साइनर ने उत्तर नहीं दिया। ऐप खोलें और पुनः प्रयास करें।",
+      nip46_failed: "रिमोट साइनर से कनेक्ट नहीं हो सका।",
       no_anon_npub: "अभी कोई अनाम npub नहीं",
       anon_npub_ready: "अनाम npub तैयार",
       npub_generated: "अनाम npub बनाया गया:",
@@ -987,6 +1067,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       field_too_long: "この項目は印刷用ちらしには長すぎます:",
       relays_accepted: "受け入れたリレー",
       too_many_attempts: "試行回数が多すぎます。少し待ってからもう一度お試しください。",
+      use_nip46: "リモート署名（NIP-46）",
+      connect_remote: "接続",
+      signer_nip46: "リモート署名で公開",
+      nip46_hint: "署名アプリの bunker:// リンクを貼り付けてください（例：nsec.app、Amber）。",
+      nip46_connecting: "接続中 — 署名アプリでリクエストを承認してください…",
+      nip46_connected: "リモート署名に接続しました。",
+      nip46_bad_uri: "これは bunker:// リンクではないようです。",
+      nip46_timeout: "リモート署名が応答しませんでした。アプリを開いて再試行してください。",
+      nip46_failed: "リモート署名に接続できませんでした。",
       no_anon_npub: "匿名npubはまだありません",
       anon_npub_ready: "匿名npub準備完了",
       npub_generated: "匿名npubを生成しました:",
@@ -1080,6 +1169,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       field_too_long: "Esse campo é longo demais para o panfleto imprimível:",
       relays_accepted: "Relés que aceitaram",
       too_many_attempts: "Tentativas em excesso — aguarde um momento e tente novamente.",
+      use_nip46: "Assinador remoto (NIP-46)",
+      connect_remote: "Conectar",
+      signer_nip46: "Publicando via assinador remoto",
+      nip46_hint: "Cole um link bunker:// do seu app de assinatura (ex.: nsec.app, Amber).",
+      nip46_connecting: "Conectando — aprove a solicitação no seu app de assinatura…",
+      nip46_connected: "Assinador remoto conectado.",
+      nip46_bad_uri: "Isso não parece um link bunker://.",
+      nip46_timeout: "O assinador remoto não respondeu. Abra o app e tente novamente.",
+      nip46_failed: "Não foi possível conectar ao assinador remoto.",
       no_anon_npub: "Ainda nao ha npub anonimo",
       anon_npub_ready: "npub anonimo pronto",
       npub_generated: "npub anonimo gerado:",
@@ -1173,6 +1271,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       field_too_long: "Это поле слишком длинное для печатной листовки:",
       relays_accepted: "Реле приняли",
       too_many_attempts: "Слишком много попыток — подождите немного и попробуйте снова.",
+      use_nip46: "Удалённый подписант (NIP-46)",
+      connect_remote: "Подключить",
+      signer_nip46: "Публикация через удалённый подписант",
+      nip46_hint: "Вставьте ссылку bunker:// из вашего приложения для подписи (например, nsec.app, Amber).",
+      nip46_connecting: "Подключение — подтвердите запрос в приложении для подписи…",
+      nip46_connected: "Удалённый подписант подключён.",
+      nip46_bad_uri: "Это не похоже на ссылку bunker://.",
+      nip46_timeout: "Удалённый подписант не ответил. Откройте приложение и попробуйте снова.",
+      nip46_failed: "Не удалось подключиться к удалённому подписанту.",
       no_anon_npub: "Анонимного npub пока нет",
       anon_npub_ready: "Анонимный npub готов",
       npub_generated: "Анонимный npub создан:",
@@ -1266,6 +1373,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       field_too_long: "Sehemu hii ni ndefu mno kwa bango linaloweza kuchapishwa:",
       relays_accepted: "Relay zilizokubali",
       too_many_attempts: "Majaribio mengi mno — subiri kidogo kisha ujaribu tena.",
+      use_nip46: "Mtia-saini wa mbali (NIP-46)",
+      connect_remote: "Unganisha",
+      signer_nip46: "Inachapisha kupitia mtia-saini wa mbali",
+      nip46_hint: "Bandika kiungo cha bunker:// kutoka programu yako ya kutia saini (k.m. nsec.app, Amber).",
+      nip46_connecting: "Inaunganisha — idhinisha ombi katika programu yako ya kutia saini…",
+      nip46_connected: "Mtia-saini wa mbali ameunganishwa.",
+      nip46_bad_uri: "Hiki hakionekani kama kiungo cha bunker://.",
+      nip46_timeout: "Mtia-saini wa mbali hakujibu. Fungua programu na ujaribu tena.",
+      nip46_failed: "Imeshindwa kuunganisha na mtia-saini wa mbali.",
       no_anon_npub: "Hakuna npub isiyojulikana bado",
       anon_npub_ready: "npub isiyojulikana iko tayari",
       npub_generated: "npub isiyojulikana imetengenezwa:",
@@ -1359,6 +1475,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       field_too_long: "Bu alan yazdırılabilir el ilanı için çok uzun:",
       relays_accepted: "Kabul eden röleler",
       too_many_attempts: "Çok fazla deneme — biraz bekleyip tekrar deneyin.",
+      use_nip46: "Uzak imzalayıcı (NIP-46)",
+      connect_remote: "Bağlan",
+      signer_nip46: "Uzak imzalayıcı ile yayımlanıyor",
+      nip46_hint: "İmzalama uygulamanızdan bir bunker:// bağlantısı yapıştırın (ör. nsec.app, Amber).",
+      nip46_connecting: "Bağlanıyor — isteği imzalama uygulamanızda onaylayın…",
+      nip46_connected: "Uzak imzalayıcı bağlandı.",
+      nip46_bad_uri: "Bu bir bunker:// bağlantısına benzemiyor.",
+      nip46_timeout: "Uzak imzalayıcı yanıt vermedi. Uygulamayı açıp tekrar deneyin.",
+      nip46_failed: "Uzak imzalayıcıya bağlanılamadı.",
       no_anon_npub: "Henüz anonim npub yok",
       anon_npub_ready: "Anonim npub hazır",
       npub_generated: "Anonim npub oluşturuldu:",
@@ -1452,6 +1577,15 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       field_too_long: "该字段对于可打印传单来说太长了：",
       relays_accepted: "已接受的中继",
       too_many_attempts: "尝试次数过多——请稍候再试。",
+      use_nip46: "远程签名器（NIP-46）",
+      connect_remote: "连接",
+      signer_nip46: "通过远程签名器发布",
+      nip46_hint: "粘贴来自签名应用的 bunker:// 链接（如 nsec.app、Amber）。",
+      nip46_connecting: "正在连接——请在签名应用中批准请求…",
+      nip46_connected: "远程签名器已连接。",
+      nip46_bad_uri: "这看起来不是 bunker:// 链接。",
+      nip46_timeout: "远程签名器无响应。请打开应用并重试。",
+      nip46_failed: "无法连接到远程签名器。",
       no_anon_npub: "还没有匿名 npub",
       anon_npub_ready: "匿名 npub 已就绪",
       npub_generated: "已生成匿名 npub:",
@@ -1894,6 +2028,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     if (!state) return;
     const key = identityMode === "nip07" ? "signer_nip07"
       : identityMode === "nsec" ? "signer_nsec"
+      : identityMode === "nip46" ? "signer_nip46"
       : "signer_anon";
     setLocalizedText("signer-state", key);
     state.style.color = "#1d6b3a";
@@ -1953,11 +2088,13 @@ Join us in a revolution that values truth and transparency. Together, we can bui
   // key (default, unchanged). "nip07" signs via the browser extension. "nsec"
   // signs with a key the user imported; its secret lives only in memory unless
   // they choose to remember it, in which case it is PIN-encrypted at rest.
-  let identityMode = "anon";    // "anon" | "nip07" | "nsec"
+  let identityMode = "anon";    // "anon" | "nip07" | "nsec" | "nip46"
   let nip07Pubkey = null;       // hex, when mode === "nip07"
   let importedSecretHex = null; // hex, in-memory only, when mode === "nsec"
   let importedPubkey = null;    // hex, when mode === "nsec"
   let lockedNpub = null;        // npub of a stored-but-locked nsec identity
+  let nip46Pubkey = null;       // hex user pubkey, when mode === "nip46"
+  let nip46Signer = null;       // live remote-signer connection, when mode === "nip46"
 
   function npubFromHex(pubkeyHex) {
     try { return nostrTools().nip19.npubEncode(pubkeyHex); } catch (_) { return pubkeyHex; }
@@ -1971,6 +2108,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     }
     if (identityMode === "nsec" && importedPubkey) {
       return { mode: "nsec", pubkey: importedPubkey, npub: npubFromHex(importedPubkey) };
+    }
+    if (identityMode === "nip46" && nip46Pubkey) {
+      return { mode: "nip46", pubkey: nip46Pubkey, npub: npubFromHex(nip46Pubkey) };
     }
     const anon = getOrCreateAnonIdentity(false);
     return { mode: "anon", pubkey: anon.pubkey, npub: anon.npub };
@@ -1999,6 +2139,10 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       if (!importedPubkey) throw new Error(nostrLabel("identity_locked", currentUiLang()));
       return importedPubkey;
     }
+    if (identityMode === "nip46") {
+      if (!nip46Signer || !nip46Pubkey) throw new Error(nostrLabel("nip46_failed", currentUiLang()));
+      return nip46Pubkey;
+    }
     return getOrCreateAnonIdentity(false).pubkey;
   }
 
@@ -2016,6 +2160,18 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     if (identityMode === "nsec") {
       if (!importedSecretHex) throw new Error(nostrLabel("identity_locked", currentUiLang()));
       return tools.finalizeEvent(unsigned, hexToBytes(importedSecretHex));
+    }
+    if (identityMode === "nip46") {
+      if (!nip46Signer) throw new Error(nostrLabel("nip46_failed", currentUiLang()));
+      // The remote signer signs as the user's key; ask it to sign the template
+      // (carrying the resolved pubkey so it matches the naddr we built).
+      const toSign = { ...unsigned, pubkey: pubkeyHex || nip46Pubkey };
+      const res = await nip46Signer.request("sign_event", [JSON.stringify(toSign)], NIP46_SIGN_TIMEOUT_MS);
+      let signed;
+      try { signed = typeof res === "string" ? JSON.parse(res) : res; } catch (_) {
+        throw new Error(nostrLabel("nip46_failed", currentUiLang()));
+      }
+      return signed;
     }
     return tools.finalizeEvent(unsigned, getOrCreateAnonIdentity(false).secretKey);
   }
@@ -2107,13 +2263,211 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     if (row) row.hidden = !show;
   }
 
+  // --- NIP-46 remote signer (bunker) -----------------------------------------
+  // We hand-roll a minimal NIP-46 client over a raw WebSocket (the vendored
+  // nostr-tools bundle ships nip04/nip44 + key helpers but no nip46 module).
+  // The local key is ephemeral and lives only in memory: the user's real secret
+  // never reaches the browser — the remote signer holds it and signs on request.
+
+  // bunker://<remote-signer-pubkey-hex>?relay=wss://...&secret=<token>
+  function parseBunkerUri(uri) {
+    const text = String(uri || "").trim();
+    const match = text.match(/^bunker:\/\/([0-9a-f]{64})\??([\s\S]*)$/i);
+    if (!match) return null;
+    const remotePubkey = match[1].toLowerCase();
+    let params;
+    try { params = new URLSearchParams(match[2] || ""); } catch (_) { return null; }
+    const relays = params.getAll("relay").filter((r) => /^wss?:\/\//i.test(r));
+    if (!relays.length) return null;
+    return { remotePubkey, relays, secret: params.get("secret") || "" };
+  }
+
+  // Encrypt/decrypt the JSON-RPC payload. NIP-46 moved from NIP-04 to NIP-44, so
+  // we encrypt requests with NIP-44 (modern signers) but accept either scheme on
+  // responses for backward compatibility with older signers.
+  function nip46Codec(localSkHex, remotePubkey) {
+    const tools = nostrTools();
+    let convKey = null;
+    try { convKey = tools.nip44.getConversationKey(hexToBytes(localSkHex), remotePubkey); } catch (_) {}
+    return {
+      encrypt(text) {
+        if (convKey) return tools.nip44.encrypt(text, convKey);
+        return tools.nip04.encrypt(localSkHex, remotePubkey, text);
+      },
+      decrypt(ciphertext) {
+        if (convKey) {
+          try { return tools.nip44.decrypt(ciphertext, convKey); } catch (_) {}
+        }
+        return tools.nip04.decrypt(localSkHex, remotePubkey, ciphertext);
+      }
+    };
+  }
+
+  function openNip46Connection({ relay, remotePubkey, localSkHex, localPubkey }) {
+    const tools = nostrTools();
+    const codec = nip46Codec(localSkHex, remotePubkey);
+    const subId = "voxvera46-" + Math.random().toString(36).slice(2);
+    const pending = new Map(); // request id -> { resolve, reject, timer }
+    let ws = null;
+    let closed = false;
+
+    function rejectAll(err) {
+      pending.forEach(({ reject, timer }) => { clearTimeout(timer); reject(err); });
+      pending.clear();
+    }
+
+    function handleEvent(ev) {
+      if (!ev || ev.kind !== NIP46_KIND || ev.pubkey !== remotePubkey) return;
+      let text;
+      try { text = codec.decrypt(ev.content); } catch (_) { return; }
+      let msg;
+      try { msg = JSON.parse(text); } catch (_) { return; }
+      if (!msg || !msg.id) return;
+      const slot = pending.get(msg.id);
+      if (!slot) return;
+      // Some signers (e.g. nsec.app) first reply asking the user to approve via
+      // a URL, then send the real result with the same id. Open it and wait.
+      if (msg.result === "auth_url") {
+        const url = msg.error || "";
+        if (/^https?:\/\//i.test(url)) { try { window.open(url, "_blank", "noopener"); } catch (_) {} }
+        return;
+      }
+      pending.delete(msg.id);
+      clearTimeout(slot.timer);
+      if (msg.error) slot.reject(new Error(String(msg.error)));
+      else slot.resolve(msg.result);
+    }
+
+    function open() {
+      return new Promise((resolve, reject) => {
+        try { ws = new WebSocket(relay); } catch (e) { reject(e); return; }
+        const openTimer = setTimeout(() => {
+          try { ws.close(); } catch (_) {}
+          reject(new Error("relay connect timeout"));
+        }, NIP46_RELAY_TIMEOUT_MS);
+        ws.onopen = () => {
+          clearTimeout(openTimer);
+          const since = Math.floor(Date.now() / 1000) - 10;
+          ws.send(JSON.stringify(["REQ", subId, { kinds: [NIP46_KIND], "#p": [localPubkey], since }]));
+          resolve();
+        };
+        ws.onmessage = (m) => {
+          let data;
+          try { data = JSON.parse(m.data); } catch (_) { return; }
+          if (data[0] === "EVENT" && data[1] === subId) handleEvent(data[2]);
+        };
+        ws.onerror = () => {};
+        ws.onclose = () => { if (!closed) rejectAll(new Error("relay disconnected")); };
+      });
+    }
+
+    function request(method, params, timeoutMs) {
+      return new Promise((resolve, reject) => {
+        if (closed || !ws || ws.readyState !== 1 /* WebSocket.OPEN */) {
+          reject(new Error("remote signer not connected"));
+          return;
+        }
+        const id = Math.random().toString(36).slice(2);
+        let content;
+        try { content = codec.encrypt(JSON.stringify({ id, method, params })); }
+        catch (e) { reject(e); return; }
+        let signed;
+        try {
+          signed = tools.finalizeEvent({
+            kind: NIP46_KIND,
+            created_at: Math.floor(Date.now() / 1000),
+            tags: [["p", remotePubkey]],
+            content
+          }, hexToBytes(localSkHex));
+        } catch (e) { reject(e); return; }
+        const timer = setTimeout(() => {
+          pending.delete(id);
+          reject(new Error(nostrLabel("nip46_timeout", currentUiLang())));
+        }, timeoutMs || NIP46_SIGN_TIMEOUT_MS);
+        pending.set(id, { resolve, reject, timer });
+        try { ws.send(JSON.stringify(["EVENT", signed])); }
+        catch (e) { pending.delete(id); clearTimeout(timer); reject(e); }
+      });
+    }
+
+    function close() {
+      closed = true;
+      rejectAll(new Error("disconnected"));
+      try { ws && ws.close(); } catch (_) {}
+      ws = null;
+    }
+
+    return { open, request, close };
+  }
+
+  function disconnectNip46() {
+    if (nip46Signer) { try { nip46Signer.close(); } catch (_) {} }
+    nip46Signer = null;
+    nip46Pubkey = null;
+  }
+
+  function toggleNip46Import() {
+    setIdentityError(null);
+    showLockedRow(false);
+    const nsec = el("nsec-import");
+    if (nsec) nsec.hidden = true;
+    const row = el("nip46-import");
+    if (!row) return;
+    row.hidden = !row.hidden;
+    if (!row.hidden) { const i = el("nip46-input"); if (i) i.focus(); }
+  }
+
+  async function submitNip46Import() {
+    setIdentityError(null);
+    const input = el("nip46-input");
+    const parsed = parseBunkerUri(input && input.value);
+    if (!parsed) { setIdentityError("nip46_bad_uri"); return; }
+    const status = el("nip46-status");
+    if (status) status.textContent = nostrLabel("nip46_connecting", currentUiLang());
+    const tools = nostrTools();
+    const skBytes = tools.generateSecretKey();
+    const localSkHex = bytesToHex(skBytes);
+    const localPubkey = tools.getPublicKey(skBytes);
+    const conn = openNip46Connection({
+      relay: parsed.relays[0], remotePubkey: parsed.remotePubkey, localSkHex, localPubkey
+    });
+    try {
+      await conn.open();
+      await conn.request("connect", [parsed.remotePubkey, parsed.secret || ""], NIP46_CONNECT_TIMEOUT_MS);
+      const userPubkey = await conn.request("get_public_key", [], NIP46_CONNECT_TIMEOUT_MS);
+      if (!/^[0-9a-f]{64}$/i.test(String(userPubkey || ""))) throw new Error("bad pubkey");
+      disconnectNip46();
+      nip46Signer = conn;
+      nip46Pubkey = String(userPubkey).toLowerCase();
+      identityMode = "nip46";
+      if (input) input.value = "";
+      if (status) status.textContent = "";
+      const row = el("nip46-import");
+      if (row) row.hidden = true;
+      // Session-only: the bunker token is never written to disk, so a reload
+      // returns cleanly to anonymous rather than a dead connection.
+      persistMode("anon");
+      syncConnectedPubkey(nip46Pubkey);
+      refreshSignerState();
+      refreshIdentityState();
+    } catch (error) {
+      try { conn.close(); } catch (_) {}
+      if (status) status.textContent = "";
+      const timedOut = /timeout/i.test(String(error && error.message));
+      setIdentityError(timedOut ? "nip46_timeout" : "nip46_failed");
+    }
+  }
+
   // --- Identity actions wired to the controls ---
   function chooseAnonIdentity() {
+    disconnectNip46();
     identityMode = "anon";
     nip07Pubkey = null;
     setIdentityError(null);
     const imp = el("nsec-import");
     if (imp) imp.hidden = true;
+    const remote = el("nip46-import");
+    if (remote) remote.hidden = true;
     persistMode("anon");
     syncConnectedPubkey(activeIdentity().pubkey);
     refreshSignerState();
@@ -2129,6 +2483,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     try {
       const pk = await window.nostr.getPublicKey();
       if (!/^[0-9a-f]{64}$/i.test(String(pk || ""))) throw new Error("bad pubkey");
+      disconnectNip46();
       nip07Pubkey = String(pk).toLowerCase();
       identityMode = "nip07";
       const imp = el("nsec-import");
@@ -2145,6 +2500,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
   function toggleNsecImport() {
     setIdentityError(null);
     showLockedRow(false);
+    const remote = el("nip46-import");
+    if (remote) remote.hidden = true;
     const row = el("nsec-import");
     if (!row) return;
     row.hidden = !row.hidden;
@@ -2181,6 +2538,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     } else {
       try { window.localStorage.removeItem(IDENTITY_ENC_STORAGE_KEY); } catch (_) {}
     }
+    disconnectNip46();
     importedSecretHex = bytesToHex(secretBytes);
     importedPubkey = String(pubkey).toLowerCase();
     lockedNpub = npubFromHex(importedPubkey);
@@ -2229,6 +2587,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     }
     unlockFails = 0;
     setUnlockLock(0);
+    disconnectNip46();
     importedSecretHex = hex;
     importedPubkey = nostrTools().getPublicKey(hexToBytes(hex));
     lockedNpub = npubFromHex(importedPubkey);
@@ -2303,6 +2662,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       const id = activeIdentity();
       const key = id.mode === "nip07" ? "signer_nip07"
         : id.mode === "nsec" ? "signer_nsec"
+        : id.mode === "nip46" ? "signer_nip46"
         : "anon_npub_ready";
       setLocalizedText("identity-state", key);
       state.style.color = "#1d6b3a";
@@ -3306,6 +3666,13 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     });
     el("nsec-input").addEventListener("keydown", (event) => {
       if (event.key === "Enter") { event.preventDefault(); el("nsec-submit").click(); }
+    });
+    el("use-nip46-toggle").addEventListener("click", toggleNip46Import);
+    el("nip46-submit").addEventListener("click", () => {
+      submitNip46Import().catch(() => setIdentityError("nip46_failed"));
+    });
+    el("nip46-input").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") { event.preventDefault(); el("nip46-submit").click(); }
     });
     el("unlock-key").addEventListener("click", () => {
       unlockIdentity().catch(() => setIdentityError("pin_wrong"));

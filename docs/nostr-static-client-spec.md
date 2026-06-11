@@ -129,7 +129,7 @@ The client and schema helper must:
 
 ## Publishing identity
 
-The editor signs flyer events under one of three identities, chosen in the
+The editor signs flyer events under one of four identities, chosen in the
 identity controls (`activeIdentity` / `signActiveEvent` in `nostr-client.js`):
 
 - **Anonymous (default).** The per-device key in `localStorage`
@@ -143,12 +143,23 @@ identity controls (`activeIdentity` / `signActiveEvent` in `nostr-client.js`):
   memory** for the session. If the user ticks "Remember on this device", the
   secret is encrypted with a PIN and stored as `voxvera_identity_nsec_enc`; the
   plaintext secret is never written to storage.
+- **Remote signer (NIP-46 / bunker).** The user pastes a `bunker://` link from a
+  signer app (nsec.app, Amber, …). The client mints an **ephemeral** local key,
+  connects to the bunker relay over a raw WebSocket, and exchanges encrypted
+  kind-`24133` JSON-RPC requests (`connect` → `get_public_key` → `sign_event`).
+  The user's real secret never reaches the browser. Requests are encrypted with
+  **NIP-44** (with a NIP-04 decrypt fallback for older signers); the vendored
+  nostr-tools bundle has no nip46 module, so this client is hand-rolled. The
+  connection is **session-only** — the bunker token is never persisted, so a
+  reload returns to anonymous.
 
 The chosen mode is remembered in `voxvera_identity_mode` (and the npub in
 `voxvera_identity_npub` for display). On reload: NIP-07 re-fetches the pubkey;
 a remembered nsec shows a **locked** state until the PIN is entered (`unlock`);
-a session-only nsec falls back to anonymous. `naddr`/poster-URL/`author npub`
-outputs all reflect the active identity.
+a session-only nsec or a remote-signer session falls back to anonymous.
+`naddr`/poster-URL/`author npub` outputs all reflect the active identity. A
+deliberate identity choice is also mirrored to `voxvera_connected_pubkey` so the
+bulletin board reflects the same identity.
 
 **PIN encryption details.** PBKDF2 (`SHA-256`, 600k iterations, random 16-byte
 salt) derives an AES-GCM-256 key (random 12-byte IV); the blob stores
@@ -160,8 +171,9 @@ but longer PINs are allowed and encouraged.
 > exfiltrated (targeted XSS, or devtools access on a shared/stolen device) it is
 > brute-forceable offline regardless of PBKDF2 cost. PIN-at-rest protects against
 > casual snooping and untargeted localStorage scraping, **not** a determined or
-> targeted attacker. The NIP-07 extension path (secret never in the page) is the
-> stronger option; a NIP-46 remote signer is a future addition. See
+> targeted attacker. The NIP-07 extension path (secret never in the page) and the
+> NIP-46 remote signer (secret stays in the signer app; the browser holds only an
+> ephemeral key — paste a `bunker://` link) are the stronger options. See
 > [`roadmap.md`](roadmap.md).
 
 ## Editing, re-publishing, and deleting flyers
