@@ -96,8 +96,12 @@ test.describe("VoxVera static client", () => {
     await page.goto("/");
     const sheet = page.locator("#flyer-preview .container").first();
     await expect(sheet).toBeVisible();
-    // Default sample content should render on the bare URL.
-    await expect(page.locator(".content h1").first()).toContainText("TOP SECRET");
+    // Default sample content: title (the project name) renders first, the
+    // dramatic line is the headline below it.
+    await expect(page.locator(".content h1").first()).toContainText("OPERATION VOX VERA");
+    await expect(page.locator(".content h1").nth(1)).toContainText("TOP SECRET");
+    // The side tabs are labeled with the title (the project name).
+    await expect(page.locator(".tear-off-title").first()).toContainText("OPERATION VOX VERA");
     // A real Letter sheet is taller than it is wide.
     const box = await sheet.boundingBox();
     expect(box && box.height).toBeGreaterThan(box ? box.width : 0);
@@ -343,8 +347,8 @@ test.describe("VoxVera static client", () => {
       });
     });
     await page.goto("/");
-    // German default headline (locales.js de.landing.title).
-    await expect(page.locator(".content h1").first()).toContainText("STRENG GEHEIM");
+    // German-distinctive default headline (locales.js de.landing.headline).
+    await expect(page.locator(".content h1").nth(1)).toContainText("STRENG GEHEIM");
     await expect(page.locator("html")).toHaveAttribute("lang", "de");
   });
 
