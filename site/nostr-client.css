@@ -1638,3 +1638,59 @@ body.mode-viewer #viewer-panel.drawer-open .result-panel {
 #loaded-flyer-status {
   color: var(--muted);
 }
+
+/* --- Safety & privacy page ------------------------------------------------ */
+.safety-main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px 20px 64px;
+  line-height: 1.55;
+}
+
+.safety-intro {
+  font-size: 16px;
+  margin: 0 0 28px;
+}
+
+.safety-section {
+  margin: 0 0 28px;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--soft);
+}
+
+.safety-section h2 {
+  margin: 0 0 12px;
+  font-size: 18px;
+}
+
+.safety-section ul {
+  margin: 0;
+  padding-inline-start: 22px;
+}
+
+.safety-section li {
+  margin: 0 0 10px;
+}
+
+.safety-section li:last-child {
+  margin-bottom: 0;
+}
+
+/* The "what it does NOT protect" block gets a warning accent so it reads as
+   the most important section on the page. */
+.safety-exposes {
+  border-color: #d9a300;
+  background: #fff8e6;
+}
+
+.safety-closing {
+  font-style: italic;
+  color: var(--muted);
+  margin: 0;
+}
+
+.safety-page .topbar-controls {
+  gap: 10px;
+}

@@ -261,6 +261,17 @@ for events not on the default set.
 - Reconsider how many relay hints to embed in the poster `naddr` (tradeoff:
   URL length / QR density vs. fetch robustness — see the QR Target notes in the
   spec).
+- **Self-contained fallback payload in the URL fragment (future).** Because a
+  printed flyer cannot be edited, a pruned/unreachable event leaves a dead QR.
+  The flyer payload is small (text only), so it could be compressed and encoded
+  into the URL `#fragment` alongside the `naddr`, letting the viewer render the
+  flyer *even when no relay has the event* — relay-independent durability, which
+  fits the censorship-resistance pitch. **Constraint:** the tear-off QR URL is
+  already near scannable capacity, so this likely can't be added without
+  reducing the number of tear-off tabs and/or enlarging the QR (denser code,
+  harder scan). Best treated as an opt-in "durable QR" mode rather than the
+  default, and decided alongside the tab-count/QR-size tradeoff. The `naddr`
+  remains the primary resolver; the embedded payload is a last-resort fallback.
 
 ## 5. Content-safety guardrails are minimal — **Open**
 
@@ -284,9 +295,27 @@ should follow the board's trust model.
 - **Favicon — ✅ done.** A small inline SVG (`site/favicon.svg`) is linked from
   both pages, so browsers no longer request (and 404 on) `/favicon.ico`.
 - **i18n key-parity guard — ✅ done.** `e2e/i18n.spec.js` fails if any
-  `NOSTR_UI` / `BOARD_UI` / locales dictionary is missing (or has an extra) key
-  in some language. It immediately caught `field_too_long`, which had been
-  English-only across all 13 other languages.
+  `NOSTR_UI` / `BOARD_UI` / `SAFETY_UI` / locales dictionary is missing (or has
+  an extra) key in some language (and that the `SAFETY_UI` bullet lists are the
+  same length in every language). It immediately caught `field_too_long`, which
+  had been English-only across all 13 other languages.
+- **Safety & privacy page — ✅ done.** A standalone `/safety` page
+  (`safety.html` / `safety.js`), localized across all 14 languages, in plain
+  language: what VoxVera protects, what it does **not** (relays see your IP; the
+  anon key is plaintext in the browser; a short PIN won't stop a targeted
+  attacker; published events are public/permanent; nsec-paste risk; reports are
+  public; the host/relays still see requests), and operational tips (Tor/VPN,
+  disposable keys, signer apps). Linked from the editor and the board. Aimed at
+  the activist/whistleblower audience the aesthetic invites — being honest about
+  limits matters more than any feature.
+- **Link previews / Open Graph — partial, by design.** Static site-wide OG +
+  Twitter-card meta are on the home, board, and safety pages, so a shared
+  `voxvera.org` link renders a real title/description instead of nothing.
+  **Per-flyer previews are a deliberate non-goal:** the poster `naddr` lives in
+  the URL `#fragment` (invisible to servers), and a static host can't render
+  per-flyer `<meta>` without server-side code — which is out of scope by choice
+  (this stays a free, purely static site). Revisit only if that constraint ever
+  changes.
 - **Publish transparency — ✅ done.** The publish confirmation modal now reports
   how many relays accepted the event ("Relays accepted: N / M") and flags a
   zero-acceptance publish, so a weak publish is visible immediately.

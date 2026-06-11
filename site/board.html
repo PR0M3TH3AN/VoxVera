@@ -9,6 +9,15 @@
          /board/... and 404. -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="stylesheet" href="/nostr-client.css">
+    <meta name="description" content="Recent VoxVera flyers published to the Nostr relays, filtered by your web of trust.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="VoxVera">
+    <meta property="og:title" content="VoxVera — Bulletin Board">
+    <meta property="og:description" content="Recent VoxVera flyers published to the Nostr relays, filtered by your web of trust.">
+    <meta property="og:url" content="https://voxvera.org/board">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="VoxVera — Bulletin Board">
+    <meta name="twitter:description" content="Recent VoxVera flyers published to the Nostr relays, filtered by your web of trust.">
   </head>
   <body class="board-page">
     <header class="topbar">
@@ -18,6 +27,7 @@
       </div>
       <div class="topbar-controls">
         <a id="board-back" class="board-back" href="/">Back to VoxVera</a>
+        <a id="board-safety" class="board-back" href="/safety">Safety &amp; privacy</a>
         <span id="board-identity" class="board-identity" hidden>
           <span id="board-identity-npub" class="board-npub"></span>
           <button id="board-disconnect" type="button" class="board-disconnect">Disconnect</button>

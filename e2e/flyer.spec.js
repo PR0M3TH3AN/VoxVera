@@ -394,9 +394,10 @@ test.describe("VoxVera static client", () => {
 
   test("bulletin board link sits outside the flyer sheet and is not printed", async ({ page }) => {
     await page.goto("/");
-    const link = page.locator(".preview-band > .board-link a");
+    const link = page.locator('.preview-band > .board-link a[href="board.html"]');
     await expect(link).toHaveText("Bulletin board");
-    await expect(link).toHaveAttribute("href", "board.html");
+    // The safety link sits alongside it, below the preview.
+    await expect(page.locator('.preview-band > .board-link a[href="/safety"]')).toHaveText("Safety & privacy");
     // It is app chrome below the preview, not part of the printable sheet.
     await expect(page.locator(".container .board-link")).toHaveCount(0);
     // Screen-only — it must not appear in print output.
@@ -1173,6 +1174,28 @@ test.describe("VoxVera static client", () => {
     expect(rep.tags.some((tg) => tg[0] === "p" && tg[1] === AUTHOR)).toBe(true);
     expect(rep.tags.some((tg) => tg[0] === "e" && tg[1] === FLYER_ID && tg[2] === "spam")).toBe(true);
     expect(rep.content).toBe("clearly spam");
+  });
+
+  test("safety page renders all sections, localizes, and is linked from editor + board", async ({ page }) => {
+    const errors = trackErrors(page);
+    await page.goto("/safety.html");
+    await expect(page.locator("#safety-title")).toHaveText("Safety & privacy");
+    await expect(page.locator("#safety-protects li")).toHaveCount(4);
+    await expect(page.locator("#safety-exposes li")).toHaveCount(7);
+    await expect(page.locator("#safety-tips li")).toHaveCount(5);
+    // The headline warning (relays see your IP) must be present.
+    await expect(page.locator("#safety-exposes")).toContainText("IP address");
+    // Switching language localizes the content and flips direction for RTL.
+    await page.locator("#safety-lang").selectOption("ar");
+    await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+    await expect(page.locator("#safety-title")).toHaveText("الأمان والخصوصية");
+    await expect(page.locator("#safety-exposes li")).toHaveCount(7);
+    // Reachable from both the editor and the board (served at /safety on Vercel).
+    await page.goto("/");
+    await expect(page.locator('.board-link a[href="/safety"]')).toHaveCount(1);
+    await page.goto("/board.html");
+    await expect(page.locator("#board-safety")).toHaveAttribute("href", "/safety");
+    expect(errors, errors.join("\n")).toHaveLength(0);
   });
 
   test("editor imports an nsec for the session without storing the secret", async ({ page }) => {

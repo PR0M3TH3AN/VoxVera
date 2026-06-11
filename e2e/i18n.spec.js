@@ -69,6 +69,20 @@ test.describe("i18n key parity", () => {
     checkParity("BOARD_UI", dict);
   });
 
+  test("SAFETY_UI defines every key (and list length) in all languages", () => {
+    const dict = evalObject(extractObject(readSite("safety.js"), "const SAFETY_UI ="));
+    expect(Object.keys(dict).length).toBe(14);
+    checkParity("SAFETY_UI", dict);
+    // The bullet lists must have the same number of items in every language, or
+    // some readers silently get fewer warnings than others.
+    for (const listKey of ["protects", "exposes", "tips"]) {
+      const refLen = dict.en[listKey].length;
+      for (const lang of Object.keys(dict)) {
+        expect(dict[lang][listKey].length, `SAFETY_UI[${lang}].${listKey} length`).toBe(refLen);
+      }
+    }
+  });
+
   test("locales labels and landing match across all languages", () => {
     const locales = Function(`var window={}; ${readSite("locales.js")}; return window.VoxVeraLocales;`)();
     const labels = {};

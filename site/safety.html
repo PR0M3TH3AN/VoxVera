@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>VoxVera — Safety &amp; privacy</title>
+    <!-- Root-absolute asset paths: with Vercel cleanUrls + trailingSlash this
+         page is served at /safety/, so relative paths would 404. -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/nostr-client.css">
+    <meta name="description" content="What VoxVera protects, what it does not, and how to stay safer when publishing flyers.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="VoxVera">
+    <meta property="og:title" content="VoxVera — Safety & privacy">
+    <meta property="og:description" content="What VoxVera protects, what it does not, and how to stay safer when publishing flyers.">
+    <meta property="og:url" content="https://voxvera.org/safety">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="VoxVera — Safety & privacy">
+    <meta name="twitter:description" content="What VoxVera protects, what it does not, and how to stay safer when publishing flyers.">
+  </head>
+  <body class="safety-page">
+    <header class="topbar">
+      <div>
+        <h1 id="safety-title">Safety &amp; privacy</h1>
+      </div>
+      <div class="topbar-controls">
+        <a id="safety-back" class="board-back" href="/">← Back to VoxVera</a>
+        <select id="safety-lang" aria-label="Language"></select>
+      </div>
+    </header>
+    <main class="safety-main">
+      <p id="safety-intro" class="safety-intro"></p>
+      <section class="safety-section safety-protects">
+        <h2 id="safety-protects-h"></h2>
+        <ul id="safety-protects"></ul>
+      </section>
+      <section class="safety-section safety-exposes">
+        <h2 id="safety-exposes-h"></h2>
+        <ul id="safety-exposes"></ul>
+      </section>
+      <section class="safety-section safety-tips">
+        <h2 id="safety-tips-h"></h2>
+        <ul id="safety-tips"></ul>
+      </section>
+      <p id="safety-closing" class="safety-closing"></p>
+    </main>
+    <script src="/locales.js"></script>
+    <script src="/safety.js"></script>
+  </body>
+</html>
