@@ -206,6 +206,31 @@ arriving later); the viewer shows a localized "This flyer was removed." state
 replaceable overwrites and NIP-09 may still serve the original — so it is framed
 as a request, not a guarantee.
 
+## Importing and exporting a flyer design
+
+The editor can save and load a flyer **design** as a portable `.json` file
+(`Export design` / `Import design`), independent of publishing. The file format
+is `{ type: "voxvera_flyer_design", version: 1, flyer: <payload>, relays: [] }`,
+where `flyer` is exactly `rawPayloadFromForm()` — the content fields plus the
+relay list, and **nothing identity-bound**: no npub, `naddr`, event id, or
+signature (all of those are derived at publish time by `withPosterUrl` /
+`signAndPublish`). That makes a design portable: it can be handed to anyone and
+published under *their* key with a fresh address.
+
+- **Export** (`exportDesign`) serializes the current form as-is (draft-friendly,
+  no strict validation) and downloads `<folder_name>-voxvera-design.json`.
+- **Import** (`importDesignFromFile`) reads the picked file (capped at 256 KB),
+  `JSON.parse`s it, and accepts either the wrapper format or a bare
+  `voxvera_flyer` payload (`readDesignFile`, lenient). It then shows a **confirm
+  modal** (`#import-modal`) before overwriting the editor, and on confirm
+  (`applyPendingImport`) fills the form via `fillEditorFromConfig` and restores
+  the relay list. Imported content is untrusted, but it flows through the lenient
+  view path (the renderer escapes every field) and still faces strict
+  `validatePayload` at publish (raw-HTML rejection, length caps, URL schemes).
+
+This replaced the earlier raw "Export event JSON" button; the published
+(signed) event JSON is still shown in `#event-json-output` after a publish.
+
 ## Print paper size
 
 The flyer supports two print sizes: **US Letter** (8.5×11in) and **A4**

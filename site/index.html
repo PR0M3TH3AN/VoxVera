@@ -142,9 +142,13 @@
           </label>
           <div class="actions">
             <button type="button" id="preview-editor">Preview</button>
-            <button type="button" id="export-event">Export event JSON</button>
+            <button type="button" id="import-design">Import design</button>
+            <button type="button" id="export-design">Export design</button>
             <button type="submit" id="publish-event">Sign and publish</button>
           </div>
+          <!-- Hidden picker for "Import design"; the design file is content +
+               relays only (no identity/naddr), so it is portable across keys. -->
+          <input type="file" id="import-design-input" accept="application/json,.json" hidden>
           <!-- Shown only when a flyer you authored is loaded from an event. -->
           <div id="loaded-flyer-actions" class="actions" hidden>
             <button type="button" id="republish-flyer" class="secondary-button" data-i18n-key="republish">Re-publish to relays</button>
@@ -231,6 +235,17 @@
       <div class="modal-actions">
         <button type="button" id="delete-modal-cancel" class="secondary-button" data-i18n-key="cancel">Cancel</button>
         <button type="button" id="delete-modal-confirm" class="secondary-button danger" data-i18n-key="delete_confirm">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="import-modal" class="modal-overlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="import-modal-title">
+      <h2 id="import-modal-title" data-i18n-key="import_confirm_title">Import this design?</h2>
+      <p id="import-modal-message" data-i18n-key="import_confirm_message">This replaces the flyer currently in the editor.</p>
+      <div class="modal-actions">
+        <button type="button" id="import-modal-cancel" class="secondary-button" data-i18n-key="cancel">Cancel</button>
+        <button type="button" id="import-modal-confirm" class="secondary-button" data-i18n-key="import_button">Import</button>
       </div>
     </div>
   </div>

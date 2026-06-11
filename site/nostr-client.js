@@ -119,7 +119,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
   };
   const BUTTON_LABELS = {
     "preview-editor": "preview",
-    "export-event": "export_event",
+    "import-design": "import_design",
+    "export-design": "export_design",
     "publish-event": "publish_event",
     "copy-viewer-config": "copy_config",
     "print-preview": "print_preview",
@@ -260,6 +261,14 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       nip46_bad_uri: "لا يبدو هذا رابط bunker://.",
       nip46_timeout: "لم يستجب الموقّع عن بُعد. افتح التطبيق وحاول مرة أخرى.",
       nip46_failed: "تعذّر الاتصال بالموقّع عن بُعد.",
+      import_design: "استيراد التصميم",
+      export_design: "تصدير التصميم",
+      import_confirm_title: "هل تريد استيراد هذا التصميم؟",
+      import_confirm_message: "سيحل هذا محل المنشور الموجود حاليًا في المحرر.",
+      import_button: "استيراد",
+      design_imported: "تم استيراد التصميم.",
+      design_exported: "تم تصدير التصميم.",
+      invalid_design_file: "هذا الملف ليس تصميم VoxVera صالحًا.",
       no_anon_npub: "لا يوجد npub مجهول بعد",
       anon_npub_ready: "npub مجهول جاهز",
       npub_generated: "تم إنشاء npub مجهول:",
@@ -362,6 +371,14 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       nip46_bad_uri: "Das sieht nicht nach einem bunker://-Link aus.",
       nip46_timeout: "Der externe Signierer hat nicht geantwortet. Öffne die App und versuche es erneut.",
       nip46_failed: "Verbindung zum externen Signierer fehlgeschlagen.",
+      import_design: "Design importieren",
+      export_design: "Design exportieren",
+      import_confirm_title: "Dieses Design importieren?",
+      import_confirm_message: "Dies ersetzt den aktuell im Editor befindlichen Flyer.",
+      import_button: "Importieren",
+      design_imported: "Design importiert.",
+      design_exported: "Design exportiert.",
+      invalid_design_file: "Diese Datei ist kein gültiges VoxVera-Design.",
       no_anon_npub: "Noch kein anonymes npub",
       anon_npub_ready: "Anonymes npub bereit",
       npub_generated: "Anonymes npub erzeugt:",
@@ -487,6 +504,14 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       nip46_bad_uri: "That doesn't look like a bunker:// link.",
       nip46_timeout: "The remote signer didn't respond. Open your signer app and try again.",
       nip46_failed: "Couldn't connect to the remote signer.",
+      import_design: "Import design",
+      export_design: "Export design",
+      import_confirm_title: "Import this design?",
+      import_confirm_message: "This replaces the flyer currently in the editor.",
+      import_button: "Import",
+      design_imported: "Design imported.",
+      design_exported: "Design exported.",
+      invalid_design_file: "That file isn't a valid VoxVera design.",
     },
     es: {
       back: "Volver",
@@ -566,6 +591,14 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       nip46_bad_uri: "Esto no parece un enlace bunker://.",
       nip46_timeout: "El firmante remoto no respondió. Abre la app e inténtalo de nuevo.",
       nip46_failed: "No se pudo conectar con el firmante remoto.",
+      import_design: "Importar diseño",
+      export_design: "Exportar diseño",
+      import_confirm_title: "¿Importar este diseño?",
+      import_confirm_message: "Esto reemplaza el folleto que está actualmente en el editor.",
+      import_button: "Importar",
+      design_imported: "Diseño importado.",
+      design_exported: "Diseño exportado.",
+      invalid_design_file: "Ese archivo no es un diseño de VoxVera válido.",
       no_anon_npub: "Aún no hay npub anónimo",
       anon_npub_ready: "npub anónimo listo",
       npub_generated: "npub anónimo generado:",
@@ -668,6 +701,14 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       nip46_bad_uri: "این یک پیوند bunker:// به نظر نمی‌رسد.",
       nip46_timeout: "امضاکننده از راه دور پاسخ نداد. برنامه را باز کنید و دوباره تلاش کنید.",
       nip46_failed: "اتصال به امضاکننده از راه دور ممکن نشد.",
+      import_design: "وارد کردن طرح",
+      export_design: "خروجی گرفتن از طرح",
+      import_confirm_title: "این طرح وارد شود؟",
+      import_confirm_message: "این جایگزین اعلامیه‌ای می‌شود که اکنون در ویرایشگر است.",
+      import_button: "وارد کردن",
+      design_imported: "طرح وارد شد.",
+      design_exported: "طرح خروجی گرفته شد.",
+      invalid_design_file: "این فایل یک طرح معتبر VoxVera نیست.",
       no_anon_npub: "هنوز npub ناشناس وجود ندارد",
       anon_npub_ready: "npub ناشناس آماده است",
       npub_generated: "npub ناشناس ساخته شد:",
@@ -770,6 +811,14 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       nip46_bad_uri: "Cela ne ressemble pas à un lien bunker://.",
       nip46_timeout: "Le signataire distant n'a pas répondu. Ouvrez l'app et réessayez.",
       nip46_failed: "Impossible de se connecter au signataire distant.",
+      import_design: "Importer le modèle",
+      export_design: "Exporter le modèle",
+      import_confirm_title: "Importer ce modèle ?",
+      import_confirm_message: "Cela remplace le tract actuellement dans l'éditeur.",
+      import_button: "Importer",
+      design_imported: "Modèle importé.",
+      design_exported: "Modèle exporté.",
+      invalid_design_file: "Ce fichier n'est pas un modèle VoxVera valide.",
       no_anon_npub: "Aucun npub anonyme pour le moment",
       anon_npub_ready: "npub anonyme pret",
       npub_generated: "npub anonyme genere :",
@@ -872,6 +921,14 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       nip46_bad_uri: "זה לא נראה כמו קישור bunker://.",
       nip46_timeout: "החותם המרוחק לא הגיב. פתח את האפליקציה ונסה שוב.",
       nip46_failed: "לא ניתן להתחבר לחותם המרוחק.",
+      import_design: "ייבוא עיצוב",
+      export_design: "ייצוא עיצוב",
+      import_confirm_title: "לייבא את העיצוב הזה?",
+      import_confirm_message: "פעולה זו מחליפה את הפלייר שנמצא כעת בעורך.",
+      import_button: "ייבוא",
+      design_imported: "העיצוב יובא.",
+      design_exported: "העיצוב יוצא.",
+      invalid_design_file: "הקובץ הזה אינו עיצוב VoxVera תקין.",
       no_anon_npub: "עדיין אין npub אנונימי",
       anon_npub_ready: "npub אנונימי מוכן",
       npub_generated: "npub אנונימי נוצר:",
@@ -974,6 +1031,14 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       nip46_bad_uri: "यह bunker:// लिंक जैसा नहीं लगता।",
       nip46_timeout: "रिमोट साइनर ने उत्तर नहीं दिया। ऐप खोलें और पुनः प्रयास करें।",
       nip46_failed: "रिमोट साइनर से कनेक्ट नहीं हो सका।",
+      import_design: "डिज़ाइन आयात करें",
+      export_design: "डिज़ाइन निर्यात करें",
+      import_confirm_title: "यह डिज़ाइन आयात करें?",
+      import_confirm_message: "यह संपादक में मौजूद फ़्लायर को बदल देगा।",
+      import_button: "आयात करें",
+      design_imported: "डिज़ाइन आयात किया गया।",
+      design_exported: "डिज़ाइन निर्यात किया गया।",
+      invalid_design_file: "वह फ़ाइल मान्य VoxVera डिज़ाइन नहीं है।",
       no_anon_npub: "अभी कोई अनाम npub नहीं",
       anon_npub_ready: "अनाम npub तैयार",
       npub_generated: "अनाम npub बनाया गया:",
@@ -1076,6 +1141,14 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       nip46_bad_uri: "これは bunker:// リンクではないようです。",
       nip46_timeout: "リモート署名が応答しませんでした。アプリを開いて再試行してください。",
       nip46_failed: "リモート署名に接続できませんでした。",
+      import_design: "デザインを読み込む",
+      export_design: "デザインを書き出す",
+      import_confirm_title: "このデザインを読み込みますか？",
+      import_confirm_message: "現在エディターにあるフライヤーが置き換えられます。",
+      import_button: "読み込む",
+      design_imported: "デザインを読み込みました。",
+      design_exported: "デザインを書き出しました。",
+      invalid_design_file: "そのファイルは有効な VoxVera デザインではありません。",
       no_anon_npub: "匿名npubはまだありません",
       anon_npub_ready: "匿名npub準備完了",
       npub_generated: "匿名npubを生成しました:",
@@ -1178,6 +1251,14 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       nip46_bad_uri: "Isso não parece um link bunker://.",
       nip46_timeout: "O assinador remoto não respondeu. Abra o app e tente novamente.",
       nip46_failed: "Não foi possível conectar ao assinador remoto.",
+      import_design: "Importar design",
+      export_design: "Exportar design",
+      import_confirm_title: "Importar este design?",
+      import_confirm_message: "Isto substitui o panfleto atualmente no editor.",
+      import_button: "Importar",
+      design_imported: "Design importado.",
+      design_exported: "Design exportado.",
+      invalid_design_file: "Esse arquivo não é um design válido do VoxVera.",
       no_anon_npub: "Ainda nao ha npub anonimo",
       anon_npub_ready: "npub anonimo pronto",
       npub_generated: "npub anonimo gerado:",
@@ -1280,6 +1361,14 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       nip46_bad_uri: "Это не похоже на ссылку bunker://.",
       nip46_timeout: "Удалённый подписант не ответил. Откройте приложение и попробуйте снова.",
       nip46_failed: "Не удалось подключиться к удалённому подписанту.",
+      import_design: "Импорт дизайна",
+      export_design: "Экспорт дизайна",
+      import_confirm_title: "Импортировать этот дизайн?",
+      import_confirm_message: "Это заменит листовку, открытую сейчас в редакторе.",
+      import_button: "Импорт",
+      design_imported: "Дизайн импортирован.",
+      design_exported: "Дизайн экспортирован.",
+      invalid_design_file: "Этот файл не является корректным дизайном VoxVera.",
       no_anon_npub: "Анонимного npub пока нет",
       anon_npub_ready: "Анонимный npub готов",
       npub_generated: "Анонимный npub создан:",
@@ -1382,6 +1471,14 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       nip46_bad_uri: "Hiki hakionekani kama kiungo cha bunker://.",
       nip46_timeout: "Mtia-saini wa mbali hakujibu. Fungua programu na ujaribu tena.",
       nip46_failed: "Imeshindwa kuunganisha na mtia-saini wa mbali.",
+      import_design: "Leta muundo",
+      export_design: "Hamisha muundo",
+      import_confirm_title: "Ulete muundo huu?",
+      import_confirm_message: "Hii itachukua nafasi ya kipeperushi kilichopo sasa kwenye kihariri.",
+      import_button: "Leta",
+      design_imported: "Muundo umeletwa.",
+      design_exported: "Muundo umehamishwa.",
+      invalid_design_file: "Faili hilo si muundo halali wa VoxVera.",
       no_anon_npub: "Hakuna npub isiyojulikana bado",
       anon_npub_ready: "npub isiyojulikana iko tayari",
       npub_generated: "npub isiyojulikana imetengenezwa:",
@@ -1484,6 +1581,14 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       nip46_bad_uri: "Bu bir bunker:// bağlantısına benzemiyor.",
       nip46_timeout: "Uzak imzalayıcı yanıt vermedi. Uygulamayı açıp tekrar deneyin.",
       nip46_failed: "Uzak imzalayıcıya bağlanılamadı.",
+      import_design: "Tasarımı içe aktar",
+      export_design: "Tasarımı dışa aktar",
+      import_confirm_title: "Bu tasarım içe aktarılsın mı?",
+      import_confirm_message: "Bu, düzenleyicide şu anda bulunan el ilanının yerini alır.",
+      import_button: "İçe aktar",
+      design_imported: "Tasarım içe aktarıldı.",
+      design_exported: "Tasarım dışa aktarıldı.",
+      invalid_design_file: "Bu dosya geçerli bir VoxVera tasarımı değil.",
       no_anon_npub: "Henüz anonim npub yok",
       anon_npub_ready: "Anonim npub hazır",
       npub_generated: "Anonim npub oluşturuldu:",
@@ -1586,6 +1691,14 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       nip46_bad_uri: "这看起来不是 bunker:// 链接。",
       nip46_timeout: "远程签名器无响应。请打开应用并重试。",
       nip46_failed: "无法连接到远程签名器。",
+      import_design: "导入设计",
+      export_design: "导出设计",
+      import_confirm_title: "导入此设计？",
+      import_confirm_message: "这将替换编辑器中当前的传单。",
+      import_button: "导入",
+      design_imported: "设计已导入。",
+      design_exported: "设计已导出。",
+      invalid_design_file: "该文件不是有效的 VoxVera 设计。",
       no_anon_npub: "还没有匿名 npub",
       anon_npub_ready: "匿名 npub 已就绪",
       npub_generated: "已生成匿名 npub:",
@@ -3386,6 +3499,94 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     URL.revokeObjectURL(url);
   }
 
+  // ---- Flyer design import / export (portable .json file) -------------------
+  // A design file is the flyer's content plus the relay list — deliberately
+  // identity-free (no npub, naddr, event id, or signature). Those are derived at
+  // publish time, so a design can be handed to anyone and published under THEIR
+  // key. Format: { type, version, flyer: <payload>, relays: [wss://…] }.
+  const DESIGN_FILE_TYPE = "voxvera_flyer_design";
+  const DESIGN_FILE_MAX_BYTES = 262144; // 256 KB — a design is tiny; reject blobs.
+  let pendingImport = null; // { flyer, relays } held while the confirm modal is open.
+
+  function exportDesign() {
+    // Export whatever is in the form (draft-friendly: no strict validation).
+    const file = {
+      type: DESIGN_FILE_TYPE,
+      version: 1,
+      flyer: rawPayloadFromForm(),
+      relays: parseRelays(el("editor-relays").value)
+    };
+    downloadJson(`${file.flyer.folder_name || "voxvera"}-voxvera-design.json`, file);
+    el("publish-status").textContent = nostrLabel("design_exported", currentUiLang());
+  }
+
+  // Pull the flyer payload + relays out of a parsed design file. Lenient: accepts
+  // the wrapper format and a bare voxvera_flyer payload (e.g. a copied config).
+  function readDesignFile(data) {
+    if (!data || typeof data !== "object") return null;
+    if (data.type === DESIGN_FILE_TYPE && data.flyer && typeof data.flyer === "object") {
+      const relays = Array.isArray(data.relays)
+        ? data.relays.filter((r) => typeof r === "string" && /^wss:\/\//i.test(r))
+        : [];
+      return { flyer: data.flyer, relays };
+    }
+    if (data.type === "voxvera_flyer") {
+      return { flyer: data, relays: [] };
+    }
+    return null;
+  }
+
+  function openImportModal() {
+    const modal = el("import-modal");
+    if (modal) modal.hidden = false;
+  }
+  function closeImportModal() {
+    const modal = el("import-modal");
+    if (modal) modal.hidden = true;
+  }
+
+  // Step 1: read + parse + validate the picked file, then ask to confirm.
+  function importDesignFromFile(fileObj) {
+    if (!fileObj) return;
+    if (fileObj.size > DESIGN_FILE_MAX_BYTES) {
+      el("publish-status").textContent = nostrLabel("invalid_design_file", currentUiLang());
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      let parsed;
+      try { parsed = JSON.parse(String(reader.result || "")); } catch (_) { parsed = null; }
+      const design = readDesignFile(parsed);
+      if (!design) {
+        el("publish-status").textContent = nostrLabel("invalid_design_file", currentUiLang());
+        return;
+      }
+      pendingImport = design;
+      openImportModal();
+    };
+    reader.onerror = () => {
+      el("publish-status").textContent = nostrLabel("invalid_design_file", currentUiLang());
+    };
+    reader.readAsText(fileObj);
+  }
+
+  // Step 2: apply the held design after the user confirms the overwrite.
+  function applyPendingImport() {
+    if (!pendingImport) { closeImportModal(); return; }
+    const { flyer, relays } = pendingImport;
+    pendingImport = null;
+    closeImportModal();
+    // Imported content is untrusted; the lenient form-fill escapes on preview and
+    // strict validation still runs at publish (raw HTML / length caps / schemes).
+    fillEditorFromConfig(flyer);
+    if (relays.length) el("editor-relays").value = relays.join("\n");
+    flyerSource = "custom";
+    loadedEventConfig = null;
+    refreshLoadedFlyerActions();
+    renderPreview(normalizePayload(rawPayloadFromForm()));
+    el("publish-status").textContent = nostrLabel("design_imported", currentUiLang());
+  }
+
   function renderRelayResults(results) {
     return `<div class="relay-results">${results.map((item) => `
       <div>
@@ -3693,22 +3894,26 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       }
     });
 
-    el("export-event").addEventListener("click", () => {
+    el("export-design").addEventListener("click", () => {
       try {
-        const payload = buildPayloadFromForm();
-        const relays = parseRelays(el("editor-relays").value);
-        const identity = activeIdentity();
-        const poster = withPosterUrl(payload, identity, relays);
-        const event = buildUnsignedEvent(poster.payload);
-        setRealOutput("author-npub-output", identity.npub);
-        setRealOutput("naddr-output", poster.naddr);
-        setRealOutput("poster-url-output", poster.posterUrl);
-        el("event-json-output").value = JSON.stringify(event, null, 2);
-        downloadJson(`${poster.payload.folder_name}-voxvera-event-unsigned.json`, event);
+        exportDesign();
       } catch (error) {
         el("publish-status").textContent = error.message;
       }
     });
+    el("import-design").addEventListener("click", () => {
+      const input = el("import-design-input");
+      if (input) { input.value = ""; input.click(); }
+    });
+    el("import-design-input").addEventListener("change", (event) => {
+      const file = event.target && event.target.files && event.target.files[0];
+      importDesignFromFile(file);
+    });
+    el("import-modal-cancel").addEventListener("click", () => {
+      pendingImport = null;
+      closeImportModal();
+    });
+    el("import-modal-confirm").addEventListener("click", applyPendingImport);
 
     el("editor-form").addEventListener("submit", async (event) => {
       event.preventDefault();

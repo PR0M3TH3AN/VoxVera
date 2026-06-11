@@ -740,6 +740,92 @@ test.describe("VoxVera static client", () => {
     expect(errors, errors.join("\n")).toHaveLength(0);
   });
 
+  test("exports the current flyer design as a portable, identity-free JSON file", async ({ page }) => {
+    await page.goto("/#editor");
+    // Wait for the editor to finish populating defaults before overwriting them
+    // (otherwise setDefaultText can race ahead of fill() on some engines).
+    await expect(page.locator("#flyer-preview .container").first()).toBeVisible();
+    await expect(page.locator("#field-url")).toHaveValue(/voxvera\.org/);
+    // Edit fields with no live auto-fit guard so the values reliably stick on
+    // every engine (the printable-fit guard on title/url can revert text whose
+    // rendering overflows the sheet, which is engine/font-metric dependent).
+    await page.locator("#field-name").fill("Campaign Alpha");
+    await page.locator("#field-folder-name").fill("alpha-campaign");
+    await page.locator("#editor-relays").fill("wss://relay.example.com");
+    const [download] = await Promise.all([
+      page.waitForEvent("download"),
+      page.locator("#export-design").click()
+    ]);
+    const data = JSON.parse(require("fs").readFileSync(await download.path(), "utf8"));
+    expect(data.type).toBe("voxvera_flyer_design");
+    expect(data.flyer.name).toBe("Campaign Alpha");
+    expect(data.flyer.folder_name).toBe("alpha-campaign");
+    expect(data.relays).toContain("wss://relay.example.com");
+    // The url field is captured faithfully, whatever the form currently holds.
+    expect(data.flyer.url).toBe(await page.locator("#field-url").inputValue());
+    // Identity-free: no naddr, event id, pubkey, or signature is baked in.
+    const blob = JSON.stringify(data);
+    expect(blob).not.toContain("naddr");
+    expect(blob).not.toContain("\"sig\"");
+    expect(blob).not.toContain("\"pubkey\"");
+    await expect(page.locator("#publish-status")).toHaveText("Design exported.");
+  });
+
+  test("imports a design file and replaces the editor after confirming", async ({ page }) => {
+    const errors = trackErrors(page);
+    await page.goto("/#editor");
+    const design = {
+      type: "voxvera_flyer_design",
+      version: 1,
+      flyer: {
+        type: "voxvera_flyer", version: 1, folder_name: "imported", lang: "en",
+        name: "Imported Name", title: "Imported Title", subtitle: "", headline: "",
+        content: "Imported body", url_message: "", url: "https://example.org/imported",
+        footer_message: "", attachment_path: "", attachment_filename: "", qr_target: "flyer_url"
+      },
+      relays: ["wss://imported.example.com"]
+    };
+    await page.setInputFiles("#import-design-input", {
+      name: "design.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(design))
+    });
+    // A confirm step guards against clobbering the current draft.
+    await expect(page.locator("#import-modal")).toBeVisible();
+    await page.locator("#import-modal-confirm").click();
+    await expect(page.locator("#import-modal")).toBeHidden();
+    await expect(page.locator("#field-title")).toHaveValue("Imported Title");
+    await expect(page.locator("#field-name")).toHaveValue("Imported Name");
+    await expect(page.locator("#field-content")).toHaveValue("Imported body");
+    await expect(page.locator("#editor-relays")).toHaveValue("wss://imported.example.com");
+    await expect(page.locator("#publish-status")).toHaveText("Design imported.");
+    expect(errors, errors.join("\n")).toHaveLength(0);
+  });
+
+  test("cancelling the import confirm leaves the editor unchanged", async ({ page }) => {
+    await page.goto("/#editor");
+    await page.locator("#field-title").fill("Keep Me");
+    await page.setInputFiles("#import-design-input", {
+      name: "design.json", mimeType: "application/json",
+      buffer: Buffer.from(JSON.stringify({
+        type: "voxvera_flyer_design", version: 1,
+        flyer: { type: "voxvera_flyer", version: 1, title: "Should Not Apply", lang: "en" },
+        relays: []
+      }))
+    });
+    await expect(page.locator("#import-modal")).toBeVisible();
+    await page.locator("#import-modal-cancel").click();
+    await expect(page.locator("#import-modal")).toBeHidden();
+    await expect(page.locator("#field-title")).toHaveValue("Keep Me");
+  });
+
+  test("rejects a file that isn't a valid VoxVera design", async ({ page }) => {
+    await page.goto("/#editor");
+    await page.setInputFiles("#import-design-input", {
+      name: "notes.json", mimeType: "application/json", buffer: Buffer.from('{"hello":"world"}')
+    });
+    await expect(page.locator("#import-modal")).toBeHidden();
+    await expect(page.locator("#publish-status")).toHaveText("That file isn't a valid VoxVera design.");
+  });
+
   test("editor can connect a NIP-07 identity and publish under it", async ({ page }) => {
     const PK = "a".repeat(64);
     await page.addInitScript((pk) => {
