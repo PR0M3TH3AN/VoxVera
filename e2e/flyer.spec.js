@@ -1119,6 +1119,62 @@ test.describe("VoxVera static client", () => {
     expect(pub.some((e) => e.kind === 5 && (e.tags || []).some((t) => t[0] === "a" && t[1] === `30078:${ME}:voxvera:mine`))).toBe(true);
   });
 
+  test("reporting a flyer publishes a NIP-56 report and hides it", async ({ page }) => {
+    const ME = "1".repeat(64);
+    const AUTHOR = "b".repeat(64);
+    const FLYER_ID = "f".repeat(64);
+    await page.addInitScript((cfg) => {
+      window.nostr = {
+        getPublicKey: async () => cfg.me,
+        signEvent: async (e) => ({ ...e, pubkey: cfg.me, id: "a".repeat(64), sig: "0".repeat(128) })
+      };
+      window.__published = [];
+      const flyer = {
+        id: cfg.flyerId, kind: 30078, pubkey: cfg.author, created_at: 2000,
+        tags: [["d", "voxvera:bad"], ["t", "voxvera"], ["t", "flyer"], ["language", "en"]],
+        content: JSON.stringify({ type: "voxvera_flyer", version: 1, lang: "en", title: "Reported Flyer", url: "https://example.com/x" })
+      };
+      class FakeWS {
+        constructor() { this.readyState = 1; setTimeout(() => this.onopen && this.onopen(), 1); }
+        send(data) {
+          let m; try { m = JSON.parse(data); } catch (_) { return; }
+          if (m[0] === "REQ") {
+            const sub = m[1], f = m[2] || {};
+            const serve = f.kinds && f.kinds.indexOf(30078) !== -1; // flyers only
+            setTimeout(() => {
+              if (serve) this.onmessage && this.onmessage({ data: JSON.stringify(["EVENT", sub, flyer]) });
+              this.onmessage && this.onmessage({ data: JSON.stringify(["EOSE", sub]) });
+            }, 1);
+          } else if (m[0] === "EVENT") {
+            window.__published.push(m[1]);
+            setTimeout(() => this.onmessage && this.onmessage({ data: JSON.stringify(["OK", m[1].id, true, ""]) }), 1);
+          }
+        }
+        close() {}
+      }
+      window.WebSocket = FakeWS;
+    }, { me: ME, author: AUTHOR, flyerId: FLYER_ID });
+    await page.goto("/board.html");
+    await page.locator("#board-connect").click();
+    await expect(page.locator("#board-content")).toBeVisible();
+    const theirRow = page.locator("#board-rows tr", { hasText: "Reported Flyer" });
+    await theirRow.locator(".board-menu-btn").click({ force: true });
+    await theirRow.locator('.board-menu-item[data-act="report"]').click({ force: true });
+    await expect(page.locator("#board-report-modal")).toBeVisible();
+    await page.locator("#board-report-category").selectOption("spam");
+    await page.locator("#board-report-reason").fill("clearly spam");
+    await page.locator("#board-report-confirm").click({ force: true });
+    // The flyer is hidden for the reporter (pairs with the local blocklist)…
+    await expect(page.locator("#board-rows")).not.toContainText("Reported Flyer");
+    // …and a signed NIP-56 (kind 1984) report was published referencing it.
+    const reports = await page.evaluate(() => window.__published.filter((e) => e.kind === 1984));
+    expect(reports.length).toBeGreaterThan(0);
+    const rep = reports[0];
+    expect(rep.tags.some((tg) => tg[0] === "p" && tg[1] === AUTHOR)).toBe(true);
+    expect(rep.tags.some((tg) => tg[0] === "e" && tg[1] === FLYER_ID && tg[2] === "spam")).toBe(true);
+    expect(rep.content).toBe("clearly spam");
+  });
+
   test("editor imports an nsec for the session without storing the secret", async ({ page }) => {
     await page.goto("/#editor");
     const { nsec, npub } = await page.evaluate(() => {

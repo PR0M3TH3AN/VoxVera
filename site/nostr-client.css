@@ -1589,6 +1589,18 @@ body.mode-viewer #viewer-panel.drawer-open .result-panel {
   white-space: nowrap;
 }
 
+.board-report-category,
+#board-report-reason {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 12px;
+  padding: 8px 10px;
+  font: inherit;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
 .modal-relays {
   margin: 10px 0 0;
   font-size: 13px;

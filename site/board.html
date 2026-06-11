@@ -95,6 +95,19 @@
       </div>
     </div>
 
+    <div id="board-report-modal" class="modal-overlay" hidden>
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="board-report-title">
+        <h2 id="board-report-title">Report this flyer?</h2>
+        <p id="board-report-message">This publishes a public report to the relays and hides the flyer for you. Reports can't be undone.</p>
+        <select id="board-report-category" class="board-report-category" aria-label="Report category"></select>
+        <input id="board-report-reason" type="text" autocomplete="off" spellcheck="false" placeholder="Reason (optional)" maxlength="280">
+        <div class="modal-actions">
+          <button id="board-report-cancel" type="button" class="board-action">Cancel</button>
+          <button id="board-report-confirm" type="button" class="board-action danger">Submit report</button>
+        </div>
+      </div>
+    </div>
+
     <script src="/locales.js"></script>
     <script src="/vendor/nostr-tools/nostr.bundle.js"></script>
     <script src="/board.js"></script>

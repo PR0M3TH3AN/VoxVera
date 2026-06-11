@@ -35,6 +35,10 @@ The trust model (#1–#2) has moved from undefined to implemented:
 - **Local blocklist** — a per-device "Block" on the board hides flyers from any
   author you didn't post (separate from the web-of-trust filter), with a clear
   control. This is the local blocklist direction from #1.
+- **Report (NIP-56)** — a board "Report" action on others' flyers publishes a
+  signed **kind-1984** report (category + optional reason) referencing the flyer
+  (`e`) and author (`p`), so other clients and moderators can aggregate it.
+  Reporting also hides the flyer locally (pairs with the blocklist).
 - **Author display names** — the board shows each author's kind-0 display name
   (falling back to the npub), so flyers aren't labeled by bare keys. (NIP-05
   *verification* is still a future addition.)
@@ -42,8 +46,8 @@ The trust model (#1–#2) has moved from undefined to implemented:
   flyers (overrides the trust filter, since your own may not be in your graph).
 
 All of the above is localized across the 14 languages and covered by the
-cross-engine Playwright suite. **What remains** on #1–#2 is polish (report-to-list,
-NIP-05 badges, an identified-vs-anonymous display) plus
+cross-engine Playwright suite. **What remains** on #1–#2 is polish (NIP-05
+badges, an identified-vs-anonymous display) plus
 the editor follow-ups noted under the *Planned direction* section. **#3–#5 are
 still fully open** — distribution centralization (#3) is now the
 highest-leverage untouched item.
@@ -56,7 +60,7 @@ highest-leverage untouched item.
 > Nostr identity to view, and it now filters to flyers from the viewer's NIP-02
 > web of trust (with a bootstrap seed for new keys). See *Planned direction:
 > identity + web-of-trust on the board* below (jointly addresses #1 and #2).
-> Remaining: report-to-list, NIP-05 badges (Phase 3). Degree-2 trust shipped.
+> Remaining: NIP-05 badges (Phase 3). Degree-2 trust + NIP-56 report shipped.
 
 
 **Problem.** `board.html` lists every Nostr event tagged `t=voxvera` / `t=flyer`
@@ -166,9 +170,11 @@ board can show them flyers from people they trust.
   everything (never mysteriously empty). Covered by the cross-engine e2e suite
   (followed-only view + show-all opt-out; curator-seeded fallback).
 - **Phase 3 — In progress.** Degree-2 trust (follows-of-follows) ✅ shipped; the
-  local blocklist / "hide this" ✅ shipped. **Remaining:** report-to-list and
-  NIP-05 verified badges. Also: the bootstrap curator is currently a single
-  hardcoded pubkey — consider making it configurable or a small curated set.
+  local blocklist / "hide this" ✅ shipped; NIP-56 reporting (kind 1984) ✅
+  shipped. **Remaining:** NIP-05 verified badges, and a curator-side flow that
+  *consumes* reports (today a report is published for others to aggregate, but
+  the board does not yet act on report counts). Also: the bootstrap curator is a
+  single hardcoded pubkey — consider making it configurable or a small set.
 
 **Decisions made (2026-06-10).**
 1. **Board viewing: login-required.** The board is blank (a Connect prompt)
