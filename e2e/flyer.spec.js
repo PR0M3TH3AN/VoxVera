@@ -624,6 +624,8 @@ test.describe("VoxVera static client", () => {
     await expect(page.locator("#publish-modal-message")).toContainText("Copy this URL");
     // The URL is a poster URL (naddr in the fragment).
     await expect(page.locator("#publish-modal-url")).toHaveValue(/#naddr1[0-9a-z]+/);
+    // The relays-accepted line reports how many of the relays took the event.
+    await expect(page.locator("#publish-modal-relays")).toContainText(/3\s*\/\s*3/);
     await page.locator("#publish-modal-close").click();
     await expect(modal).toBeHidden();
   });

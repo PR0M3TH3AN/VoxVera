@@ -229,6 +229,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       deleted_done: "تم طلب الحذف.",
       republished_done: "تمت إعادة النشر إلى المرحلات.",
       not_author: "يمكنك فقط حذف أو إعادة نشر الملصقات التي نشرتها.",
+      field_too_long: "هذا الحقل طويل جدًا على الملصق القابل للطباعة:",
+      relays_accepted: "المرحلات التي قبلت",
       no_anon_npub: "لا يوجد npub مجهول بعد",
       anon_npub_ready: "npub مجهول جاهز",
       npub_generated: "تم إنشاء npub مجهول:",
@@ -319,6 +321,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       deleted_done: "Löschung angefordert.",
       republished_done: "Erneut auf Relays veröffentlicht.",
       not_author: "Du kannst nur Plakate löschen oder erneut veröffentlichen, die du veröffentlicht hast.",
+      field_too_long: "Dieses Feld ist zu lang für das druckbare Plakat:",
+      relays_accepted: "Relays akzeptiert",
       no_anon_npub: "Noch kein anonymes npub",
       anon_npub_ready: "Anonymes npub bereit",
       npub_generated: "Anonymes npub erzeugt:",
@@ -432,7 +436,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       failed: "failed",
       timeout: "timeout",
       connection_error: "connection error",
-      field_too_long: "That field is too long for the printable flyer:"
+      field_too_long: "That field is too long for the printable flyer:",
+      relays_accepted: "Relays accepted"
     },
     es: {
       back: "Volver",
@@ -500,6 +505,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       deleted_done: "Eliminación solicitada.",
       republished_done: "Vuelto a publicar en los relés.",
       not_author: "Solo puedes eliminar o volver a publicar carteles que tú publicaste.",
+      field_too_long: "Ese campo es demasiado largo para el cartel imprimible:",
+      relays_accepted: "Relés que aceptaron",
       no_anon_npub: "Aún no hay npub anónimo",
       anon_npub_ready: "npub anónimo listo",
       npub_generated: "npub anónimo generado:",
@@ -590,6 +597,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       deleted_done: "درخواست حذف ارسال شد.",
       republished_done: "دوباره در رله‌ها منتشر شد.",
       not_author: "فقط می‌توانید پوسترهایی را که خودتان منتشر کرده‌اید حذف یا دوباره منتشر کنید.",
+      field_too_long: "این فیلد برای پوستر قابل چاپ خیلی طولانی است:",
+      relays_accepted: "رله‌هایی که پذیرفتند",
       no_anon_npub: "هنوز npub ناشناس وجود ندارد",
       anon_npub_ready: "npub ناشناس آماده است",
       npub_generated: "npub ناشناس ساخته شد:",
@@ -680,6 +689,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       deleted_done: "Suppression demandée.",
       republished_done: "Republiée sur les relais.",
       not_author: "Vous ne pouvez supprimer ou republier que les affiches que vous avez publiées.",
+      field_too_long: "Ce champ est trop long pour l'affiche imprimable :",
+      relays_accepted: "Relais ayant accepté",
       no_anon_npub: "Aucun npub anonyme pour le moment",
       anon_npub_ready: "npub anonyme pret",
       npub_generated: "npub anonyme genere :",
@@ -770,6 +781,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       deleted_done: "התבקשה מחיקה.",
       republished_done: "פורסם מחדש לממסרים.",
       not_author: "ניתן למחוק או לפרסם מחדש רק כרזות שפרסמת.",
+      field_too_long: "השדה הזה ארוך מדי עבור הכרזה הניתנת להדפסה:",
+      relays_accepted: "ממסרים שקיבלו",
       no_anon_npub: "עדיין אין npub אנונימי",
       anon_npub_ready: "npub אנונימי מוכן",
       npub_generated: "npub אנונימי נוצר:",
@@ -860,6 +873,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       deleted_done: "विलोपन का अनुरोध किया गया।",
       republished_done: "रिले पर फिर से प्रकाशित किया गया।",
       not_author: "आप केवल अपने द्वारा प्रकाशित पोस्टर ही हटा या फिर से प्रकाशित कर सकते हैं।",
+      field_too_long: "यह फ़ील्ड प्रिंट करने योग्य पोस्टर के लिए बहुत लंबा है:",
+      relays_accepted: "स्वीकृत रिले",
       no_anon_npub: "अभी कोई अनाम npub नहीं",
       anon_npub_ready: "अनाम npub तैयार",
       npub_generated: "अनाम npub बनाया गया:",
@@ -950,6 +965,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       deleted_done: "削除を要求しました。",
       republished_done: "リレーに再公開しました。",
       not_author: "自分が公開したちらしのみ削除または再公開できます。",
+      field_too_long: "この項目は印刷用ちらしには長すぎます:",
+      relays_accepted: "受け入れたリレー",
       no_anon_npub: "匿名npubはまだありません",
       anon_npub_ready: "匿名npub準備完了",
       npub_generated: "匿名npubを生成しました:",
@@ -1040,6 +1057,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       deleted_done: "Exclusão solicitada.",
       republished_done: "Republicado nos relés.",
       not_author: "Você só pode excluir ou republicar panfletos que você publicou.",
+      field_too_long: "Esse campo é longo demais para o panfleto imprimível:",
+      relays_accepted: "Relés que aceitaram",
       no_anon_npub: "Ainda nao ha npub anonimo",
       anon_npub_ready: "npub anonimo pronto",
       npub_generated: "npub anonimo gerado:",
@@ -1130,6 +1149,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       deleted_done: "Запрошено удаление.",
       republished_done: "Снова опубликовано на реле.",
       not_author: "Вы можете удалять или повторно публиковать только свои листовки.",
+      field_too_long: "Это поле слишком длинное для печатной листовки:",
+      relays_accepted: "Реле приняли",
       no_anon_npub: "Анонимного npub пока нет",
       anon_npub_ready: "Анонимный npub готов",
       npub_generated: "Анонимный npub создан:",
@@ -1220,6 +1241,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       deleted_done: "Kufuta kumeombwa.",
       republished_done: "Limechapishwa tena kwenye relay.",
       not_author: "Unaweza tu kufuta au kuchapisha tena mabango uliyochapisha.",
+      field_too_long: "Sehemu hii ni ndefu mno kwa bango linaloweza kuchapishwa:",
+      relays_accepted: "Relay zilizokubali",
       no_anon_npub: "Hakuna npub isiyojulikana bado",
       anon_npub_ready: "npub isiyojulikana iko tayari",
       npub_generated: "npub isiyojulikana imetengenezwa:",
@@ -1310,6 +1333,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       deleted_done: "Silme istendi.",
       republished_done: "Rölelere yeniden yayımlandı.",
       not_author: "Yalnızca kendi yayımladığın el ilanlarını silebilir veya yeniden yayımlayabilirsin.",
+      field_too_long: "Bu alan yazdırılabilir el ilanı için çok uzun:",
+      relays_accepted: "Kabul eden röleler",
       no_anon_npub: "Henüz anonim npub yok",
       anon_npub_ready: "Anonim npub hazır",
       npub_generated: "Anonim npub oluşturuldu:",
@@ -1400,6 +1425,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       deleted_done: "已请求删除。",
       republished_done: "已重新发布到中继。",
       not_author: "你只能删除或重新发布你自己发布的传单。",
+      field_too_long: "该字段对于可打印传单来说太长了：",
+      relays_accepted: "已接受的中继",
       no_anon_npub: "还没有匿名 npub",
       anon_npub_ready: "匿名 npub 已就绪",
       npub_generated: "已生成匿名 npub:",
@@ -2963,13 +2990,27 @@ Join us in a revolution that values truth and transparency. Together, we can bui
 
   // Confirmation modal shown after a successful publish, so the author knows
   // the flyer is live and can copy the URL to view/share it.
-  function openPublishModal(url) {
+  function openPublishModal(url, results) {
     const modal = el("publish-modal");
     const input = el("publish-modal-url");
     if (!modal || !input) return;
     input.value = url || "";
     const copyBtn = el("publish-modal-copy");
     if (copyBtn) copyBtn.textContent = nostrLabel("copy", currentUiLang());
+    // Show how many relays actually accepted the event so a weak publish is
+    // visible immediately (and flagged if zero/low).
+    const relaysNode = el("publish-modal-relays");
+    if (relaysNode) {
+      const list = Array.isArray(results) ? results : [];
+      const ok = list.filter((r) => r && r.ok).length;
+      const total = list.length;
+      if (total) {
+        relaysNode.textContent = `${nostrLabel("relays_accepted", currentUiLang())}: ${ok} / ${total}`;
+        relaysNode.classList.toggle("modal-relays-warn", ok === 0);
+      } else {
+        relaysNode.textContent = "";
+      }
+    }
     modal.hidden = false;
     input.focus();
     input.select();
@@ -3261,7 +3302,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
         loadedEventConfig = normalizePayload(result.payload);
         flyerSource = "event";
         refreshLoadedFlyerActions();
-        openPublishModal(result.posterUrl);
+        openPublishModal(result.posterUrl, result.results);
       } catch (error) {
         el("publish-status").textContent = error.message;
       }

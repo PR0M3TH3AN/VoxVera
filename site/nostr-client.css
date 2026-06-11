@@ -1583,6 +1583,17 @@ body.mode-viewer #viewer-panel.drawer-open .result-panel {
   white-space: nowrap;
 }
 
+.modal-relays {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.modal-relays.modal-relays-warn {
+  color: var(--accent);
+  font-weight: 700;
+}
+
 .modal-close {
   display: block;
   margin-left: auto;

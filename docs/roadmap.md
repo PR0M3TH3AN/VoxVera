@@ -257,6 +257,13 @@ should follow the board's trust model.
   noted so it is not mistaken for a contract.
 - **Favicon — ✅ done.** A small inline SVG (`site/favicon.svg`) is linked from
   both pages, so browsers no longer request (and 404 on) `/favicon.ico`.
+- **i18n key-parity guard — ✅ done.** `e2e/i18n.spec.js` fails if any
+  `NOSTR_UI` / `BOARD_UI` / locales dictionary is missing (or has an extra) key
+  in some language. It immediately caught `field_too_long`, which had been
+  English-only across all 13 other languages.
+- **Publish transparency — ✅ done.** The publish confirmation modal now reports
+  how many relays accepted the event ("Relays accepted: N / M") and flags a
+  zero-acceptance publish, so a weak publish is visible immediately.
 - **WebKit/Safari coverage in CI** needs `libavif16` on Linux runners
   (`sudo npx playwright install-deps`); headless WebKit is also not a perfect
   stand-in for real Safari/iOS print + clipboard behavior, so a real-device
