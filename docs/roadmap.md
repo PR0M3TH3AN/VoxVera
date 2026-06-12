@@ -315,12 +315,13 @@ should follow the board's trust model.
   disposable keys, signer apps). Linked from the editor and the board. Aimed at
   the activist/whistleblower audience the aesthetic invites — being honest about
   limits matters more than any feature.
-- **Link previews / Open Graph — partial, by design.** Static site-wide OG +
-  Twitter-card meta are on the home, board, and safety pages, so a shared
-  `voxvera.org` link renders a real title/description instead of nothing.
-  **Per-flyer previews are a deliberate non-goal:** the poster `naddr` lives in
-  the URL `#fragment` (invisible to servers), and a static host can't render
-  per-flyer `<meta>` without server-side code — which is out of scope by choice
+- **Link previews / Open Graph — shipped (site-wide).** Static OG +
+  Twitter-card meta are on the home, board, and safety pages, including a
+  **1200×630 preview image** (`site/og-card.jpg`, `summary_large_image`), so a
+  shared `voxvera.org` link renders a real title, description, and image card.
+  **Per-flyer previews remain a deliberate non-goal:** the poster `naddr` lives
+  in the URL `#fragment` (invisible to servers), and a static host can't render
+  per-flyer `<meta>`/image without server-side code — out of scope by choice
   (this stays a free, purely static site). Revisit only if that constraint ever
   changes.
 - **Publish transparency — ✅ done.** The publish confirmation modal now reports

@@ -121,6 +121,20 @@ test.describe("VoxVera static client", () => {
     expect(await res.text()).toContain("<svg");
   });
 
+  test("all pages declare the Open Graph preview image, and it is served", async ({ page }) => {
+    for (const path of ["/", "/board.html", "/safety.html"]) {
+      await page.goto(path);
+      const ogImage = await page.locator('meta[property="og:image"]').getAttribute("content");
+      expect(ogImage, `${path} og:image`).toBe("https://voxvera.org/og-card.jpg");
+      const twCard = await page.locator('meta[name="twitter:card"]').getAttribute("content");
+      expect(twCard, `${path} twitter:card`).toBe("summary_large_image");
+    }
+    // The card asset itself is served and is a JPEG.
+    const res = await page.request.get("/og-card.jpg");
+    expect(res.status()).toBe(200);
+    expect(res.headers()["content-type"] || "").toContain("jpeg");
+  });
+
   test("print media hides app chrome and keeps the flyer", async ({ page }, testInfo) => {
     await page.goto("/");
     await page.emulateMedia({ media: "print" });
