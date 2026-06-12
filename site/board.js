@@ -190,7 +190,16 @@
       if (!e || e.kind !== EVENT_KIND) return;
       const tags = e.tags || [];
       if (!tags.some((x) => x[0] === "t" && x[1] === "voxvera")) return;
-      const key = e.pubkey + ":" + dtagOf(tags);
+      // kind 30078 is a shared "application data" kind, and relays may ignore the
+      // #t filter (or another app may carry a "voxvera" hashtag), so foreign
+      // events can arrive. Require VoxVera's own markers: a voxvera: d-tag and a
+      // voxvera_flyer content payload (real flyers and tombstones both have it).
+      const d = dtagOf(tags);
+      if (!/^voxvera:/.test(d)) return;
+      let payload;
+      try { payload = JSON.parse(e.content); } catch (_) { return; }
+      if (!payload || payload.type !== "voxvera_flyer") return;
+      const key = e.pubkey + ":" + d;
       const prev = latest.get(key);
       if (!prev || (e.created_at || 0) > (prev.created_at || 0)) latest.set(key, e);
     });

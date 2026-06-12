@@ -1089,6 +1089,27 @@ test.describe("VoxVera static client", () => {
     await expect(page.locator(".content h1")).toHaveCount(0);
   });
 
+  test("board shows only VoxVera flyers, not foreign kind-30078 app data", async ({ page }) => {
+    const OTHER = "b".repeat(64);
+    await stubNip07(page); // viewer = 1*64, no follows → show-all
+    await stubRelays(page, [
+      flyerEvent("real", OTHER, "Real VoxVera Flyer"),
+      // A foreign app's kind-30078 event that still carries a "voxvera" tag
+      // (hashtag collision, or a relay ignoring the #t filter). It has neither a
+      // voxvera: d-tag nor a voxvera_flyer payload, so it must be excluded.
+      {
+        id: "f".repeat(64), kind: 30078, pubkey: OTHER, created_at: 5000,
+        tags: [["d", "artstr:gallery"], ["t", "voxvera"], ["t", "flyer"]],
+        content: JSON.stringify({ type: "artstr_note", title: "Foreign App Note", url: "https://artstr.studio/x" })
+      }
+    ]);
+    await page.goto("/board.html");
+    await page.locator("#board-connect").click();
+    await expect(page.locator("#board-content")).toBeVisible();
+    await expect(page.locator("#board-rows")).toContainText("Real VoxVera Flyer");
+    await expect(page.locator("#board-rows")).not.toContainText("Foreign App Note");
+  });
+
   test("blocking an author hides their flyers, persists, and clears", async ({ page }) => {
     const OTHER = "b".repeat(64);
     await stubNip07(page); // viewer = 1*64
