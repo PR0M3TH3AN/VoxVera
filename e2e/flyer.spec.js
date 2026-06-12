@@ -397,7 +397,7 @@ test.describe("VoxVera static client", () => {
     const link = page.locator('.preview-band > .board-link a[href="board.html"]');
     await expect(link).toHaveText("Bulletin board");
     // The safety link sits alongside it, below the preview.
-    await expect(page.locator('.preview-band > .board-link a[href="/safety"]')).toHaveText("Safety & privacy");
+    await expect(page.locator('.preview-band > .board-link a[href="/safety.html"]')).toHaveText("Safety & privacy");
     // It is app chrome below the preview, not part of the printable sheet.
     await expect(page.locator(".container .board-link")).toHaveCount(0);
     // Screen-only — it must not appear in print output.
@@ -741,7 +741,93 @@ test.describe("VoxVera static client", () => {
     expect(errors, errors.join("\n")).toHaveLength(0);
   });
 
+  // A fake relay that also plays a signer "scanning" the nostrconnect QR: when it
+  // sees the client's listener subscription it reads the on-screen nostrconnect
+  // URI, echoes the secret back (the connect proof), then answers requests.
+  function nostrConnectSignerInit() {
+    function hexToBytes(hex) {
+      const b = new Uint8Array(hex.length / 2);
+      for (let i = 0; i < b.length; i += 1) b[i] = parseInt(hex.substr(i * 2, 2), 16);
+      return b;
+    }
+    class FakeWS {
+      constructor() { this.readyState = 1; setTimeout(() => this.onopen && this.onopen(), 1); }
+      send(data) {
+        let m; try { m = JSON.parse(data); } catch (_) { return; }
+        const NT = window.NostrTools;
+        if (m[0] === "REQ") {
+          this.sub = m[1];
+          const f = m[2] || {};
+          if (f["#p"] && f.kinds && f.kinds.indexOf(24133) !== -1 && window.__nip46SkHex) {
+            const clientPubkey = f["#p"][0];
+            const uriEl = document.getElementById("nip46-uri") || document.getElementById("board-nip46-uri");
+            const uri = uriEl ? uriEl.value : "";
+            const mm = uri.match(/secret=([0-9a-f]+)/i);
+            if (mm) {
+              const sk = hexToBytes(window.__nip46SkHex);
+              const ck = NT.nip44.getConversationKey(sk, clientPubkey);
+              const content = NT.nip44.encrypt(JSON.stringify({ id: "echo", result: mm[1] }), ck);
+              const echo = NT.finalizeEvent({ kind: 24133, created_at: Math.floor(Date.now() / 1000), tags: [["p", clientPubkey]], content }, sk);
+              setTimeout(() => this.onmessage && this.onmessage({ data: JSON.stringify(["EVENT", this.sub, echo]) }), 5);
+            }
+          }
+          setTimeout(() => this.onmessage && this.onmessage({ data: JSON.stringify(["EOSE", this.sub]) }), 1);
+          return;
+        }
+        if (m[0] !== "EVENT") return;
+        const ev = m[1];
+        if (ev.kind === 24133) {
+          const sk = hexToBytes(window.__nip46SkHex);
+          const ck = NT.nip44.getConversationKey(sk, ev.pubkey);
+          let req; try { req = JSON.parse(NT.nip44.decrypt(ev.content, ck)); } catch (_) { return; }
+          let result = "";
+          if (req.method === "get_public_key") result = window.__nip46Pubkey;
+          else if (req.method === "sign_event") result = JSON.stringify(NT.finalizeEvent(JSON.parse(req.params[0]), sk));
+          else if (req.method === "connect") result = "ack";
+          const content = NT.nip44.encrypt(JSON.stringify({ id: req.id, result }), ck);
+          const resp = NT.finalizeEvent({ kind: 24133, created_at: Math.floor(Date.now() / 1000), tags: [["p", ev.pubkey]], content }, sk);
+          const sub = this.sub;
+          setTimeout(() => this.onmessage && this.onmessage({ data: JSON.stringify(["EVENT", sub, resp]) }), 5);
+          return;
+        }
+        window.__published = window.__published || [];
+        window.__published.push(ev);
+        setTimeout(() => this.onmessage && this.onmessage({ data: JSON.stringify(["OK", ev.id, true, ""]) }), 1);
+      }
+      close() {}
+    }
+    window.WebSocket = FakeWS;
+  }
+
+  async function mintSignerKey(page) {
+    return page.evaluate(() => {
+      const sk = window.NostrTools.generateSecretKey();
+      window.__nip46SkHex = Array.from(sk).map((b) => b.toString(16).padStart(2, "0")).join("");
+      window.__nip46Pubkey = window.NostrTools.getPublicKey(sk);
+      return window.__nip46Pubkey;
+    });
+  }
+
+  test("editor connects via the NIP-46 nostrconnect (QR) flow", async ({ page }) => {
+    const errors = trackErrors(page);
+    await page.addInitScript(nostrConnectSignerInit);
+    await page.goto("/#editor");
+    const signerPubkey = await mintSignerKey(page);
+    const expectedNpub = await page.evaluate((pk) => window.NostrTools.nip19.npubEncode(pk), signerPubkey);
+    await page.locator("#use-nip46-toggle").click();
+    await page.locator("#nip46-scan").click();
+    // A nostrconnect:// link + QR are produced for the signer to scan.
+    await expect(page.locator("#nip46-uri")).toHaveValue(/^nostrconnect:\/\//);
+    await expect(page.locator("#nip46-qr svg")).toHaveCount(1);
+    // The fake signer "scans" it and connects back → identity adopts the signer.
+    await expect(page.locator("#signer-state")).toHaveText("Publishing via remote signer");
+    await expect(page.locator("#author-npub-output")).toHaveText(expectedNpub);
+    expect(errors, errors.join("\n")).toHaveLength(0);
+  });
+
   test("exports the current flyer design as a portable, identity-free JSON file", async ({ page }) => {
+    await page.goto("/#editor");
+    // Wait for the editor to finish populating defaults before overwriting them
     await page.goto("/#editor");
     // Wait for the editor to finish populating defaults before overwriting them
     // (otherwise setDefaultText can race ahead of fill() on some engines).
@@ -1256,6 +1342,22 @@ test.describe("VoxVera static client", () => {
     expect(reports[0].tags.some((tg) => tg[0] === "p" && tg[1] === AUTHOR)).toBe(true);
   });
 
+  test("board connects via the NIP-46 nostrconnect (QR) flow", async ({ page }) => {
+    const errors = trackErrors(page);
+    await page.addInitScript(nostrConnectSignerInit);
+    await page.goto("/board.html");
+    const signerPubkey = await mintSignerKey(page);
+    await page.locator("#board-connect-nip46-toggle").click();
+    await page.locator("#board-nip46-scan").click();
+    // A nostrconnect:// link + QR are produced for the signer to scan.
+    await expect(page.locator("#board-nip46-uri")).toHaveValue(/^nostrconnect:\/\//);
+    await expect(page.locator("#board-nip46-qr svg")).toHaveCount(1);
+    // The fake signer "scans" and connects back → the board reveals as that key.
+    await expect(page.locator("#board-content")).toBeVisible();
+    expect(await page.evaluate(() => localStorage.getItem("voxvera_connected_pubkey"))).toBe(signerPubkey);
+    expect(errors, errors.join("\n")).toHaveLength(0);
+  });
+
   test("safety page renders all sections, localizes, and is linked from editor + board", async ({ page }) => {
     const errors = trackErrors(page);
     await page.goto("/safety.html");
@@ -1270,11 +1372,12 @@ test.describe("VoxVera static client", () => {
     await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
     await expect(page.locator("#safety-title")).toHaveText("الأمان والخصوصية");
     await expect(page.locator("#safety-exposes li")).toHaveCount(7);
-    // Reachable from both the editor and the board (served at /safety on Vercel).
+    // Reachable from the editor and the board via a footer link.
     await page.goto("/");
-    await expect(page.locator('.board-link a[href="/safety"]')).toHaveCount(1);
+    await expect(page.locator('.board-link a[href="/safety.html"]')).toHaveCount(1);
     await page.goto("/board.html");
-    await expect(page.locator("#board-safety")).toHaveAttribute("href", "/safety");
+    await expect(page.locator("#board-safety")).toHaveAttribute("href", "/safety.html");
+    await expect(page.locator(".board-link #board-safety")).toBeVisible();
     expect(errors, errors.join("\n")).toHaveLength(0);
   });
 

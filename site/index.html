@@ -81,6 +81,15 @@
             <input id="nip46-input" type="text" autocomplete="off" spellcheck="false" placeholder="bunker://…">
             <button type="button" id="nip46-submit" class="secondary-button">Connect</button>
             <span id="nip46-status" class="board-key-note" role="status"></span>
+            <button type="button" id="nip46-scan" class="secondary-button">Scan with your signer app</button>
+            <!-- nostrconnect:// QR: the client generates the link; the signer app
+                 scans it and connects back. The local key is ephemeral. -->
+            <div id="nip46-qr-wrap" hidden>
+              <div id="nip46-qr" class="nip46-qr"></div>
+              <input id="nip46-uri" readonly>
+              <button type="button" id="nip46-uri-copy" class="secondary-button">Copy link</button>
+              <span id="nip46-scan-status" class="board-key-note" role="status"></span>
+            </div>
           </div>
           <!-- Shown on load when a PIN-encrypted identity is stored. -->
           <div id="identity-locked-row" class="identity-import" hidden>
@@ -220,7 +229,7 @@
         <button type="button" id="print-preview">Print preview</button>
       </div>
       <div id="flyer-preview" class="flyer-preview"></div>
-      <p class="board-link"><a href="board.html" data-i18n-key="bulletin_board">Bulletin board</a> · <a href="/safety" data-i18n-key="safety_link">Safety &amp; privacy</a></p>
+      <p class="board-link"><a href="board.html" data-i18n-key="bulletin_board">Bulletin board</a> · <a href="/safety.html" data-i18n-key="safety_link">Safety &amp; privacy</a></p>
     </section>
   </main>
 

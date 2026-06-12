@@ -256,6 +256,43 @@ main {
   margin: 0;
 }
 
+#nip46-qr-wrap[hidden],
+#board-nip46-qr-wrap[hidden] {
+  display: none;
+}
+
+#nip46-qr-wrap,
+#board-nip46-qr-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.nip46-qr {
+  width: 200px;
+  max-width: 100%;
+  align-self: center;
+  background: #fff;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.nip46-qr svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+#nip46-uri,
+#board-nip46-uri {
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+}
+
 /* The locked row keeps the note on its own line, then PIN + buttons below. */
 #identity-locked-row {
   flex-direction: row;
@@ -763,6 +800,13 @@ hr {
 
 .board-link a {
   color: var(--accent);
+}
+
+/* Footer "Safety & privacy" link on the board page (mirrors the home page). */
+.board-page .board-link {
+  text-align: center;
+  font-size: 13px;
+  margin: 16px 0 28px;
 }
 
 body.mode-viewer {

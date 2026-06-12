@@ -31,6 +31,10 @@
   const NIP46_RELAY_TIMEOUT_MS = 12000;
   const NIP46_CONNECT_TIMEOUT_MS = 90000;
   const NIP46_SIGN_TIMEOUT_MS = 90000;
+  // Rendezvous relay for the nostrconnect:// (QR) flow — the client proposes it
+  // and the signer app connects to it. relay.nsec.app is the de-facto NIP-46
+  // relay that the common signer apps (nsec.app, Amber) already speak.
+  const NIP46_NOSTRCONNECT_RELAY = "wss://relay.nsec.app";
   const UI_LANG_STORAGE_KEY = "voxvera_nostr_lang";
   const LOCALES = window.VoxVeraLocales || {};
   const FALLBACK_LANG = "en";
@@ -134,6 +138,8 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     "use-nip46-toggle": "use_nip46",
     "nsec-submit": "use_key",
     "nip46-submit": "connect_remote",
+    "nip46-scan": "nip46_scan",
+    "nip46-uri-copy": "nip46_copy",
     "unlock-key": "unlock",
     "forget-key": "forget_key",
     "viewer-fetch-render": "fetch_render",
@@ -262,6 +268,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       nip46_bad_uri: "لا يبدو هذا رابط bunker://.",
       nip46_timeout: "لم يستجب الموقّع عن بُعد. افتح التطبيق وحاول مرة أخرى.",
       nip46_failed: "تعذّر الاتصال بالموقّع عن بُعد.",
+      nip46_scan: "امسح باستخدام تطبيق التوقيع",
+      nip46_waiting: "بانتظار اتصال تطبيق التوقيع…",
+      nip46_copy: "نسخ الرابط",
       import_design: "استيراد التصميم",
       export_design: "تصدير التصميم",
       import_confirm_title: "هل تريد استيراد هذا التصميم؟",
@@ -373,6 +382,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       nip46_bad_uri: "Das sieht nicht nach einem bunker://-Link aus.",
       nip46_timeout: "Der externe Signierer hat nicht geantwortet. Öffne die App und versuche es erneut.",
       nip46_failed: "Verbindung zum externen Signierer fehlgeschlagen.",
+      nip46_scan: "Mit deiner Signier-App scannen",
+      nip46_waiting: "Warte auf die Verbindung deiner Signier-App…",
+      nip46_copy: "Link kopieren",
       import_design: "Design importieren",
       export_design: "Design exportieren",
       import_confirm_title: "Dieses Design importieren?",
@@ -507,6 +519,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       nip46_bad_uri: "That doesn't look like a bunker:// link.",
       nip46_timeout: "The remote signer didn't respond. Open your signer app and try again.",
       nip46_failed: "Couldn't connect to the remote signer.",
+      nip46_scan: "Scan with your signer app",
+      nip46_waiting: "Waiting for your signer app to connect…",
+      nip46_copy: "Copy link",
       import_design: "Import design",
       export_design: "Export design",
       import_confirm_title: "Import this design?",
@@ -595,6 +610,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       nip46_bad_uri: "Esto no parece un enlace bunker://.",
       nip46_timeout: "El firmante remoto no respondió. Abre la app e inténtalo de nuevo.",
       nip46_failed: "No se pudo conectar con el firmante remoto.",
+      nip46_scan: "Escanear con tu app de firma",
+      nip46_waiting: "Esperando a que tu app de firma se conecte…",
+      nip46_copy: "Copiar enlace",
       import_design: "Importar diseño",
       export_design: "Exportar diseño",
       import_confirm_title: "¿Importar este diseño?",
@@ -706,6 +724,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       nip46_bad_uri: "این یک پیوند bunker:// به نظر نمی‌رسد.",
       nip46_timeout: "امضاکننده از راه دور پاسخ نداد. برنامه را باز کنید و دوباره تلاش کنید.",
       nip46_failed: "اتصال به امضاکننده از راه دور ممکن نشد.",
+      nip46_scan: "با برنامه امضای خود اسکن کنید",
+      nip46_waiting: "در انتظار اتصال برنامه امضای شما…",
+      nip46_copy: "کپی پیوند",
       import_design: "وارد کردن طرح",
       export_design: "خروجی گرفتن از طرح",
       import_confirm_title: "این طرح وارد شود؟",
@@ -817,6 +838,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       nip46_bad_uri: "Cela ne ressemble pas à un lien bunker://.",
       nip46_timeout: "Le signataire distant n'a pas répondu. Ouvrez l'app et réessayez.",
       nip46_failed: "Impossible de se connecter au signataire distant.",
+      nip46_scan: "Scanner avec votre app de signature",
+      nip46_waiting: "En attente de la connexion de votre app de signature…",
+      nip46_copy: "Copier le lien",
       import_design: "Importer le modèle",
       export_design: "Exporter le modèle",
       import_confirm_title: "Importer ce modèle ?",
@@ -928,6 +952,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       nip46_bad_uri: "זה לא נראה כמו קישור bunker://.",
       nip46_timeout: "החותם המרוחק לא הגיב. פתח את האפליקציה ונסה שוב.",
       nip46_failed: "לא ניתן להתחבר לחותם המרוחק.",
+      nip46_scan: "סרוק עם אפליקציית החתימה",
+      nip46_waiting: "ממתין לחיבור אפליקציית החתימה…",
+      nip46_copy: "העתק קישור",
       import_design: "ייבוא עיצוב",
       export_design: "ייצוא עיצוב",
       import_confirm_title: "לייבא את העיצוב הזה?",
@@ -1039,6 +1066,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       nip46_bad_uri: "यह bunker:// लिंक जैसा नहीं लगता।",
       nip46_timeout: "रिमोट साइनर ने उत्तर नहीं दिया। ऐप खोलें और पुनः प्रयास करें।",
       nip46_failed: "रिमोट साइनर से कनेक्ट नहीं हो सका।",
+      nip46_scan: "अपने साइनर ऐप से स्कैन करें",
+      nip46_waiting: "आपके साइनर ऐप के कनेक्ट होने की प्रतीक्षा…",
+      nip46_copy: "लिंक कॉपी करें",
       import_design: "डिज़ाइन आयात करें",
       export_design: "डिज़ाइन निर्यात करें",
       import_confirm_title: "यह डिज़ाइन आयात करें?",
@@ -1150,6 +1180,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       nip46_bad_uri: "これは bunker:// リンクではないようです。",
       nip46_timeout: "リモート署名が応答しませんでした。アプリを開いて再試行してください。",
       nip46_failed: "リモート署名に接続できませんでした。",
+      nip46_scan: "署名アプリでスキャン",
+      nip46_waiting: "署名アプリの接続を待っています…",
+      nip46_copy: "リンクをコピー",
       import_design: "デザインを読み込む",
       export_design: "デザインを書き出す",
       import_confirm_title: "このデザインを読み込みますか？",
@@ -1261,6 +1294,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       nip46_bad_uri: "Isso não parece um link bunker://.",
       nip46_timeout: "O assinador remoto não respondeu. Abra o app e tente novamente.",
       nip46_failed: "Não foi possível conectar ao assinador remoto.",
+      nip46_scan: "Escanear com seu app de assinatura",
+      nip46_waiting: "Aguardando seu app de assinatura conectar…",
+      nip46_copy: "Copiar link",
       import_design: "Importar design",
       export_design: "Exportar design",
       import_confirm_title: "Importar este design?",
@@ -1372,6 +1408,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       nip46_bad_uri: "Это не похоже на ссылку bunker://.",
       nip46_timeout: "Удалённый подписант не ответил. Откройте приложение и попробуйте снова.",
       nip46_failed: "Не удалось подключиться к удалённому подписанту.",
+      nip46_scan: "Сканировать приложением для подписи",
+      nip46_waiting: "Ожидание подключения приложения для подписи…",
+      nip46_copy: "Скопировать ссылку",
       import_design: "Импорт дизайна",
       export_design: "Экспорт дизайна",
       import_confirm_title: "Импортировать этот дизайн?",
@@ -1483,6 +1522,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       nip46_bad_uri: "Hiki hakionekani kama kiungo cha bunker://.",
       nip46_timeout: "Mtia-saini wa mbali hakujibu. Fungua programu na ujaribu tena.",
       nip46_failed: "Imeshindwa kuunganisha na mtia-saini wa mbali.",
+      nip46_scan: "Changanua kwa programu yako ya kutia saini",
+      nip46_waiting: "Inasubiri programu yako ya kutia saini iunganishe…",
+      nip46_copy: "Nakili kiungo",
       import_design: "Leta muundo",
       export_design: "Hamisha muundo",
       import_confirm_title: "Ulete muundo huu?",
@@ -1594,6 +1636,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       nip46_bad_uri: "Bu bir bunker:// bağlantısına benzemiyor.",
       nip46_timeout: "Uzak imzalayıcı yanıt vermedi. Uygulamayı açıp tekrar deneyin.",
       nip46_failed: "Uzak imzalayıcıya bağlanılamadı.",
+      nip46_scan: "İmzalama uygulamanızla tarayın",
+      nip46_waiting: "İmzalama uygulamanızın bağlanması bekleniyor…",
+      nip46_copy: "Bağlantıyı kopyala",
       import_design: "Tasarımı içe aktar",
       export_design: "Tasarımı dışa aktar",
       import_confirm_title: "Bu tasarım içe aktarılsın mı?",
@@ -1705,6 +1750,9 @@ Join us in a revolution that values truth and transparency. Together, we can bui
       nip46_bad_uri: "这看起来不是 bunker:// 链接。",
       nip46_timeout: "远程签名器无响应。请打开应用并重试。",
       nip46_failed: "无法连接到远程签名器。",
+      nip46_scan: "用你的签名应用扫描",
+      nip46_waiting: "正在等待你的签名应用连接…",
+      nip46_copy: "复制链接",
       import_design: "导入设计",
       export_design: "导出设计",
       import_confirm_title: "导入此设计？",
@@ -2527,7 +2575,20 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     return { open, request, close };
   }
 
+  let nostrConnect = null; // { ws, aborted } — the live nostrconnect (QR) listener
+
+  function cancelNostrConnect() {
+    if (nostrConnect) {
+      nostrConnect.aborted = true;
+      if (nostrConnect.ws) { try { nostrConnect.ws.close(); } catch (_) {} }
+    }
+    nostrConnect = null;
+    const wrap = el("nip46-qr-wrap");
+    if (wrap) wrap.hidden = true;
+  }
+
   function disconnectNip46() {
+    cancelNostrConnect();
     if (nip46Signer) { try { nip46Signer.close(); } catch (_) {} }
     nip46Signer = null;
     nip46Pubkey = null;
@@ -2541,9 +2602,33 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     const row = el("nip46-import");
     if (!row) return;
     row.hidden = !row.hidden;
-    if (!row.hidden) { const i = el("nip46-input"); if (i) i.focus(); }
+    if (row.hidden) { cancelNostrConnect(); return; }
+    const i = el("nip46-input"); if (i) i.focus();
   }
 
+  // Adopt a connected NIP-46 transport as the active identity (shared by the
+  // bunker and nostrconnect paths). The signer is already reachable on `conn`.
+  async function adoptNip46Connection(conn) {
+    const userPubkey = await conn.request("get_public_key", [], NIP46_CONNECT_TIMEOUT_MS);
+    if (!/^[0-9a-f]{64}$/i.test(String(userPubkey || ""))) throw new Error("bad pubkey");
+    disconnectNip46();
+    nip46Signer = conn;
+    nip46Pubkey = String(userPubkey).toLowerCase();
+    identityMode = "nip46";
+    const nip46Input = el("nip46-input");
+    if (nip46Input) nip46Input.value = "";
+    const status = el("nip46-status");
+    if (status) status.textContent = "";
+    const row = el("nip46-import");
+    if (row) row.hidden = true;
+    // Session-only: nothing is written to disk, so a reload returns to anonymous.
+    persistMode("anon");
+    syncConnectedPubkey(nip46Pubkey);
+    refreshSignerState();
+    refreshIdentityState();
+  }
+
+  // Bunker flow: the signer app made the link; we paste it and connect out.
   async function submitNip46Import() {
     setIdentityError(null);
     const input = el("nip46-input");
@@ -2561,28 +2646,74 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     try {
       await conn.open();
       await conn.request("connect", [parsed.remotePubkey, parsed.secret || ""], NIP46_CONNECT_TIMEOUT_MS);
-      const userPubkey = await conn.request("get_public_key", [], NIP46_CONNECT_TIMEOUT_MS);
-      if (!/^[0-9a-f]{64}$/i.test(String(userPubkey || ""))) throw new Error("bad pubkey");
-      disconnectNip46();
-      nip46Signer = conn;
-      nip46Pubkey = String(userPubkey).toLowerCase();
-      identityMode = "nip46";
-      if (input) input.value = "";
-      if (status) status.textContent = "";
-      const row = el("nip46-import");
-      if (row) row.hidden = true;
-      // Session-only: the bunker token is never written to disk, so a reload
-      // returns cleanly to anonymous rather than a dead connection.
-      persistMode("anon");
-      syncConnectedPubkey(nip46Pubkey);
-      refreshSignerState();
-      refreshIdentityState();
+      await adoptNip46Connection(conn);
     } catch (error) {
       try { conn.close(); } catch (_) {}
       if (status) status.textContent = "";
       const timedOut = /timeout/i.test(String(error && error.message));
       setIdentityError(timedOut ? "nip46_timeout" : "nip46_failed");
     }
+  }
+
+  function randomSecretHex(bytes) {
+    const buf = new Uint8Array(bytes || 16);
+    window.crypto.getRandomValues(buf);
+    return Array.from(buf, (b) => b.toString(16).padStart(2, "0")).join("");
+  }
+
+  // nostrconnect (QR) flow: WE generate the link + QR; the signer app scans it
+  // and connects back. We listen for the signer's reply (which echoes our
+  // secret), then hand the discovered signer pubkey to a durable connection.
+  function startNostrConnect() {
+    cancelNostrConnect();
+    setIdentityError(null);
+    const tools = nostrTools();
+    const skBytes = tools.generateSecretKey();
+    const clientSkHex = bytesToHex(skBytes);
+    const clientPubkey = tools.getPublicKey(skBytes);
+    const secret = randomSecretHex(16);
+    const relay = NIP46_NOSTRCONNECT_RELAY;
+    const uri = `nostrconnect://${clientPubkey}?relay=${encodeURIComponent(relay)}&secret=${secret}&name=VoxVera`;
+    const qr = el("nip46-qr"); if (qr) qr.innerHTML = makeQrSvg(uri);
+    const uriInput = el("nip46-uri"); if (uriInput) uriInput.value = uri;
+    const wrap = el("nip46-qr-wrap"); if (wrap) wrap.hidden = false;
+    const status = el("nip46-scan-status");
+    if (status) status.textContent = nostrLabel("nip46_waiting", currentUiLang());
+
+    const state = { ws: null, aborted: false };
+    nostrConnect = state;
+    const subId = "voxveranc-" + Math.random().toString(36).slice(2);
+    let ws;
+    try { ws = new WebSocket(relay); } catch (_) { setIdentityError("nip46_failed"); return; }
+    state.ws = ws;
+    const timer = setTimeout(() => {
+      if (state.aborted) return;
+      cancelNostrConnect();
+      setIdentityError("nip46_timeout");
+    }, NIP46_CONNECT_TIMEOUT_MS);
+    ws.onopen = () => {
+      const since = Math.floor(Date.now() / 1000) - 10;
+      try { ws.send(JSON.stringify(["REQ", subId, { kinds: [NIP46_KIND], "#p": [clientPubkey], since }])); } catch (_) {}
+    };
+    ws.onmessage = (m) => {
+      if (state.aborted) return;
+      let data; try { data = JSON.parse(m.data); } catch (_) { return; }
+      if (data[0] !== "EVENT" || data[1] !== subId) return;
+      const ev = data[2];
+      if (!ev || ev.kind !== NIP46_KIND) return;
+      let text; try { text = nip46Codec(clientSkHex, ev.pubkey).decrypt(ev.content); } catch (_) { return; }
+      let msg; try { msg = JSON.parse(text); } catch (_) { return; }
+      // The signer proves it scanned our code by echoing the secret back.
+      if (!msg || (msg.result !== secret && msg.result !== "ack")) return;
+      clearTimeout(timer);
+      state.aborted = true;
+      try { ws.close(); } catch (_) {}
+      const conn = openNip46Connection({ relay, remotePubkey: ev.pubkey, localSkHex: clientSkHex, localPubkey: clientPubkey });
+      conn.open()
+        .then(() => adoptNip46Connection(conn))
+        .catch(() => { try { conn.close(); } catch (_) {} setIdentityError("nip46_failed"); });
+    };
+    ws.onerror = () => {};
   }
 
   // --- Identity actions wired to the controls ---
@@ -2627,6 +2758,7 @@ Join us in a revolution that values truth and transparency. Together, we can bui
   function toggleNsecImport() {
     setIdentityError(null);
     showLockedRow(false);
+    cancelNostrConnect();
     const remote = el("nip46-import");
     if (remote) remote.hidden = true;
     const row = el("nsec-import");
@@ -3888,6 +4020,11 @@ Join us in a revolution that values truth and transparency. Together, we can bui
     });
     el("nip46-input").addEventListener("keydown", (event) => {
       if (event.key === "Enter") { event.preventDefault(); el("nip46-submit").click(); }
+    });
+    el("nip46-scan").addEventListener("click", startNostrConnect);
+    el("nip46-uri-copy").addEventListener("click", () => {
+      const uri = el("nip46-uri");
+      if (uri && uri.value) navigator.clipboard.writeText(uri.value).catch(() => { uri.select(); });
     });
     el("unlock-key").addEventListener("click", () => {
       unlockIdentity().catch(() => setIdentityError("pin_wrong"));

@@ -143,15 +143,22 @@ identity controls (`activeIdentity` / `signActiveEvent` in `nostr-client.js`):
   memory** for the session. If the user ticks "Remember on this device", the
   secret is encrypted with a PIN and stored as `voxvera_identity_nsec_enc`; the
   plaintext secret is never written to storage.
-- **Remote signer (NIP-46 / bunker).** The user pastes a `bunker://` link from a
-  signer app (nsec.app, Amber, …). The client mints an **ephemeral** local key,
-  connects to the bunker relay over a raw WebSocket, and exchanges encrypted
-  kind-`24133` JSON-RPC requests (`connect` → `get_public_key` → `sign_event`).
-  The user's real secret never reaches the browser. Requests are encrypted with
-  **NIP-44** (with a NIP-04 decrypt fallback for older signers); the vendored
-  nostr-tools bundle has no nip46 module, so this client is hand-rolled. The
-  connection is **session-only** — the bunker token is never persisted, so a
-  reload returns to anonymous.
+- **Remote signer (NIP-46).** The user's real secret never reaches the browser;
+  the client mints an **ephemeral** local key and exchanges encrypted
+  kind-`24133` JSON-RPC requests (`connect` → `get_public_key` → `sign_event`)
+  over a raw WebSocket. Two connect paths are offered:
+  - **`bunker://` (paste).** The user pastes a link the signer app generated;
+    the client connects out to that bunker relay.
+  - **`nostrconnect://` (QR).** The client generates the link itself, renders it
+    as a QR (`makeQrSvg`) plus a copyable link, and listens on a rendezvous relay
+    (`relay.nsec.app`); the signer app scans it and connects back, proving the
+    connection by echoing the client's random `secret`. The discovered signer
+    pubkey is then used for the durable connection.
+
+  Requests are encrypted with **NIP-44** (with a NIP-04 decrypt fallback for
+  older signers); the vendored nostr-tools bundle has no nip46 module, so this
+  client is hand-rolled. The connection is **session-only** — nothing is
+  persisted, so a reload returns to anonymous.
 
 The chosen mode is remembered in `voxvera_identity_mode` (and the npub in
 `voxvera_identity_npub` for display). On reload: NIP-07 re-fetches the pubkey;
@@ -278,10 +285,11 @@ de-duplicated per author+`d` identifier, keeping the latest.
 - **The board is gated behind a connected Nostr identity.** On load it shows a
   login gate (`#board-gate`) instead of the table, with four ways to connect:
   a **NIP-07** extension (`window.nostr.getPublicKey()`), a **NIP-46 remote
-  signer** (paste a `bunker://` link; same hand-rolled client as the editor —
-  it establishes the viewer pubkey via `get_public_key` and keeps the connection
-  so `getBoardSigner` can sign reports/deletes remotely this session, then falls
-  back to read-only after a reload), **pasting an `nsec`** (decoded in-page to
+  signer** (either paste a `bunker://` link or scan a `nostrconnect://` QR; same
+  hand-rolled client as the editor — it establishes the viewer pubkey via
+  `get_public_key` and keeps the connection so `getBoardSigner` can sign
+  reports/deletes remotely this session, then falls back to read-only after a
+  reload), **pasting an `nsec`** (decoded in-page to
   derive the pubkey, then discarded — the secret is never stored or transmitted),
   or **creating a new key** (reuses this device's anon key in
   `voxvera_nostr_anon_secret_hex` if present, else generates one, and reveals the

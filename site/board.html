@@ -27,7 +27,6 @@
       </div>
       <div class="topbar-controls">
         <a id="board-back" class="board-back" href="/">Back to VoxVera</a>
-        <a id="board-safety" class="board-back" href="/safety">Safety &amp; privacy</a>
         <span id="board-identity" class="board-identity" hidden>
           <span id="board-identity-npub" class="board-npub"></span>
           <button id="board-disconnect" type="button" class="board-disconnect">Disconnect</button>
@@ -57,6 +56,15 @@
           <input id="board-nip46-input" type="text" autocomplete="off" spellcheck="false" placeholder="bunker://…">
           <button id="board-nip46-submit" type="button" class="board-connect">Connect</button>
           <p id="board-nip46-note" class="board-key-note"></p>
+          <button id="board-nip46-scan" type="button" class="board-connect-alt">Scan with your signer app</button>
+          <!-- nostrconnect:// QR: this client generates the link; the signer app
+               scans it and connects back. The local key is ephemeral. -->
+          <div id="board-nip46-qr-wrap" hidden>
+            <div id="board-nip46-qr" class="nip46-qr"></div>
+            <input id="board-nip46-uri" readonly>
+            <button id="board-nip46-uri-copy" type="button" class="board-connect-alt">Copy link</button>
+            <p id="board-nip46-scan-status" class="board-key-note" role="status"></p>
+          </div>
         </div>
         <!-- nsec import: the key is decoded in-page to derive the pubkey, then
              discarded. Only the pubkey is persisted (board never signs). -->
@@ -104,6 +112,8 @@
       </div>
     </main>
 
+    <p class="board-link"><a id="board-safety" href="/safety.html">Safety &amp; privacy</a></p>
+
     <div id="board-delete-modal" class="modal-overlay" hidden>
       <div class="modal" role="dialog" aria-modal="true" aria-labelledby="board-delete-title">
         <h2 id="board-delete-title">Delete this flyer?</h2>
@@ -130,6 +140,7 @@
 
     <script src="/locales.js"></script>
     <script src="/vendor/nostr-tools/nostr.bundle.js"></script>
+    <script src="/vendor/qrcode-generator/qrcode.js"></script>
     <script src="/board.js"></script>
   </body>
 </html>
